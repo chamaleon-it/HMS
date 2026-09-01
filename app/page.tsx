@@ -25,18 +25,13 @@ export default function LoginPage() {
       case "Pharmacy":
         router.replace("/dashboard/pharmacy");
         break;
-      case "Pharmacy Wholesaler":
-        router.replace("/dashboard/pharmacy-wholesaler");
-        break;
       case "Lab":
         router.replace("/dashboard/lab");
         break;
       case "Reception":
         router.replace("/dashboard/reception");
         break;
-      case "Admin":
-        router.replace("/dashboard/admin");
-        break;
+
     }
   }, [isAuthenticated, user, router]);
 

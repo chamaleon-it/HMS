@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { fDateandTime, fAgeString } from "@/lib/fDateAndTime";
+import { fDateOnly, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import configuration from "@/config/configuration";
 import useSWR from "swr";
 import { PrintHeader, PrintFooter, PrintPatientStrip, PrintWatermark } from "@/components/print/PrintHeader";
@@ -442,7 +442,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                     name={patient?.name || "Mohammed Rashid"}
                                     age={patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "23"}
                                     sex={patient?.gender || "Male"}
-                                    date={report.createdAt ? fDateandTime(report.createdAt).split(",")[0] : ""}
+                                    date={report.createdAt ? fDateOnly(report.createdAt) : ""}
                                     opNo={patient?.mrn ? patient.mrn.replace("MRN", "P-") : ""}
                                 />
 

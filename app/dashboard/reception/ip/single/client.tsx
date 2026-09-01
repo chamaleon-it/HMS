@@ -455,8 +455,8 @@ export default function IPDetailsClient() {
             </div>
           </div>
 
-          {/* Admission Details Grid */}
-          <div className="mt-6 pt-5 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* Admission & Billing Details Grid */}
+          <div className="mt-6 pt-5 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 2xl:grid-cols-7 gap-3">
             <InfoTile
               icon={<Stethoscope className="w-4 h-4 text-blue-600" />}
               label="Assigned Doctor"
@@ -485,6 +485,36 @@ export default function IPDetailsClient() {
               bg="bg-emerald-50/60"
               textColor="text-emerald-950"
             />
+            <InfoTile
+              icon={<Receipt className="w-4 h-4 text-indigo-600" />}
+              label="Total Billed"
+              value={formatINR(totalBilled)}
+              bg="bg-indigo-50/60"
+              textColor="text-indigo-950"
+            />
+            <InfoTile
+              icon={<CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+              label="Total Paid"
+              value={formatINR(totalPaid)}
+              bg="bg-emerald-50/60"
+              textColor="text-emerald-950"
+            />
+            <InfoTile
+              icon={<AlertCircle className={`w-4 h-4 ${totalDue > 0 ? "text-rose-600" : "text-slate-500"}`} />}
+              label="Pending Balance"
+              value={formatINR(totalDue)}
+              bg={totalDue > 0 ? "bg-rose-50/60" : "bg-slate-50/80"}
+              textColor={totalDue > 0 ? "text-rose-950" : "text-slate-800"}
+            />
+            {ip.status !== "Discharged" && (
+              <InfoTile
+                icon={<Calendar className="w-4 h-4 text-sky-600" />}
+                label="Stay Duration"
+                value={`${stayDays} ${stayDays === 1 ? "Day" : "Days"}`}
+                bg="bg-sky-50/60"
+                textColor="text-sky-950"
+              />
+            )}
             {ip.diagnosis && (
               <InfoTile
                 icon={<Activity className="w-4 h-4 text-amber-600" />}
@@ -511,53 +541,6 @@ export default function IPDetailsClient() {
               <div className="flex flex-col min-w-0">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Admission Notes</span>
                 <p className="text-sm font-medium text-slate-800 mt-0.5 leading-relaxed">{ip.notes}</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── Key Metrics Summary Cards ─────────────────────── */}
-        <div className={`grid grid-cols-2 ${ip.status === "Discharged" ? "lg:grid-cols-3" : "lg:grid-cols-4"} gap-4`}>
-          <div className="bg-linear-to-br from-indigo-50 via-indigo-50/80 to-indigo-100/40 rounded-2xl border border-indigo-100 p-4 flex items-center gap-4 shadow-2xs">
-            <div className="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md   shrink-0">
-              <Receipt className="w-6 h-6" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-indigo-700/80 uppercase tracking-wider block">Total Billed</span>
-              <span className="text-xl font-black text-indigo-950 mt-0.5 block">{formatINR(totalBilled)}</span>
-            </div>
-          </div>
-
-          <div className="bg-linear-to-br from-emerald-50 via-emerald-50/80 to-emerald-100/40 rounded-2xl border border-emerald-100 p-4 flex items-center gap-4 shadow-2xs">
-            <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-200 shrink-0">
-              <CheckCircle2 className="w-6 h-6" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-emerald-700/80 uppercase tracking-wider block">Total Paid</span>
-              <span className="text-xl font-black text-emerald-950 mt-0.5 block">{formatINR(totalPaid)}</span>
-            </div>
-          </div>
-
-          <div className={`rounded-2xl border p-4 flex items-center gap-4 shadow-2xs ${totalDue > 0 ? "bg-linear-to-br from-rose-50 via-rose-50/80 to-rose-100/40 border-rose-200" : "bg-linear-to-br from-slate-50 to-slate-100/40 border-slate-200"}`}>
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md shrink-0 ${totalDue > 0 ? "bg-rose-600 text-white shadow-rose-200" : "bg-slate-600 text-white shadow-slate-200"}`}>
-              <AlertCircle className="w-6 h-6" />
-            </div>
-            <div>
-              <span className={`text-xs font-bold uppercase tracking-wider block ${totalDue > 0 ? "text-rose-700/80" : "text-slate-600"}`}>Pending Balance</span>
-              <span className={`text-xl font-black mt-0.5 block ${totalDue > 0 ? "text-rose-950" : "text-slate-800"}`}>{formatINR(totalDue)}</span>
-            </div>
-          </div>
-
-          {ip.status !== "Discharged" && (
-            <div className="bg-linear-to-br from-sky-50 via-sky-50/80 to-sky-100/40 rounded-2xl border border-sky-100 p-4 flex items-center gap-4 shadow-2xs">
-              <div className="w-12 h-12 rounded-xl bg-sky-600 text-white flex items-center justify-center shadow-md shadow-sky-200 shrink-0">
-                <Calendar className="w-6 h-6" />
-              </div>
-              <div>
-                <span className="text-xs font-bold text-sky-700/80 uppercase tracking-wider block">Stay Duration</span>
-                <span className="text-xl font-black text-sky-950 mt-0.5 block">
-                  {stayDays} {stayDays === 1 ? "Day" : "Days"}
-                </span>
               </div>
             </div>
           )}

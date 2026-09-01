@@ -131,13 +131,11 @@ function AdminLeavesContent() {
   const allEmployees = employeeData?.data || [];
 
   // Fetch leaves
-  const queryUrl = `/employee-leave?search=${encodeURIComponent(search)}${
-    statusFilter !== "all" ? `&status=${encodeURIComponent(statusFilter)}` : ""
-  }${roleFilter !== "all" ? `&role=${encodeURIComponent(roleFilter)}` : ""}${
-    employeeFilter !== "all"
+  const queryUrl = `/employee-leave?search=${encodeURIComponent(search)}${statusFilter !== "all" ? `&status=${encodeURIComponent(statusFilter)}` : ""
+    }${roleFilter !== "all" ? `&role=${encodeURIComponent(roleFilter)}` : ""}${employeeFilter !== "all"
       ? `&employeeId=${encodeURIComponent(employeeFilter)}`
       : ""
-  }`;
+    }`;
 
   const { data, isLoading, mutate } = useSWR<{
     message: string;
@@ -393,9 +391,9 @@ function AdminLeavesContent() {
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3.5 text-center">
                   Status
                 </TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3.5 pr-6 text-right">
+                {/* <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3.5 pr-6 text-right">
                   Actions
-                </TableHead>
+                </TableHead> */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -503,7 +501,7 @@ function AdminLeavesContent() {
                         </Badge>
                       </TableCell>
 
-                      <TableCell className="py-3.5 pr-6 text-right">
+                      {/* <TableCell className="py-3.5 pr-6 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           {leave.status === "Pending" && (
                             <>
@@ -541,7 +539,7 @@ function AdminLeavesContent() {
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
-                      </TableCell>
+                      </TableCell> */}
                     </TableRow>
                   );
                 })

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { formatINR } from "@/lib/fNumber";
-import { fDateandTime, fAge } from "@/lib/fDateAndTime";
+import { fDateOnly, fDateandTime, fAge } from "@/lib/fDateAndTime";
 import useSWR from "swr";
 import configuration from "@/config/configuration";
 import {
@@ -153,7 +153,7 @@ export default function PrintReceipt({
     }
 
     const opNumber = patient?.mrn ? patient.mrn.replace("MRN", "P-") : "";
-    const formattedDate = fDateandTime(new Date()).split(",")[0];
+    const formattedDate = fDateOnly(new Date());
 
     const isConsultationOnly = payload.items.every(item => item.name.toLowerCase().includes("consultation"));
     const tableHeader = isConsultationOnly ? "Description" : "Medicine / Item Description";

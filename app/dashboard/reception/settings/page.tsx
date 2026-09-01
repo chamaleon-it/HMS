@@ -59,7 +59,6 @@ export default function ReceptionSettingsPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
-  const [twoFactor, setTwoFactor] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -514,21 +513,7 @@ export default function ReceptionSettingsPage() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl">
-                    <div>
-                      <p className="text-xs font-semibold text-slate-800">
-                        Two-Factor Authentication (2FA)
-                      </p>
-                      <p className="text-[11px] text-slate-500">
-                        Extra layer of security for front desk login sessions.
-                      </p>
-                    </div>
-                    <Switch
-                      checked={twoFactor}
-                      onCheckedChange={setTwoFactor}
-                      className="cursor-pointer data-[state=checked]:bg-(--color-synapse-light)"
-                    />
-                  </div>
+
 
                   <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1.5">
                     <p className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">

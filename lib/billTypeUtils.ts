@@ -197,3 +197,44 @@ export function hasMedicineItems(items?: any[]): boolean {
   if (!items || !Array.isArray(items) || items.length === 0) return false;
   return items.some(isMedicineItem);
 }
+
+export function isPharmacyBill(bill: any): boolean {
+  if (!bill) return false;
+
+  // 1. If user/creator role is populated
+  const userRole = String(
+    bill.user?.role || bill.creator?.role || ""
+  ).toLowerCase();
+
+  if (userRole.includes("pharmacy")) {
+    return true;
+  }
+
+  // 2. Explicit other roles
+  if (
+    userRole === "doctor" ||
+    userRole === "lab" ||
+    userRole === "reception"
+  ) {
+    return false;
+  }
+
+  // 3. Exclude lab report bills or reception token bills
+  if (bill.reportId || bill.tokenNumber || bill.token) {
+    return false;
+  }
+
+  // 4. Check bill note & bill type
+  const billType = getBillType(bill);
+  if (
+    billType === "therapy" ||
+    billType === "procedure" ||
+    billType === "reception"
+  ) {
+    return false;
+  }
+
+  // 5. Must have medicine items
+  return hasMedicineItems(bill.items);
+}
+

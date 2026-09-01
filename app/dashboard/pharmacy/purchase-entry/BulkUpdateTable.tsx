@@ -494,7 +494,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-10 pt-7 ">
+                    {/* <div className="flex flex-wrap items-center gap-10 pt-7 ">
                         <div className="flex items-center gap-10 ">
                             <div className="flex items-center gap-6 ">
                                 <label className="flex items-center gap-2 cursor-pointer group ">
@@ -540,7 +540,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                             </div>
                             <span className="text-xs  text-slate-500 uppercase tracking-wider transition-colors font-semibold">Enable TCS</span>
                         </label>
-                    </div>
+                    </div> */}
                 </div>
             </motion.div>
 

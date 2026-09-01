@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { Bell, Plus, Menu } from "lucide-react";
+import { Bell, Plus, Menu, CloudUpload } from "lucide-react";
 import DoctorProfile from "./Profile";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
+import { SyncDialog } from "@/components/shared/sync/SyncDialog";
 import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
 import { useAuth } from "@/auth/context/auth-context";
 import SearchBar from "./SearchBar";
@@ -17,6 +18,7 @@ import { motion } from "framer-motion";
 export default function Header() {
   const [openCreate, setOpenCreate] = useState(false);
   const [openPatient, setOpenPatient] = useState(false);
+  const [openSync, setOpenSync] = useState(false);
 
 
   const { user } = useAuth();
@@ -96,7 +98,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 backdrop-blur-md w-full print:hidden">
+      <header className="sticky top-0 z-60 backdrop-blur-md w-full print:hidden">
         {/* Background glow (subtle) */}
         <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-28">
           <div className="mx-auto h-full w-full max-w-screen-2xl opacity-40 mask-[radial-gradient(60%_60%_at_50%_0%,#000_0%,transparent_70%)]">
@@ -201,6 +203,15 @@ export default function Header() {
             className="ml-4 flex items-center gap-3 sm:gap-4"
             data-testid="actions"
           >
+            {(user?.role === "Reception" || user?.role === "Admin") && (
+              <button
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
+                onClick={() => setOpenSync(true)}
+                title="Sync database to MongoDB Atlas"
+              >
+                <CloudUpload className="h-4 w-4" /> Sync
+              </button>
+            )}
             {(user?.role === "Doctor" || user?.role === "Reception") && (
               <button
                 className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-(--color-synapse-light) px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
@@ -251,6 +262,10 @@ export default function Header() {
           data-testid="header-divider"
         />
       </header>
+      <SyncDialog
+        open={openSync}
+        onOpenChange={(v) => !v && setOpenSync(false)}
+      />
       {(user?.role === "Doctor" || user?.role === "Lab" || user?.role === "Pharmacy" || user?.role === "Reception") && (
         <div className="w-full overflow-hidden">
           <AppointmentDialog
