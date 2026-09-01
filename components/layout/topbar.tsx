@@ -61,6 +61,7 @@ export default function Header() {
     ]) ||
     (user?.role === "Reception" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/reception/" },
+      { key: "doctors", label: "Doctors", link: "/dashboard/reception/doctors/" },
       { key: "treatments", label: "Treatments", link: "/dashboard/reception/treatments/" },
       { key: "leaves", label: "Leaves", link: "/dashboard/reception/leaves/" },
       { key: "therapy", label: "Therapy", link: "/dashboard/reception/therapy/" },

@@ -121,10 +121,10 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
         <h2 className="font-extrabold text-[13px] tracking-tight uppercase leading-tight">
           {configuration().hospitalName || "BHUMI WELLNESS"}
         </h2>
-        <p className="text-[10px] uppercase font-semibold text-gray-800">OLD RAJANA THEATRE ROAD</p>
-        <p className="text-[9.5px] uppercase text-gray-800">OPP.MSN APPARTMENTS,KOOTTANAD</p>
-        <p className="text-[9.5px] text-gray-800 font-medium">GSTIN :32BORPV3323K1ZJ</p>
-        <p className="text-[9.5px] text-gray-800 font-medium">Mob :8505030406,6282803887</p>
+        <p className="text-[10px] uppercase font-semibold text-black">OLD RAJANA THEATRE ROAD</p>
+        <p className="text-[10px] uppercase text-black">OPP.MSN APPARTMENTS,KOOTTANAD</p>
+        <p className="text-[10px] text-black font-medium">GSTIN :32BORPV3323K1ZJ</p>
+        <p className="text-[10px] text-black font-medium">Mob :8505030406,6282803887</p>
       </div>
 
       {/* Bill Title */}
@@ -141,62 +141,62 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
           <span className="font-bold">{formattedDate}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span><span className="font-bold">Token No :</span> <span className="font-black text-[13px]">{displayToken}</span></span>
+          <span><span className="font-bold">Token No :</span> <span className="font-bold text-[13px]">{displayToken}</span></span>
           <span><span className="font-bold">Valid Upto :</span><span className="font-bold">{validUptoDate}</span></span>
         </div>
       </div>
 
       {/* Consultant Name & Patient Details Box */}
-      <div className="border border-slate-400 my-2 text-[10.5px]">
+      <div className="border border-black my-2 text-[10.5px]">
 
 
         {/* Patient Row */}
-        <div className="flex border-b border-slate-300">
-          <div className="w-25 shrink-0 p-1.5 font-bold text-gray-800 bg-slate-50/50">
+        <div className="flex border-b border-black">
+          <div className="w-25 shrink-0 p-1.5 font-bold text-black ">
             Patient<br />Details
           </div>
-          <div className="w-px bg-slate-300 shrink-0" />
+          <div className="w-px bg-black shrink-0" />
           <div className="p-1.5 font-bold text-black uppercase leading-tight flex-1">
             <div>{patientName}</div>
-            <div className="font-semibold text-[9.5px] text-gray-600">{patientAddress}</div>
+            <div className="font-medium text-[9.5px] text-black">{patientAddress}</div>
           </div>
         </div>
 
         {/* Age / Sex Row */}
-        <div className="flex border-b border-slate-300">
-          <div className="w-25 shrink-0 p-1.5 font-bold text-gray-800 bg-slate-50/50">
+        <div className="flex border-b border-black">
+          <div className="w-25 shrink-0 p-1.5 font-bold text-black ">
             Age/Sex
           </div>
-          <div className="w-px bg-slate-300 shrink-0" />
-          <div className="p-1.5 font-bold text-black uppercase leading-tight flex-1">
+          <div className="w-px bg-black shrink-0" />
+          <div className="p-1.5 font-medium text-black uppercase leading-tight flex-1">
             <div>{ageSex}</div>
-            {patientPhone && <div className="font-semibold text-[9.5px] text-gray-600">{patientPhone}</div>}
+            {patientPhone && <div className="font-semibold text-[9.5px] text-black">{patientPhone}</div>}
           </div>
         </div>
 
         {/* Consultant Row */}
         <div className="flex ">
-          <div className="w-25 shrink-0 p-1.5 font-bold text-gray-800 bg-slate-50/50">
+          <div className="w-25 shrink-0 p-1.5 font-bold text-black ">
             Consultant<br />Name
           </div>
-          <div className="w-px bg-slate-300 shrink-0" />
+          <div className="w-px bg-black shrink-0" />
           <div className="p-1.5 font-bold text-black uppercase leading-tight flex-1">
             <div>{docName}</div>
-            <div className="font-semibold text-[9.5px] text-gray-600">{docQual}</div>
+            <div className="font-medium text-[9.5px] text-black">{docQual}</div>
           </div>
         </div>
       </div>
 
       {/* Particulars Table */}
       <div className="my-3">
-        <div className="flex justify-between font-extrabold text-[11px] border-y border-slate-400 py-1 uppercase">
+        <div className="flex justify-between font-extrabold text-[11px] border-y border-black py-1 uppercase">
           <span>PARTICULARS</span>
           <span className="text-right">AMOUNT</span>
         </div>
 
         <div className="flex justify-between items-center py-2 text-[11px]">
-          <span className="font-medium text-gray-900">Consultation Fee</span>
-          <span className="font-bold text-black tabular-nums border border-slate-300 px-2.5 py-0.5 rounded-none bg-slate-50/50 text-[11.5px]">
+          <span className="font-medium text-black">Consultation Fee</span>
+          <span className="font-bold text-black tabular-nums border border-black px-2.5 py-0.5 rounded-none text-[11.5px]">
             {feeAmount.toFixed(2)}
           </span>
         </div>
@@ -204,7 +204,7 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
 
       {/* Amount in Words */}
       <div className="my-2.5 text-[10.5px]">
-        <div className="font-semibold text-gray-800">Amount in Words :</div>
+        <div className="font-semibold text-black">Amount in Words :</div>
         <div className="font-extrabold text-black uppercase tracking-wide">{words}</div>
       </div>
 
@@ -213,7 +213,7 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
         <div className="font-extrabold uppercase text-[10.5px]">
           {configuration().hospitalName || "BHUMI WELLNESS"}
         </div>
-        <div className="text-right font-bold italic text-gray-800 mt-4">
+        <div className="text-right font-bold italic text-black mt-4">
           (Sign)
         </div>
       </div>
