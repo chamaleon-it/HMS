@@ -126,7 +126,9 @@ export interface DataType {
 export function getOrderItemBatch(orderItem: any): Batch | null {
     const item = orderItem?.name;
     if (!item || typeof item !== "object") return null;
-    const batches = item.batches || [];
+    const batches = (item.batches || []).filter(
+        (b: any) => !b.isDeleted && b.isActive !== false && b.status !== "Inactive"
+    );
     if (!batches.length) return null;
 
     if (orderItem.batchId) {

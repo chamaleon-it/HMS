@@ -51,8 +51,14 @@ function BatchSelector({
   updateField: (idx: number, key: keyof Medicine, val: any) => void;
 }) {
   const [open, setOpen] = useState(false);
-  // Only include batches with available units (> 0)
-  const batches = (m.batches || []).filter((b: any) => (Number(b.quantity) || 0) > 0);
+  // Only include active non-deleted batches with available units (> 0)
+  const batches = (m.batches || []).filter(
+    (b: any) =>
+      !b.isDeleted &&
+      b.isActive !== false &&
+      b.status !== "Inactive" &&
+      (Number(b.quantity) || 0) > 0
+  );
 
   const currentBatch = batches.find(
     (b: any) =>

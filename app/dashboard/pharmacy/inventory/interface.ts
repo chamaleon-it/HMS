@@ -12,6 +12,8 @@ export interface BatchType {
   free?: number;
   schemaAmt?: number;
   total?: number;
+  isActive?: boolean;
+  status?: string;
   isDeleted?: boolean;
   createdAt: Date;
 }

@@ -38,9 +38,13 @@ type ItemApi = { message: string; data: Item };
 
 function extractActiveBatchDetails(item: Item) {
   const allBatches = item.batches || [];
-  // Filter only batches that have available units (> 0)
+  // Filter only active non-deleted batches that have available units (> 0)
   const availableBatches = allBatches.filter(
-    (b: any) => (Number(b.quantity) || 0) > 0
+    (b: any) =>
+      !b.isDeleted &&
+      b.isActive !== false &&
+      b.status !== "Inactive" &&
+      (Number(b.quantity) || 0) > 0
   );
 
   let activeBatch = availableBatches.find(
@@ -294,11 +298,18 @@ export default function MedicineField({
                 {items.map((it, idx) => {
                   const stock =
                     it.batches && it.batches.length > 0
-                      ? it.batches.reduce(
-                          (sum: number, b: any) =>
-                            sum + Math.max(0, Number(b.quantity) || 0),
-                          0
-                        )
+                      ? it.batches
+                          .filter(
+                            (b: any) =>
+                              !b.isDeleted &&
+                              b.isActive !== false &&
+                              b.status !== "Inactive"
+                          )
+                          .reduce(
+                            (sum: number, b: any) =>
+                              sum + Math.max(0, Number(b.quantity) || 0),
+                            0
+                          )
                       : Math.max(0, Number(it.quantity) || 0);
 
                   return (

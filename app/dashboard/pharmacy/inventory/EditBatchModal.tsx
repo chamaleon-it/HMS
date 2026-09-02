@@ -42,6 +42,7 @@ const editBatchSchema = z.object({
   quantity: z.coerce.number().min(0, "Total units must be non-negative"),
   total: z.coerce.number().min(0).default(0),
   supplier: z.string().min(1, "Supplier is required"),
+  status: z.enum(["Active", "Inactive"]).default("Active"),
 });
 
 type EditBatchFormValues = z.infer<typeof editBatchSchema>;
@@ -101,6 +102,7 @@ export function EditBatchModal({
       quantity: initialUnits,
       total: batch?.total ?? initialNoOfPack * initialPrice + initialFree * initialPrice,
       supplier: batch?.supplier || item.supplier || "-",
+      status: (batch?.isActive === false || batch?.status === "Inactive") ? "Inactive" : "Active",
     },
   });
 
@@ -129,6 +131,7 @@ export function EditBatchModal({
         quantity: units,
         total: batch.total ?? noOfPack * price + free * price,
         supplier: batch.supplier || item.supplier || "-",
+        status: (batch.isActive === false || batch.status === "Inactive") ? "Inactive" : "Active",
       });
     }
   }, [batch, item, reset]);
@@ -176,7 +179,10 @@ export function EditBatchModal({
     try {
       await api.patch(
         `/pharmacy/items/${item._id}/batches/${batch._id}`,
-        data
+        {
+          ...data,
+          isActive: data.status === "Active",
+        }
       );
       toast.success("Batch updated successfully");
       mutate();
@@ -324,6 +330,25 @@ export function EditBatchModal({
                       {s.name}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Status */}
+            <div>
+              <label className="text-xs font-semibold text-slate-700">Status</label>
+              <Select
+                value={watch("status")}
+                onValueChange={(val: "Active" | "Inactive") =>
+                  setValue("status", val, { shouldValidate: true })
+                }
+              >
+                <SelectTrigger className="mt-1 h-9 w-full text-xs rounded-lg">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent className="rounded-lg border-slate-200">
+                  <SelectItem value="Active" className="text-xs">Active</SelectItem>
+                  <SelectItem value="Inactive" className="text-xs">Inactive</SelectItem>
                 </SelectContent>
               </Select>
             </div>

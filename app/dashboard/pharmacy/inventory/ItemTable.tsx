@@ -150,10 +150,12 @@ export default function ItemTable({
                     {(() => {
                       const itemStock =
                         item.batches && item.batches.length > 0
-                          ? item.batches.reduce(
-                              (sum, b) => sum + Math.max(0, Number(b.quantity) || 0),
-                              0
-                            )
+                          ? item.batches
+                              .filter((b: any) => !b.isDeleted && b.isActive !== false && b.status !== "Inactive")
+                              .reduce(
+                                (sum, b) => sum + Math.max(0, Number(b.quantity) || 0),
+                                0
+                              )
                           : (item.quantity ?? 0);
 
                       if (itemStock <= 0) {

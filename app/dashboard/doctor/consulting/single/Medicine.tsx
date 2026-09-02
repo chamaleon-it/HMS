@@ -180,11 +180,18 @@ export default function MedicineField({
               {items.map((it, idx) => {
                 const stock =
                   it.batches && it.batches.length > 0
-                    ? it.batches.reduce(
-                        (sum: number, b: any) =>
-                          sum + Math.max(0, Number(b.quantity) || 0),
-                        0
-                      )
+                    ? it.batches
+                        .filter(
+                          (b: any) =>
+                            !b.isDeleted &&
+                            b.isActive !== false &&
+                            b.status !== "Inactive"
+                        )
+                        .reduce(
+                          (sum: number, b: any) =>
+                            sum + Math.max(0, Number(b.quantity) || 0),
+                          0
+                        )
                     : Math.max(0, Number(it.quantity) || 0);
 
                 return (

@@ -33,8 +33,9 @@ import api from "@/lib/axios"
 import useSWR from 'swr'
 import { fDate } from "@/lib/fDateAndTime"
 import { formatINR } from "@/lib/fNumber"
+import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ChevronDownIcon, Loader2, PackagePlus, Pencil, Trash2 } from "lucide-react"
+import { ChevronDownIcon, Loader2, PackagePlus, Pencil, Trash2, PowerOff, CheckCircle2 } from "lucide-react"
 import React, { useEffect, useRef, useState } from 'react'
 import {
     AlertDialog,
@@ -181,18 +182,21 @@ export default function UpdateBatch({ item, mutate }: Props) {
     });
 
     const ITEMS_PER_PAGE = 5;
-    const [deletingBatchId, setDeletingBatchId] = useState<string | null>(null);
-    const handleDeleteBatch = async (batchId?: string) => {
+    const [togglingBatchId, setTogglingBatchId] = useState<string | null>(null);
+    const handleToggleBatchStatus = async (batchId?: string, currentIsActive: boolean = true) => {
         if (!batchId) return;
-        setDeletingBatchId(batchId);
+        setTogglingBatchId(batchId);
+        const nextStatus = !currentIsActive;
         try {
-            await api.delete(`/pharmacy/items/${item._id}/batches/${batchId}`);
-            toast.success("Batch deleted successfully");
+            await api.patch(`/pharmacy/items/${item._id}/batches/${batchId}/status`, {
+                status: nextStatus ? "Active" : "Inactive",
+            });
+            toast.success(nextStatus ? "Batch activated successfully" : "Batch marked as inactive");
             if (mutate) mutate();
         } catch (error: any) {
-            toast.error(error?.response?.data?.message || "Failed to delete batch");
+            toast.error(error?.response?.data?.message || "Failed to update batch status");
         } finally {
-            setDeletingBatchId(null);
+            setTogglingBatchId(null);
         }
     };
 
@@ -443,6 +447,8 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                         </TableRow>
                                     ) : (
                                         paginatedBatches.map((batch: any) => {
+                                            const isBatchItemActive = Boolean(!batch.isDeleted && batch.isActive !== false && batch.status !== "Inactive");
+                                            const isTogglingThis = togglingBatchId === batch._id;
                                             const pack = batch.pack || item.packing || 0;
                                             const units = batch.quantity || 0;
                                             const free = batch.free || 0;
@@ -453,11 +459,26 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                             const total = batch.total ?? (noOfPack > 0 ? (noOfPack * rate + schemaAmt) : (units * rate));
 
                                             return (
-                                                <TableRow key={batch._id}>
+                                                <TableRow
+                                                    key={batch._id}
+                                                    className={cn(
+                                                        !isBatchItemActive && "bg-red-50/70! hover:bg-red-100/60! border-l-2 border-l-red-500 text-red-950"
+                                                    )}
+                                                >
                                                     <TableCell className="py-2.5 pl-4">
-                                                        <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-xs">
-                                                            {batch.batchNumber}
-                                                        </span>
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span className={cn(
+                                                                "font-mono text-[11px] rounded px-2 py-0.5 shadow-xs border",
+                                                                !isBatchItemActive
+                                                                    ? "bg-red-100/80 border-red-200 text-red-700"
+                                                                    : "bg-white border-slate-200 text-slate-600"
+                                                            )}>
+                                                                {batch.batchNumber}
+                                                            </span>
+                                                            {!isBatchItemActive && (
+                                                                <span className="text-[9px] font-bold uppercase tracking-wider text-red-600 bg-red-100 border border-red-200 rounded-full px-1.5 py-0.5">Inactive</span>
+                                                            )}
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell className="text-center text-xs py-2.5 text-slate-600 font-medium">{pack}</TableCell>
                                                     <TableCell className="text-center text-xs py-2.5 text-slate-600 font-medium">{noOfPack}</TableCell>
@@ -466,7 +487,12 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                                     <TableCell className="text-center text-xs py-2.5 text-slate-900 font-bold tabular-nums">{formatINR(rate)}</TableCell>
                                                     <TableCell className="text-center text-xs py-2.5 text-slate-600 font-medium">{free}</TableCell>
                                                     <TableCell className="text-center text-xs py-2.5 text-slate-900 font-bold tabular-nums">{formatINR(schemaAmt)}</TableCell>
-                                                    <TableCell className="text-center text-xs py-2.5 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums">{units}</TableCell>
+                                                    <TableCell className={cn(
+                                                        "text-center text-xs py-2.5 font-bold tabular-nums",
+                                                        !isBatchItemActive
+                                                            ? "text-red-600 bg-red-100/40"
+                                                            : "text-indigo-600 bg-indigo-50/20"
+                                                    )}>{units}</TableCell>
                                                     <TableCell className="text-right text-xs py-2.5 font-bold text-slate-900 pr-4 tabular-nums">{formatINR(total)}</TableCell>
                                                     <TableCell className="text-center py-2.5 pr-3">
                                                         <div className="flex items-center justify-center gap-1">
@@ -485,31 +511,59 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                                                     <Button
                                                                         size="icon"
                                                                         variant="ghost"
-                                                                        disabled={deletingBatchId === batch._id}
-                                                                        className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg cursor-pointer"
-                                                                        title="Delete Batch"
+                                                                        disabled={isTogglingThis}
+                                                                        className={cn(
+                                                                            "h-7 w-7 rounded-lg cursor-pointer transition-colors",
+                                                                            isBatchItemActive
+                                                                                ? "text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                                                : "text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50"
+                                                                        )}
+                                                                        title={isBatchItemActive ? "Deactivate Batch" : "Activate Batch"}
                                                                     >
-                                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                                        {isBatchItemActive ? (
+                                                                            <PowerOff className="w-3.5 h-3.5" />
+                                                                        ) : (
+                                                                            <CheckCircle2 className="w-3.5 h-3.5" />
+                                                                        )}
                                                                     </Button>
                                                                 </AlertDialogTrigger>
                                                                 <AlertDialogContent className="max-w-sm! rounded-xl">
                                                                     <AlertDialogHeader>
-                                                                        <AlertDialogTitle>Delete Batch?</AlertDialogTitle>
+                                                                        <AlertDialogTitle>
+                                                                            {isBatchItemActive ? "Deactivate Batch?" : "Activate Batch?"}
+                                                                        </AlertDialogTitle>
                                                                         <AlertDialogDescription>
-                                                                            Are you sure you want to delete batch{" "}
-                                                                            <span className="font-semibold text-slate-900 font-mono">
-                                                                                {batch.batchNumber}
-                                                                            </span>
-                                                                            ? This batch will be soft deleted and its {units} units removed from inventory.
+                                                                            {isBatchItemActive ? (
+                                                                                <>
+                                                                                    Are you sure you want to mark batch{" "}
+                                                                                    <span className="font-semibold text-slate-900 font-mono">
+                                                                                        {batch.batchNumber}
+                                                                                    </span>{" "}
+                                                                                    as inactive? Its {units} units will be excluded from available inventory count and billing.
+                                                                                </>
+                                                                            ) : (
+                                                                                <>
+                                                                                    Are you sure you want to activate batch{" "}
+                                                                                    <span className="font-semibold text-slate-900 font-mono">
+                                                                                        {batch.batchNumber}
+                                                                                    </span>
+                                                                                    ? Its {units} units will be included in available inventory count and billing.
+                                                                                </>
+                                                                            )}
                                                                         </AlertDialogDescription>
                                                                     </AlertDialogHeader>
                                                                     <AlertDialogFooter>
                                                                         <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
                                                                         <AlertDialogAction
-                                                                            onClick={() => handleDeleteBatch(batch._id)}
-                                                                            className="bg-red-600 text-white hover:bg-red-700 rounded-lg"
+                                                                            onClick={() => handleToggleBatchStatus(batch._id, isBatchItemActive)}
+                                                                            className={cn(
+                                                                                "rounded-lg text-white",
+                                                                                isBatchItemActive
+                                                                                    ? "bg-red-600 hover:bg-red-700"
+                                                                                    : "bg-emerald-600 hover:bg-emerald-700"
+                                                                            )}
                                                                         >
-                                                                            Delete Batch
+                                                                            {isBatchItemActive ? "Deactivate" : "Activate"}
                                                                         </AlertDialogAction>
                                                                     </AlertDialogFooter>
                                                                 </AlertDialogContent>

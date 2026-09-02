@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History, ArrowLeftRight, CheckCircle2, Circle, Pencil } from "lucide-react";
+import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History, ArrowLeftRight, CheckCircle2, Circle, Pencil, PowerOff } from "lucide-react";
 import { BatchType, ItemType } from "./interface";
 import { EditBatchModal } from "./EditBatchModal";
 import { fDate } from "@/lib/fDateAndTime";
@@ -62,20 +62,23 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
     [item._id, mutate]
   );
 
-  const [deletingBatchId, setDeletingBatchId] = useState<string | null>(null);
+  const [togglingBatchId, setTogglingBatchId] = useState<string | null>(null);
 
-  const handleDeleteBatch = useCallback(
-    async (batchId?: string) => {
+  const handleToggleBatchStatus = useCallback(
+    async (batchId?: string, currentIsActive: boolean = true) => {
       if (!batchId) return;
-      setDeletingBatchId(batchId);
+      setTogglingBatchId(batchId);
+      const nextStatus = !currentIsActive;
       try {
-        await api.delete(`/pharmacy/items/${item._id}/batches/${batchId}`);
-        toast.success("Batch deleted successfully");
+        await api.patch(`/pharmacy/items/${item._id}/batches/${batchId}/status`, {
+          status: nextStatus ? "Active" : "Inactive",
+        });
+        toast.success(nextStatus ? "Batch activated successfully" : "Batch marked as inactive");
         mutate();
       } catch (error: any) {
-        toast.error(error?.response?.data?.message || "Failed to delete batch");
+        toast.error(error?.response?.data?.message || "Failed to update batch status");
       } finally {
-        setDeletingBatchId(null);
+        setTogglingBatchId(null);
       }
     },
     [item._id, mutate]
@@ -85,7 +88,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
   const itemStock = useMemo(() => {
     if (item?.batches && item.batches.length > 0) {
       return item.batches
-        .filter((b: any) => !b.isDeleted)
+        .filter((b: any) => !b.isDeleted && b.isActive !== false && b.status !== "Inactive")
         .reduce(
           (sum, b: any) => sum + Math.max(0, Number(b.quantity) || 0),
           0
@@ -531,8 +534,10 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                 </TableRow>
               ) : (
                 paginatedData.map((data: any, idx: number) => {
+                  const isBatchItemActive = Boolean(!data.isDeleted && data.isActive !== false && data.status !== "Inactive");
                   const isActive = data._id && item.activeBatch && data._id === item.activeBatch;
                   const isSettingThis = settingActiveBatch === data._id;
+                  const isTogglingThis = togglingBatchId === data._id;
 
                   return (
                     <TableRow
@@ -541,7 +546,8 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                         idx % 2 === 0
                           ? "bg-white hover:bg-white/60"
                           : "bg-slate-100 hover:bg-slate-100/60",
-                        isActive && "bg-emerald-50/70! border-l-2 border-l-emerald-500"
+                        isActive && "bg-emerald-50/70! border-l-2 border-l-emerald-500",
+                        !isBatchItemActive && "bg-red-50/70! hover:bg-red-100/60! border-l-2 border-l-red-500 text-red-950"
                       )}
                     >
                       {activeTab === "Batch History" ? (
@@ -560,16 +566,24 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                               <TableCell className="text-center py-3 pl-2">
                                 {data._id ? (
                                   <button
-                                    onClick={() => !isActive && handleSetActiveBatch(data._id)}
-                                    disabled={isActive || isSettingThis}
+                                    onClick={() => isBatchItemActive && !isActive && handleSetActiveBatch(data._id)}
+                                    disabled={!isBatchItemActive || isActive || isSettingThis}
                                     className={cn(
                                       "inline-flex items-center justify-center transition-all duration-200",
-                                      isActive
+                                      !isBatchItemActive
+                                        ? "cursor-not-allowed opacity-40"
+                                        : isActive
                                         ? "cursor-default"
                                         : "cursor-pointer hover:scale-110",
                                       isSettingThis && "animate-pulse"
                                     )}
-                                    title={isActive ? "Active batch" : "Set as active batch"}
+                                    title={
+                                      !isBatchItemActive
+                                        ? "Inactive batch cannot be selected as active batch"
+                                        : isActive
+                                        ? "Active batch"
+                                        : "Set as active batch"
+                                    }
                                   >
                                     {isActive ? (
                                       <CheckCircle2 className="w-5 h-5 text-emerald-500" />
@@ -583,11 +597,19 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                               </TableCell>
                               <TableCell className="py-3">
                                 <div className="flex items-center gap-1.5">
-                                  <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-xs">
+                                  <span className={cn(
+                                    "font-mono text-[11px] rounded px-2 py-0.5 shadow-xs border",
+                                    !isBatchItemActive
+                                      ? "bg-red-100/80 border-red-200 text-red-700"
+                                      : "bg-white border-slate-200 text-slate-600"
+                                  )}>
                                     {data.batchNumber}
                                   </span>
                                   {isActive && (
                                     <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-100 rounded-full px-1.5 py-0.5">Active</span>
+                                  )}
+                                  {!isBatchItemActive && (
+                                    <span className="text-[9px] font-bold uppercase tracking-wider text-red-600 bg-red-100 border border-red-200 rounded-full px-1.5 py-0.5">Inactive</span>
                                   )}
                                 </div>
                               </TableCell>
@@ -600,7 +622,12 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                               <TableCell className="text-center text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(rate)}</TableCell>
                               <TableCell className="text-center text-xs py-3 text-slate-600 font-medium">{free}</TableCell>
 
-                              <TableCell className="text-center text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums">{units}</TableCell>
+                              <TableCell className={cn(
+                                "text-center text-xs py-3 font-bold tabular-nums",
+                                !isBatchItemActive
+                                  ? "text-red-600 bg-red-100/40"
+                                  : "text-indigo-600 bg-indigo-50/20"
+                              )}>{units}</TableCell>
                               <TableCell className="text-right text-xs py-3 font-bold text-slate-900 pr-4 tabular-nums">{formatINR(total)}</TableCell>
                               <TableCell className="text-center py-3 pr-3">
                                 <div className="flex items-center justify-center gap-1">
@@ -619,31 +646,59 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                                       <Button
                                         size="icon"
                                         variant="ghost"
-                                        disabled={deletingBatchId === data._id}
-                                        className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                                        title="Delete Batch"
+                                        disabled={isTogglingThis}
+                                        className={cn(
+                                          "h-8 w-8 rounded-lg transition-colors cursor-pointer",
+                                          isBatchItemActive
+                                            ? "text-red-500 hover:text-red-700 hover:bg-red-50"
+                                            : "text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50"
+                                        )}
+                                        title={isBatchItemActive ? "Deactivate Batch" : "Activate Batch"}
                                       >
-                                        <Trash2 className="w-4 h-4" />
+                                        {isBatchItemActive ? (
+                                          <PowerOff className="w-4 h-4" />
+                                        ) : (
+                                          <CheckCircle2 className="w-4 h-4" />
+                                        )}
                                       </Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent className="max-w-sm! rounded-xl">
                                       <AlertDialogHeader>
-                                        <AlertDialogTitle>Delete Batch?</AlertDialogTitle>
+                                        <AlertDialogTitle>
+                                          {isBatchItemActive ? "Deactivate Batch?" : "Activate Batch?"}
+                                        </AlertDialogTitle>
                                         <AlertDialogDescription>
-                                          Are you sure you want to delete batch{" "}
-                                          <span className="font-semibold text-slate-900 font-mono">
-                                            {data.batchNumber}
-                                          </span>
-                                          ? This batch will be soft deleted and its {units} units removed from inventory.
+                                          {isBatchItemActive ? (
+                                            <>
+                                              Are you sure you want to mark batch{" "}
+                                              <span className="font-semibold text-slate-900 font-mono">
+                                                {data.batchNumber}
+                                              </span>{" "}
+                                              as inactive? Its {units} units will be excluded from available inventory count and billing.
+                                            </>
+                                          ) : (
+                                            <>
+                                              Are you sure you want to activate batch{" "}
+                                              <span className="font-semibold text-slate-900 font-mono">
+                                                {data.batchNumber}
+                                              </span>
+                                              ? Its {units} units will be included in available inventory count and billing.
+                                            </>
+                                          )}
                                         </AlertDialogDescription>
                                       </AlertDialogHeader>
                                       <AlertDialogFooter>
                                         <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
                                         <AlertDialogAction
-                                          onClick={() => handleDeleteBatch(data._id)}
-                                          className="bg-red-600 text-white hover:bg-red-700 rounded-lg"
+                                          onClick={() => handleToggleBatchStatus(data._id, isBatchItemActive)}
+                                          className={cn(
+                                            "rounded-lg text-white",
+                                            isBatchItemActive
+                                              ? "bg-red-600 hover:bg-red-700"
+                                              : "bg-emerald-600 hover:bg-emerald-700"
+                                          )}
                                         >
-                                          Delete Batch
+                                          {isBatchItemActive ? "Deactivate" : "Activate"}
                                         </AlertDialogAction>
                                       </AlertDialogFooter>
                                     </AlertDialogContent>
