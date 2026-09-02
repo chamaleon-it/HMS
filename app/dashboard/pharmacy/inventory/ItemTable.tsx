@@ -341,7 +341,7 @@ const Chip: React.FC<{
 }> = ({ label, tone = "gray" }) => {
   const tones: Record<string, string> = {
     Active: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-    Inactive: "bg-rose-50 text-rose-700 ring-rose-200",
+    Inactive: "bg-slate-100 text-slate-600 ring-slate-300",
     Upcoming: "bg-slate-100 text-slate-700 ring-slate-700",
     Test: "bg-sky-100  text-sky-700 ring-sky-700",
     Observation: "bg-amber-100  text-amber-700 ring-amber-700",

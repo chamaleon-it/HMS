@@ -451,6 +451,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                             const isTogglingThis = togglingBatchId === batch._id;
                                             const pack = batch.pack || item.packing || 0;
                                             const units = batch.quantity || 0;
+                                            const isMuted = !isBatchItemActive || units <= 0;
                                             const free = batch.free || 0;
                                             const noOfPack = batch.noOfPack ?? (pack > 0 ? Math.max(0, Math.floor(units / pack) - free) : 0);
                                             const mrp = batch.mrp ?? item.mrp ?? item.unitPrice ?? 0;
@@ -462,21 +463,21 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                                 <TableRow
                                                     key={batch._id}
                                                     className={cn(
-                                                        !isBatchItemActive && "bg-red-50/70! hover:bg-red-100/60! border-l-2 border-l-red-500 text-red-950"
+                                                        isMuted && "bg-slate-100/90! hover:bg-slate-200/70! border-l-2! border-l-slate-400! text-slate-700"
                                                     )}
                                                 >
                                                     <TableCell className="py-2.5 pl-4">
                                                         <div className="flex items-center gap-1.5">
                                                             <span className={cn(
                                                                 "font-mono text-[11px] rounded px-2 py-0.5 shadow-xs border",
-                                                                !isBatchItemActive
-                                                                    ? "bg-red-100/80 border-red-200 text-red-700"
+                                                                isMuted
+                                                                    ? "bg-slate-200/80 border-slate-300 text-slate-600"
                                                                     : "bg-white border-slate-200 text-slate-600"
                                                             )}>
                                                                 {batch.batchNumber}
                                                             </span>
                                                             {!isBatchItemActive && (
-                                                                <span className="text-[9px] font-bold uppercase tracking-wider text-red-600 bg-red-100 border border-red-200 rounded-full px-1.5 py-0.5">Inactive</span>
+                                                                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-600 bg-slate-200 border border-slate-300 rounded-full px-1.5 py-0.5">Inactive</span>
                                                             )}
                                                         </div>
                                                     </TableCell>
@@ -489,8 +490,8 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                                     <TableCell className="text-center text-xs py-2.5 text-slate-900 font-bold tabular-nums">{formatINR(schemaAmt)}</TableCell>
                                                     <TableCell className={cn(
                                                         "text-center text-xs py-2.5 font-bold tabular-nums",
-                                                        !isBatchItemActive
-                                                            ? "text-red-600 bg-red-100/40"
+                                                        isMuted
+                                                            ? "text-slate-500 bg-slate-200/50"
                                                             : "text-indigo-600 bg-indigo-50/20"
                                                     )}>{units}</TableCell>
                                                     <TableCell className="text-right text-xs py-2.5 font-bold text-slate-900 pr-4 tabular-nums">{formatINR(total)}</TableCell>

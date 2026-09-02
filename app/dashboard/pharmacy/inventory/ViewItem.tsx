@@ -538,16 +538,16 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                   const isActive = data._id && item.activeBatch && data._id === item.activeBatch;
                   const isSettingThis = settingActiveBatch === data._id;
                   const isTogglingThis = togglingBatchId === data._id;
+                  const units = activeTab === "Batch History" ? (data.quantity || 0) : 0;
+                  const isMuted = !isBatchItemActive || units <= 0;
 
                   return (
                     <TableRow
                       key={data._id || idx}
                       className={cn(
-                        idx % 2 === 0
-                          ? "bg-white hover:bg-white/60"
-                          : "bg-slate-100 hover:bg-slate-100/60",
-                        isActive && "bg-emerald-50/70! border-l-2 border-l-emerald-500",
-                        !isBatchItemActive && "bg-red-50/70! hover:bg-red-100/60! border-l-2 border-l-red-500 text-red-950"
+                        "bg-white hover:bg-slate-50/80 transition-colors",
+                        isActive && "bg-emerald-50/70! hover:bg-emerald-100/60! border-l-2! border-l-emerald-500!",
+                        !isActive && isMuted && "bg-slate-100/80! hover:bg-slate-200/70! border-l-2! border-l-slate-400! text-slate-700"
                       )}
                     >
                       {activeTab === "Batch History" ? (
@@ -599,8 +599,8 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                                 <div className="flex items-center gap-1.5">
                                   <span className={cn(
                                     "font-mono text-[11px] rounded px-2 py-0.5 shadow-xs border",
-                                    !isBatchItemActive
-                                      ? "bg-red-100/80 border-red-200 text-red-700"
+                                    isMuted
+                                      ? "bg-slate-200/80 border-slate-300 text-slate-600"
                                       : "bg-white border-slate-200 text-slate-600"
                                   )}>
                                     {data.batchNumber}
@@ -609,7 +609,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                                     <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-100 rounded-full px-1.5 py-0.5">Active</span>
                                   )}
                                   {!isBatchItemActive && (
-                                    <span className="text-[9px] font-bold uppercase tracking-wider text-red-600 bg-red-100 border border-red-200 rounded-full px-1.5 py-0.5">Inactive</span>
+                                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-600 bg-slate-200 border border-slate-300 rounded-full px-1.5 py-0.5">Inactive</span>
                                   )}
                                 </div>
                               </TableCell>
@@ -624,8 +624,8 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
                               <TableCell className={cn(
                                 "text-center text-xs py-3 font-bold tabular-nums",
-                                !isBatchItemActive
-                                  ? "text-red-600 bg-red-100/40"
+                                isMuted
+                                  ? "text-slate-500 bg-slate-200/50"
                                   : "text-indigo-600 bg-indigo-50/20"
                               )}>{units}</TableCell>
                               <TableCell className="text-right text-xs py-3 font-bold text-slate-900 pr-4 tabular-nums">{formatINR(total)}</TableCell>
