@@ -35,6 +35,7 @@ export interface SupplierOrderItem {
         hsnCode?: string;
         sku?: string;
         unitPrice: number;
+        mrp?: number;
     };
     batch: string;
     expiryDate: string;
@@ -42,6 +43,7 @@ export interface SupplierOrderItem {
     pack: number;
     free: number;
     unitPrice: number;
+    mrp?: number;
     purchasePrice: number;
     gst: number;
     discount: number;

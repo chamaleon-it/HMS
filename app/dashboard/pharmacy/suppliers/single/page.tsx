@@ -551,6 +551,7 @@ const SingleSupplierPage: React.FC = () => {
                                                 <th className="p-3 text-left font-medium">Batch / Expiry</th>
                                                 <th className="p-3 text-right font-medium">Qty/Pack</th>
                                                 <th className="p-3 text-right font-medium">Free</th>
+                                                <th className="p-3 text-right font-medium">MRP</th>
                                                 <th className="p-3 text-right font-medium">Rate</th>
                                                 <th className="p-3 text-right font-medium">GST</th>
                                                 <th className="p-3 text-right font-medium">Discount</th>
@@ -558,37 +559,43 @@ const SingleSupplierPage: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100 ">
-                                            {selectedOrder.items?.map((item, i) => (
-                                                <tr key={i} className="hover:bg-slate-50/50  group">
-                                                    <td className="p-3">
-                                                        <div className="font-semibold text-slate-900">{item.item.name}</div>
-                                                        <div className="text-[11px] text-slate-500">HSN: {item.item.hsnCode || "N/A"}</div>
-                                                    </td>
-                                                    <td className="p-3">
-                                                        <div className="text-slate-700 font-medium">{item.batch}</div>
-                                                        <div className="text-[11px] text-slate-500">{fDate(item.expiryDate)}</div>
-                                                    </td>
-                                                    <td className="p-3 text-right">
-                                                        <div className="text-slate-900 font-medium">{item.quantity}</div>
-                                                        <div className="text-[11px] text-slate-500">Pack: {item.pack || 0}</div>
-                                                    </td>
-                                                    <td className="p-3 text-right text-slate-600">
-                                                        {item.free || 0}
-                                                    </td>
-                                                    <td className="p-3 text-right text-slate-600">
-                                                        {formatINR(item.purchasePrice)}
-                                                    </td>
-                                                    <td className="p-3 text-right text-slate-600">
-                                                        {formatINR(item.gst)}
-                                                    </td>
-                                                    <td className="p-3 text-right text-rose-500">
-                                                        -{formatINR(item.discount)}
-                                                    </td>
-                                                    <td className="p-3 text-right font-semibold text-slate-900 pr-6">
-                                                        {formatINR(item.purchasePrice * item.quantity)}
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            {selectedOrder.items?.map((item, i) => {
+                                                const mrp = item.unitPrice || item.mrp || item.item?.mrp || item.item?.unitPrice || 0;
+                                                return (
+                                                    <tr key={i} className="hover:bg-slate-50/50  group">
+                                                        <td className="p-3">
+                                                            <div className="font-semibold text-slate-900">{item.item?.name || "N/A"}</div>
+                                                            <div className="text-[11px] text-slate-500">HSN: {item.item?.hsnCode || "N/A"}</div>
+                                                        </td>
+                                                        <td className="p-3">
+                                                            <div className="text-slate-700 font-medium">{item.batch}</div>
+                                                            <div className="text-[11px] text-slate-500">{fDate(item.expiryDate)}</div>
+                                                        </td>
+                                                        <td className="p-3 text-right">
+                                                            <div className="text-slate-900 font-medium">{item.quantity}</div>
+                                                            <div className="text-[11px] text-slate-500">Pack: {item.pack || 0}</div>
+                                                        </td>
+                                                        <td className="p-3 text-right text-slate-600">
+                                                            {item.free || 0}
+                                                        </td>
+                                                        <td className="p-3 text-right text-slate-600">
+                                                            {formatINR(mrp)}
+                                                        </td>
+                                                        <td className="p-3 text-right text-slate-600">
+                                                            {formatINR(item.purchasePrice)}
+                                                        </td>
+                                                        <td className="p-3 text-right text-slate-600">
+                                                            {formatINR(item.gst)}
+                                                        </td>
+                                                        <td className="p-3 text-right text-rose-500">
+                                                            -{formatINR(item.discount)}
+                                                        </td>
+                                                        <td className="p-3 text-right font-semibold text-slate-900 pr-6">
+                                                            {formatINR(item.purchasePrice * item.quantity)}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
 
