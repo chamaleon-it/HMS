@@ -34,8 +34,19 @@ import useSWR from 'swr'
 import { fDate } from "@/lib/fDateAndTime"
 import { formatINR } from "@/lib/fNumber"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ChevronDownIcon, Loader2, PackagePlus, Pencil } from "lucide-react"
+import { ChevronDownIcon, Loader2, PackagePlus, Pencil, Trash2 } from "lucide-react"
 import React, { useEffect, useRef, useState } from 'react'
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import {
     Tooltip,
     TooltipContent,
@@ -170,7 +181,26 @@ export default function UpdateBatch({ item, mutate }: Props) {
     });
 
     const ITEMS_PER_PAGE = 5;
-    const sortedBatches = item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
+    const [deletingBatchId, setDeletingBatchId] = useState<string | null>(null);
+    const handleDeleteBatch = async (batchId?: string) => {
+        if (!batchId) return;
+        setDeletingBatchId(batchId);
+        try {
+            await api.delete(`/pharmacy/items/${item._id}/batches/${batchId}`);
+            toast.success("Batch deleted successfully");
+            if (mutate) mutate();
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || "Failed to delete batch");
+        } finally {
+            setDeletingBatchId(null);
+        }
+    };
+
+    const sortedBatches = item?.batches
+        ? [...item.batches]
+            .filter((b: any) => !b.isDeleted)
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        : [];
     const totalPages = Math.ceil(sortedBatches.length / ITEMS_PER_PAGE);
     const paginatedBatches = sortedBatches.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
@@ -439,15 +469,52 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                                     <TableCell className="text-center text-xs py-2.5 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums">{units}</TableCell>
                                                     <TableCell className="text-right text-xs py-2.5 font-bold text-slate-900 pr-4 tabular-nums">{formatINR(total)}</TableCell>
                                                     <TableCell className="text-center py-2.5 pr-3">
-                                                        <Button
-                                                            size="icon"
-                                                            variant="ghost"
-                                                            onClick={() => setEditingBatch(batch)}
-                                                            className="h-7 w-7 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg cursor-pointer"
-                                                            title="Edit Batch"
-                                                        >
-                                                            <Pencil className="w-3.5 h-3.5" />
-                                                        </Button>
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            <Button
+                                                                size="icon"
+                                                                variant="ghost"
+                                                                onClick={() => setEditingBatch(batch)}
+                                                                className="h-7 w-7 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg cursor-pointer"
+                                                                title="Edit Batch"
+                                                            >
+                                                                <Pencil className="w-3.5 h-3.5" />
+                                                            </Button>
+
+                                                            <AlertDialog>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <Button
+                                                                        size="icon"
+                                                                        variant="ghost"
+                                                                        disabled={deletingBatchId === batch._id}
+                                                                        className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg cursor-pointer"
+                                                                        title="Delete Batch"
+                                                                    >
+                                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                                    </Button>
+                                                                </AlertDialogTrigger>
+                                                                <AlertDialogContent className="max-w-sm! rounded-xl">
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle>Delete Batch?</AlertDialogTitle>
+                                                                        <AlertDialogDescription>
+                                                                            Are you sure you want to delete batch{" "}
+                                                                            <span className="font-semibold text-slate-900 font-mono">
+                                                                                {batch.batchNumber}
+                                                                            </span>
+                                                                            ? This batch will be soft deleted and its {units} units removed from inventory.
+                                                                        </AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogFooter>
+                                                                        <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                                                                        <AlertDialogAction
+                                                                            onClick={() => handleDeleteBatch(batch._id)}
+                                                                            className="bg-red-600 text-white hover:bg-red-700 rounded-lg"
+                                                                        >
+                                                                            Delete Batch
+                                                                        </AlertDialogAction>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
+                                                        </div>
                                                     </TableCell>
                                                 </TableRow>
                                             );

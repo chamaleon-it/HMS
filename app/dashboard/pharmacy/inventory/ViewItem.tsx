@@ -61,14 +61,35 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
     },
     [item._id, mutate]
   );
+
+  const [deletingBatchId, setDeletingBatchId] = useState<string | null>(null);
+
+  const handleDeleteBatch = useCallback(
+    async (batchId?: string) => {
+      if (!batchId) return;
+      setDeletingBatchId(batchId);
+      try {
+        await api.delete(`/pharmacy/items/${item._id}/batches/${batchId}`);
+        toast.success("Batch deleted successfully");
+        mutate();
+      } catch (error: any) {
+        toast.error(error?.response?.data?.message || "Failed to delete batch");
+      } finally {
+        setDeletingBatchId(null);
+      }
+    },
+    [item._id, mutate]
+  );
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
   const itemStock = useMemo(() => {
     if (item?.batches && item.batches.length > 0) {
-      return item.batches.reduce(
-        (sum, b: any) => sum + Math.max(0, Number(b.quantity) || 0),
-        0
-      );
+      return item.batches
+        .filter((b: any) => !b.isDeleted)
+        .reduce(
+          (sum, b: any) => sum + Math.max(0, Number(b.quantity) || 0),
+          0
+        );
     }
     return item?.quantity ?? 0;
   }, [item?.batches, item?.quantity]);
@@ -81,7 +102,11 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
   const sortedData = useMemo(() => {
     if (activeTab === "Batch History") {
-      return item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
+      return item?.batches
+        ? [...item.batches]
+            .filter((b: any) => !b.isDeleted)
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        : [];
     } else {
       let filtered = item?.soldHistory ? [...item.soldHistory] : [];
       if (dateRange?.from) {
@@ -482,7 +507,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
                     <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 min-w-[80px]">Units</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4 min-w-[100px]">TOTAL</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-3 min-w-[80px]">ACTION</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-3 min-w-[90px]">ACTION</TableHead>
                   </>
                 ) : (
                   <>
@@ -578,15 +603,52 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                               <TableCell className="text-center text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums">{units}</TableCell>
                               <TableCell className="text-right text-xs py-3 font-bold text-slate-900 pr-4 tabular-nums">{formatINR(total)}</TableCell>
                               <TableCell className="text-center py-3 pr-3">
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  onClick={() => setEditingBatch(data)}
-                                  className="h-8 w-8 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
-                                  title="Edit Batch"
-                                >
-                                  <Pencil className="w-4 h-4" />
-                                </Button>
+                                <div className="flex items-center justify-center gap-1">
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => setEditingBatch(data)}
+                                    className="h-8 w-8 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
+                                    title="Edit Batch"
+                                  >
+                                    <Pencil className="w-4 h-4" />
+                                  </Button>
+
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        disabled={deletingBatchId === data._id}
+                                        className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                        title="Delete Batch"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent className="max-w-sm! rounded-xl">
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Delete Batch?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Are you sure you want to delete batch{" "}
+                                          <span className="font-semibold text-slate-900 font-mono">
+                                            {data.batchNumber}
+                                          </span>
+                                          ? This batch will be soft deleted and its {units} units removed from inventory.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() => handleDeleteBatch(data._id)}
+                                          className="bg-red-600 text-white hover:bg-red-700 rounded-lg"
+                                        >
+                                          Delete Batch
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
                               </TableCell>
                             </>
                           );
