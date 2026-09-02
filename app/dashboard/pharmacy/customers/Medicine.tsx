@@ -14,7 +14,13 @@ interface Medicine {
   quantity: number;
 }
 
-type Item = { _id: string; name: string; generic: string; quantity: number };
+type Item = {
+  _id: string;
+  name: string;
+  generic: string;
+  quantity: number;
+  batches?: any[];
+};
 type ItemsApi = { message: string; data: Item[] };
 type ItemApi = { message: string; data: Item };
 
@@ -169,44 +175,55 @@ export default function MedicineField({
             <div className="p-3 text-sm text-slate-500">No medicines found</div>
           ) : (
             <ul role="listbox" className="divide-y divide-slate-100">
-              {items.map((it, idx) => (
-                <li
-                  key={it._id}
-                  role="option"
-                  aria-selected={idx === activeIdx}
-                  onMouseEnter={() => setActiveIdx(idx)}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => handleSelect(it)}
-                  className={`cursor-pointer px-3 py-2 text-sm ${
-                    idx === activeIdx ? "bg-emerald-50" : "hover:bg-slate-50"
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <div className="">
-                      <div className="font-medium leading-tight">{it.name}</div>
-                      {it.generic ? (
-                        <div className="text-xs text-slate-500">
-                          {it.generic}
-                        </div>
-                      ) : null}
-                    </div>
+              {items.map((it, idx) => {
+                const stock =
+                  it.batches && it.batches.length > 0
+                    ? it.batches.reduce(
+                        (sum: number, b: any) =>
+                          sum + Math.max(0, Number(b.quantity) || 0),
+                        0
+                      )
+                    : Math.max(0, Number(it.quantity) || 0);
 
-                    <div>
-                      {it.quantity <= 0 ? (
-                        <div className="flex items-center gap-1 text-red-600 text-xs font-medium">
-                          <XCircle className="w-3 h-3" />
-                          <span>Out of stock</span>
-                        </div>
-                      ) : it.quantity < 15 ? (
-                        <div className="flex items-center gap-1 text-amber-600 text-xs font-medium">
-                          <AlertTriangle className="w-3 h-3" />
-                          <span>{it.quantity} left - Low stock</span>
-                        </div>
-                      ) : null}
+                return (
+                  <li
+                    key={it._id}
+                    role="option"
+                    aria-selected={idx === activeIdx}
+                    onMouseEnter={() => setActiveIdx(idx)}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => handleSelect(it)}
+                    className={`cursor-pointer px-3 py-2 text-sm ${
+                      idx === activeIdx ? "bg-emerald-50" : "hover:bg-slate-50"
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="">
+                        <div className="font-medium leading-tight">{it.name}</div>
+                        {it.generic ? (
+                          <div className="text-xs text-slate-500">
+                            {it.generic}
+                          </div>
+                        ) : null}
+                      </div>
+
+                      <div>
+                        {stock <= 0 ? (
+                          <div className="flex items-center gap-1 text-red-600 text-xs font-medium">
+                            <XCircle className="w-3 h-3" />
+                            <span>Out of stock</span>
+                          </div>
+                        ) : stock < 15 ? (
+                          <div className="flex items-center gap-1 text-amber-600 text-xs font-medium">
+                            <AlertTriangle className="w-3 h-3" />
+                            <span>{stock} left - Low stock</span>
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

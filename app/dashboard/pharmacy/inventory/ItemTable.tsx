@@ -147,22 +147,37 @@ export default function ItemTable({
                   </TableCell>
 
                   <TableCell className="py-3">
-                    {item.quantity === 0 ? (
-                      <div className="flex items-center gap-1.5 text-red-600 font-medium">
-                        <AlertCircle className="w-4 h-4" />
-                        <span>Out of Stock</span>
-                      </div>
-                    ) : item.quantity <= pharmacyInventory.lowStockThreshold ? (
-                      <div className="flex items-center gap-1.5 text-amber-600 font-medium">
-                        <AlertTriangle className="w-4 h-4" />
-                        <span>{item.quantity}</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1.5 text-slate-700 font-medium pl-2">
-                        {item.quantity}
-                      </div>
+                    {(() => {
+                      const itemStock =
+                        item.batches && item.batches.length > 0
+                          ? item.batches.reduce(
+                              (sum, b) => sum + Math.max(0, Number(b.quantity) || 0),
+                              0
+                            )
+                          : (item.quantity ?? 0);
 
-                    )}
+                      if (itemStock <= 0) {
+                        return (
+                          <div className="flex items-center gap-1.5 text-red-600 font-medium">
+                            <AlertCircle className="w-4 h-4" />
+                            <span>Out of Stock</span>
+                          </div>
+                        );
+                      }
+                      if (itemStock <= pharmacyInventory.lowStockThreshold) {
+                        return (
+                          <div className="flex items-center gap-1.5 text-amber-600 font-medium">
+                            <AlertTriangle className="w-4 h-4" />
+                            <span>{itemStock}</span>
+                          </div>
+                        );
+                      }
+                      return (
+                        <div className="flex items-center gap-1.5 text-slate-700 font-medium pl-2">
+                          {itemStock}
+                        </div>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell className="py-3 text-slate-700">
                     {item.soldQuantity ?? "-"}

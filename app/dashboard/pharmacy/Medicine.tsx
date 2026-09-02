@@ -55,7 +55,9 @@ function extractActiveBatchDetails(item: Item) {
   const batchNumber = activeBatch?.batchNumber || "-";
   const selectedBatchId = activeBatch?._id ? String(activeBatch._id) : undefined;
   const packing = activeBatch?.pack ?? item.packing ?? 0;
-  const availableQuantity = activeBatch ? (Number(activeBatch.quantity) || 0) : 0;
+  const availableQuantity = activeBatch
+    ? (Number(activeBatch.quantity) || 0)
+    : (Number(item.quantity) || 0);
   const unitPrice = activeBatch?.unitPrice || activeBatch?.mrp || item.unitPrice || 0;
 
   return {
@@ -289,46 +291,65 @@ export default function MedicineField({
               <div className="p-3 text-sm text-slate-500">No medicines found</div>
             ) : (
               <ul role="listbox" className="divide-y divide-slate-100">
-                {items.map((it, idx) => (
-                  <li
-                    key={it._id}
-                    ref={(el) => {
-                      listRefs.current[idx] = el;
-                    }}
-                    role="option"
-                    aria-selected={idx === activeIdx}
-                    onMouseEnter={() => setActiveIdx(idx)}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => handleSelect(it)}
-                    className={`cursor-pointer px-2 py-1.5 text-sm ${idx === activeIdx ? "bg-emerald-50" : "hover:bg-slate-50"
-                      }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="">
-                        <div className="font-medium leading-tight">{it.name}</div>
-                        {it.generic ? (
-                          <div className="text-xs text-slate-500">
-                            {it.generic}
-                          </div>
-                        ) : null}
-                      </div>
+                {items.map((it, idx) => {
+                  const stock =
+                    it.batches && it.batches.length > 0
+                      ? it.batches.reduce(
+                          (sum: number, b: any) =>
+                            sum + Math.max(0, Number(b.quantity) || 0),
+                          0
+                        )
+                      : Math.max(0, Number(it.quantity) || 0);
 
-                      <div className="flex flex-col items-end gap-0.5">
-                        <span className={`text-[10px] font-bold uppercase tracking-tight px-1.5 py-0.5 rounded-sm ${it.quantity <= 0
-                          ? "bg-red-50 text-red-600"
-                          : it.quantity < 15
-                            ? "bg-amber-50 text-amber-600"
-                            : "bg-emerald-50 text-emerald-600"
-                          }`}>
-                          {it.quantity <= 0 ? "Out of Stock" : it.quantity < 15 ? "Low Stock" : "In Stock"}
-                        </span>
-                        <span className="text-[11px] font-bold text-slate-500">
-                          {it.quantity} {it.quantity === 1 ? 'unit' : 'units'} available
-                        </span>
+                  return (
+                    <li
+                      key={it._id}
+                      ref={(el) => {
+                        listRefs.current[idx] = el;
+                      }}
+                      role="option"
+                      aria-selected={idx === activeIdx}
+                      onMouseEnter={() => setActiveIdx(idx)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => handleSelect(it)}
+                      className={`cursor-pointer px-2 py-1.5 text-sm ${
+                        idx === activeIdx ? "bg-emerald-50" : "hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="">
+                          <div className="font-medium leading-tight">{it.name}</div>
+                          {it.generic ? (
+                            <div className="text-xs text-slate-500">
+                              {it.generic}
+                            </div>
+                          ) : null}
+                        </div>
+
+                        <div className="flex flex-col items-end gap-0.5">
+                          <span
+                            className={`text-[10px] font-bold uppercase tracking-tight px-1.5 py-0.5 rounded-sm ${
+                              stock <= 0
+                                ? "bg-red-50 text-red-600"
+                                : stock < 15
+                                ? "bg-amber-50 text-amber-600"
+                                : "bg-emerald-50 text-emerald-600"
+                            }`}
+                          >
+                            {stock <= 0
+                              ? "Out of Stock"
+                              : stock < 15
+                              ? "Low Stock"
+                              : "In Stock"}
+                          </span>
+                          <span className="text-[11px] font-bold text-slate-500">
+                            {stock} {stock === 1 ? "unit" : "units"} available
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </li>
-                ))}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>

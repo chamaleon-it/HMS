@@ -44,7 +44,8 @@ interface Item {
     unitPrice?: number;
     purchasePrice?: number;
     packing?: number;
-    gst?: number
+    gst?: number;
+    batches?: any[];
     // Add other fields as necessary from the API response
 }
 
@@ -130,7 +131,14 @@ const ItemSearchCell = ({
                         )}
                         <CommandGroup className="p-2 ">
                             {items.map((it) => {
-                                const qty = it.quantity ?? 0;
+                                const qty =
+                                    it.batches && it.batches.length > 0
+                                        ? it.batches.reduce(
+                                              (sum: number, b: any) =>
+                                                  sum + Math.max(0, Number(b.quantity) || 0),
+                                              0
+                                          )
+                                        : Math.max(0, it.quantity ?? 0);
                                 return (
                                     <CommandItem
                                         key={it._id}

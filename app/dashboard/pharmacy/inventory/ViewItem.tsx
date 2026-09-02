@@ -63,6 +63,16 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
   );
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
+  const itemStock = useMemo(() => {
+    if (item?.batches && item.batches.length > 0) {
+      return item.batches.reduce(
+        (sum, b: any) => sum + Math.max(0, Number(b.quantity) || 0),
+        0
+      );
+    }
+    return item?.quantity ?? 0;
+  }, [item?.batches, item?.quantity]);
+
 
   const tabs = useMemo(() => [
     { key: "Batch History", icon: Package },
@@ -175,15 +185,15 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
         <div className="rounded-xl border bg-slate-50/50 p-4">
           <div className="text-xs font-medium text-slate-500 mb-1">Current Stock</div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-slate-900">{item.quantity}</span>
+            <span className="text-2xl font-bold text-slate-900">{itemStock}</span>
             <span className="text-sm font-medium text-slate-500">units</span>
           </div>
         </div>
         <div className="rounded-xl border bg-slate-50/50 p-4 flex flex-col justify-center">
           <div className="text-xs font-medium text-slate-500 mb-2">Availability</div>
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${item.quantity > 0 ? "bg-green-500" : "bg-red-500"}`}></div>
-            <span className="text-sm font-semibold text-slate-700">{item.quantity > 0 ? "In Stock" : "Out of Stock"}</span>
+            <div className={`w-2 h-2 rounded-full ${itemStock > 0 ? "bg-green-500" : "bg-red-500"}`}></div>
+            <span className="text-sm font-semibold text-slate-700">{itemStock > 0 ? "In Stock" : "Out of Stock"}</span>
           </div>
         </div>
       </div>
@@ -272,7 +282,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
               Total Value
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(item.quantity * item.unitPrice)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(itemStock * item.unitPrice)}</div>
           </div>
 
           <div className="space-y-2">
