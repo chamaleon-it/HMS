@@ -39,11 +39,6 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
 
   const createOrder = async () => {
     try {
-      if (!payload.patient) {
-        toast.error("Please select patient");
-        return;
-      }
-
       const validItems = payload.items
         .filter((item: any) => item.name && item.name.trim() !== "")
         .map((item: any) => ({
@@ -64,7 +59,11 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
         }
       }
       setIsLoading(true);
-      const payloadToSubmit = { ...payload, items: validItems };
+      const payloadToSubmit = {
+        ...payload,
+        patient: payload.patient || undefined,
+        items: validItems
+      };
       const { data } = await toast.promise(api.post("/pharmacy/orders", payloadToSubmit), {
         loading: "Order is creating...",
         success: ({ data }) => data.message,

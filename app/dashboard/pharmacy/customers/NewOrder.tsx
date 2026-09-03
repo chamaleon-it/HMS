@@ -45,11 +45,6 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
 
   const createOrder = async () => {
     try {
-      if (!payload.patient) {
-        toast.error("Please select patient");
-        return;
-      }
-
       if (payload.items.length === 0) {
         toast.error("Please select atleast on item");
         return;
@@ -67,7 +62,11 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
           return;
         }
       }
-      await toast.promise(api.post("/pharmacy/orders", payload), {
+      const payloadToSubmit = {
+        ...payload,
+        patient: payload.patient || undefined,
+      };
+      await toast.promise(api.post("/pharmacy/orders", payloadToSubmit), {
         loading: "Order is creating...",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,

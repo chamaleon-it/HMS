@@ -73,16 +73,15 @@ function OrderHeader({ order }: { order: OrderType }) {
                     Patient
                 </div>
                 <div className="font-semibold text-lg flex items-center gap-1">
-                    <p>{order?.patient?.name}</p> -{" "}
-                    <span className="text-sm">({order?.patient?.mrn})</span>
+                    <p>{order?.patient?.name || "-"}</p>
+                    {order?.patient?.mrn && <span className="text-sm"> - ({order.patient.mrn})</span>}
                 </div>
                 <div className="text-sm text-slate-700">
-                    Age/Gender: {fAge(order?.patient?.dateOfBirth).formatted} /{" "}
-                    {order?.patient?.gender} • Ph:
-                    {order?.patient?.phoneNumber}
+                    Age/Gender: {order?.patient ? `${fAge(order?.patient?.dateOfBirth).formatted} / ${order?.patient?.gender || "-"}` : "-"} • Ph:{" "}
+                    {order?.patient?.phoneNumber || "-"}
                 </div>
                 <div className="text-sm text-slate-700">
-                    Address: {order?.patient?.address}
+                    Address: {order?.patient?.address || "-"}
                 </div>
 
                 {order?.patient?.allergies && (
@@ -205,8 +204,8 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
         const payload = {
             ...updatePayload,
-            patient: localOrder.patient._id,
-            doctor: localOrder.doctor._id,
+            patient: localOrder.patient?._id,
+            doctor: localOrder.doctor?._id,
         };
         try {
             setUpdatingOrder(true);
@@ -402,7 +401,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         setData={setUpdatePayload as React.Dispatch<React.SetStateAction<OrderType>>}
                         data={updatePayload}
                         onTogglePacked={handleTogglePacked}
-                        allergies={order?.patient.allergies}
+                        allergies={order?.patient?.allergies}
                     />
 
                     {/* Payment Details Section */}

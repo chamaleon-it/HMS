@@ -159,7 +159,7 @@ export default function PharmacyReturnPage() {
         }[];
         billNo?: string;
       } = {
-        patient: order?.patient._id,
+        patient: order?.patient?._id,
         order: order?._id,
         refundMode: state.refundMode,
         returnedBy: state.returnedBy,

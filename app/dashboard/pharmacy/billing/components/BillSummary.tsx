@@ -40,10 +40,6 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
     const [isGenerating, setIsGenerating] = React.useState(false);
 
     const handleAction = async (action: () => Promise<void> | void, setLoading?: React.Dispatch<React.SetStateAction<boolean>>) => {
-        if (!payload.patient) {
-            toast.error("Please select patient.");
-            return;
-        }
         if (payload.items.length === 0) {
             toast.error("Please add at least one item.");
             return;

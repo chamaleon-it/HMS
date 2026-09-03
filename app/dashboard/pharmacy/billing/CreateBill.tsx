@@ -193,16 +193,17 @@ export default function CreateBill({
   );
 
   const generateBill = useCallback(async () => {
-    if (!payload.patient) {
-      toast.error("Please select patient.");
-      return;
-    }
     if (payload.items.length === 0) {
       toast.error("Please add atleast one item.");
       return;
     }
     try {
-      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
+      await toast.promise(api.post("/billing", {
+        ...payload,
+        patient: payload.patient || undefined,
+        cash: payload.cash - (Math.max(0, totalPaid - finalTotal)),
+        doctor: payload.doctor || "Self"
+      }), {
         loading: "We are generating this bill.",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
@@ -216,16 +217,17 @@ export default function CreateBill({
   }, [payload, billingMutate, defaultPayload]);
 
   const saveBill = useCallback(async () => {
-    if (!payload.patient) {
-      toast.error("Please select patient.");
-      return;
-    }
     if (payload.items.length === 0) {
       toast.error("Please add atleast one item.");
       return;
     }
     try {
-      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
+      await toast.promise(api.post("/billing", {
+        ...payload,
+        patient: payload.patient || undefined,
+        cash: payload.cash - (Math.max(0, totalPaid - finalTotal)),
+        doctor: payload.doctor || "Self"
+      }), {
         loading: "Saving bill...",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
@@ -305,12 +307,12 @@ export default function CreateBill({
           cash: 0,
           insurance: 0,
           online: 0,
-          patient: data.data.patient._id || "",
-          doctor: data.data.doctor.name || "",
-          department: data.data.doctor.specialization || "",
+          patient: data.data.patient?._id || "",
+          doctor: data.data.doctor?.name || "",
+          department: data.data.doctor?.specialization || "",
         }));
-        setOrderPatient(data.data.patient)
-        setSelectedPatient(data.data.patient)
+        setOrderPatient(data.data.patient || undefined)
+        setSelectedPatient(data.data.patient || undefined)
       });
   }, []);
 
@@ -398,7 +400,7 @@ export default function CreateBill({
       {/* Printable Receipt Component */}
       <PrintReceipt
         payload={payload}
-        patient={selectedPatient}
+        patient={selectedPatient || { name: "-", mrn: "-", phoneNumber: "-" }}
         invoiceDetails={{
           prefix: pharmacyBilling.prefix,
           roundOffAmount: roundOffAmount,

@@ -136,10 +136,12 @@ export default function Search({
                   >
                     <div className="flex items-center justify-between">
                       <div className="text-xs font-semibold text-slate-800">
-                        {item.patient?.name}{" "}
-                        <span className="font-medium ml-1 text-[10px]">
-                          ({item.patient.mrn})
-                        </span>
+                        {item.patient?.name || "-"}{" "}
+                        {item.patient?.mrn && (
+                          <span className="font-medium ml-1 text-[10px]">
+                            ({item.patient.mrn})
+                          </span>
+                        )}
                       </div>
                       <div className="text-[10px] text-slate-400">
                         {item.patient?.phoneNumber}
@@ -191,10 +193,10 @@ export default function Search({
             <User className="w-3 h-3 text-blue-500" /> Patient
           </span>
           <span className="text-blue-700 font-semibold text-sm leading-tight mt-1">
-            {order?.patient.name}
+            {order?.patient?.name || "-"}
           </span>
           <span className="text-[10px] font-semibold text-slate-400">
-            PID: {order?.patient.mrn}
+            PID: {order?.patient?.mrn || "-"}
           </span>
         </div>
         <div className="flex flex-col">

@@ -19,6 +19,15 @@ export function fTime(date?: string | Date): string {
   });
 }
 
+export function fDateShort(date?: string | Date): string {
+  if (!date) return "";
+  const d = new Date(date);
+  const day = d.getDate().toString().padStart(2, "0");
+  const month = (d.getMonth() + 1).toString().padStart(2, "0");
+  const year = d.getFullYear().toString().slice(-2);
+  return `${day}/${month}/${year}`;
+}
+
 export function fDateandTime(date?: string | Date): string {
   if (!date) return "";
   const d = new Date(date);

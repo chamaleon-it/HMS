@@ -212,9 +212,9 @@ export default function OrderTable({
           discount,
           insurance: 0,
           online: 0,
-          patient: data.data.patient._id,
-          department: data.data.doctor.specialization,
-          doctor: data.data.doctor.name,
+          patient: data.data.patient?._id || "",
+          department: data.data.doctor?.specialization || "",
+          doctor: data.data.doctor?.name || "",
           note: "",
         },
         invoiceDetails: {
@@ -293,7 +293,7 @@ export default function OrderTable({
                 onClick={() => handleRowClick(r)}
               >
                 <div className="flex items-center gap-1.5">
-                  <div className="font-medium text-slate-900">{r?.patient?.name}</div>
+                  <div className="font-medium text-slate-900">{r?.patient?.name || "-"}</div>
                   {r?.patient?.allergies && (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -305,7 +305,11 @@ export default function OrderTable({
                     </Tooltip>
                   )}
                 </div>
-                {r.status !== "Draft" && <div className="text-[11px] text-slate-500">({r?.patient?.mrn})</div>}
+                {r.status !== "Draft" && (
+                  <div className="text-[11px] text-slate-500">
+                    {r?.patient?.mrn ? `(${r.patient.mrn})` : "-"}
+                  </div>
+                )}
               </TableCell>
               <TableCell className="py-3 text-center cursor-pointer"
                 onClick={() => handleRowClick(r)}
@@ -480,7 +484,7 @@ export default function OrderTable({
                           <AlertDialogDescription>
                             Are you sure you want to recover the lab report for{" "}
                             <span className="font-bold text-slate-900">
-                              {r.patient?.name}
+                              {r.patient?.name || "-"}
                             </span>
                             ? This will move it back to its previous status.
                           </AlertDialogDescription>

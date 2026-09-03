@@ -159,7 +159,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
   return (
     <div ref={rootRef} className="relative w-full max-w-[500px]">
       <div className="flex items-center justify-between mb-1">
-        <Label className="block">Customer Name <span className="text-xs">*</span></Label>
+        <Label className="block">Customer Name</Label>
         {actionElement}
       </div>
 

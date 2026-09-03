@@ -2,7 +2,7 @@
 
 import React from "react";
 import { formatINR } from "@/lib/fNumber";
-import { fDateandTime } from "@/lib/fDateAndTime";
+import { fDateShort } from "@/lib/fDateAndTime";
 import useSWR from "swr";
 
 interface PrintReceiptProps {
@@ -120,7 +120,7 @@ export default function PrintReceipt({
         };
     };
 
-    if (!patient || !payload || !invoiceDetails) return null;
+    if (!payload || !invoiceDetails) return null;
 
     const invoiceNo = `${invoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;
 
@@ -215,7 +215,7 @@ export default function PrintReceipt({
                                 </div>
                                 <div className="text-[12px] text-gray-500 font-medium space-y-0.5 mt-2 italic">
                                     <p>Invoice No: <span className="font-bold text-black">{invoiceNo}</span></p>
-                                    <p>Date : <span className="font-bold text-black">{fDateandTime(new Date())}</span></p>
+                                    <p>Date : <span className="font-bold text-black">{fDateShort(new Date())}</span></p>
                                 </div>
                             </div>
                         </div>
@@ -224,19 +224,19 @@ export default function PrintReceipt({
                         <div className="grid grid-cols-4 bg-[#eaeaea] text-black select-none py-2.5 px-6">
                             <div className="flex flex-col justify-center">
                                 <span className="text-[11px] text-gray-500 font-medium leading-none">Patient</span>
-                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient.name}</span>
+                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient?.name || "-"}</span>
                             </div>
                             <div className="flex flex-col justify-center">
                                 <span className="text-[11px] text-gray-500 font-medium leading-none">PID</span>
-                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient.mrn?.replace("MRN", "P-") || " "}</span>
+                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient?.mrn ? patient.mrn.replace("MRN", "P-") : "-"}</span>
                             </div>
                             <div className="flex flex-col justify-center">
                                 <span className="text-[11px] text-gray-500 font-medium leading-none">Phone</span>
-                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient.phoneNumber || " "}</span>
+                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient?.phoneNumber || "-"}</span>
                             </div>
                             <div className="flex flex-col justify-center">
                                 <span className="text-[11px] text-gray-500 font-medium leading-none">Doctor</span>
-                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{payload.doctor || " "}</span>
+                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{payload.doctor || "-"}</span>
                             </div>
                         </div>
 

@@ -86,7 +86,7 @@ function RxQueue() {
         _id: d.id,
         mrn: "-",
         rxNumber: `DRFT-${d.id.slice(-4)}`,
-        patient: { name: d.patientName || "Unknown" } as any,
+        patient: { name: d.patientName || "-" } as any,
         status: "Draft",
         priority: d.payload?.priority || "Normal",
         items: d.payload?.items || [],

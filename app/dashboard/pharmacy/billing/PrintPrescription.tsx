@@ -1,6 +1,6 @@
 "use client";
 
-import { fDateandTime } from "@/lib/fDateAndTime";
+import { fDateShort } from "@/lib/fDateAndTime";
 import { OrderType } from "../interface";
 import Watermark from "@/components/print/Watermark";
 import HospitalName from "@/components/print/HospitalName";
@@ -57,7 +57,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                                 PRESCRIPTION
                             </span>
                             <div className="space-y-0.5">
-                                <p className="text-sm font-bold">{fDateandTime(new Date()).split(",")[0]}</p>
+                                <p className="text-sm font-bold">{fDateShort(new Date())}</p>
                                 <p className="text-[10px] text-black tracking-widest font-semibold">DRUG ADVICE PAGE</p>
                             </div>
                         </div>
@@ -68,12 +68,12 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                 <div className="p-5 flex-1 flex flex-col gap-6 text-[13px]">
                     {/* PATIENT STRIP */}
                     <div className="border border-slate-500 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
-                        <Info label="Patient" value={patient?.name || "—"} />
-                        <Info label="Age / G" value={`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "—"} / ${patient?.gender || "—"}`} />
-                        <Info label="PID" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
-                        <Info label="Date" value={fDateandTime(order.createdAt).split(",")[0]} />
+                        <Info label="Patient" value={patient?.name || "-"} />
+                        <Info label="Age / G" value={patient ? `${patient.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "-"} / ${patient.gender || "-"}` : "-"} />
+                        <Info label="PID" value={patient?.mrn ? patient.mrn.replace("MRN", "P-") : "-"} />
+                        <Info label="Date" value={fDateShort(order.createdAt)} />
                         <div className="col-span-2">
-                            <Info label="Doctor" value={`DR. ${doctor?.name || "—"}`} />
+                            <Info label="Doctor" value={`DR. ${doctor?.name || "-"}`} />
                         </div>
                         <div className="col-span-2 text-right">
                             <Info label="Dept" value={doctor?.specialization || "ENT"} />
@@ -98,14 +98,14 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                                     <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
                                         <td className="px-3 py-3 text-center font-bold text-black text-xs">{i + 1}</td>
                                         <td className="px-3 py-3">
-                                            <p className="font-black text-black text-[12px]">{m.name.name}</p>
-                                            <p className="text-[10px] text-black font-medium tracking-tight mt-0.5">(GEN: {m.name.generic || "—"})</p>
+                                            <p className="font-black text-black text-[12px]">{m.name?.name || (typeof m.name === 'string' ? m.name : "-")}</p>
+                                            <p className="text-[10px] text-black font-medium tracking-tight mt-0.5">(GEN: {m.name?.generic || "-"})</p>
                                         </td>
-                                        <td className="px-3 py-3 text-center font-bold text-black">{m.dosage || "—"}</td>
-                                        <td className="px-3 py-3 text-center font-bold text-black">{m.frequency || "—"}</td>
-                                        <td className="px-3 py-3 text-center font-bold text-black">{m.duration || "—"}</td>
+                                        <td className="px-3 py-3 text-center font-bold text-black">{m.dosage || "-"}</td>
+                                        <td className="px-3 py-3 text-center font-bold text-black">{m.frequency || "-"}</td>
+                                        <td className="px-3 py-3 text-center font-bold text-black">{m.duration || "-"}</td>
                                         <td className="px-3 py-3 text-xs font-semibold text-black italic">
-                                            {m.food || "—"}
+                                            {m.food || "-"}
                                         </td>
                                     </tr>
                                 ))}

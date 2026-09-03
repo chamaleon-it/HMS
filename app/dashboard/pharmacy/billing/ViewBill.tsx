@@ -3,7 +3,7 @@
 import AppShell from "@/components/layout/app-shell";
 import HospitalName from "@/components/print/HospitalName";
 import Watermark from "@/components/print/Watermark";
-import { fDateandTime } from "@/lib/fDateAndTime";
+import { fDateShort } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import Link from "next/link";
 import useSWR from "swr";
@@ -30,7 +30,7 @@ export default function ViewBill({ id }: { id: string }) {
         data: {
             _id: string;
             user: string;
-            patient: {
+            patient?: {
                 _id: string;
                 name: string;
                 phoneNumber: string;
@@ -186,7 +186,7 @@ export default function ViewBill({ id }: { id: string }) {
                                 <div className="space-y-0.5">
                                     <p className="text-sm font-medium">Invoice No: <span className="font-bold">{billing.mrn}</span></p>
                                     <p className="text-[11px] opacity-80">
-                                        {billing.createdAt ? fDateandTime(billing.createdAt) : "—"}
+                                        {billing.createdAt ? fDateShort(billing.createdAt) : "-"}
                                     </p>
                                 </div>
                             </div>
@@ -197,12 +197,12 @@ export default function ViewBill({ id }: { id: string }) {
                     <div className="p-5 flex-1 flex flex-col gap-6 text-[13px]">
                         {/* PATIENT STRIP - 4 COL COMPACT */}
                         <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
-                            <Compact label="Patient" value={billing.patient?.name || "—"} />
-                            <Compact label="PID" value={billing.patient?.mrn?.replace("MRN", "P-") || "—"} />
-                            <Compact label="Age/G" value={`${billing.patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient?.gender || "—"}`} />
-                            <Compact label="Phone" value={billing.patient?.phoneNumber || "—"} />
-                            <Compact label="Doctor" value={billing.doctor || "—"} />
-                            <Compact label="Dept" value={billing.department || "—"} />
+                            <Compact label="Patient" value={billing.patient?.name || "-"} />
+                            <Compact label="PID" value={billing.patient?.mrn?.replace("MRN", "P-") || "-"} />
+                            <Compact label="Age/G" value={billing.patient ? `${billing.patient.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "-"} / ${billing.patient.gender || "-"}` : "-"} />
+                            <Compact label="Phone" value={billing.patient?.phoneNumber || "-"} />
+                            <Compact label="Doctor" value={billing.doctor || "-"} />
+                            <Compact label="Dept" value={billing.department || "-"} />
                             <Compact label="Pay" value={paymentMethod} />
                             <Compact label="Bill" value="OP Pharmacy" />
                         </div>
@@ -303,7 +303,7 @@ export default function ViewBill({ id }: { id: string }) {
             {printBill && (
                 <PrintReceipt
                     payload={{
-                        patient: printBill.patient.name,
+                        patient: printBill.patient?.name || "-",
                         items: printBill.items.map((i: any) => ({ ...i, name: i.name })),
                         cash: printBill.cash,
                         online: printBill.online,
@@ -311,8 +311,9 @@ export default function ViewBill({ id }: { id: string }) {
                         discount: printBill.discount,
                     }}
                     patient={{
-                        name: printBill.patient.name,
-                        mrn: printBill.patient.mrn,
+                        name: printBill.patient?.name || "-",
+                        mrn: printBill.patient?.mrn || "-",
+                        phoneNumber: printBill.patient?.phoneNumber || "-",
                     }}
                     invoiceDetails={{
                         prefix: "MINV",

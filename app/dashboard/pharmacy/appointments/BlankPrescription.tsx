@@ -1,7 +1,7 @@
 "use client";
 
 
-import { fDateandTime } from "@/lib/fDateAndTime";
+import { fDateShort } from "@/lib/fDateAndTime";
 import Watermark from "@/components/print/Watermark";
 import HospitalName from "@/components/print/HospitalName";
 import { createPortal } from "react-dom";
@@ -74,7 +74,7 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                                 PRESCRIPTION
                             </span>
                             <div className="space-y-0.5">
-                                <p className="text-sm font-bold">{fDateandTime(date)}</p>
+                                <p className="text-sm font-bold">{fDateShort(date)}</p>
                             </div>
                         </div>
                     </div>
@@ -85,16 +85,16 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                     {/* PATIENT STRIP - Single Row */}
                     <div className="border border-slate-500 rounded-lg px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50/50">
                         <div className="flex-1 min-w-0">
-                            <Info label="Patient" value={patient?.name || "—"} />
+                            <Info label="Patient" value={patient?.name || "-"} />
                         </div>
                         <div className="shrink-0">
-                            <Info label="Age/G" value={`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "—"}/${patient?.gender?.[0] || "—"}`} />
+                            <Info label="Age/G" value={patient ? `${patient.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "-"}/${patient.gender?.[0] || "-"}` : "-"} />
                         </div>
                         <div className="shrink-0">
-                            <Info label="PID" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
+                            <Info label="PID" value={patient?.mrn ? patient.mrn.replace("MRN", "P-") : "-"} />
                         </div>
                         <div className="shrink-0">
-                            <Info label="Doctor" value={doctor?.name ? `DR. ${doctor.name}` : "—"} />
+                            <Info label="Doctor" value={doctor?.name ? `DR. ${doctor.name}` : "-"} />
                         </div>
                         <div className="shrink-0">
                             <Info label="Dept" value={doctor?.specialization || "ENT"} />

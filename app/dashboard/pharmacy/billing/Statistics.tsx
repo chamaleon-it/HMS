@@ -30,7 +30,7 @@ interface StatisticsProps {
             unitPrice: number;
             gst: number;
         }[];
-        patient: {
+        patient?: {
             name: string;
             mrn: string;
         };
