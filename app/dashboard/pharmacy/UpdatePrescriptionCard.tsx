@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 
 import { Item, OrderType } from "./interface";
@@ -6,6 +6,7 @@ import Medicine from "./Medicine";
 import { Button } from "@/components/ui/button";
 import { Trash, AlertTriangle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import UpdateMedicine from "./UpdateMedicine";
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
@@ -101,29 +102,31 @@ export default function UpdatePrescriptionCard({
 
   return (
     <div className="rounded-lg border overflow-x-auto">
-      <div className="rounded-t-lg min-w-250">
+      <div className="rounded-t-lg min-w-310">
         <table className="w-full text-[15px]">
-          <thead className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white">
+          <thead className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white text-xs uppercase tracking-wider font-semibold">
             <tr className="w-full">
-              <th className="w-[5%] p-2 text-left">Sl</th>
-              <th className="w-[25%] p-2 text-left">Drug</th>
-              <th className="w-[25%] p-2 text-left">Rack</th>
-              <th className="w-[10%] p-2 text-left">Exp</th>
-              <th className="w-[10%] p-2 text-center">Available</th>
-              <th className="w-[10%] p-2 text-right">Qty</th>
-              <th className="w-[10%] p-2 text-right">MRP</th>
-              <th className="w-[10%] p-2 text-right">Amount</th>
-              <th className="w-[10%] p-2 text-right">Actions</th>
+              <th className="p-3 text-left w-10">Sl</th>
+              <th className="p-3 text-left min-w-45">Drug</th>
+              <th className="p-3 text-left min-w-26.25">Dosage</th>
+              <th className="p-3 text-left min-w-26.25">Frequency</th>
+              <th className="p-3 text-left min-w-31.25">Food</th>
+              <th className="p-3 text-left min-w-26.25">Duration</th>
+              <th className="p-3 text-left min-w-20">Rack</th>
+              <th className="p-3 text-left min-w-23.75">Exp</th>
+              <th className="p-3 text-center min-w-20">Available</th>
+              <th className="p-3 text-right min-w-21.25">Qty</th>
+              <th className="p-3 text-right min-w-18.75">MRP</th>
+              <th className="p-3 text-right min-w-20">Amount</th>
+              <th className="p-3 text-right min-w-15">Actions</th>
             </tr>
           </thead>
           <tbody>
             {data?.items?.map((m, i) => (
               <tr key={i} className="border-b last:border-b-0 hover:bg-slate-50/80 transition-all duration-200 group">
-                <td className="p-4 align-middle text-slate-500 font-medium text-sm">{i + 1}</td>
-                <td className="p-4 align-middle">
+                <td className="p-3 align-middle text-slate-500 font-medium text-sm">{i + 1}</td>
+                <td className="p-3 align-middle">
                   <div className="flex items-center justify-start gap-2">
-
-
                     <div className="">
                       <div className="relative w-full">
                         <input
@@ -154,25 +157,74 @@ export default function UpdatePrescriptionCard({
                     )}
                   </div>
                 </td>
-                <td className="p-4 align-middle text-sm text-slate-600">
+                <td className="p-3 align-middle">
+                  <ComboboxInput
+                    label="Dosage"
+                    value={m.dosage}
+                    disabled={data.status === "Completed"}
+                    onChange={(val) => updateField(i, "dosage", val)}
+                    options={["½ tab", "1 tab", "2 tab", "5 ml", "10 ml", "20 ml"]}
+                  />
+                </td>
+                <td className="p-3 align-middle">
+                  <ComboboxInput
+                    label="Frequency"
+                    value={m.frequency}
+                    disabled={data.status === "Completed"}
+                    onChange={(val) => updateField(i, "frequency", val)}
+                    options={["1-0-1", "1-1-1", "0-1-1", "1-0-0", "0-0-1", "SOS"]}
+                  />
+                </td>
+                <td className="p-3 align-middle">
+                  <ComboboxInput
+                    label="Food"
+                    value={m.food}
+                    disabled={data.status === "Completed"}
+                    onChange={(val) => updateField(i, "food", val)}
+                    options={[
+                      "After food",
+                      "Before food",
+                      "With food",
+                      "Empty stomach",
+                      "Anytime",
+                    ]}
+                  />
+                </td>
+                <td className="p-3 align-middle">
+                  <ComboboxInput
+                    label="Duration"
+                    value={m.duration}
+                    disabled={data.status === "Completed"}
+                    onChange={(val) => updateField(i, "duration", val)}
+                    options={[
+                      "3 days",
+                      "5 days",
+                      "7 days",
+                      "10 days",
+                      "14 days",
+                      "28 days",
+                    ]}
+                  />
+                </td>
+                <td className="p-3 align-middle text-sm text-slate-600">
                   {m?.name?.rackLocation || "-"}
                 </td>
-                <td className="p-4 align-middle text-sm text-slate-600">
+                <td className="p-3 align-middle text-sm text-slate-600">
                   {fDate(m.name.expiryDate)}
                 </td>
-                <td className="p-4 align-middle text-center font-medium text-slate-700">
+                <td className="p-3 align-middle text-center font-medium text-slate-700">
                   {m.name.quantity}
                 </td>
-                <td className="p-4 align-middle">
+                <td className="p-3 align-middle">
                   <QuantityInput i={i} m={m} updateField={updateField} status={data.status} />
                 </td>
-                <td className="p-4 align-middle text-right text-sm font-medium text-slate-600 whitespace-nowrap">
+                <td className="p-3 align-middle text-right text-sm font-medium text-slate-600 whitespace-nowrap">
                   {formatINR(m.name.unitPrice)}
                 </td>
-                <td className="p-4 align-middle text-right text-sm font-semibold text-slate-800 whitespace-nowrap">
+                <td className="p-3 align-middle text-right text-sm font-semibold text-slate-800 whitespace-nowrap">
                   {formatINR((m.quantity || 0) * (m.name.unitPrice || 0))}
                 </td>
-                <td className="p-4 align-middle text-right">
+                <td className="p-3 align-middle text-right">
                   <Button
                     disabled={data.status === "Completed"}
                     size="icon"
@@ -218,6 +270,96 @@ export default function UpdatePrescriptionCard({
     </div>
   );
 }
+
+type ComboboxInputProps = {
+  label: string;
+  value?: string;
+  onChange: (v: string) => void;
+  options: string[];
+  disabled?: boolean;
+};
+
+const ComboboxInput = ({
+  label,
+  value,
+  onChange,
+  options,
+  disabled,
+}: ComboboxInputProps) => {
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState(value ?? "");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setText(value ?? "");
+  }, [value]);
+
+  const handleChange = (raw: string) => {
+    setText(raw);
+    onChange(raw);
+    if (!disabled) setOpen(true);
+  };
+
+  const commit = (val: string) => {
+    setText(val);
+    onChange(val);
+    setOpen(false);
+  };
+
+  return (
+    <div className="relative w-full min-w-21.25" ref={containerRef}>
+      <Popover open={open && !disabled} onOpenChange={(o) => !disabled && setOpen(o)}>
+        <PopoverTrigger asChild>
+          <div className="relative w-full">
+            <input
+              disabled={disabled}
+              value={disabled && !text ? "-" : text}
+              onChange={(e) => handleChange(e.target.value)}
+              onFocus={() => !disabled && setOpen(true)}
+              onClick={() => !disabled && setOpen(true)}
+              onBlur={() => setTimeout(() => setOpen(false), 150)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setOpen(false);
+                  (e.target as HTMLElement).blur();
+                }
+              }}
+              placeholder={label}
+              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-slate-700 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-400 placeholder:font-normal disabled:bg-transparent disabled:border-transparent disabled:text-slate-700 disabled:cursor-default pr-4"
+            />
+            {!disabled && (
+              <span className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-400 text-[8px]">
+                ▼
+              </span>
+            )}
+          </div>
+        </PopoverTrigger>
+
+        <PopoverContent
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="p-1 border border-slate-200 shadow-lg bg-white rounded-lg z-50 text-xs w-auto min-w-30"
+          align="start"
+        >
+          <div className="max-h-44 overflow-y-auto space-y-0.5">
+            {options.map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-emerald-50 hover:text-emerald-700 text-xs font-medium text-slate-700 transition-colors"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  commit(opt);
+                }}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+};
 
 const QuantityInput = ({
   updateField,

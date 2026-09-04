@@ -8,6 +8,7 @@ export interface BulkUpdateItem {
     unitPrice: number;
     expiryDate: string;
     purchasePrice: number;
+    gst_p?: number;
     sgst_p: number;
     cgst_p: number;
     dis_p: number;
