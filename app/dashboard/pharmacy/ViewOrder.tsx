@@ -136,10 +136,6 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     const [amountPaid, setAmountPaid] = useState("");
     const [referenceNumber, setReferenceNumber] = useState("");
 
-
-    const { data } = useSWR<{ data: { pharmacy: { inventory: { allowNegativeStock: boolean } } } }>("/users/profile")
-    const allowNegativeStock = data?.data?.pharmacy?.inventory?.allowNegativeStock
-
     useEffect(() => {
         setLocalOrder(order);
         setUpdatePayload(order);
@@ -179,17 +175,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [open]);
 
-    const checkIsDirty = () => {
-        if (!localOrder || !updatePayload) return false;
-        if (localOrder.items.length !== updatePayload.items.length) return true;
-        for (let i = 0; i < localOrder.items.length; i++) {
-            const l = localOrder.items[i];
-            const u = updatePayload.items[i];
-            if (l.name._id !== u.name._id) return true;
-            if (l.quantity !== u.quantity) return true;
-        }
-        return false;
-    };
+
 
     const handleUpdate = async () => {
         if (!updatePayload || !localOrder) return;
@@ -378,7 +364,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
 
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="w-[98vw]! max-w-7xl! h-[95vh] flex flex-col print:hidden">
+            <DialogContent className="w-[98vw]! max-w-7xl! h-[80vh] flex flex-col print:hidden">
                 <DialogHeader>
                     <DialogTitle className="text-xl flex items-center justify-between pr-8">
                         <span>Order — {localOrder.mrn}</span>
