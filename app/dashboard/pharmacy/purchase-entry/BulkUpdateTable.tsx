@@ -135,31 +135,33 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             schema_amt: 0,
             amount: 0,
         };
-        setNewItems([...newItems, newItem]);
+        setNewItems(prev => [...prev, newItem]);
     };
 
     const removeNewRow = (id: string) => {
-        setNewItems(newItems.filter((item) => item.id !== id));
+        setNewItems(prev => prev.filter((item) => item.id !== id));
     };
 
-    const updateNewItem = (id: string, field: keyof NewItem, value: any) => {
+    const updateItemFields = (id: string, fields: Partial<NewItem>) => {
         setNewItems(prevItems =>
             prevItems.map((item) => {
                 if (item.id === id) {
-                    const updated = { ...item, [field]: value };
+                    const updated = { ...item, ...fields };
 
-                    if (field === "pack" || field === "noOfPack" || field === "schema_free") {
-                        const pack = Number(updated.pack);
-                        const noOfPack = Number(updated.noOfPack);
-                        const schemaFree = Number(updated.schema_free);
-                        updated.qty = (noOfPack + schemaFree) * pack;
-                    }
-
-                    if (field === "gst_p") {
-                        const gp = Number(value) || 0;
+                    if ("gst_p" in fields) {
+                        const gp = Number(fields.gst_p) || 0;
                         updated.gst_p = gp;
                         updated.sgst_p = gp / 2;
                         updated.cgst_p = gp / 2;
+                    } else if ("cgst_p" in fields || "sgst_p" in fields) {
+                        updated.gst_p = (Number(updated.cgst_p) || 0) + (Number(updated.sgst_p) || 0);
+                    }
+
+                    if ("pack" in fields || "noOfPack" in fields || "schema_free" in fields) {
+                        const pack = Number(updated.pack) || 0;
+                        const noOfPack = Number(updated.noOfPack) || 0;
+                        const schemaFree = Number(updated.schema_free) || 0;
+                        updated.qty = (noOfPack + schemaFree) * pack;
                     }
 
                     const q = Number(updated.noOfPack) || 0;
@@ -168,12 +170,12 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
 
                     const gross = q * r;
                     let discount = Number(updated.dis) || 0;
-                    if (field === "dis") {
-                        discount = Number(value) || 0;
+                    if ("dis" in fields) {
+                        discount = Number(fields.dis) || 0;
                         updated.dis = discount;
                         updated.dis_p = gross > 0 ? Number(((discount / gross) * 100).toFixed(2)) : 0;
-                    } else if (field === "dis_p") {
-                        const dp = Number(value) || 0;
+                    } else if ("dis_p" in fields) {
+                        const dp = Number(fields.dis_p) || 0;
                         updated.dis_p = dp;
                         discount = gross * (dp / 100);
                         updated.dis = Number(discount.toFixed(2));
@@ -195,6 +197,10 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 return item;
             })
         );
+    };
+
+    const updateNewItem = (id: string, field: keyof NewItem, value: any) => {
+        updateItemFields(id, { [field]: value });
     };
 
     const totals = useMemo(() => {
@@ -579,19 +585,18 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 <TableHead className="w-16 text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider border-r border-slate-600/30">SL NO</TableHead>
                                 <TableHead className="min-w-37.5 text-[11px] font-semibold uppercase text-white py-2.5 tracking-wider">PRODUCT NAME</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 tracking-wider">BATCH</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">PACK</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">STRIP COUNT</TableHead>
-
-                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-21.25">MRP</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 tracking-wider">EXPIRY</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">PACK</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">QTY</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">SCHEMA (FREE)</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-21.25">UNITS</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-21.25">MRP</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-21.25">Rate</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-20">DIS(%)</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-20">DIS(₹)</TableHead>
                                 {gstType === "inclusive" && (
                                     <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-20">GST(%)</TableHead>
                                 )}
-                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-20">DIS(%)</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-20">DIS(₹)</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">SCHEMA (FREE)</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-21.25">QTY</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-right pr-8 tracking-wider">TOTAL</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-right pr-8 tracking-wider">Action</TableHead>
                             </TableRow>
@@ -616,16 +621,17 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 selectedItemId={item._id}
                                                 selectedItemName={item.product}
                                                 onSelect={(it) => {
-
                                                     const gst = it?.gst || 0;
-                                                    updateNewItem(item.id, "_id", it._id);
-                                                    updateNewItem(item.id, "product", it.name);
-                                                    updateNewItem(item.id, "unitPrice", it.unitPrice || 0);
-                                                    updateNewItem(item.id, "purchasePrice", it.purchasePrice || 0);
-                                                    updateNewItem(item.id, "pack", it.packing || 0);
-                                                    updateNewItem(item.id, "gst_p", gst);
-                                                    updateNewItem(item.id, "cgst_p", gst / 2);
-                                                    updateNewItem(item.id, "sgst_p", gst / 2);
+                                                    updateItemFields(item.id, {
+                                                        _id: it._id,
+                                                        product: it.name,
+                                                        unitPrice: it.unitPrice || 0,
+                                                        purchasePrice: it.purchasePrice || 0,
+                                                        pack: it.packing || 0,
+                                                        gst_p: gst,
+                                                        cgst_p: gst / 2,
+                                                        sgst_p: gst / 2
+                                                    });
 
                                                     setTimeout(() => {
                                                         const currentRow = document.querySelector(`[data-row-id="${item.id}"]`);
@@ -638,6 +644,13 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             />
                                         </TableCell>
                                         <TableCell className="p-2"><Input name="batch" className="h-11 text-xs  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-(--color-synapse-light) focus:ring-4 focus:ring-synapse-light/5 transition-all text-center" value={item.batch} onChange={(e) => updateNewItem(item.id, "batch", e.target.value)} onKeyDown={(e) => handleKeyDown(e, item.id, "batch")} /></TableCell>
+                                        <TableCell className="p-2">
+                                            <TypableExpiryInput
+                                                value={item.expiryDate}
+                                                onChange={(date) => updateNewItem(item.id, "expiryDate", date)}
+                                                onKeyDown={(e) => handleKeyDown(e, item.id, "expiryDate")}
+                                            />
+                                        </TableCell>
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
@@ -658,7 +671,21 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "noOfPack")}
                                             />
                                         </TableCell>
-
+                                        <TableCell className="p-2 text-center">
+                                            <Input
+                                                type="number"
+                                                data-field="schema_free"
+                                                className="h-11 text-sm font-semibold border-synapse-light/30 bg-synapse-light/10/20 rounded-lg focus:bg-white focus:border-(--color-synapse-light) focus:ring-4 focus:ring-synapse-light/10 transition-all text-center text-(--color-synapse-light)"
+                                                value={item.schema_free || ""}
+                                                onChange={(e) => updateNewItem(item.id, "schema_free", Number(e.target.value))}
+                                                onKeyDown={(e) => handleKeyDown(e, item.id, "schema_free")}
+                                            />
+                                        </TableCell>
+                                        <TableCell className="p-2 text-center">
+                                            <div className="text-sm font-bold text-[#1e293b] group-hover:text-(--color-synapse-light) transition-colors">
+                                                {item.qty || 0}
+                                            </div>
+                                        </TableCell>
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
@@ -667,13 +694,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 value={item.unitPrice || ""}
                                                 onChange={(e) => updateNewItem(item.id, "unitPrice", Number(e.target.value))}
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "unitPrice")}
-                                            />
-                                        </TableCell>
-                                        <TableCell className="p-2">
-                                            <TypableExpiryInput
-                                                value={item.expiryDate}
-                                                onChange={(date) => updateNewItem(item.id, "expiryDate", date)}
-                                                onKeyDown={(e) => handleKeyDown(e, item.id, "expiryDate")}
                                             />
                                         </TableCell>
                                         <TableCell className="p-2">
@@ -686,36 +706,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "purchasePrice")}
                                             />
                                         </TableCell>
-                                        {gstType === "inclusive" && (
-                                            <TableCell className="p-2">
-                                                <Select
-                                                    value={String(item.gst_p ?? ((item.sgst_p || 0) + (item.cgst_p || 0)))}
-                                                    onValueChange={(v) => {
-                                                        const val = Number(v);
-                                                        updateNewItem(item.id, "gst_p", val);
-                                                        setTimeout(() => {
-                                                            const trigger = document.querySelector(`[data-row-id="${item.id}"] [data-field="gst_p"]`) as HTMLElement;
-                                                            if (trigger) focusNextElement(trigger);
-                                                        }, 50);
-                                                    }}
-                                                >
-                                                    <SelectTrigger
-                                                        data-field="gst_p"
-                                                        className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-(--color-synapse-light) focus:ring-4 focus:ring-synapse-light/5 transition-all px-3 text-center"
-                                                    >
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="rounded-lg shadow-xl">
-                                                        <SelectItem value="0">0%</SelectItem>
-                                                        <SelectItem value="5">5%</SelectItem>
-                                                        <SelectItem value="12">12%</SelectItem>
-                                                        <SelectItem value="18">18%</SelectItem>
-                                                        <SelectItem value="24">24%</SelectItem>
-                                                        <SelectItem value="28">28%</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </TableCell>
-                                        )}
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
@@ -734,32 +724,53 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 className="h-11 text-sm font-semibold border-red-100 bg-red-50/10 rounded-lg focus:bg-white focus:border-red-400 focus:ring-4 focus:ring-red-500/10 transition-all text-center text-red-600"
                                                 value={item.dis || ""}
                                                 onChange={(e) => updateNewItem(item.id, "dis", Number(e.target.value))}
-                                                onKeyDown={(e) => handleKeyDown(e, item.id, "dis")}
+                                                onKeyDown={(e) => handleKeyDown(e, item.id, "dis", gstType === "exclusive", true)}
                                                 placeholder="0"
                                             />
                                         </TableCell>
-
-                                        <TableCell className="p-2 text-center">
-                                            <Input
-                                                type="number"
-                                                data-field="schema_free"
-                                                className="h-11 text-sm font-semibold border-synapse-light/30 bg-synapse-light/10/20 rounded-lg focus:bg-white focus:border-(--color-synapse-light) focus:ring-4 focus:ring-synapse-light/10 transition-all text-center text-(--color-synapse-light)"
-                                                value={item.schema_free || ""}
-                                                onChange={(e) => updateNewItem(item.id, "schema_free", Number(e.target.value))}
-                                                onKeyDown={(e) => handleKeyDown(e, item.id, "schema_free", true, true)}
-                                            />
-                                        </TableCell>
-                                        <TableCell className="p-2">
-                                            <Input
-                                                type="number"
-                                                name="qty"
-                                                data-field="qty"
-                                                className="h-11 text-sm font-semibold border-slate-200 bg-synapse-light/10/20 rounded-lg focus:bg-white focus:border-(--color-synapse-light) focus:ring-4 focus:ring-synapse-light/10 transition-all text-center text-(--color-synapse-light)"
-                                                value={item.qty || ""}
-                                                onChange={(e) => updateNewItem(item.id, "qty", Number(e.target.value))}
-                                                onKeyDown={(e) => handleKeyDown(e, item.id, "qty")}
-                                            />
-                                        </TableCell>
+                                        {gstType === "inclusive" && (
+                                            <TableCell className="p-2">
+                                                <Select
+                                                    value={String(item.gst_p ?? ((item.sgst_p || 0) + (item.cgst_p || 0)))}
+                                                    onValueChange={(v) => {
+                                                        const val = Number(v);
+                                                        updateNewItem(item.id, "gst_p", val);
+                                                    }}
+                                                >
+                                                    <SelectTrigger
+                                                        data-field="gst_p"
+                                                        className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-(--color-synapse-light) focus:ring-4 focus:ring-synapse-light/5 transition-all px-3 text-center"
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Tab' && !e.shiftKey) {
+                                                                e.preventDefault();
+                                                                addNewRow();
+                                                                setTimeout(() => {
+                                                                    const allRows = document.querySelectorAll('[data-row-id]');
+                                                                    const lastRow = allRows[allRows.length - 1];
+                                                                    if (lastRow) {
+                                                                        const firstButton = lastRow.querySelector('button[role="combobox"]') as HTMLElement;
+                                                                        if (firstButton) {
+                                                                            firstButton.focus();
+                                                                            firstButton.click();
+                                                                        }
+                                                                    }
+                                                                }, 200);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="rounded-lg shadow-xl">
+                                                        <SelectItem value="0">0%</SelectItem>
+                                                        <SelectItem value="5">5%</SelectItem>
+                                                        <SelectItem value="12">12%</SelectItem>
+                                                        <SelectItem value="18">18%</SelectItem>
+                                                        <SelectItem value="24">24%</SelectItem>
+                                                        <SelectItem value="28">28%</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </TableCell>
+                                        )}
                                         <TableCell className="p-2 text-right pr-8">
                                             <div className="text-base font-bold text-[#1e293b] group-hover:text-(--color-synapse-light) transition-colors drop-shadow-sm">
                                                 ₹{(item.amount || 0).toFixed(2)}
