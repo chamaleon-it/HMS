@@ -63,7 +63,7 @@ const getStatusDot = (status: ApiStatus) => {
 // ==== Config ====
 const START_HOUR = 8;
 const END_HOUR = 21;
-const BLOCK_MINUTES = 15; // grid step
+const BLOCK_MINUTES = 10; // grid step
 const ROW_HEIGHT_REM = 1.25; // Compact height
 const DEFAULT_DURATION_MIN = 30; // Default to 30 mins for better visual if missing
 
@@ -185,7 +185,7 @@ export default function WeeklyCalender({
     const clampedStart = Math.max(0, Math.min(startMin, gridMax));
     const clampedEnd = Math.max(0, Math.min(endMin, gridMax));
     const heightMin = Math.max(
-      15,
+      10,
       clampedEnd - clampedStart || DEFAULT_DURATION_MIN
     );
     return { clampedStart, heightMin };
@@ -326,7 +326,7 @@ export default function WeeklyCalender({
                 const minutes = i * BLOCK_MINUTES;
                 const h = Math.floor(minutes / 60) + START_HOUR;
                 const m = minutes % 60;
-                const isHour = i % 4 === 0;
+                const isHour = i % 6 === 0;
                 const label = isHour ? `${h > 12 ? h - 12 : h} ${h >= 12 ? 'PM' : 'AM'}` : null;
 
                 return (

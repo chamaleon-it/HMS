@@ -40,8 +40,8 @@ const consultedStyles = {
 // ==== Config ====
 const START_HOUR = 8;
 const END_HOUR = 21;
-const BLOCK_MINUTES = 15; // grid step
-const ROW_HEIGHT_REM = 1.25; // each 15 min = 1.25rem → 1h = 5rem
+const BLOCK_MINUTES = 10; // grid step
+const ROW_HEIGHT_REM = 1.25; // each 10 min = 1.25rem
 const DEFAULT_DURATION_MIN = 60;
 
 const ROWS = ((END_HOUR - START_HOUR) * 60) / BLOCK_MINUTES;
@@ -132,7 +132,7 @@ export default function WeeklyCalender({
     const clampedStart = Math.max(0, Math.min(startMin, gridMax));
     const clampedEnd = Math.max(0, Math.min(endMin, gridMax));
     const heightMin = Math.max(
-      15,
+      10,
       clampedEnd - clampedStart || DEFAULT_DURATION_MIN
     );
     return { clampedStart, heightMin };
@@ -163,13 +163,13 @@ export default function WeeklyCalender({
           {/* Time labels */}
           <div className="flex flex-col">
             {[...Array(ROWS)].map((_, i) =>
-              i % 4 === 0 ? (
+              i % 6 === 0 ? (
                 <div
                   key={i}
                   className="px-2 text-[10px] text-gray-500 flex items-start justify-end pt-1 border-t border-gray-300"
                   style={{ height: `${ROW_HEIGHT_REM}rem` }}
                 >
-                  {START_HOUR + i / 4}:00
+                  {START_HOUR + i / 6}:00
                 </div>
               ) : (
                 <div
@@ -188,7 +188,7 @@ export default function WeeklyCalender({
                 <div
                   key={i}
                   className={
-                    i % 4 === 0
+                    i % 6 === 0
                       ? "border-t border-gray-300"
                       : "border-t border-gray-100"
                   }
@@ -263,7 +263,7 @@ export default function WeeklyCalender({
                       </div>
                       <div className="opacity-70">
                         {fmtTime(e.start)} –{" "}
-                        {fmtTime(new Date(e.start.getTime() + 15 * 60 * 1000))}
+                        {fmtTime(new Date(e.start.getTime() + 10 * 60 * 1000))}
                       </div>
                       {e.status && (
                         <div className="mt-1">

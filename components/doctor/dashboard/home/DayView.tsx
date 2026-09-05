@@ -29,13 +29,13 @@ function isSameYMD(a: Date, b: Date) {
     a.getDate() === b.getDate()
   );
 }
-function floorToStep(mins: number, step = 15) {
+function floorToStep(mins: number, step = 10) {
   return Math.floor(mins / step) * step;
 }
 
 const START_MIN = 9 * 60;
 const END_MIN = 18 * 60;
-const STEP = 15;
+const STEP = 10;
 
 export default function DailyViewTimeline({
   setOpenAppointment,

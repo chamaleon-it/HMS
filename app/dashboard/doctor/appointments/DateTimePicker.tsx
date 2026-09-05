@@ -204,7 +204,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
     const times = generateTimeSlots(
       availability.startTime ?? "09:00",
       availability.endTime ?? "18:00",
-      15
+      10
     );
 
     const firstFree = times.find((time) => {
@@ -273,7 +273,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
             generateTimeSlots(
               availability?.startTime ?? "09:00",
               availability?.endTime ?? "18:00",
-              15
+              10
             ).map((time) => {
               const round = getRoundForTime(time, availability?.rounds);
               const isDisabledByRound = !!round;

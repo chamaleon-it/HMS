@@ -90,7 +90,7 @@ export const startOfToday = () => startOfDay(new Date());
 export function generateTimeSlots(
   start: string,
   end: string,
-  intervalMinutes: number
+  intervalMinutes: number = 10
 ) {
   const times: string[] = [];
   const [startH, startM] = start.split(":").map(Number);

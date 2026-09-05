@@ -152,11 +152,11 @@ export default function FollowUpTimePro({
   }, [availability]);
 
   const timeSlots = useMemo(() => {
-    if (!availability) return generateTimeSlots("09:00", "18:00", 15);
+    if (!availability) return generateTimeSlots("09:00", "18:00", 10);
     return generateTimeSlots(
       availability.startTime ?? "09:00",
       availability.endTime ?? "18:00",
-      15
+      10
     );
   }, [availability]);
 

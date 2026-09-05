@@ -292,9 +292,9 @@ function ComboTime({
   );
 }
 
-const TIME_OPTIONS = Array.from({ length: 24 * 4 }, (_, i) => {
-  const h = String(Math.floor(i / 4)).padStart(2, "0");
-  const m = String((i % 4) * 15).padStart(2, "0");
+const TIME_OPTIONS = Array.from({ length: 24 * 6 }, (_, i) => {
+  const h = String(Math.floor(i / 6)).padStart(2, "0");
+  const m = String((i % 6) * 10).padStart(2, "0");
   return `${h}:${m}`;
 });
 
