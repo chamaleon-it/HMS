@@ -210,7 +210,7 @@ const SingleSupplierPageContent: React.FC = () => {
                             </Button>
                             <Button
                                 className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md"
-                                onClick={() => router.push(`/dashboard/pharmacy/purchase-entry?supplierId=${supplier._id}`)}
+                                onClick={() => router.push(`/dashboard/pharmacy/purchase-entry/new?supplierId=${supplier._id}`)}
                             >
                                 Purchase Entry
                             </Button>

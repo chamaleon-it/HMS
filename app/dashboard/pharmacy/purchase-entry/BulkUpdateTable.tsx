@@ -16,6 +16,7 @@ import {
     Check,
 } from "lucide-react";
 import React, { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import useSWR from "swr";
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,6 +44,7 @@ interface Props {
 }
 
 export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Props) {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const defaultSupplierId = searchParams.get("supplierId");
 
@@ -307,12 +309,12 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 discount: totals.discount
             };
 
-            await api.post("/purchase_entry", payload);
+            const res = await api.post("/purchase_entry", payload);
             toast.success("Purchase entry saved successfully");
             try {
                 localStorage.removeItem("purchase_entry_draft");
             } catch (e) {
-                console.error("Error setting focus to next input:", e);
+                console.error("Error clearing draft:", e);
             }
             setNewItems([]);
             setBillDetails({
@@ -323,6 +325,13 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 description: ""
             });
             setSelectedSupplierId("");
+
+            const newId = res.data?.data?._id;
+            if (newId) {
+                router.push(`/dashboard/pharmacy/purchase-entry/single?id=${newId}`);
+            } else {
+                router.push("/dashboard/pharmacy/purchase-entry");
+            }
         } catch (error: any) {
             console.error("Purchase entry error:", error);
             toast.error(error.response?.data?.message || "Failed to save purchase entry");
