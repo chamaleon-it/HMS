@@ -8,22 +8,31 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import useSWR from "swr";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
-import { FilePlus2 } from "lucide-react";
+import { startOfDay, endOfDay, subDays } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 export interface FilterType {
   q: null | string;
   status: string;
   method: string;
-  date: undefined | Date
+  activeDate: "Today" | "7 days" | "30 days" | "Custom";
+  dateRange?: DateRange;
+  date?: Date;
+  page?: number;
+  limit?: number;
 }
 
 export default function BillingPage() {
   const [tab, setTab] = useState<"all" | "new">("all");
   const [filter, setFilter] = useState<FilterType>({
     q: null,
-    status: "",
-    method: "",
-    date: undefined
+    status: "all",
+    method: "all",
+    activeDate: "Today",
+    dateRange: { from: new Date(), to: new Date() },
+    date: new Date(),
+    page: 1,
+    limit: 100,
   });
 
   const params = new URLSearchParams();
@@ -40,9 +49,29 @@ export default function BillingPage() {
     params.set("method", filter.method);
   }
 
-  if (filter.date) {
-    params.set("date", filter.date.toISOString());
+  let sd: Date = startOfDay(new Date());
+  let ed: Date = endOfDay(new Date());
+
+  if (filter.activeDate === "Today") {
+    sd = startOfDay(new Date());
+    ed = endOfDay(new Date());
+  } else if (filter.activeDate === "7 days") {
+    sd = startOfDay(subDays(new Date(), 7));
+    ed = endOfDay(new Date());
+  } else if (filter.activeDate === "30 days") {
+    sd = startOfDay(subDays(new Date(), 30));
+    ed = endOfDay(new Date());
+  } else if (filter.activeDate === "Custom") {
+    const from = filter.dateRange?.from || filter.date || new Date();
+    const to = filter.dateRange?.to || from;
+    sd = startOfDay(from);
+    ed = endOfDay(to);
   }
+
+  params.set("startDate", sd.toISOString());
+  params.set("endDate", ed.toISOString());
+  params.set("activeDate", filter.activeDate);
+  params.set("limit", "1000");
 
   const { data: billingData, mutate: billingMutate } = useSWR<{
     message: string;
@@ -68,23 +97,13 @@ export default function BillingPage() {
 
   return (
     <AppShell>
-      <div
-        className="min-h-[calc(100vh-67px)] w-full p-5 text-slate-900 dark:text-slate-100"
-
-      >
-        <div className="">
+      <div className="min-h-[calc(100vh-67px)] w-full p-5 text-slate-900 dark:text-slate-100">
+        <div>
           <div className="mb-4">
             <LabHeader
               title="Billing"
               subtitle="Search, filter & review billing history"
-            >
-              {/* <button
-                onClick={() => setTab("new")}
-                className="inline-flex items-center gap-2 rounded-lg bg-(--color-synapse-light) px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-(--color-synapse-light) hover:shadow-md active:scale-95"
-              >
-                <FilePlus2 className="h-4 w-4" /> New Invoice
-              </button> */}
-            </LabHeader>
+            />
           </div>
 
           <Tabs

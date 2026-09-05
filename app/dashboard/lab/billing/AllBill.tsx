@@ -70,7 +70,7 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
 
   return (
     <div className="flex flex-col gap-6">
-      <Filters filter={filter} setFilter={setFilter} />
+      <Filters filter={filter} setFilter={setFilter} billing={billing} />
 
       <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
         <Table className="min-w-300 text-sm">

@@ -11,14 +11,15 @@ import Filters from "./components/Filter";
 import { endOfDay, startOfDay, subDays } from "date-fns";
 import Statistics from "./components/Statistics";
 import AllBill from "./components/AllBill";
+import { DateRange } from "react-day-picker";
 
 export interface FilterType {
   q: null | string;
-  qEnd: null | string;
   status: string;
   method: string;
   activeDate: "Today" | "7 days" | "30 days" | "Custom";
-  date: Date;
+  dateRange?: DateRange;
+  date?: Date;
   page: number;
   limit: number;
   doctor: string[];
@@ -27,24 +28,20 @@ export interface FilterType {
 export default function AdminBillingPage() {
   const [filter, setFilter] = useState<FilterType>({
     q: null,
-    qEnd: null,
     status: "",
     method: "",
     activeDate: "Today",
+    dateRange: { from: new Date(), to: new Date() },
     date: new Date(),
     page: 1,
     limit: 10,
-    doctor: []
+    doctor: [],
   });
 
   const params = new URLSearchParams();
 
-  if (filter.q) {
-    params.set("q", filter.q);
-  }
-
-  if (filter.qEnd && filter.qEnd.length >= 7) {
-    params.set("qEnd", filter.qEnd);
+  if (filter.q && filter.q.trim()) {
+    params.set("q", filter.q.trim());
   }
 
   if (filter.status && filter.status !== "all") {
@@ -60,13 +57,18 @@ export default function AdminBillingPage() {
 
   if (filter.activeDate === "Today") {
     sd = startOfDay(new Date());
+    ed = endOfDay(new Date());
   } else if (filter.activeDate === "7 days") {
     sd = startOfDay(subDays(new Date(), 7));
+    ed = endOfDay(new Date());
   } else if (filter.activeDate === "30 days") {
     sd = startOfDay(subDays(new Date(), 30));
-  } else if (filter.activeDate === "Custom" && filter.date) {
-    sd = startOfDay(filter.date);
-    ed = endOfDay(filter.date);
+    ed = endOfDay(new Date());
+  } else if (filter.activeDate === "Custom") {
+    const from = filter.dateRange?.from || filter.date || new Date();
+    const to = filter.dateRange?.to || from;
+    sd = startOfDay(from);
+    ed = endOfDay(to);
   }
 
   params.set("startDate", sd.toISOString());
@@ -99,16 +101,16 @@ export default function AdminBillingPage() {
         name: string;
         mrn: string;
       };
-      transactionType: "Return" | "Sale"
-      doctor: string | any
+      transactionType: "Return" | "Sale";
+      doctor: string | any;
     }[];
   }>(`/admin/billing?${params.toString()}`);
 
   const allBilling = billingData?.data ?? [];
   const billing = useMemo(() => {
     if (filter.doctor.length === 0) return allBilling;
-    return allBilling.filter(b => {
-      const docName = typeof b.doctor === 'object' ? b.doctor?.name : b.doctor;
+    return allBilling.filter((b) => {
+      const docName = typeof b.doctor === "object" ? b.doctor?.name : b.doctor;
       return filter.doctor.includes(docName);
     });
   }, [allBilling, filter.doctor]);
@@ -120,15 +122,15 @@ export default function AdminBillingPage() {
       <TooltipProvider>
         <div className="min-h-[calc(100vh-67px)] w-full p-6 text-slate-900 dark:text-slate-100">
           <div className="flex flex-col gap-6">
-            <AdminHeader 
-                title="Billing Management" 
-                subtitle="View and manage hospital-wide billing and collections."
+            <AdminHeader
+              title="Billing Management"
+              subtitle="View and manage hospital-wide billing and collections."
             />
 
             <div className="flex-1 overflow-hidden mt-0">
               <Statistics billing={billing} />
-              <Filters filter={filter} setFilter={setFilter} />
-              
+              <Filters filter={filter} setFilter={setFilter} billing={billing} />
+
               {isLoadingBilling ? (
                 <TableSkeleton rows={10} columns={6} />
               ) : (

@@ -13,13 +13,15 @@ import Filters from "./Filter";
 import { endOfDay, startOfDay, subDays } from "date-fns";
 import Statistics from "./Statistics";
 
+import { DateRange } from "react-day-picker";
+
 export interface FilterType {
   q: null | string;
-  qEnd: null | string;
   status: string;
   method: string;
   activeDate: "Today" | "7 days" | "30 days" | "Custom";
-  date: Date;
+  dateRange?: DateRange;
+  date?: Date;
   page: number;
   limit: number;
   doctor: string[];
@@ -29,10 +31,10 @@ export default function BillingPage() {
   const [tab, setTab] = useState<"all" | "new">("all");
   const [filter, setFilter] = useState<FilterType>({
     q: null,
-    qEnd: null,
     status: "",
     method: "",
     activeDate: "Today",
+    dateRange: { from: new Date(), to: new Date() },
     date: new Date(),
     page: 1,
     limit: 10,
@@ -41,36 +43,35 @@ export default function BillingPage() {
 
   const params = new URLSearchParams();
 
-  if (filter.q) {
-    params.set("q", filter.q);
+  if (filter.q && filter.q.trim()) {
+    params.set("q", filter.q.trim());
   }
 
-  if (filter.qEnd && filter.qEnd.length >= 7) {
-    params.set("qEnd", filter.qEnd);
-  }
-
-  if (filter.status !== "all") {
+  if (filter.status && filter.status !== "all") {
     params.set("status", filter.status);
   }
 
-  if (filter.method !== "all") {
+  if (filter.method && filter.method !== "all") {
     params.set("method", filter.method);
   }
-
-
 
   let sd: Date = startOfDay(new Date());
   let ed: Date = endOfDay(new Date());
 
   if (filter.activeDate === "Today") {
     sd = startOfDay(new Date());
+    ed = endOfDay(new Date());
   } else if (filter.activeDate === "7 days") {
     sd = startOfDay(subDays(new Date(), 7));
+    ed = endOfDay(new Date());
   } else if (filter.activeDate === "30 days") {
     sd = startOfDay(subDays(new Date(), 30));
-  } else if (filter.activeDate === "Custom" && filter.date) {
-    sd = startOfDay(filter.date);
-    ed = endOfDay(filter.date);
+    ed = endOfDay(new Date());
+  } else if (filter.activeDate === "Custom") {
+    const from = filter.dateRange?.from || filter.date || new Date();
+    const to = filter.dateRange?.to || from;
+    sd = startOfDay(from);
+    ed = endOfDay(to);
   }
 
   params.set("startDate", sd.toISOString());
