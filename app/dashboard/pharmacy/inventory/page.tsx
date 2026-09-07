@@ -10,6 +10,7 @@ import { AddNewItem } from "./AddNewItem";
 import Header from "./Header";
 import { FilterType, ItemType } from "./interface";
 import useItems from "./useItems";
+import InventoryStatsCards, { InventoryStats } from "./InventoryStatsCards";
 import { TableSkeleton } from "../components/PharmacySkeleton";
 import {
   Dialog,
@@ -45,6 +46,17 @@ export default function InventoryPage() {
     allowNegativeStock: false,
   };
 
+  const {
+    data: statsResponse,
+    isLoading: isStatsLoading,
+    mutate: mutateStats,
+  } = useSWR<{
+    message: string;
+    data: InventoryStats;
+  }>(
+    `/pharmacy/items/stats?lowStockThreshold=${pharmacyInventory.lowStockThreshold}`
+  );
+
   const [filter, setFilter] = useState<FilterType>({
     page: 1,
     limit: 10,
@@ -62,6 +74,11 @@ export default function InventoryPage() {
   const { items, total, isLoading, isValidating, mutate, lowStockCount } = useItems({
     filter,
   });
+
+  const refreshAll = () => {
+    mutate();
+    mutateStats();
+  };
 
   // open overlays
   const handleView = (item: ItemType) => {
@@ -91,8 +108,6 @@ export default function InventoryPage() {
     setOpenAdd(false);
   };
 
-
-
   return (
     <AppShell>
       <TooltipProvider>
@@ -102,6 +117,14 @@ export default function InventoryPage() {
               }`}
           >
             <Header handleAdd={handleAdd} items={items} lowStockCount={lowStockCount} setFilter={setFilter} lowStockItemsView={filter.lowStockItemsView} />
+
+            <InventoryStatsCards
+              stats={statsResponse?.data}
+              isLoading={isStatsLoading}
+              lowStockThreshold={pharmacyInventory.lowStockThreshold}
+              filter={filter}
+              setFilter={setFilter}
+            />
 
             <ItemFilter filter={filter} setFilter={setFilter} />
 
@@ -119,7 +142,7 @@ export default function InventoryPage() {
                 sortBy={filter.sortBy}
                 orderBy={filter.orderBy}
                 isBusy={isLoading || isValidating}
-                mutate={mutate}
+                mutate={refreshAll}
                 pharmacyInventory={pharmacyInventory}
               />
             )}
@@ -148,10 +171,10 @@ export default function InventoryPage() {
                       setOpenView(false);
                       setOpenEdit(true);
                     }}
-                    mutate={mutate}
+                    mutate={refreshAll}
                     onClose={() => {
                       closeAll();
-                      mutate();
+                      refreshAll();
                     }}
                   />
                 )}
@@ -161,7 +184,7 @@ export default function InventoryPage() {
                     item={selectedItem}
                     onClose={() => {
                       closeAll();
-                      mutate();
+                      refreshAll();
                     }}
                   />
                 )}
@@ -170,7 +193,7 @@ export default function InventoryPage() {
                   <AddNewItem
                     onClose={() => {
                       closeAll();
-                      mutate();
+                      refreshAll();
                     }}
                   />
                 )}

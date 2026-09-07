@@ -4,6 +4,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -77,6 +78,23 @@ export default function ItemTable({
     }));
   };
 
+  const getItemStock = (item: ItemType) => {
+    return item.batches && item.batches.length > 0
+      ? item.batches.reduce(
+          (sum, b) => sum + Math.max(0, Number(b.quantity) || 0),
+          0
+        )
+      : (item.quantity ?? 0);
+  };
+
+  const getItemTotalValue = (item: ItemType) => {
+    const itemStock = getItemStock(item);
+    return itemStock * (Number(item.unitPrice) || 0);
+  };
+
+  const totalPageStock = items.reduce((sum, item) => sum + getItemStock(item), 0);
+  const totalPageSold = items.reduce((sum, item) => sum + (Number(item.soldQuantity) || 0), 0);
+  const totalPageValue = items.reduce((sum, item) => sum + getItemTotalValue(item), 0);
 
   const deleteItem = useCallback(
     async (_id: string) => {
@@ -96,7 +114,7 @@ export default function ItemTable({
     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
       <div className="p-0 m-0">
         <div className="overflow-x-auto w-full">
-          <Table className="whitespace-nowrap">
+          <Table className="whitespace-nowrap min-w-[1350px]">
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
               <TableRow className="bg-slate-700 hover:bg-slate-800 border-b-0">
 
@@ -114,6 +132,7 @@ export default function ItemTable({
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Purchase Rate</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Unit Price (₹)</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">MRP (₹)</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Total Value (₹)</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Expiry Date</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Supplier</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Status</TableHead>
@@ -123,156 +142,171 @@ export default function ItemTable({
             </TableHeader>
 
             <TableBody>
-              {items.map((item, i) => (
-                <TableRow
-                  key={item._id}
-                  className={
-                    i % 2 === 0
-                      ? "bg-white hover:bg-white/60"
-                      : "bg-slate-100 hover:bg-slate-100/60"
-                  }
-                >
-                  <TableCell className="py-3 text-slate-500">{(page - 1) * limit + i + 1}</TableCell>
+              {items.map((item, i) => {
+                const itemStock = getItemStock(item);
+                const itemTotalValue = getItemTotalValue(item);
 
-                  <TableCell className="font-medium text-gray-900">
-                    {item.name}
-                    <div className="text-xs text-gray-500">
-                      (Gen: {item.generic})
-                    </div>
-                  </TableCell>
+                return (
+                  <TableRow
+                    key={item._id}
+                    className={
+                      i % 2 === 0
+                        ? "bg-white hover:bg-white/60"
+                        : "bg-slate-100 hover:bg-slate-100/60"
+                    }
+                  >
+                    <TableCell className="py-3 text-slate-500">{(page - 1) * limit + i + 1}</TableCell>
 
-                  <TableCell className="py-3 text-slate-700">
-                    {item.rackLocation || "-"}
-                  </TableCell>
-
-                  <TableCell className="py-3">
-                    {item.quantity === 0 ? (
-                      <div className="flex items-center gap-1.5 text-red-600 font-medium">
-                        <AlertCircle className="w-4 h-4" />
-                        <span>Out of Stock</span>
+                    <TableCell className="font-medium text-gray-900">
+                      {item.name}
+                      <div className="text-xs text-gray-500">
+                        (Gen: {item.generic})
                       </div>
-                    ) : item.quantity <= pharmacyInventory.lowStockThreshold ? (
-                      <div className="flex items-center gap-1.5 text-amber-600 font-medium">
-                        <AlertTriangle className="w-4 h-4" />
-                        <span>{item.quantity}</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1.5 text-slate-700 font-medium pl-2">
-                        {item.quantity}
-                      </div>
+                    </TableCell>
 
-                    )}
-                  </TableCell>
-                  <TableCell className="py-3 text-slate-700">
-                    {item.soldQuantity ?? "-"}
-                  </TableCell>
-                  <TableCell className="py-3">{formatINR(item.purchasePrice)}</TableCell>
-                  <TableCell className="py-3">{formatINR(item.unitPrice)}</TableCell>
-                  <TableCell className="py-3">{formatINR(item.mrp)}</TableCell>
-                  <TableCell className="py-3">
-                    {new Date(item.expiryDate) < new Date() ? (
-                      <div className="flex items-center gap-1.5 text-red-600 font-medium">
-                        <AlertCircle className="w-4 h-4" />
-                        <span>{fDate(item.expiryDate)}</span>
-                      </div>
-                    ) : new Date(item.expiryDate) < new Date(Date.now() + pharmacyInventory.expiryAlert * 24 * 60 * 60 * 1000) ? (
-                      <div className="flex items-center gap-1.5 text-amber-600 font-medium">
-                        <AlertTriangle className="w-4 h-4" />
-                        <span>{fDate(item.expiryDate)}</span>
-                      </div>
-                    ) : (
-                      <span className="text-slate-700">{fDate(item.expiryDate)}</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="py-3">{item.supplier}</TableCell>
-                  <TableCell className="py-3">
-                    <Chip
-                      label={item.status}
-                      tone={item.status as "Inactive" | "Active"}
-                    />
-                  </TableCell>
+                    <TableCell className="py-3 text-slate-700">
+                      {item.rackLocation || "-"}
+                    </TableCell>
 
-                  <TableCell className="py-3 font-medium text-slate-700">
-                    {item.soldQuantity ?? 0}
-                    
-                  </TableCell>
+                    <TableCell className="py-3">
+                      {(() => {
+                        if (itemStock <= 0) {
+                          return (
+                            <div className="flex items-center gap-1.5 text-red-600 font-medium">
+                              <AlertCircle className="w-4 h-4" />
+                              <span>Out of Stock</span>
+                            </div>
+                          );
+                        }
+                        if (itemStock <= pharmacyInventory.lowStockThreshold) {
+                          return (
+                            <div className="flex items-center gap-1.5 text-amber-600 font-medium">
+                              <AlertTriangle className="w-4 h-4" />
+                              <span>{itemStock}</span>
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="flex items-center gap-1.5 text-slate-700 font-medium pl-2">
+                            {itemStock}
+                          </div>
+                        );
+                      })()}
+                    </TableCell>
+                    <TableCell className="py-3 text-slate-700">
+                      {item.soldQuantity ?? "-"}
+                    </TableCell>
+                    <TableCell className="py-3">{formatINR(item.purchasePrice)}</TableCell>
+                    <TableCell className="py-3">{formatINR(item.unitPrice)}</TableCell>
+                    <TableCell className="py-3">{formatINR(item.mrp)}</TableCell>
+                    <TableCell className="py-3 font-semibold text-slate-800 tabular-nums">
+                      {formatINR(itemTotalValue)}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      {new Date(item.expiryDate) < new Date() ? (
+                        <div className="flex items-center gap-1.5 text-red-600 font-medium">
+                          <AlertCircle className="w-4 h-4" />
+                          <span>{fDate(item.expiryDate)}</span>
+                        </div>
+                      ) : new Date(item.expiryDate) < new Date(Date.now() + pharmacyInventory.expiryAlert * 24 * 60 * 60 * 1000) ? (
+                        <div className="flex items-center gap-1.5 text-amber-600 font-medium">
+                          <AlertTriangle className="w-4 h-4" />
+                          <span>{fDate(item.expiryDate)}</span>
+                        </div>
+                      ) : (
+                        <span className="text-slate-700">{fDate(item.expiryDate)}</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="py-3">{item.supplier}</TableCell>
+                    <TableCell className="py-3">
+                      <Chip
+                        label={item.status}
+                        tone={item.status as "Inactive" | "Active"}
+                      />
+                    </TableCell>
 
-                  <TableCell className="py-3 pr-4">
-                    <div className="flex justify-end gap-2">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                            onClick={() => handleView(item)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>View Details</TooltipContent>
-                      </Tooltip>
+                    <TableCell className="py-3 font-medium text-slate-700">
+                      {item.soldQuantity ?? 0}
+                      
+                    </TableCell>
 
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                            onClick={() => handleEdit(item)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Edit Item</TooltipContent>
-                      </Tooltip>
-
-                      <UpdateBatch item={item} mutate={mutate} />
-
-                      <AlertDialog>
+                    <TableCell className="py-3 pr-4">
+                      <div className="flex justify-end gap-2">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              onClick={() => handleView(item)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Delete Item</TooltipContent>
+                          <TooltipContent>View Details</TooltipContent>
                         </Tooltip>
 
-                        <AlertDialogContent className="max-w-sm!">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will
-                              permanently delete the item{" "}
-                              <span className="font-semibold">
-                                {item?.name}
-                              </span>
-                              .
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => deleteItem(item._id)}
-                              className="bg-destructive text-white hover:bg-destructive/90"
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                              onClick={() => handleEdit(item)}
                             >
-                              Delete Item
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Edit Item</TooltipContent>
+                        </Tooltip>
+
+                        <UpdateBatch item={item} mutate={mutate} />
+
+                        <AlertDialog>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent>Delete Item</TooltipContent>
+                          </Tooltip>
+
+                          <AlertDialogContent className="max-w-sm!">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete the item{" "}
+                                <span className="font-semibold">
+                                  {item?.name}
+                                </span>
+                                .
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteItem(item._id)}
+                                className="bg-destructive text-white hover:bg-destructive/90"
+                              >
+                                Delete Item
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
 
               {items.length === 0 && (
                 <TableRow>
@@ -285,6 +319,35 @@ export default function ItemTable({
                 </TableRow>
               )}
             </TableBody>
+
+            {items.length > 0 && (
+              <TableFooter className="sticky bottom-0 z-10 bg-slate-100 font-extrabold text-[12px] text-slate-900 border-t-2 border-slate-300">
+                <TableRow className="hover:bg-slate-100 bg-slate-100">
+                  <TableCell colSpan={3} className="py-3 px-4 text-right uppercase tracking-wider font-bold text-slate-700">
+                    Page Total
+                  </TableCell>
+                  <TableCell className="py-3 text-slate-900 font-bold tabular-nums pl-2">
+                    {totalPageStock}
+                  </TableCell>
+                  <TableCell className="py-3 text-slate-900 font-bold tabular-nums">
+                    {totalPageSold}
+                  </TableCell>
+                  <TableCell className="py-3" />
+                  <TableCell className="py-3" />
+                  <TableCell className="py-3" />
+                  <TableCell className="py-3 font-bold text-slate-900 tabular-nums">
+                    {formatINR(totalPageValue)}
+                  </TableCell>
+                  <TableCell className="py-3" />
+                  <TableCell className="py-3" />
+                  <TableCell className="py-3" />
+                  <TableCell className="py-3 font-bold text-slate-900 tabular-nums">
+                    {totalPageSold}
+                  </TableCell>
+                  <TableCell className="py-3 pr-4" />
+                </TableRow>
+              </TableFooter>
+            )}
           </Table>
         </div>
 
