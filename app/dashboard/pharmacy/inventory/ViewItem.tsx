@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History, ArrowLeftRight } from "lucide-react";
-import { ItemType } from "./interface";
+import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History, ArrowLeftRight, Loader2 } from "lucide-react";
+import { BatchType, ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -17,11 +17,55 @@ import { DateRange } from "react-day-picker";
 import { addDays, format, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { Calendar as CalendarIcon, FilterX, History as HistoryIcon, Barcode as BarcodeIcon } from "lucide-react";
 import { PaginationBar } from "../components/PaginationBar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 
 
-export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, editItem: () => void, mutate: () => void, onClose: () => void }) {
+export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { item: ItemType, editItem: () => void, mutate: () => void, onClose: () => void }) {
+  const [item, setItem] = useState<ItemType>(initialItem);
 
+  useEffect(() => {
+    setItem(initialItem);
+  }, [initialItem]);
+
+  const [selectedBatchToDelete, setSelectedBatchToDelete] = useState<BatchType | null>(null);
+  const [deductBatchStock, setDeductBatchStock] = useState(false);
+  const [isDeletingBatch, setIsDeletingBatch] = useState(false);
+
+  const handleDeleteBatch = async () => {
+    if (!selectedBatchToDelete) return;
+    setIsDeletingBatch(true);
+    try {
+      const batchIdentifier = selectedBatchToDelete._id || selectedBatchToDelete.batchNumber;
+      const res = await api.delete(
+        `/pharmacy/items/${item._id}/batches/${batchIdentifier}?deductStock=${deductBatchStock}`
+      );
+      toast.success(res.data?.message || "Batch deleted successfully");
+      if (res.data?.data) {
+        setItem(res.data.data);
+      } else {
+        setItem((prev) => ({
+          ...prev,
+          quantity: deductBatchStock
+            ? Math.max(0, prev.quantity - (Number(selectedBatchToDelete.quantity) || 0))
+            : prev.quantity,
+          batches: (prev.batches || []).filter(
+            (b) => (b._id || b.batchNumber) !== batchIdentifier
+          ),
+        }));
+      }
+      setSelectedBatchToDelete(null);
+      setDeductBatchStock(false);
+      if (mutate) {
+        mutate();
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to delete batch");
+    } finally {
+      setIsDeletingBatch(false);
+    }
+  };
 
   const deleteItem = useCallback(
     async (_id: string) => {
@@ -442,7 +486,8 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Purchase Rate</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Qty</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Qty</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4 w-[70px]">Action</TableHead>
                   </>
                 ) : (
                   <>
@@ -457,7 +502,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             <TableBody>
               {paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={activeTab === "Batch History" ? 6 : 4} className="text-center py-20 text-slate-400">
+                  <TableCell colSpan={activeTab === "Batch History" ? 7 : 4} className="text-center py-20 text-slate-400">
                     <div className="flex flex-col items-center gap-2">
                       {activeTab === "Batch History" ? <Barcode className="h-8 w-8 opacity-20" /> : <History className="h-8 w-8 opacity-20" />}
                       <p className="font-bold uppercase tracking-widest text-[11px]">No {activeTab.toLowerCase()} found</p>
@@ -485,7 +530,25 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                         <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(data.expiryDate)}</TableCell>
                         <TableCell className="text-xs py-3 text-slate-600">{data.supplier || "-"}</TableCell>
                         <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(data.purchasePrice)}</TableCell>
-                        <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 pr-4 tabular-nums">{data.quantity}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums">{data.quantity}</TableCell>
+                        <TableCell className="text-center py-3 pr-4">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                onClick={() => {
+                                  setSelectedBatchToDelete(data);
+                                  setDeductBatchStock(false);
+                                }}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Delete Batch</TooltipContent>
+                          </Tooltip>
+                        </TableCell>
                       </>
                     ) : (
                       <>
@@ -553,6 +616,91 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
           </AlertDialogContent>
         </AlertDialog>
       </div >
-    </div >
+
+      {/* Delete Batch Confirmation Dialog */}
+      <AlertDialog
+        open={!!selectedBatchToDelete}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedBatchToDelete(null);
+            setDeductBatchStock(false);
+          }
+        }}
+      >
+        <AlertDialogContent className="max-w-md rounded-2xl">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <AlertDialogTitle className="text-lg text-slate-900">Delete Batch</AlertDialogTitle>
+                <AlertDialogDescription className="text-xs text-slate-500 mt-0.5">
+                  This will permanently remove this batch record from the item's history.
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+
+          <div className="my-2 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">
+            <div className="flex justify-between">
+              <span className="text-slate-500">Batch Number:</span>
+              <span className="font-mono font-bold text-slate-800">{selectedBatchToDelete?.batchNumber}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500">Batch Quantity:</span>
+              <span className="font-bold text-slate-800">{selectedBatchToDelete?.quantity} units</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500">Current Item Stock:</span>
+              <span className="font-bold text-slate-800">{item.quantity} units</span>
+            </div>
+          </div>
+
+          <div className="pt-1">
+            <label className="flex items-start gap-2.5 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors">
+              <input
+                type="checkbox"
+                className="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer"
+                checked={deductBatchStock}
+                onChange={(e) => setDeductBatchStock(e.target.checked)}
+              />
+              <div className="text-xs">
+                <span className="font-semibold text-slate-800 block">
+                  Also deduct {selectedBatchToDelete?.quantity} units from current stock
+                </span>
+                <span className="text-slate-500 text-[11px] block mt-0.5">
+                  {deductBatchStock
+                    ? `New stock will become ${Math.max(0, item.quantity - (selectedBatchToDelete?.quantity || 0))} units.`
+                    : "Leave unchecked to only remove this batch record without altering current stock."}
+                </span>
+              </div>
+            </label>
+          </div>
+
+          <AlertDialogFooter className="mt-4 gap-2">
+            <AlertDialogCancel disabled={isDeletingBatch} className="rounded-xl">Cancel</AlertDialogCancel>
+            <Button
+              variant="destructive"
+              disabled={isDeletingBatch}
+              className="bg-red-600 hover:bg-red-700 text-white gap-1.5 rounded-xl cursor-pointer"
+              onClick={handleDeleteBatch}
+            >
+              {isDeletingBatch ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4" />
+                  Delete Batch
+                </>
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }
