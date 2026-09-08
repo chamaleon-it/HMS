@@ -32,7 +32,7 @@ import useSWR from 'swr'
 import { fDate } from "@/lib/fDateAndTime"
 import { formatINR } from "@/lib/fNumber"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ChevronDownIcon, Loader2, PackagePlus } from "lucide-react"
+import { ChevronDownIcon, Loader2, PackagePlus, Trash2 } from "lucide-react"
 import React, { useRef, useState } from 'react'
 import {
     Tooltip,
@@ -119,6 +119,17 @@ export default function UpdateBatch({ item, mutate }: Props) {
             toast.error("Failed to add batch");
         }
     });
+
+    const deleteBatch = async (batchId: string) => {
+        try {
+            await api.delete(`/pharmacy/items/${item._id}/batches/${batchId}`);
+            toast.success("Batch deleted successfully");
+            mutate();
+        } catch (error: any) {
+            console.error(error);
+            toast.error(error.response?.data?.message || "Failed to delete batch");
+        }
+    };
 
     const ITEMS_PER_PAGE = 5;
     const sortedBatches = item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
@@ -271,12 +282,13 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                         <TableHead>Supplier</TableHead>
                                         <TableHead className="text-right">Purchase Rate</TableHead>
                                         <TableHead className="text-right">Qty</TableHead>
+                                        <TableHead className="text-center w-[60px]">Action</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {paginatedBatches.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={6} className="text-center py-6 text-muted-foreground text-sm">
+                                            <TableCell colSpan={7} className="text-center py-6 text-muted-foreground text-sm">
                                                 No batch history found.
                                             </TableCell>
                                         </TableRow>
@@ -289,6 +301,18 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                                 <TableCell className="text-xs">{batch.supplier || "-"}</TableCell>
                                                 <TableCell className="text-right text-xs">{formatINR(batch.purchasePrice)}</TableCell>
                                                 <TableCell className="text-right text-xs font-medium">{batch.quantity}</TableCell>
+                                                <TableCell className="text-center py-1">
+                                                    <Button
+                                                        type="button"
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-50 rounded cursor-pointer"
+                                                        onClick={() => deleteBatch(batch._id || batch.batchNumber)}
+                                                        title="Delete Batch"
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                </TableCell>
                                             </TableRow>
                                         ))
                                     )}
