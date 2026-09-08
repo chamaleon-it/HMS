@@ -38,6 +38,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
     defaultValues: {
       status: "Active",
       category: "Medicine",
+      packing: 1,
     },
   });
 
@@ -56,6 +57,18 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
       console.log(error);
     }
   });
+
+  useEffect(() => {
+    const packing = Number(values.packing) >= 1 ? Number(values.packing) : 1;
+    const noOfPacking = Number(values.noOfPacking) || 0;
+    if (packing > 0 && noOfPacking > 0) {
+      const calculatedStock = packing * noOfPacking;
+      if (values.openingStockQuantity !== calculatedStock) {
+        setValue("openingStockQuantity", calculatedStock);
+        setValue("quantity", calculatedStock);
+      }
+    }
+  }, [values.packing, values.noOfPacking, values.openingStockQuantity, setValue]);
 
   useEffect(() => {
     setValue("quantity", values.openingStockQuantity);
@@ -202,14 +215,30 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             Packing
           </label>
           <Input
-            placeholder="e.g. 100"
+            type="number"
+            min={1}
+            placeholder="e.g. 1 or 10"
             className="mt-1"
-            value={values.packing as string || ""}
-            onChange={e => {
-              setValue("packing", Number(e.target.value))
-              setValue("unitPrice", Number(((Number(values.mrp) || 0) / (e.target.value ? Number(e.target.value) : 1)).toFixed(2)))
-            }
-            }
+            value={(values.packing as number | string) ?? 1}
+            onChange={(e) => {
+              const packingVal = Number(e.target.value) || 0;
+              const noOfPacking = Number(values.noOfPacking) || 0;
+              setValue("packing", packingVal);
+              const effectivePacking = packingVal >= 1 ? packingVal : 1;
+              setValue(
+                "unitPrice",
+                Number(
+                  (
+                    (Number(values.mrp) || 0) /
+                    effectivePacking
+                  ).toFixed(2)
+                )
+              );
+              if (packingVal > 0 && noOfPacking > 0) {
+                setValue("openingStockQuantity", packingVal * noOfPacking);
+                setValue("quantity", packingVal * noOfPacking);
+              }
+            }}
             ref={(e) => {
               register("packing").ref(e);
               refs.packing.current = e;
@@ -225,13 +254,14 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Strip Count
+            Strip Count / Bottle Count
           </label>
           <Input
             className="mt-1"
             placeholder="e.g. 5 or 10"
             type="number"
             min={1}
+            value={(values.noOfPacking as number | string) ?? ""}
             {...register("noOfPacking")}
             ref={(e) => {
               register("noOfPacking").ref(e);
@@ -239,9 +269,12 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             }}
             onChange={(e) => {
               const noOfPacking = Number(e.target.value) || 0;
-              const packing = Number(values.packing) || 0;
+              const packing = Number(values.packing) >= 1 ? Number(values.packing) : 1;
               setValue("noOfPacking", noOfPacking);
-              setValue("openingStockQuantity", packing * noOfPacking);
+              if (noOfPacking > 0) {
+                setValue("openingStockQuantity", packing * noOfPacking);
+                setValue("quantity", packing * noOfPacking);
+              }
             }}
             onKeyDown={(e) => handleKeyDown(e, refs.mrp)}
           />
@@ -264,10 +297,12 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             }}
             onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
             onChange={e => {
-              setValue("mrp", Number(e.target.value))
-              setValue("unitPrice", Number(((Number(e.target.value) || 0) / (values?.packing ? Number(values.packing) : 1)).toFixed(2)))
-            }
-            }
+              const mrpVal = Number(e.target.value) || 0;
+              const packing = Number(values?.packing);
+              const effectivePacking = packing >= 1 ? packing : 1;
+              setValue("mrp", mrpVal);
+              setValue("unitPrice", Number((mrpVal / effectivePacking).toFixed(2)));
+            }}
           />
           {errors.mrp && (
             <p className="text-xs text-red-600 my-1">
@@ -465,7 +500,13 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             type="number"
             placeholder="e.g. 100"
             className="mt-1"
+            value={(values.openingStockQuantity as number | string) ?? ""}
             {...register("openingStockQuantity")}
+            onChange={(e) => {
+              const qty = Number(e.target.value) || 0;
+              setValue("openingStockQuantity", qty);
+              setValue("quantity", qty);
+            }}
             ref={(e) => {
               register("openingStockQuantity").ref(e);
               refs.openingStockQuantity.current = e;

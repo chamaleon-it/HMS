@@ -603,7 +603,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                     updateNewItem(item.id, "product", it.name);
                                                     updateNewItem(item.id, "unitPrice", it.unitPrice || 0);
                                                     updateNewItem(item.id, "purchasePrice", it.purchasePrice || 0);
-                                                    updateNewItem(item.id, "pack", it.packing || 0);
+                                                    updateNewItem(item.id, "pack", it.packing && it.packing >= 1 ? it.packing : 1);
                                                     updateNewItem(item.id, "cgst_p", gst / 2);
                                                     updateNewItem(item.id, "sgst_p", gst / 2);
 

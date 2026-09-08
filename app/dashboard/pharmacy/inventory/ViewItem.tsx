@@ -279,7 +279,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
               Packing
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{item.packing}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{item.packing || 1}</div>
           </div>
 
           <div className="space-y-2">

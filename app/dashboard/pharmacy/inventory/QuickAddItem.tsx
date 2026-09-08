@@ -35,6 +35,7 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
       name: initialName || "",
       status: "Active",
       category: "Medicine",
+      packing: 1,
     },
   });
 
@@ -193,14 +194,17 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
             Packing
           </label>
           <Input
-            placeholder="e.g. 100"
+            type="number"
+            min={1}
+            placeholder="e.g. 1 or 10"
             className="mt-1"
-            value={values.packing as string || ""}
+            value={(values.packing as number | string) ?? 1}
             onChange={e => {
-              setValue("packing", Number(e.target.value))
-              setValue("unitPrice", (Number(values.mrp) || 0) / (e.target.value ? Number(e.target.value) : 1))
-            }
-            }
+              const packingVal = Number(e.target.value) || 0;
+              setValue("packing", packingVal);
+              const effectivePacking = packingVal >= 1 ? packingVal : 1;
+              setValue("unitPrice", Number(((Number(values.mrp) || 0) / effectivePacking).toFixed(2)));
+            }}
             ref={(e) => {
               register("packing").ref(e);
               refs.packing.current = e;
@@ -233,10 +237,12 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
             }}
             onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
             onChange={e => {
-              setValue("mrp", Number(e.target.value))
-              setValue("unitPrice", (Number(e.target.value) || 0) / (values?.packing ? Number(values.packing) : 1))
-            }
-            }
+              const mrpVal = Number(e.target.value) || 0;
+              const packing = Number(values?.packing);
+              const effectivePacking = packing >= 1 ? packing : 1;
+              setValue("mrp", mrpVal);
+              setValue("unitPrice", Number((mrpVal / effectivePacking).toFixed(2)));
+            }}
           />
           {errors.mrp && (
             <p className="text-xs text-red-600 my-1">
