@@ -10,6 +10,7 @@ import { AddNewItem } from "./AddNewItem";
 import Header from "./Header";
 import { FilterType, ItemType } from "./interface";
 import useItems from "./useItems";
+import InventoryStatsCards, { InventoryStats } from "./InventoryStatsCards";
 import { TableSkeleton } from "../components/PharmacySkeleton";
 import {
   Dialog,
@@ -45,6 +46,17 @@ export default function InventoryPage() {
     allowNegativeStock: false,
   };
 
+  const {
+    data: statsResponse,
+    isLoading: isStatsLoading,
+    mutate: mutateStats,
+  } = useSWR<{
+    message: string;
+    data: InventoryStats;
+  }>(
+    `/pharmacy/items/stats?lowStockThreshold=${pharmacyInventory.lowStockThreshold}`
+  );
+
   const [filter, setFilter] = useState<FilterType>({
     page: 1,
     limit: 10,
@@ -73,14 +85,15 @@ export default function InventoryPage() {
     }
   }, [items, selectedItem]);
 
-  // Helper: mutate SWR cache and refresh selectedItem
-  const mutateAndRefresh = useCallback(async () => {
+  // Helper: mutate SWR cache, stats and refresh selectedItem
+  const refreshAll = useCallback(async () => {
     const result = await mutate();
+    mutateStats();
     if (result && selectedItem) {
       const fresh = result.data?.find((i: ItemType) => i._id === selectedItem._id);
       if (fresh) setSelectedItem(fresh);
     }
-  }, [mutate, selectedItem]);
+  }, [mutate, mutateStats, selectedItem]);
 
   // open overlays
   const handleView = (item: ItemType) => {
@@ -110,8 +123,6 @@ export default function InventoryPage() {
     setOpenAdd(false);
   };
 
-
-
   return (
     <AppShell>
       <TooltipProvider>
@@ -121,6 +132,14 @@ export default function InventoryPage() {
               }`}
           >
             <Header handleAdd={handleAdd} items={items} lowStockCount={lowStockCount} setFilter={setFilter} lowStockItemsView={filter.lowStockItemsView} />
+
+            <InventoryStatsCards
+              stats={statsResponse?.data}
+              isLoading={isStatsLoading}
+              lowStockThreshold={pharmacyInventory.lowStockThreshold}
+              filter={filter}
+              setFilter={setFilter}
+            />
 
             <ItemFilter filter={filter} setFilter={setFilter} />
 
@@ -138,7 +157,7 @@ export default function InventoryPage() {
                 sortBy={filter.sortBy}
                 orderBy={filter.orderBy}
                 isBusy={isLoading || isValidating}
-                mutate={mutate}
+                mutate={refreshAll}
                 pharmacyInventory={pharmacyInventory}
               />
             )}
@@ -155,10 +174,10 @@ export default function InventoryPage() {
                       setOpenView(false);
                       setOpenEdit(true);
                     }}
-                    mutate={mutateAndRefresh}
+                    mutate={refreshAll}
                     onClose={() => {
                       closeAll();
-                      mutateAndRefresh();
+                      refreshAll();
                     }}
                   />
                 )}
@@ -168,7 +187,7 @@ export default function InventoryPage() {
                     item={selectedItem}
                     onClose={() => {
                       closeAll();
-                      mutate();
+                      refreshAll();
                     }}
                   />
                 )}
@@ -177,7 +196,7 @@ export default function InventoryPage() {
                   <AddNewItem
                     onClose={() => {
                       closeAll();
-                      mutate();
+                      refreshAll();
                     }}
                   />
                 )}

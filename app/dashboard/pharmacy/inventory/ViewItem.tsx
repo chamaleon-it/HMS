@@ -97,6 +97,23 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
     return item?.quantity ?? 0;
   }, [item?.batches, item?.quantity]);
 
+  const itemTotalValue = useMemo(() => {
+    if (item?.batches && item.batches.length > 0) {
+      const activeBatches = item.batches.filter(
+        (b: any) => !b.isDeleted && b.isActive !== false && b.status !== "Inactive"
+      );
+      if (activeBatches.length > 0) {
+        return activeBatches.reduce((sum, b: any) => {
+          const qty = Math.max(0, Number(b.quantity) || 0);
+          const price = Number(b.unitPrice) > 0 ? Number(b.unitPrice) : (Number(item?.unitPrice) || 0);
+          return sum + qty * price;
+        }, 0);
+      }
+    }
+    const stock = Math.max(0, Number(item?.quantity) || 0);
+    return stock * (Number(item?.unitPrice) || 0);
+  }, [item?.batches, item?.quantity, item?.unitPrice]);
+
 
   const tabs = useMemo(() => [
     { key: "Batch History", icon: Package },
@@ -310,7 +327,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
               Total Value
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(itemStock * item.unitPrice)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(itemTotalValue)}</div>
           </div>
 
           <div className="space-y-2">
