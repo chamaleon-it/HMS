@@ -79,17 +79,12 @@ export default function ItemTable({
   };
 
   const getItemStock = (item: ItemType) => {
-    return item.batches && item.batches.length > 0
-      ? item.batches.reduce(
-          (sum, b) => sum + Math.max(0, Number(b.quantity) || 0),
-          0
-        )
-      : (item.quantity ?? 0);
+    return typeof item.quantity === "number" ? item.quantity : (Number(item.quantity) || 0);
   };
 
   const getItemTotalValue = (item: ItemType) => {
     const itemStock = getItemStock(item);
-    return itemStock * (Number(item.unitPrice) || 0);
+    return (itemStock > 0 ? itemStock : 0) * (Number(item.unitPrice) || 0);
   };
 
   const totalPageStock = items.reduce((sum, item) => sum + getItemStock(item), 0);
