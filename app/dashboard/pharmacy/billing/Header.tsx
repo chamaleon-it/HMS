@@ -31,10 +31,17 @@ interface PropsType {
       unitPrice: number;
       gst: number;
     }[];
-    patient: {
+    patient?: {
       name: string;
       mrn: string;
+      isWalkIn?: boolean;
+      phoneNumber?: string;
+      gender?: string;
+      age?: number;
+      address?: string;
     };
+    customer?: any;
+    isWalkIn?: boolean;
   }[];
 }
 

@@ -64,25 +64,46 @@ function Barcode({ value }: { value: string }) {
 }
 
 function OrderHeader({ order }: { order: OrderType }) {
+    const isWalkIn = order?.isWalkIn;
+    const customerName =
+        order?.customer?.name && order.customer.name !== "Walk-In Customer"
+            ? order.customer.name
+            : order?.patient?.name && order.patient.name !== "Walk-In Customer"
+                ? order.patient.name
+                : "-";
+    const customerAge = order?.customer?.age ?? (order?.patient as any)?.age;
+    const gender = order?.customer?.gender || order?.patient?.gender;
+    const phone = order?.customer?.phoneNumber || order?.patient?.phoneNumber;
+    const address = order?.customer?.address || order?.patient?.address;
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
-            {/* Patient card */}
+            {/* Patient / Customer card */}
             <div className="border rounded-lg p-3 md:col-span-2">
-                <div className="text-xs uppercase tracking-wide text-slate-500">
-                    Patient
+                <div className="flex items-center justify-between">
+                    <div className="text-xs uppercase tracking-wide text-slate-500">
+                        {isWalkIn ? "Walk-In Customer" : "Patient"}
+                    </div>
+                    {isWalkIn && (
+                        <span className="text-[10px] bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full border border-amber-200">
+                            Non-Registered
+                        </span>
+                    )}
                 </div>
-                <div className="font-semibold text-lg flex items-center gap-1">
-                    <p>{order?.patient?.name}</p> -{" "}
-                    <span className="text-sm">({order?.patient?.mrn})</span>
+                <div className="font-semibold text-lg flex items-center gap-1 mt-0.5">
+                    <p>{customerName}</p>
+                    {!isWalkIn && order?.patient?.mrn && (
+                        <span className="text-sm text-slate-500">({order.patient.mrn})</span>
+                    )}
                 </div>
                 <div className="text-sm text-slate-700">
-                    Age/Gender: {fAge(order?.patient?.dateOfBirth).formatted} /{" "}
-                    {order?.patient?.gender} • Ph:
-                    {order?.patient?.phoneNumber}
+                    Age/Gender:{" "}
+                    {customerAge ? `${customerAge} yrs` : (order?.patient?.dateOfBirth ? fAge(order.patient.dateOfBirth).formatted : "—")}{" "}
+                    / {gender || "—"}{" "}
+                    • Ph: {phone || "—"}
                 </div>
                 <div className="text-sm text-slate-700">
-                    Address: {order?.patient?.address}
+                    Address: {address || "—"}
                 </div>
 
                 {order?.patient?.allergies && (
@@ -107,10 +128,17 @@ function OrderHeader({ order }: { order: OrderType }) {
                     <div className="text-xs text-slate-600">
                         RX ID: <span className="font-medium">{order?.mrn}</span>
                     </div>
-                    <div className="mt-2 text-xs text-slate-500">
-                        Doctor: {order?.doctor?.name} • Specialization:{" "}
-                        {order?.doctor?.specialization}
-                    </div>
+                    {!isWalkIn && order?.doctor && (
+                        <div className="mt-2 text-xs text-slate-500">
+                            Doctor: {order?.doctor?.name} • Specialization:{" "}
+                            {order?.doctor?.specialization}
+                        </div>
+                    )}
+                    {isWalkIn && (
+                        <div className="mt-2 text-xs text-slate-500">
+                            Doctor: <span className="font-medium">Self / Direct Sale</span>
+                        </div>
+                    )}
                     <div className="text-xs text-slate-600">
                         Pharmacist: <span className="font-medium">{order?.pharmacist}</span>
                     </div>
@@ -205,8 +233,8 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
         const payload = {
             ...updatePayload,
-            patient: localOrder.patient._id,
-            doctor: localOrder.doctor._id,
+            patient: localOrder.patient?._id,
+            doctor: localOrder.doctor?._id,
         };
         try {
             setUpdatingOrder(true);

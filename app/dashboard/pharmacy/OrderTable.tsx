@@ -212,9 +212,9 @@ export default function OrderTable({
           discount,
           insurance: 0,
           online: 0,
-          patient: data.data.patient._id,
-          department: data.data.doctor.specialization,
-          doctor: data.data.doctor.name,
+          patient: data.data.patient?._id || "",
+          department: data.data.doctor?.specialization || "Pharmacy",
+          doctor: data.data.doctor?.name || "Self",
           note: "",
         },
         invoiceDetails: {
@@ -293,7 +293,18 @@ export default function OrderTable({
                 onClick={() => handleRowClick(r)}
               >
                 <div className="flex items-center gap-1.5">
-                  <div className="font-medium text-slate-900">{r?.patient?.name}</div>
+                  <div className="font-medium text-slate-900">
+                    {r?.customer?.name && r.customer.name !== "Walk-In Customer"
+                      ? r.customer.name
+                      : r?.patient?.name && r.patient.name !== "Walk-In Customer"
+                        ? r.patient.name
+                        : "-"}
+                  </div>
+                  {r.isWalkIn && (
+                    <span className="text-[10px] bg-amber-100 text-amber-800 font-semibold px-1.5 py-0.5 rounded border border-amber-200">
+                      Walk-In
+                    </span>
+                  )}
                   {r?.patient?.allergies && (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -305,7 +316,18 @@ export default function OrderTable({
                     </Tooltip>
                   )}
                 </div>
-                {r.status !== "Draft" && <div className="text-[11px] text-slate-500">({r?.patient?.mrn})</div>}
+                {r.status !== "Draft" && (
+                  <div className="text-[11px] text-slate-500">
+                    {r.isWalkIn ? (
+                      <span>
+                        {r.customer?.age || (r.patient as any)?.age ? `Age: ${r.customer?.age || (r.patient as any)?.age} yrs` : "Walk-in (No Reg)"}
+                        {r.customer?.phoneNumber ? ` • ${r.customer.phoneNumber}` : ""}
+                      </span>
+                    ) : (
+                      `(${r?.patient?.mrn})`
+                    )}
+                  </div>
+                )}
               </TableCell>
               <TableCell className="py-3 text-center cursor-pointer"
                 onClick={() => handleRowClick(r)}
@@ -430,15 +452,17 @@ export default function OrderTable({
                     </Tooltip>
                   )}
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2 h-8 text-xs text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-800"
-                    onClick={() => handlePrint(r)}
-                  >
-                    <Printer className="h-3.5 w-3.5" />
-                    Rx
-                  </Button>
+                  {!r.isWalkIn && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 h-8 text-xs text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-800"
+                      onClick={() => handlePrint(r)}
+                    >
+                      <Printer className="h-3.5 w-3.5" />
+                      Rx
+                    </Button>
+                  )}
 
                   {r.billNo != "-" ? (
                     <Button

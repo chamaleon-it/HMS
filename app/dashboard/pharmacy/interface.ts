@@ -1,3 +1,11 @@
+export interface WalkInCustomer {
+    name?: string;
+    age?: number;
+    gender?: string;
+    phoneNumber?: string;
+    address?: string;
+}
+
 export interface OrderType {
     _id: string;
     mrn: string;
@@ -13,8 +21,10 @@ export interface OrderType {
     createdAt?: Date;
     updatedAt?: Date;
     billNo?: string;
-    pharmacist?: string
+    pharmacist?: string;
     isDeleted: boolean;
+    customer?: WalkInCustomer;
+    isWalkIn?: boolean;
 }
 
 
@@ -97,7 +107,9 @@ export interface Batch {
 }
 
 export interface DataType {
-    patient: string;
+    patient?: string;
+    customer?: WalkInCustomer;
+    isWalkIn?: boolean;
     doctor: string;
     items: {
         rowId: string;

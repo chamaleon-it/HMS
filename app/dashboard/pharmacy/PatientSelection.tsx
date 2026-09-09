@@ -39,21 +39,47 @@ interface Props {
   patientName: string;
   autoFocus?: boolean;
   actionElement?: React.ReactNode;
+  isWalkIn?: boolean;
+  onToggleWalkIn?: (isWalkIn: boolean) => void;
+  customer?: {
+    name?: string;
+    age?: number;
+    gender?: string;
+    phoneNumber?: string;
+    address?: string;
+  };
+  onCustomerChange?: (customer: {
+    name?: string;
+    age?: number;
+    gender?: string;
+    phoneNumber?: string;
+    address?: string;
+  }) => void;
 }
 
 const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 100;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, autoFocus, actionElement }) => {
+const PatientSelection: React.FC<Props> = ({
+  setValue,
+  register,
+  patientName,
+  autoFocus,
+  actionElement,
+  isWalkIn = false,
+  onToggleWalkIn,
+  customer,
+  onCustomerChange,
+}) => {
   const { user } = useAuth();
   const [input, setInput] = useState(patientName);
 
   useEffect(() => {
-    if (patientName && patientName !== input) {
+    if (patientName && patientName !== input && !isWalkIn) {
       setInput(patientName);
     }
-  }, [patientName]);
+  }, [patientName, isWalkIn]);
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const [selected, setSelected] = useState<Patient | null>(null);
@@ -111,7 +137,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
 
   const { data, isLoading } = useSWR<{ data: Patient[] }>(
     // Only hit API when user typed enough or when they focus & have something
-    debounced.length >= MIN_QUERY_LEN ? listUrl : null
+    !isWalkIn && debounced.length >= MIN_QUERY_LEN ? listUrl : null
   );
   const patients = data?.data ?? [];
 
@@ -152,59 +178,179 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
     setValue("");
   };
 
-
-
-
-
   return (
-    <div ref={rootRef} className="relative w-full max-w-[500px]">
-      <div className="flex items-center justify-between mb-1">
-        <Label className="block">Customer Name <span className="text-xs">*</span></Label>
+    <div ref={rootRef} className="relative w-full">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+          <button
+            type="button"
+            onClick={() => onToggleWalkIn?.(false)}
+            className={cn(
+              "px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer",
+              !isWalkIn
+                ? "bg-white text-slate-800 shadow-xs"
+                : "text-slate-500 hover:text-slate-700"
+            )}
+          >
+            Registered Patient
+          </button>
+          <button
+            type="button"
+            onClick={() => onToggleWalkIn?.(true)}
+            className={cn(
+              "px-3 py-1 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 cursor-pointer",
+              isWalkIn
+                ? "bg-amber-500 text-white shadow-xs"
+                : "text-slate-500 hover:text-slate-700"
+            )}
+          >
+            <span>Walk-In Customer</span>
+            <span
+              className={cn(
+                "text-[9px] px-1 py-0.2 rounded font-bold uppercase tracking-wider",
+                isWalkIn ? "bg-amber-600/70 text-white" : "bg-amber-100 text-amber-700"
+              )}
+            >
+              No Reg
+            </span>
+          </button>
+        </div>
         {actionElement}
       </div>
 
-      <div className="flex items-center gap-2 mt-2.5">
-        <div
-          role="combobox"
-          aria-expanded={open}
-          aria-haspopup="listbox"
-          aria-owns="patient-listbox"
-          aria-controls="patient-listbox"
-          aria-label="Search and select patient"
-          className="relative flex-1"
-        >
-          <Input
-            placeholder="Search or type new"
-            value={input}
-            autoFocus={autoFocus}
-            onFocus={() => setOpen(true)}
-            onChange={(e) => {
+      {/* WALK-IN CUSTOMER FORM */}
+      {isWalkIn ? (
+        <div className="p-3.5 bg-amber-50/50 border border-amber-200 rounded-xl space-y-3 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-amber-900 flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-amber-500 inline-block" />
+              Walk-In Customer Details
+            </span>
+            <span className="text-[10px] text-amber-700 italic bg-amber-100/80 px-2 py-0.5 rounded-md font-medium">
+              All fields optional • No patient record created
+            </span>
+          </div>
 
-              const capitalizedValue = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
-              setInput(capitalizedValue);
-              if (selected) {
-                setSelected(null);
-                setValue("");
+          <div className="grid grid-cols-1 md:grid-cols-[2fr_85px_145px_1fr] gap-2.5">
+            <div className="space-y-1">
+              <Label className="text-[11px] font-semibold text-slate-600">Customer Name</Label>
+              <Input
+                placeholder="Name (e.g. John Doe)"
+                value={customer?.name || ""}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
+                  onCustomerChange?.({ ...customer, name: val });
+                }}
+                className="h-9 bg-white text-sm focus:border-amber-400 focus:ring-amber-400/20"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[11px] font-semibold text-slate-600">Age</Label>
+              <Input
+                type="number"
+                min="0"
+                max="130"
+                placeholder="Years"
+                value={customer?.age ?? ""}
+                onChange={(e) => {
+                  const val = e.target.value === "" ? undefined : Number(e.target.value);
+                  onCustomerChange?.({ ...customer, age: val });
+                }}
+                className="h-9 bg-white text-sm focus:border-amber-400 focus:ring-amber-400/20 text-center"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[11px] font-semibold text-slate-600">Gender</Label>
+              <Select
+                value={customer?.gender || "not_specified"}
+                onValueChange={(val) =>
+                  onCustomerChange?.({
+                    ...customer,
+                    gender: val === "not_specified" ? "" : val,
+                  })
+                }
+              >
+                <SelectTrigger className="w-full h-9 bg-white text-sm">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="not_specified">Not Specified</SelectItem>
+                  <SelectItem value="Male">Male</SelectItem>
+                  <SelectItem value="Female">Female</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[11px] font-semibold text-slate-600">Phone Number</Label>
+              <Input
+                placeholder="10-digit phone"
+                value={customer?.phoneNumber || ""}
+                onChange={(e) =>
+                  onCustomerChange?.({ ...customer, phoneNumber: e.target.value })
+                }
+                className="h-9 bg-white text-sm focus:border-amber-400 focus:ring-amber-400/20"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-[11px] font-semibold text-slate-600">Address</Label>
+            <Input
+              placeholder="Location / Address"
+              value={customer?.address || ""}
+              onChange={(e) =>
+                onCustomerChange?.({ ...customer, address: e.target.value })
               }
-            }}
-            onKeyDown={onKeyDown}
-            className="w-full pr-9"
-          />
+              className="h-9 bg-white text-sm focus:border-amber-400 focus:ring-amber-400/20"
+            />
+          </div>
         </div>
+      ) : (
+        /* REGISTERED PATIENT SEARCH */
+        <div className="flex items-center gap-2">
+          <div
+            role="combobox"
+            aria-expanded={open}
+            aria-haspopup="listbox"
+            aria-owns="patient-listbox"
+            aria-controls="patient-listbox"
+            aria-label="Search and select patient"
+            className="relative flex-1"
+          >
+            <Input
+              placeholder="Search registered patient or type new..."
+              value={input}
+              autoFocus={autoFocus}
+              onFocus={() => setOpen(true)}
+              onChange={(e) => {
+                const capitalizedValue = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
+                setInput(capitalizedValue);
+                if (selected) {
+                  setSelected(null);
+                  setValue("");
+                }
+              }}
+              onKeyDown={onKeyDown}
+              className="w-full pr-9 h-9 text-sm"
+            />
+          </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          onClick={() => setOpenCreate(true)}
-          className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 shrink-0 h-10 w-10"
-        >
-          <UserPlus className="h-4 w-4" />
-        </Button>
-      </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={() => setOpenCreate(true)}
+            className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 shrink-0 h-9 w-9"
+            title="Register Patient in Patient Register"
+          >
+            <UserPlus className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
 
       {/* POPUP */}
-      {open && (
+      {!isWalkIn && open && (
         <div
           className={cn(
             "absolute z-50 mt-1 w-full rounded-md border bg-white shadow-lg",
@@ -222,21 +368,50 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
                 <div className="p-3 text-gray-500 text-sm border-b">
                   No results found for “{input}”
                 </div>
+                {onToggleWalkIn && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onToggleWalkIn(true);
+                      onCustomerChange?.({ ...customer, name: input });
+                      setOpen(false);
+                    }}
+                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-amber-700 hover:bg-amber-50 font-medium text-xs border-b"
+                  >
+                    <span>🏃</span>
+                    <span>Proceed as <strong>Walk-in Customer</strong> with “{input}” (No Reg)</span>
+                  </button>
+                )}
                 <button
                   onClick={() => {
-                    register?.(input)
+                    register?.(input);
                   }}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium text-xs"
                 >
-                  <span className="text-lg">➕</span> Add new customer
+                  <span className="text-sm">➕</span> Add new customer to Patient Register
                 </button>
               </div>
             ) : (
-              <span>Press ↑/↓ to navigate, Enter to select.</span>
+              <div className="flex items-center justify-between pb-1 text-xs">
+                <span>Press ↑/↓ to navigate, Enter to select.</span>
+                {onToggleWalkIn && input && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onToggleWalkIn(true);
+                      onCustomerChange?.({ ...customer, name: input });
+                      setOpen(false);
+                    }}
+                    className="text-amber-600 hover:underline font-semibold"
+                  >
+                    Switch to Walk-in
+                  </button>
+                )}
+              </div>
             )}
           </div>
 
-          {patients.length > 0 && <ScrollArea className="h-[300px]">
+          {patients.length > 0 && <ScrollArea className="h-75">
             <ul
               ref={listRef}
               id="patient-listbox"
@@ -270,6 +445,21 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
               ))}
             </ul>
           </ScrollArea>}
+
+          {patients.length > 0 && onToggleWalkIn && input && (
+            <button
+              type="button"
+              onClick={() => {
+                onToggleWalkIn(true);
+                onCustomerChange?.({ ...customer, name: input });
+                setOpen(false);
+              }}
+              className="flex items-center gap-2 w-full text-left px-3 py-2 text-amber-700 hover:bg-amber-50 font-medium text-xs border-t bg-amber-50/40 cursor-pointer"
+            >
+              <span>🏃</span>
+              <span>Proceed as <strong>Walk-in Customer</strong> with “{input}” (No Reg)</span>
+            </button>
+          )}
         </div>
       )}
 
@@ -394,7 +584,7 @@ const PatientCard: React.FC<{
         <div className="shrink-0">
           <div
             className={cn(
-              "rounded-2xl p-[2px] transition-transform duration-200",
+              "rounded-2xl p-0.5 transition-transform duration-200",
               "group-hover:scale-[1.02]",
               isSelected ? "bg-primary/15" : "bg-zinc-100 dark:bg-zinc-800"
             )}

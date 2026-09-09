@@ -223,20 +223,34 @@ export default function PrintReceipt({
                         {/* 2. Patient Information Strip */}
                         <div className="grid grid-cols-4 bg-[#eaeaea] text-black select-none py-2.5 px-6">
                             <div className="flex flex-col justify-center">
-                                <span className="text-[11px] text-gray-500 font-medium leading-none">Patient</span>
-                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient.name}</span>
+                                <span className="text-[11px] text-gray-500 font-medium leading-none">
+                                    {(patient as any)?.isWalkIn ? "Customer" : "Patient"}
+                                </span>
+                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">
+                                    {patient?.name && patient.name !== "Walk-In Customer" ? patient.name : "-"}
+                                </span>
                             </div>
                             <div className="flex flex-col justify-center">
-                                <span className="text-[11px] text-gray-500 font-medium leading-none">PID</span>
-                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient.mrn?.replace("MRN", "P-") || " "}</span>
+                                <span className="text-[11px] text-gray-500 font-medium leading-none">
+                                    {(patient as any)?.isWalkIn ? "Age" : "PID"}
+                                </span>
+                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">
+                                    {(patient as any)?.isWalkIn
+                                        ? ((patient as any)?.age ? `${(patient as any).age} yrs` : "-")
+                                        : (patient?.mrn?.replace("MRN", "P-") || " ")}
+                                </span>
                             </div>
                             <div className="flex flex-col justify-center">
                                 <span className="text-[11px] text-gray-500 font-medium leading-none">Phone</span>
-                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient.phoneNumber || " "}</span>
+                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">
+                                    {patient?.phoneNumber || " "}
+                                </span>
                             </div>
                             <div className="flex flex-col justify-center">
                                 <span className="text-[11px] text-gray-500 font-medium leading-none">Doctor</span>
-                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{payload.doctor || " "}</span>
+                                <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">
+                                    {payload?.doctor || "Self"}
+                                </span>
                             </div>
                         </div>
 

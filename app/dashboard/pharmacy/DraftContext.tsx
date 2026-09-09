@@ -77,8 +77,14 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         discount: 0,
         priority: "Normal",
         status: "Pending",
-        pharmacist: "",
-        allergies: "",
+        isWalkIn: initialData?.isWalkIn || false,
+        customer: initialData?.customer || {
+          name: "",
+          age: undefined,
+          gender: "",
+          phoneNumber: "",
+          address: "",
+        },
         ...initialData
       },
       position: { x: 100 + drafts.length * 30, y: 100 + drafts.length * 30 },
@@ -87,7 +93,7 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       minimized: false,
       hasAllergy: !isNoAllergy(initialData?.allergies),
       showAllFields: false,
-      patientName: patientName || ""
+      patientName: patientName || (initialData?.isWalkIn ? (initialData.customer?.name || "-") : "")
     };
     setDrafts([...drafts, newDraft]);
     setActiveDraftId(id);

@@ -42,6 +42,8 @@ export default function CreateBill({
 
 
   const defaultPayload = useMemo(() => ({
+    isWalkIn: false,
+    customer: { name: "", age: undefined, gender: "", phoneNumber: "", address: "" },
     patient: "",
     doctor: "",
     department: "",
@@ -57,7 +59,15 @@ export default function CreateBill({
   const [item, setItem] = useState<null | string>(null);
   const itemRef = useRef<null | HTMLInputElement>(null);
   const [payload, setPayload] = useState<{
-    roundOff: boolean,
+    roundOff: boolean;
+    isWalkIn?: boolean;
+    customer?: {
+      name?: string;
+      age?: number;
+      gender?: string;
+      phoneNumber?: string;
+      address?: string;
+    };
     patient: string;
     doctor: string;
     department: string;
@@ -192,9 +202,31 @@ export default function CreateBill({
     [updateItem]
   );
 
+  const { onClick, downloadPdf } = usePrint({
+    onAfterPrint: () => router.push("/dashboard/pharmacy")
+  });
+
+  const {
+    subtotal,
+    totalGst,
+    roundOffAmount,
+    finalTotal,
+    totalPaid,
+    dueAmount
+  } = useBillCalculations({
+    items: payload.items,
+    discount: payload.discount,
+    roundOff: pharmacyBilling.roundOff,
+    payments: {
+      cash: payload.cash,
+      online: payload.online,
+      insurance: payload.insurance
+    }
+  });
+
   const generateBill = useCallback(async () => {
-    if (!payload.patient) {
-      toast.error("Please select patient.");
+    if (!payload.isWalkIn && !payload.patient) {
+      toast.error("Please select patient or switch to Walk-In Customer.");
       return;
     }
     if (payload.items.length === 0) {
@@ -202,22 +234,35 @@ export default function CreateBill({
       return;
     }
     try {
-      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
+      const payloadToSubmit = {
+        ...payload,
+        patient: payload.isWalkIn || !payload.patient ? undefined : payload.patient,
+        cash: payload.cash - Math.max(0, totalPaid - finalTotal),
+        doctor: payload.doctor || "Self",
+        customer: payload.isWalkIn
+          ? {
+              ...payload.customer,
+              name: payload.customer?.name?.trim() || "-",
+            }
+          : undefined,
+      };
+      await toast.promise(api.post("/billing", payloadToSubmit), {
         loading: "We are generating this bill.",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
       onClick();
       setPayload(defaultPayload);
+      setSelectedPatient(null);
       billingMutate();
     } catch (error) {
       // Handle error
     }
-  }, [payload, billingMutate, defaultPayload]);
+  }, [payload, billingMutate, defaultPayload, totalPaid, finalTotal, onClick]);
 
   const saveBill = useCallback(async () => {
-    if (!payload.patient) {
-      toast.error("Please select patient.");
+    if (!payload.isWalkIn && !payload.patient) {
+      toast.error("Please select patient or switch to Walk-In Customer.");
       return;
     }
     if (payload.items.length === 0) {
@@ -225,43 +270,56 @@ export default function CreateBill({
       return;
     }
     try {
-      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
+      const payloadToSubmit = {
+        ...payload,
+        patient: payload.isWalkIn || !payload.patient ? undefined : payload.patient,
+        cash: payload.cash - Math.max(0, totalPaid - finalTotal),
+        doctor: payload.doctor || "Self",
+        customer: payload.isWalkIn
+          ? {
+              ...payload.customer,
+              name: payload.customer?.name?.trim() || "-",
+            }
+          : undefined,
+      };
+      await toast.promise(api.post("/billing", payloadToSubmit), {
         loading: "Saving bill...",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
       setPayload(defaultPayload);
+      setSelectedPatient(null);
       billingMutate();
       router.push("/dashboard/pharmacy");
     } catch (error) {
       // Handle error
     }
-  }, [payload, billingMutate, defaultPayload, router]);
+  }, [payload, billingMutate, defaultPayload, router, totalPaid, finalTotal]);
 
 
-  const [orderPatient, setOrderPatient] = useState<{ _id: string, mrn: string, name: string } | undefined>(undefined)
+  const [orderPatient, setOrderPatient] = useState<{ _id?: string, mrn?: string, name: string, isWalkIn?: boolean } | undefined>(undefined);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const orderMrn = urlParams.get("mrn");
-
 
     if (!orderMrn) return;
 
     setPayload((prev) => ({
       ...prev,
       rxId: orderMrn,
-    }))
+    }));
 
     api
       .get<{
         data: {
-          items: any[], discount: number, patient: { _id: string, mrn: string, name: string }, doctor: {
-            _id: string,
-            name: string,
-            specialization: string,
-          }
-        }
+          items: any[];
+          discount: number;
+          patient: any;
+          doctor: any;
+          isWalkIn?: boolean;
+          customer?: any;
+        };
       }>(`/pharmacy/orders/single?q=${orderMrn}`)
       .then(({ data }) => {
 
@@ -298,6 +356,8 @@ export default function CreateBill({
           ).values()
         );
 
+        const isWalkInOrder = Boolean(data.data.isWalkIn || !data.data.patient?._id);
+
         setPayload((prev) => ({
           ...prev,
           items: uniqueItems,
@@ -305,38 +365,35 @@ export default function CreateBill({
           cash: 0,
           insurance: 0,
           online: 0,
-          patient: data.data.patient._id || "",
-          doctor: data.data.doctor.name || "",
-          department: data.data.doctor.specialization || "",
+          isWalkIn: isWalkInOrder,
+          customer: data.data.customer || (isWalkInOrder ? { name: data.data.patient?.name } : undefined),
+          patient: isWalkInOrder ? "" : (data.data.patient?._id || ""),
+          doctor: data.data.doctor?.name || "Self",
+          department: data.data.doctor?.specialization || "",
         }));
-        setOrderPatient(data.data.patient)
-        setSelectedPatient(data.data.patient)
+
+        const custOrPatient = isWalkInOrder
+          ? {
+              name: (data.data.customer?.name && data.data.customer.name !== "Walk-In Customer")
+                ? data.data.customer.name
+                : (data.data.patient?.name && data.data.patient.name !== "Walk-In Customer")
+                  ? data.data.patient.name
+                  : "-",
+              isWalkIn: true,
+              age: data.data.customer?.age,
+              phoneNumber: data.data.customer?.phoneNumber,
+              address: data.data.customer?.address,
+            }
+          : data.data.patient;
+
+        setOrderPatient(custOrPatient);
+        setSelectedPatient(custOrPatient);
       });
   }, []);
 
 
 
-  const { onClick, downloadPdf } = usePrint({
-    onAfterPrint: () => router.push("/dashboard/pharmacy")
-  })
 
-  const {
-    subtotal,
-    totalGst,
-    roundOffAmount,
-    finalTotal,
-    totalPaid,
-    dueAmount
-  } = useBillCalculations({
-    items: payload.items,
-    discount: payload.discount,
-    roundOff: pharmacyBilling.roundOff,
-    payments: {
-      cash: payload.cash,
-      online: payload.online,
-      insurance: payload.insurance
-    }
-  });
 
   return (
     <div className="space-y-4">

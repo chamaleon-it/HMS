@@ -35,12 +35,39 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
   const setShowAllFields = (val: boolean) => updateDraft(draft.id, { showAllFields: val });
 
   const patientName = draft.patientName;
+  const isWalkIn = payload.isWalkIn ?? false;
 
+  const setIsWalkIn = (val: boolean) => {
+    setPayload((prev) => ({
+      ...prev,
+      isWalkIn: val,
+      patient: val ? "" : prev.patient,
+    }));
+    if (val) {
+      updateDraft(draft.id, {
+        patientName: payload.customer?.name?.trim() || "-",
+      });
+    } else {
+      updateDraft(draft.id, {
+        patientName: "",
+      });
+    }
+  };
+
+  const handleCustomerChange = (newCust: any) => {
+    setPayload((prev) => ({
+      ...prev,
+      customer: newCust,
+    }));
+    updateDraft(draft.id, {
+      patientName: newCust.name?.trim() || "-",
+    });
+  };
 
   const createOrder = async () => {
     try {
-      if (!payload.patient) {
-        toast.error("Please select patient");
+      if (!isWalkIn && !payload.patient) {
+        toast.error("Please select patient or switch to Walk-In Customer");
         return;
       }
 
@@ -64,7 +91,19 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
         }
       }
       setIsLoading(true);
-      const payloadToSubmit = { ...payload, items: validItems };
+      const payloadToSubmit = {
+        ...payload,
+        patient: isWalkIn || !payload.patient ? undefined : payload.patient,
+        doctor: isWalkIn || !payload.doctor ? undefined : payload.doctor,
+        items: validItems,
+        isWalkIn,
+        customer: isWalkIn
+          ? {
+              ...payload.customer,
+              name: payload.customer?.name?.trim() || "-",
+            }
+          : undefined,
+      };
       const { data } = await toast.promise(api.post("/pharmacy/orders", payloadToSubmit), {
         loading: "Order is creating...",
         success: ({ data }) => data.message,
@@ -90,102 +129,103 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-start gap-4">
-          <div className="flex-1">
-            <PatientSelection
-              patientName={patientName}
-              autoFocus
-              setValue={(id: string, allergies?: string, name?: string) => {
-                setPayload((prev: any) => ({ ...prev, patient: id, allergies: allergies || undefined }));
-                updateDraft(draft.id, { patientName: name || "" });
-                if (allergies && allergies.trim().toLowerCase() !== "none" && allergies.trim().toLowerCase() !== "n/a" && allergies.trim() !== "") {
-                  setHasAllergy(true);
-                } else {
-                  setHasAllergy(false);
-                }
-              }}
-              register={(name) => {
-                // For simplicity, we'll keep the registration in the window or handle it globally
-                window.dispatchEvent(new CustomEvent('open-register-patient', { detail: { name, draftId: draft.id } }));
-              }}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 items-stretch">
-              <div className="flex flex-col p-3.5 border border-slate-200 bg-slate-50/40 rounded-xl transition-shadow hover:shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="p-1.5 rounded-lg bg-slate-200/60 text-slate-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user-cog"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /><circle cx="19" cy="11" r="2" /><path d="m19 13.5 0 .5" /><path d="m19 8.5 0 .5" /></svg>
-                  </div>
-                  <Label className="text-sm font-semibold text-slate-700">Pharmacist In-charge</Label>
-                </div>
-                <PharmacistSelection
-                  hideLabel
-                  setValue={(name: string) => {
-                    setPayload((prev) => ({ ...prev, pharmacist: name }));
-                  }}
-                  pharmacistName={payload.pharmacist}
-                  className="mt-auto"
-                />
-              </div>
-
-              <div className={cn(
-                "flex flex-col p-3.5 border transition-all duration-300 rounded-xl hover:shadow-sm",
-                hasAllergy
-                  ? "bg-amber-50/60 border-amber-200 shadow-sm shadow-amber-100/30"
-                  : "bg-slate-50/40 border-slate-200"
-              )}>
-                <div className="flex items-center justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className={cn(
-                      "p-1.5 rounded-lg transition-colors",
-                      hasAllergy ? "bg-amber-100 text-amber-600" : "bg-slate-200/60 text-slate-400"
-                    )}>
-                      <AlertTriangle className="h-4 w-4" />
-                    </div>
-                    <Label htmlFor={`allergy-toggle-${draft.id}`} className="text-sm font-semibold text-slate-700 cursor-pointer">
-                      Patient Allergy?
-                    </Label>
-                  </div>
-                  <Switch
-                    id={`allergy-toggle-${draft.id}`}
-                    checked={hasAllergy}
-                    onCheckedChange={setHasAllergy}
-                    className="data-[state=checked]:bg-amber-500"
-                  />
-                </div>
-
-                <div className="flex-1 flex flex-col justify-center">
-                  {hasAllergy ? (
-                    <div className="space-y-1.5">
-                      <Input
-                        id={`allergy-input-${draft.id}`}
-                        placeholder="Specify medical/food allergies..."
-                        value={payload.allergies ?? ""}
-                        onChange={(e) => setPayload((prev) => ({ ...prev, allergies: e.target.value }))}
-                        className="h-9 focus:ring-amber-500/20 focus:border-amber-400 bg-white border-amber-100 placeholder:text-slate-400 text-sm"
-                      />
-                      <p className="text-[10px] text-amber-600 font-medium px-1">
-                        Critical for medication safety
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-slate-400 italic px-1">
-                      Toggle if patient has known allergies
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="shrink-0 pt-7">
+        <PatientSelection
+          patientName={patientName}
+          autoFocus
+          isWalkIn={isWalkIn}
+          onToggleWalkIn={setIsWalkIn}
+          customer={payload.customer}
+          onCustomerChange={handleCustomerChange}
+          actionElement={
             <Button
+              type="button"
               variant="outline"
-              className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-sm"
+              size="sm"
+              className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-xs text-xs font-semibold h-7.5 px-3 rounded-lg flex items-center gap-1 cursor-pointer shrink-0"
               onClick={() => setShowAllFields(!showAllFields)}
             >
               {showAllFields ? "Hide optional fields" : "Display all fields"}
             </Button>
+          }
+          setValue={(id: string, allergies?: string, name?: string) => {
+            setPayload((prev: any) => ({ ...prev, patient: id, isWalkIn: false, allergies: allergies || undefined }));
+            updateDraft(draft.id, { patientName: name || "" });
+            if (allergies && allergies.trim().toLowerCase() !== "none" && allergies.trim().toLowerCase() !== "n/a" && allergies.trim() !== "") {
+              setHasAllergy(true);
+            } else {
+              setHasAllergy(false);
+            }
+          }}
+          register={(name) => {
+            // For simplicity, we'll keep the registration in the window or handle it globally
+            window.dispatchEvent(new CustomEvent('open-register-patient', { detail: { name, draftId: draft.id } }));
+          }}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 items-stretch">
+          <div className="flex flex-col p-3.5 border border-slate-200 bg-slate-50/40 rounded-xl transition-shadow hover:shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="p-1.5 rounded-lg bg-slate-200/60 text-slate-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user-cog"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /><circle cx="19" cy="11" r="2" /><path d="m19 13.5 0 .5" /><path d="m19 8.5 0 .5" /></svg>
+              </div>
+              <Label className="text-sm font-semibold text-slate-700">Pharmacist In-charge</Label>
+            </div>
+            <PharmacistSelection
+              hideLabel
+              setValue={(name: string) => {
+                setPayload((prev) => ({ ...prev, pharmacist: name }));
+              }}
+              pharmacistName={payload.pharmacist}
+              className="mt-auto"
+            />
+          </div>
+
+          <div className={cn(
+            "flex flex-col p-3.5 border transition-all duration-300 rounded-xl hover:shadow-sm",
+            hasAllergy
+              ? "bg-amber-50/60 border-amber-200 shadow-sm shadow-amber-100/30"
+              : "bg-slate-50/40 border-slate-200"
+          )}>
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2">
+                <div className={cn(
+                  "p-1.5 rounded-lg transition-colors",
+                  hasAllergy ? "bg-amber-100 text-amber-600" : "bg-slate-200/60 text-slate-400"
+                )}>
+                  <AlertTriangle className="h-4 w-4" />
+                </div>
+                <Label htmlFor={`allergy-toggle-${draft.id}`} className="text-sm font-semibold text-slate-700 cursor-pointer">
+                  Patient Allergy?
+                </Label>
+              </div>
+              <Switch
+                id={`allergy-toggle-${draft.id}`}
+                checked={hasAllergy}
+                onCheckedChange={setHasAllergy}
+                className="data-[state=checked]:bg-amber-500"
+              />
+            </div>
+
+            <div className="flex-1 flex flex-col justify-center">
+              {hasAllergy ? (
+                <div className="space-y-1.5">
+                  <Input
+                    id={`allergy-input-${draft.id}`}
+                    placeholder="Specify medical/food allergies..."
+                    value={payload.allergies ?? ""}
+                    onChange={(e) => setPayload((prev) => ({ ...prev, allergies: e.target.value }))}
+                    className="h-9 focus:ring-amber-500/20 focus:border-amber-400 bg-white border-amber-100 placeholder:text-slate-400 text-sm"
+                  />
+                  <p className="text-[10px] text-amber-600 font-medium px-1">
+                    Critical for medication safety
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs text-slate-400 italic px-1">
+                  Toggle if patient has known allergies
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -193,7 +233,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
       <PrescriptionCard setData={setPayload as any} data={payload} showAllFields={showAllFields} />
 
       <div className="flex justify-between items-center">
-        <div className="">
+        <div className="flex gap-2">
           {payload.patient && (
             <Button
               variant="outline"
@@ -203,6 +243,17 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
               className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
             >
               Direct to Billing (No Medicine)
+            </Button>
+          )}
+          {isWalkIn && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                router.push(`/dashboard/pharmacy/billing#new`)
+              }}
+              className="bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+            >
+              Direct to Walk-In Billing
             </Button>
           )}
         </div>

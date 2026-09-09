@@ -47,10 +47,17 @@ interface PropsType {
       unitPrice: number;
       gst: number;
     }[];
-    patient: {
+    patient?: {
       name: string;
       mrn: string;
+      isWalkIn?: boolean;
+      phoneNumber?: string;
+      gender?: string;
+      age?: number;
+      address?: string;
     };
+    customer?: any;
+    isWalkIn?: boolean;
   }[];
 }
 import AddPaymentDialog from "./AddPaymentDialog";
@@ -135,9 +142,21 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     </TableCell>
                     <TableCell className="py-3 text-slate-600 whitespace-nowrap">{fDateandTime(b.createdAt)}</TableCell>
                     <TableCell className="py-3">
-                      <div className="font-medium truncate text-slate-900">{b.patient.name}</div>
+                      <div className="font-medium truncate text-slate-900">
+                        {b.patient?.name && b.patient.name !== "Walk-In Customer"
+                          ? b.patient.name
+                          : b.customer?.name && b.customer.name !== "Walk-In Customer"
+                            ? b.customer.name
+                            : "-"}
+                      </div>
                       <div className="text-[11px] text-slate-500">
-                        {b.patient.mrn}
+                        {b.patient?.mrn === "Walk-In" || b.isWalkIn ? (
+                          <span className="text-[10px] bg-amber-100 text-amber-800 font-semibold px-1.5 py-0.2 rounded border border-amber-200">
+                            Walk-In
+                          </span>
+                        ) : (
+                          b.patient?.mrn
+                        )}
                       </div>
                     </TableCell>
                     <TableCell className="py-3">
@@ -292,7 +311,11 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
       {printBill && (
         <PrintReceipt
           payload={{
-            patient: printBill.patient.name,
+            patient: (printBill.patient?.name && printBill.patient.name !== "Walk-In Customer")
+              ? printBill.patient.name
+              : (printBill.customer?.name && printBill.customer.name !== "Walk-In Customer")
+                ? printBill.customer.name
+                : "-",
             items: printBill.items.map((i) => ({ ...i, name: i.name })),
             cash: printBill.cash,
             online: printBill.online,
@@ -301,8 +324,14 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             doctor: printBill.doctor === "Self" ? "" : printBill.doctor
           }}
           patient={{
-            name: printBill.patient.name,
-            mrn: printBill.patient.mrn,
+            name: (printBill.patient?.name && printBill.patient.name !== "Walk-In Customer")
+              ? printBill.patient.name
+              : (printBill.customer?.name && printBill.customer.name !== "Walk-In Customer")
+                ? printBill.customer.name
+                : "-",
+            mrn: printBill.patient?.mrn || (printBill.isWalkIn ? "Walk-In" : undefined),
+            phoneNumber: printBill.patient?.phoneNumber || printBill.customer?.phoneNumber,
+            gender: printBill.patient?.gender || printBill.customer?.gender,
           }}
           invoiceDetails={{
             prefix: "MINV",

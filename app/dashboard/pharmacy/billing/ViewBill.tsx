@@ -30,23 +30,33 @@ export default function ViewBill({ id }: { id: string }) {
         data: {
             _id: string;
             user: string;
-            patient: {
-                _id: string;
+            patient?: {
+                _id?: string;
                 name: string;
-                phoneNumber: string;
-                email: string;
-                gender: string;
-                dateOfBirth: Date;
-                conditions: string[];
-                allergies: string;
-                notes: string;
-                createdBy: string;
-                status: string;
-                mrn: string;
-                createdAt: string;
-                updatedAt: string;
+                phoneNumber?: string;
+                email?: string;
+                gender?: string;
+                dateOfBirth?: Date;
+                conditions?: string[];
+                allergies?: string;
+                notes?: string;
+                createdBy?: string;
+                status?: string;
+                mrn?: string;
+                createdAt?: string;
+                updatedAt?: string;
+                address?: string;
+                age?: number;
+                isWalkIn?: boolean;
+            };
+            customer?: {
+                name?: string;
+                age?: number;
+                gender?: string;
+                phoneNumber?: string;
                 address?: string;
             };
+            isWalkIn?: boolean;
             items: {
                 name: string;
                 quantity: number;
@@ -197,11 +207,21 @@ export default function ViewBill({ id }: { id: string }) {
                     <div className="p-5 flex-1 flex flex-col gap-6 text-[13px]">
                         {/* PATIENT STRIP - 4 COL COMPACT */}
                         <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
-                            <Compact label="Patient" value={billing.patient?.name || "—"} />
-                            <Compact label="PID" value={billing.patient?.mrn?.replace("MRN", "P-") || "—"} />
-                            <Compact label="Age/G" value={`${billing.patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient?.gender || "—"}`} />
-                            <Compact label="Phone" value={billing.patient?.phoneNumber || "—"} />
-                            <Compact label="Doctor" value={billing.doctor || "—"} />
+                            <Compact label={billing.isWalkIn ? "Customer" : "Patient"} value={
+                                (billing.patient?.name && billing.patient.name !== "Walk-In Customer")
+                                    ? billing.patient.name
+                                    : (billing.customer?.name && billing.customer.name !== "Walk-In Customer")
+                                        ? billing.customer.name
+                                        : "-"
+                            } />
+                            <Compact label="PID" value={billing.isWalkIn ? "Walk-In" : (billing.patient?.mrn?.replace("MRN", "P-") || "—")} />
+                            <Compact label="Age/G" value={
+                                billing.isWalkIn
+                                    ? `${billing.customer?.age || billing.patient?.age || "—"} / ${billing.customer?.gender || billing.patient?.gender || "—"}`
+                                    : `${billing.patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient?.gender || "—"}`
+                            } />
+                            <Compact label="Phone" value={billing.customer?.phoneNumber || billing.patient?.phoneNumber || "—"} />
+                            <Compact label="Doctor" value={billing.doctor || (billing.isWalkIn ? "Self" : "—")} />
                             <Compact label="Dept" value={billing.department || "—"} />
                             <Compact label="Pay" value={paymentMethod} />
                             <Compact label="Bill" value="OP Pharmacy" />
@@ -303,16 +323,28 @@ export default function ViewBill({ id }: { id: string }) {
             {printBill && (
                 <PrintReceipt
                     payload={{
-                        patient: printBill.patient.name,
+                        patient: (printBill.patient?.name && printBill.patient.name !== "Walk-In Customer")
+                            ? printBill.patient.name
+                            : (printBill.customer?.name && printBill.customer.name !== "Walk-In Customer")
+                                ? printBill.customer.name
+                                : "-",
                         items: printBill.items.map((i: any) => ({ ...i, name: i.name })),
                         cash: printBill.cash,
                         online: printBill.online,
                         insurance: printBill.insurance,
                         discount: printBill.discount,
+                        doctor: printBill.doctor === "Self" ? "" : printBill.doctor,
                     }}
                     patient={{
-                        name: printBill.patient.name,
-                        mrn: printBill.patient.mrn,
+                        name: (printBill.patient?.name && printBill.patient.name !== "Walk-In Customer")
+                            ? printBill.patient.name
+                            : (printBill.customer?.name && printBill.customer.name !== "Walk-In Customer")
+                                ? printBill.customer.name
+                                : "-",
+                        mrn: printBill.patient?.mrn || (printBill.isWalkIn ? "Walk-In" : undefined),
+                        phoneNumber: printBill.customer?.phoneNumber || printBill.patient?.phoneNumber,
+                        gender: printBill.customer?.gender || printBill.patient?.gender,
+                        address: printBill.customer?.address || (typeof printBill.patient?.address === "string" ? printBill.patient?.address : undefined),
                     }}
                     invoiceDetails={{
                         prefix: "MINV",
