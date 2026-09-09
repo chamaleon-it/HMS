@@ -76,14 +76,6 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         New Order
       </Button>
 
-      <Button
-        variant={"outline"}
-        size={"sm"}
-        onClick={() => addDraft({ doctor: user?._id || "", isWalkIn: true }, "-")}
-        className="bg-amber-600 hover:bg-amber-700 text-white shadow-md font-semibold transition-all hover:shadow-lg active:scale-95 border-amber-600"
-      >
-        🏃 Walk-In Order
-      </Button>
 
       <Dialog open={openCreate} onOpenChange={setOpenCreate}>
         <DialogContent className="max-w-3xl! pointer-events-auto">
