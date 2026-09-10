@@ -105,20 +105,6 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     };
   };
 
-  useEffect(() => {
-    if (patient) {
-      reset({
-        name: patient?.name || "",
-        phoneNumber: patient?.phoneNumber || "",
-        doctor: patient?.doctor || user?._id,
-        gender: patient?.gender,
-        dateOfBirth: patient?.dateOfBirth || "",
-        age: patient?.age || "",
-        address: patient?.address || "",
-        mrn: patient?.mrn || ""
-      });
-    }
-  }, [patient]);
 
   const createEditPatient = handleSubmit(async (data) => {
     try {
