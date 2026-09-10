@@ -18,6 +18,9 @@ import {
   ReceiptText,
   FileBarChart,
   Banknote,
+  Stethoscope,
+  UserCheck,
+  ClipboardList,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -73,29 +76,10 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         link: "/dashboard/doctor/",
       },
       {
-        key: "appointments",
-        label: "Appointments",
-        icon: CalendarClock,
-        badge: appointmentStatistics.today.toFixed(0),
-        link: "/dashboard/doctor/appointments/",
-      },
-      {
         key: "patients",
         label: "Patients",
         icon: Users2,
         link: "/dashboard/doctor/patients/",
-      },
-      {
-        key: "lab-results",
-        label: "Investigations",
-        icon: FlaskConical,
-        link: "/dashboard/doctor/lab-report/",
-      },
-      {
-        key: "billing",
-        label: "Billing",
-        icon: CreditCard,
-        link: "/dashboard/doctor/billing/",
       },
     ]) ||
     (user?.role === "Pharmacy" && [
@@ -127,12 +111,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         link: "/dashboard/pharmacy/purchase-entry/",
       },
       {
-        key: "suppliers",
-        label: "Suppliers",
-        icon: Truck,
-        link: "/dashboard/pharmacy/suppliers/",
-      },
-      {
         key: "customers",
         label: "Customers",
         icon: Users,
@@ -144,12 +122,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         label: "Return",
         icon: Undo2,
         link: "/dashboard/pharmacy/return/",
-      },
-      {
-        key: "purchase",
-        label: "Purchase",
-        icon: ShoppingCart,
-        link: "/dashboard/pharmacy/purchase/",
       },
       {
         key: "billing",
@@ -187,23 +159,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         link: "/dashboard/lab/",
       },
       {
-        key: "tests",
-        label: "Test",
-        icon: FlaskConical,
-        childrens: [
-          {
-            key: "lab",
-            label: "Lab",
-            link: "/dashboard/lab/test/lab/",
-          },
-          {
-            key: "imaging",
-            label: "Imaging",
-            link: "/dashboard/lab/test/imaging/",
-          }
-        ]
-      },
-      {
         key: "inventory",
         label: "Catalogue",
         icon: Warehouse,
@@ -221,11 +176,61 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         icon: CreditCard,
         link: "/dashboard/lab/billing/",
       },
+    ]) ||
+    (user?.role === "Admin" && [
       {
-        key: "payments",
-        label: "Payments",
-        icon: Banknote,
-        link: "/dashboard/lab/payments/",
+        key: "dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        link: "/dashboard/admin/",
+      },
+      {
+        key: "inventory",
+        label: "Inventory",
+        icon: Warehouse,
+        link: "/dashboard/admin/inventory/",
+      },
+      {
+        key: "suppliers",
+        label: "Suppliers",
+        icon: Truck,
+        link: "/dashboard/admin/suppliers/",
+      },
+      {
+        key: "customers",
+        label: "Customers",
+        icon: Users,
+        link: "/dashboard/admin/customers/",
+      },
+      {
+        key: "billing",
+        label: "Billing",
+        icon: CreditCard,
+        link: "/dashboard/admin/billing/",
+      },
+      {
+        key: "doctor",
+        label: "Doctor",
+        icon: Stethoscope,
+        link: "/dashboard/admin/doctor/",
+      },
+      {
+        key: "staff",
+        label: "Staff",
+        icon: UserCheck,
+        link: "/dashboard/admin/staff/",
+      },
+      {
+        key: "lab-catalogue",
+        label: "Lab Catalogue",
+        icon: FlaskConical,
+        link: "/dashboard/admin/lab-catalogue/",
+      },
+      {
+        key: "lab-register",
+        label: "Lab Register",
+        icon: ClipboardList,
+        link: "/dashboard/admin/lab-register/",
       },
     ]) ||
     [];

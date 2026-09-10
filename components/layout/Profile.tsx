@@ -111,7 +111,7 @@ export default function DoctorProfile() {
               <Button asChild variant={"ghost"} className="w-full text-left justify-start">
 
                 <Link
-                  href={`/dashboard/${user?.role === "Doctor" && "doctor" || user?.role === "Pharmacy" && "pharmacy" || user?.role === "Pharmacy Wholesaler" && "pharmacy-wholesaler" || user?.role === "Lab" && "lab" || "doctor"}/settings`}
+                  href={`/dashboard/${user?.role === "Doctor" && "doctor" || user?.role === "Pharmacy" && "pharmacy" || user?.role === "Pharmacy Wholesaler" && "pharmacy-wholesaler" || user?.role === "Lab" && "lab" || user?.role === "Admin" && "admin" || "doctor"}/settings`}
                   className="flex items-center gap-1"
                 >
                   <Settings className="mr-1 h-4 w-4" /> Settings

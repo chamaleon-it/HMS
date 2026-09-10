@@ -148,7 +148,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
 
 
   return (
-    <div ref={rootRef} className="relative w-full max-w-[500px]">
+    <div ref={rootRef} className="relative w-full max-w-125">
       <div className="flex items-center justify-between mb-1">
         <Label className="block">Customer Name <span className="text-xs">*</span></Label>
         {actionElement}
@@ -238,7 +238,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
             )}
           </div>
 
-          {patients.length > 0 && <ScrollArea className="h-[300px]">
+          {patients.length > 0 && <ScrollArea className="h-75">
             <ul
               ref={listRef}
               id="patient-listbox"
@@ -396,7 +396,7 @@ const PatientCard: React.FC<{
         <div className="shrink-0">
           <div
             className={cn(
-              "rounded-2xl p-[2px] transition-transform duration-200",
+              "rounded-2xl p-0.5 transition-transform duration-200",
               "group-hover:scale-[1.02]",
               isSelected ? "bg-primary/15" : "bg-zinc-100 dark:bg-zinc-800"
             )}

@@ -10,7 +10,6 @@ import Calendar from "./Calender";
 import List from "./List";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { CreateAppointmentForm } from "./CreateAppointmentForm";
-import Statistics from "./Statistics";
 import Filter, { STATUSES } from "./Filter";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Check, Keyboard } from "lucide-react";
 import api from "@/lib/axios";
@@ -521,8 +520,7 @@ export default function AppointmentPage() {
           </PharmacyHeader>
         </div>
 
-        {/* Statistics - Only show on List view to save space? Or make it collapsible? User requested optimizing blank space. */}
-        {tab === 'list' && <div className="shrink-0  px-4 sm:px-0 print:hidden"><Statistics /></div>}
+
 
         {/* Filters Row */}
         {tab === 'list' &&

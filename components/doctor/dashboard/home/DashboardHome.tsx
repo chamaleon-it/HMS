@@ -5,11 +5,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import DailyViewTimeline from "./DayView";
 import Summery from "./Summery";
 import MonthlyCalender from "./MonthlyCalender";
-import { CreateAppointmentForm } from "@/app/dashboard/doctor/appointments/CreateAppointmentForm";
+import { CreateAppointmentForm } from "@/components/doctor/appointments/CreateAppointmentForm";
 import Statistics from "./Statistics";
 import WeeklyCalender from "./WeeklyCalender";
 import Drawer from "@/components/ui/drawer";
-import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
+import useAppointmentList from "@/components/doctor/appointments/data/useAppointmentList";
 import { motion } from "framer-motion";
 import { LayoutGrid, Calendar, CalendarRange } from "lucide-react";
 

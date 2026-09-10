@@ -9,7 +9,7 @@ import useSWR from "swr";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Drawer from "@/components/ui/drawer";
-import { AddSupplier } from "../suppliers/AddSupplier";
+import { AddSupplier } from "@/app/dashboard/admin/suppliers/AddSupplier";
 
 export default function PurchaseEntryPage() {
     const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);

@@ -3,9 +3,8 @@
 import React, { useState } from "react";
 import { Bell, Plus, Menu } from "lucide-react";
 import DoctorProfile from "./Profile";
-import { CreateAppointmentForm } from "@/app/dashboard/doctor/appointments/CreateAppointmentForm";
+import { CreateAppointmentForm } from "@/components/doctor/appointments/CreateAppointmentForm";
 import Drawer from "../ui/drawer";
-import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
 import { useAuth } from "@/auth/context/auth-context";
 import SearchBar from "./SearchBar";
 import useSWR from "swr";
@@ -13,34 +12,31 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 
+interface TopNavItem {
+  key: string;
+  label: string;
+  link?: string;
+  childrens?: { key: string; label: string; link: string }[];
+}
+
 export default function Header() {
   const [openCreate, setOpenCreate] = useState(false);
-
 
   const { user } = useAuth();
   const pathname = usePathname();
 
-
-
-
-
-  const items =
+  const items: TopNavItem[] =
     (user?.role === "Doctor" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/doctor/" },
-      { key: "appointments", label: "Appointments", link: "/dashboard/doctor/appointments/" },
       { key: "patients", label: "Patients", link: "/dashboard/doctor/patients/" },
-      { key: "lab-results", label: "Investigations", link: "/dashboard/doctor/lab-report/" },
-      { key: "billing", label: "Billing", link: "/dashboard/doctor/billing/" },
     ]) ||
     (user?.role === "Pharmacy" && [
       { key: "appointments", label: "Appointments", link: "/dashboard/pharmacy/appointments/" },
       { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy/" },
       { key: "inventory", label: "Inventory", link: "/dashboard/pharmacy/inventory/" },
       { key: "purchase-entry", label: "Purchase Entry", link: "/dashboard/pharmacy/purchase-entry/" },
-      { key: "suppliers", label: "Suppliers", link: "/dashboard/pharmacy/suppliers/" },
       { key: "customers", label: "Customers", link: "/dashboard/pharmacy/customers/" },
       { key: "return", label: "Return", link: "/dashboard/pharmacy/return/" },
-      { key: "purchase", label: "Purchase", link: "/dashboard/pharmacy/purchase/" },
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy/billing/" },
     ]) ||
     (user?.role === "Pharmacy Wholesaler" && [
@@ -50,12 +46,21 @@ export default function Header() {
     (user?.role === "Lab" && [
       // { key: "appointments", label: "Appointments", link: "/dashboard/lab/appointments/" },
       { key: "dashboard", label: "Dashboard", link: "/dashboard/lab/" },
-      { key: "tests", label: "Test", childrens: [{ key: "lab", label: "Lab", link: "/dashboard/lab/test/lab/" }, { key: "imaging", label: "Imaging", link: "/dashboard/lab/test/imaging/" }] },
       { key: "inventory", label: "Catalogue", link: "/dashboard/lab/inventory/" },
       { key: "patients", label: "Customers", link: "/dashboard/lab/patients/" },
       { key: "billing", label: "Billing", link: "/dashboard/lab/billing/" },
-      { key: "payments", label: "Payments", link: "/dashboard/lab/payments/" },
       { key: "register", label: "Lab Register", link: "/dashboard/lab/register/" },
+    ]) ||
+    (user?.role === "Admin" && [
+      { key: "dashboard", label: "Dashboard", link: "/dashboard/admin/" },
+      { key: "inventory", label: "Inventory", link: "/dashboard/admin/inventory/" },
+      { key: "suppliers", label: "Suppliers", link: "/dashboard/admin/suppliers/" },
+      { key: "customers", label: "Customers", link: "/dashboard/admin/customers/" },
+      { key: "billing", label: "Billing", link: "/dashboard/admin/billing/" },
+      { key: "doctor", label: "Doctor", link: "/dashboard/admin/doctor/" },
+      { key: "staff", label: "Staff", link: "/dashboard/admin/staff/" },
+      { key: "lab-catalogue", label: "Lab Catalogue", link: "/dashboard/admin/lab-catalogue/" },
+      { key: "lab-register", label: "Lab Register", link: "/dashboard/admin/lab-register/" },
     ]) || [];
 
   return (
@@ -157,7 +162,7 @@ export default function Header() {
           </nav>
 
           {/* Search */}
-          <SearchBar />
+          {user?.role !== "Admin" && <SearchBar />}
 
           {/* Actions */}
           <div

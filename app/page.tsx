@@ -64,6 +64,9 @@ export default function LoginPage() {
       case "Lab":
         router.replace("/dashboard/lab");
         break;
+      case "Admin":
+        router.replace("/dashboard/admin");
+        break;
     }
   }, [isAuthenticated, user, router]);
 

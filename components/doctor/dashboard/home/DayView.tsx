@@ -9,7 +9,7 @@ import { CalendarPlus, UserPlus } from "lucide-react";
 import ScheduleTabsPreview from "./ScheduleTabsPreview";
 import { AppointmentType } from "./interface";
 import { PatientCard } from "./PatientCard";
-import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
+import useAppointmentList from "@/components/doctor/appointments/data/useAppointmentList";
 
 // ---- time helpers ----
 export function fromMinutes(min: number) {

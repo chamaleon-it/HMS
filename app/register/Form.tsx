@@ -104,6 +104,7 @@ export default function Form() {
             <option value="Pharmacy">Pharmacy</option>
             <option value="Pharmacy Wholesaler">Pharmacy Wholesaler</option>
             <option value="Lab">Lab</option>
+            <option value="Admin">Admin</option>
           </select>
         </div>
         {errors.role && (

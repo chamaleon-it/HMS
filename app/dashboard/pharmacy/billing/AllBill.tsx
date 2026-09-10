@@ -75,7 +75,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
 
 
         <div className="bg-white/90 border rounded-2xl shadow-md shadow-slate-200 overflow-hidden">
-          <Table className="print:hidden min-w-[1200px] text-sm" containerClassName="max-h-[calc(100vh-365px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
+          <Table className="print:hidden min-w-300 text-sm" containerClassName="max-h-[calc(100vh-365px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
             <TableHeader className="bg-slate-700 sticky top-0 z-20 shadow-sm">
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
                 <TableHead className="py-2.5 text-left pl-4 w-16 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Sl No</TableHead>
@@ -196,11 +196,11 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                             <p>View Bill</p>
                           </TooltipContent>
                         </Tooltip>
- 
+
                         <Button variant="outline" size="sm" onClick={() => handlePrint(b)} className="h-8 text-xs gap-1.5 text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-800">
                           <Printer className="h-3.5 w-3.5" /> Print
                         </Button>
- 
+
                         {b.items.reduce(
                           (sum, i) => sum + i.total,
                           0
@@ -288,7 +288,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
         bill={null} // temporary cast until types align perfectly
         billingMutate={billingMutate}
       />
- 
+
       {printBill && (
         <PrintReceipt
           payload={{
