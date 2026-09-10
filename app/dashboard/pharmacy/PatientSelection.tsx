@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { fAge } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
-import { ChevronRight, MapPin, Phone, X, UserPlus } from "lucide-react";
+import { ChevronRight, MapPin, Phone, X, UserPlus, Search } from "lucide-react";
 import React, {
   useCallback,
   useEffect,
@@ -40,7 +40,7 @@ interface Props {
   autoFocus?: boolean;
   actionElement?: React.ReactNode;
   isWalkIn?: boolean;
-  onToggleWalkIn?: (isWalkIn: boolean) => void;
+  onToggleWalkIn?: (isWalkIn: boolean, initialCustomerName?: string) => void;
   customer?: {
     name?: string;
     age?: number;
@@ -154,10 +154,33 @@ const PatientSelection: React.FC<Props> = ({
 
 
 
+  const handleProceedAsWalkIn = useCallback(
+    (nameToUse?: string) => {
+      const targetName = (nameToUse !== undefined ? nameToUse : input).trim();
+      onToggleWalkIn?.(true, targetName);
+      onCustomerChange?.({
+        ...customer,
+        name: targetName,
+      });
+      setOpen(false);
+    },
+    [input, customer, onToggleWalkIn, onCustomerChange]
+  );
+
+  const hasExactMatch = useMemo(() => {
+    if (!input.trim()) return false;
+    return patients.some(
+      (p) => p.name?.trim().toLowerCase() === input.trim().toLowerCase()
+    );
+  }, [patients, input]);
+
   // Keyboard navigation within the listbox
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!open) return;
-    const max = patients.length - 1;
+    const hasFallback = onToggleWalkIn && input.trim().length > 0 && !hasExactMatch;
+    const totalItems = patients.length + (hasFallback ? 1 : 0);
+    const max = totalItems - 1;
+
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setActiveIdx((i) => (i < max ? i + 1 : 0));
@@ -166,7 +189,13 @@ const PatientSelection: React.FC<Props> = ({
       setActiveIdx((i) => (i > 0 ? i - 1 : max));
     } else if (e.key === "Enter") {
       e.preventDefault();
-      if (patients[activeIdx]) handleSelect(patients[activeIdx]);
+      if (activeIdx >= 0 && activeIdx < patients.length) {
+        handleSelect(patients[activeIdx]);
+      } else if (activeIdx === patients.length && hasFallback) {
+        handleProceedAsWalkIn(input);
+      } else if (patients.length === 0 && hasFallback) {
+        handleProceedAsWalkIn(input);
+      }
     }
   };
 
@@ -180,55 +209,34 @@ const PatientSelection: React.FC<Props> = ({
 
   return (
     <div ref={rootRef} className="relative w-full">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
-          <button
-            type="button"
-            onClick={() => onToggleWalkIn?.(false)}
-            className={cn(
-              "px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer",
-              !isWalkIn
-                ? "bg-white text-slate-800 shadow-xs"
-                : "text-slate-500 hover:text-slate-700"
-            )}
-          >
-            Registered Patient
-          </button>
-          <button
-            type="button"
-            onClick={() => onToggleWalkIn?.(true)}
-            className={cn(
-              "px-3 py-1 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 cursor-pointer",
-              isWalkIn
-                ? "bg-amber-500 text-white shadow-xs"
-                : "text-slate-500 hover:text-slate-700"
-            )}
-          >
-            <span>Walk-In Customer</span>
-            <span
-              className={cn(
-                "text-[9px] px-1 py-0.2 rounded font-bold uppercase tracking-wider",
-                isWalkIn ? "bg-amber-600/70 text-white" : "bg-amber-100 text-amber-700"
-              )}
-            >
-              No Reg
-            </span>
-          </button>
-        </div>
-        {actionElement}
-      </div>
-
       {/* WALK-IN CUSTOMER FORM */}
       {isWalkIn ? (
-        <div className="p-3.5 bg-amber-50/50 border border-amber-200 rounded-xl space-y-3 shadow-xs">
+        <div className="p-3.5 bg-amber-50/50 border border-amber-200 rounded-xl space-y-3 shadow-xs animate-in fade-in-50 slide-in-from-top-1 duration-200">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-amber-900 flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-amber-500 inline-block" />
-              Walk-In Customer Details
-            </span>
-            <span className="text-[10px] text-amber-700 italic bg-amber-100/80 px-2 py-0.5 rounded-md font-medium">
-              All fields optional • No patient record created
-            </span>
+              <span className="text-xs font-semibold text-amber-900">
+                Walk-In Customer Details
+              </span>
+              <span className="text-[10px] text-amber-700 italic bg-amber-100/80 px-2 py-0.5 rounded-md font-medium">
+                All fields optional • No patient record created
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => onToggleWalkIn?.(false)}
+                className="h-7.5 text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 border-slate-300 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                title="Switch back to Registered Patient Search"
+              >
+                <Search className="h-3 w-3 text-slate-500" />
+                <span>Search Registered Patient</span>
+              </Button>
+              {actionElement}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-[2fr_85px_145px_1fr] gap-2.5">
@@ -242,6 +250,7 @@ const PatientSelection: React.FC<Props> = ({
                   onCustomerChange?.({ ...customer, name: val });
                 }}
                 className="h-9 bg-white text-sm focus:border-amber-400 focus:ring-amber-400/20"
+                autoFocus
               />
             </div>
             <div className="space-y-1">
@@ -307,7 +316,7 @@ const PatientSelection: React.FC<Props> = ({
           </div>
         </div>
       ) : (
-        /* REGISTERED PATIENT SEARCH */
+        /* REGISTERED PATIENT SEARCH - SINGLE ENTRY POINT */
         <div className="flex items-center gap-2">
           <div
             role="combobox"
@@ -319,7 +328,7 @@ const PatientSelection: React.FC<Props> = ({
             className="relative flex-1"
           >
             <Input
-              placeholder="Search registered patient or type new..."
+              placeholder="Search registered patient or enter walk-in name..."
               value={input}
               autoFocus={autoFocus}
               onFocus={() => setOpen(true)}
@@ -332,10 +341,39 @@ const PatientSelection: React.FC<Props> = ({
                 }
               }}
               onKeyDown={onKeyDown}
-              className="w-full pr-9 h-9 text-sm"
+              className="w-full pr-9 h-9 text-sm focus:border-indigo-400"
             />
+            {input && (
+              <button
+                type="button"
+                onClick={clearInput}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                title="Clear input"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
+          {/* Secondary UI Option: Small Walk-in Customer icon button next to search bar */}
+          {onToggleWalkIn && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleProceedAsWalkIn(input)}
+              className="border-amber-300 bg-amber-50/60 text-amber-800 hover:bg-amber-100 hover:text-amber-900 font-semibold text-xs h-9 px-2.5 rounded-lg flex items-center gap-1.5 shrink-0 shadow-2xs transition-all cursor-pointer"
+              title="Walk-in Customer (No Reg)"
+            >
+              <span className="text-sm leading-none">🏃</span>
+              <span className="hidden sm:inline">Walk-In</span>
+              <span className="text-[9px] bg-amber-200/80 text-amber-900 px-1 py-0.2 rounded font-bold uppercase tracking-wider">
+                No Reg
+              </span>
+            </Button>
+          )}
+
+          {/* Register Patient Button */}
           <Button
             type="button"
             variant="outline"
@@ -346,119 +384,160 @@ const PatientSelection: React.FC<Props> = ({
           >
             <UserPlus className="h-4 w-4" />
           </Button>
+
+          {actionElement}
         </div>
       )}
 
-      {/* POPUP */}
+      {/* POPUP DROPDOWN */}
       {!isWalkIn && open && (
         <div
           className={cn(
-            "absolute z-50 mt-1 w-full rounded-md border bg-white shadow-lg",
+            "absolute z-50 mt-1 w-full rounded-xl border border-slate-200 bg-white shadow-xl overflow-hidden",
             "data-[hidden=true]:hidden"
           )}
           data-hidden={!open}
         >
-          <div className="px-2 pt-2 text-sm text-zinc-500">
-            {debounced.length < MIN_QUERY_LEN ? (
-              <span>Type at least {MIN_QUERY_LEN} characters to search…</span>
-            ) : isLoading ? (
-              <span>Loading…</span>
-            ) : patients.length === 0 ? (
-              <div>
-                <div className="p-3 text-gray-500 text-sm border-b">
-                  No results found for “{input}”
-                </div>
-                {onToggleWalkIn && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onToggleWalkIn(true);
-                      onCustomerChange?.({ ...customer, name: input });
-                      setOpen(false);
-                    }}
-                    className="flex items-center gap-2 w-full text-left px-3 py-2 text-amber-700 hover:bg-amber-50 font-medium text-xs border-b"
-                  >
-                    <span>🏃</span>
-                    <span>Proceed as <strong>Walk-in Customer</strong> with “{input}” (No Reg)</span>
-                  </button>
-                )}
+          {debounced.length < MIN_QUERY_LEN ? (
+            <div className="p-3 text-xs text-slate-500 flex items-center justify-between">
+              <span>Type at least {MIN_QUERY_LEN} characters to search registered patients…</span>
+              {input.trim().length > 0 && onToggleWalkIn && (
                 <button
-                  onClick={() => {
-                    register?.(input);
-                  }}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium text-xs"
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handleProceedAsWalkIn(input)}
+                  className="text-amber-700 hover:text-amber-800 font-semibold text-xs flex items-center gap-1 cursor-pointer"
                 >
-                  <span className="text-sm">➕</span> Add new customer to Patient Register
+                  <span>🏃</span>
+                  <span>Walk-in “{input.trim()}”</span>
                 </button>
+              )}
+            </div>
+          ) : isLoading ? (
+            <div className="p-4 text-xs text-slate-500 flex items-center gap-2">
+              <div className="h-4 w-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin" />
+              <span>Searching registered patients for “{input}”…</span>
+            </div>
+          ) : patients.length === 0 ? (
+            <div>
+              <div className="p-3 text-slate-500 text-xs bg-slate-50/60 border-b border-slate-100 flex items-center justify-between">
+                <span>No registered patient found for “{input}”</span>
+                <span className="text-[10px] text-slate-400">0 results</span>
               </div>
-            ) : (
-              <div className="flex items-center justify-between pb-1 text-xs">
-                <span>Press ↑/↓ to navigate, Enter to select.</span>
-                {onToggleWalkIn && input && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onToggleWalkIn(true);
-                      onCustomerChange?.({ ...customer, name: input });
-                      setOpen(false);
-                    }}
-                    className="text-amber-600 hover:underline font-semibold"
-                  >
-                    Switch to Walk-in
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
 
-          {patients.length > 0 && <ScrollArea className="h-75">
-            <ul
-              ref={listRef}
-              id="patient-listbox"
-              role="listbox"
-              aria-label="Patients"
-              className="py-1"
-            >
-              {patients.map((p, idx) => (
-                <li
-                  key={p._id}
-                  role="option"
-                  aria-selected={selected?._id === p._id}
-                  onMouseDown={(e) => e.preventDefault()} // keep input focus
-                  onClick={() => handleSelect(p)}
-                  onMouseEnter={() => setActiveIdx(idx)}
+              {/* Fallback item: Proceed as Walk-in Customer with "{searchTerm}" (No Reg) */}
+              {onToggleWalkIn && input.trim() && (
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handleProceedAsWalkIn(input)}
+                  className="flex items-center gap-3 w-full text-left px-3.5 py-3 text-amber-900 bg-amber-50/70 hover:bg-amber-100/90 font-medium text-xs border-b border-amber-200/70 cursor-pointer transition-colors"
+                >
+                  <div className="flex items-center justify-center w-6 h-6 rounded-md bg-amber-200/90 text-amber-900 text-xs font-bold shrink-0">
+                    1
+                  </div>
+                  <div className="flex flex-col flex-1">
+                    <span className="text-sm font-semibold text-amber-950">
+                      1. Proceed as Walk-in Customer with “{input.trim()}” (No Reg)
+                    </span>
+                    <span className="text-[11px] text-amber-700 font-normal">
+                      Skip patient registration • Generate bill / invoice only
+                    </span>
+                  </div>
+                  <span className="text-[10px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded uppercase tracking-wider shrink-0">
+                    Walk-in
+                  </span>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  setOpen(false);
+                  setOpenCreate(true);
+                }}
+                className="flex items-center gap-2.5 w-full text-left px-3.5 py-2.5 text-blue-600 hover:bg-blue-50/80 font-medium text-xs cursor-pointer transition-colors"
+              >
+                <div className="flex items-center justify-center w-6 h-6 rounded-md bg-blue-100 text-blue-600 shrink-0">
+                  <UserPlus className="h-3.5 w-3.5" />
+                </div>
+                <span>➕ Add new patient “{input.trim()}” to Patient Register</span>
+              </button>
+            </div>
+          ) : (
+            <div>
+              <div className="px-3 py-1.5 text-[11px] text-slate-400 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <span>Press ↑/↓ to navigate, Enter to select</span>
+                <span>{patients.length} {patients.length === 1 ? 'patient' : 'patients'} found</span>
+              </div>
+
+              <ScrollArea className="max-h-72">
+                <ul
+                  ref={listRef}
+                  id="patient-listbox"
+                  role="listbox"
+                  aria-label="Patients"
+                  className="py-1"
+                >
+                  {patients.map((p, idx) => (
+                    <li
+                      key={p._id}
+                      role="option"
+                      aria-selected={selected?._id === p._id}
+                      onMouseDown={(e) => e.preventDefault()} // keep input focus
+                      onClick={() => handleSelect(p)}
+                      onMouseEnter={() => setActiveIdx(idx)}
+                      className={cn(
+                        "m-1.5 rounded-2xl border bg-white/90 shadow-[0_1px_0_0_rgba(0,0,0,0.02)] cursor-pointer",
+                        "transition-all duration-150 hover:shadow-sm",
+                        activeIdx === idx && "ring-1 ring-primary/40",
+                        selected?._id === p._id &&
+                        "border-primary/40 shadow-[0_0_0_3px_rgba(8,127,119,0.08)]"
+                      )}
+                    >
+                      <PatientCard
+                        p={p}
+                        isActive={activeIdx === idx}
+                        isSelected={selected?._id === p._id}
+                        searchQuery={debounced}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </ScrollArea>
+
+              {/* Fallback item at bottom of results when there is no exact match */}
+              {onToggleWalkIn && input.trim() && !hasExactMatch && (
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handleProceedAsWalkIn(input)}
+                  onMouseEnter={() => setActiveIdx(patients.length)}
                   className={cn(
-                    "m-1.5 rounded-2xl border bg-white/90 shadow-[0_1px_0_0_rgba(0,0,0,0.02)] cursor-pointer",
-                    "transition-all duration-150 hover:shadow-sm",
-                    activeIdx === idx && "ring-1 ring-primary/40",
-                    selected?._id === p._id &&
-                    "border-primary/40 shadow-[0_0_0_3px_rgba(8,127,119,0.08)]"
+                    "flex items-center gap-3 w-full text-left px-3.5 py-2.5 text-amber-900 bg-amber-50/70 hover:bg-amber-100/90 font-medium text-xs border-t border-amber-200/80 cursor-pointer transition-colors",
+                    activeIdx === patients.length && "ring-1 ring-amber-400 bg-amber-100/90"
                   )}
                 >
-                  <PatientCard
-                    p={p}
-                    isActive={activeIdx === idx}
-                    isSelected={selected?._id === p._id}
-                    searchQuery={debounced}
-                  />
-                </li>
-              ))}
-            </ul>
-          </ScrollArea>}
-
-          {patients.length > 0 && onToggleWalkIn && input && (
-            <button
-              type="button"
-              onClick={() => {
-                onToggleWalkIn(true);
-                onCustomerChange?.({ ...customer, name: input });
-                setOpen(false);
-              }}
-              className="flex items-center gap-2 w-full text-left px-3 py-2 text-amber-700 hover:bg-amber-50 font-medium text-xs border-t bg-amber-50/40 cursor-pointer"
-            >
-              <span>🏃</span>
-              <span>Proceed as <strong>Walk-in Customer</strong> with “{input}” (No Reg)</span>
-            </button>
+                  <div className="flex items-center justify-center w-6 h-6 rounded-md bg-amber-200/90 text-amber-900 text-xs font-bold shrink-0">
+                    1
+                  </div>
+                  <div className="flex flex-col flex-1">
+                    <span className="font-semibold text-xs text-amber-950">
+                      1. Proceed as Walk-in Customer with “{input.trim()}” (No Reg)
+                    </span>
+                    <span className="text-[10px] text-amber-700 font-normal">
+                      Not the registered patient above? Create OTC / walk-in order
+                    </span>
+                  </div>
+                  <span className="text-[9px] bg-amber-200/90 text-amber-900 font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                    No Reg
+                  </span>
+                </div>
+              )}
+            </div>
           )}
         </div>
       )}

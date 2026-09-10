@@ -37,15 +37,21 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
   const patientName = draft.patientName;
   const isWalkIn = payload.isWalkIn ?? false;
 
-  const setIsWalkIn = (val: boolean) => {
+  const setIsWalkIn = (val: boolean, initialCustomerName?: string) => {
     setPayload((prev) => ({
       ...prev,
       isWalkIn: val,
       patient: val ? "" : prev.patient,
+      customer: val
+        ? {
+            ...prev.customer,
+            name: initialCustomerName !== undefined ? initialCustomerName : (prev.customer?.name ?? ""),
+          }
+        : prev.customer,
     }));
     if (val) {
       updateDraft(draft.id, {
-        patientName: payload.customer?.name?.trim() || "-",
+        patientName: (initialCustomerName !== undefined ? initialCustomerName : payload.customer?.name)?.trim() || "-",
       });
     } else {
       updateDraft(draft.id, {
