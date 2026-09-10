@@ -31,8 +31,6 @@ export default function Billing({
 }) {
   const [payload, setPayload] = useState({
     prefix: "INV",
-    defaultGst: 5,
-    roundOff: false,
     autoPrintAfterSave: false,
     autoGenerateBill: false,
     autoGeneratePrescription: false,
@@ -42,8 +40,6 @@ export default function Billing({
     setPayload((prev) => ({
       ...prev,
       prefix: profile?.pharmacy?.billing?.prefix ?? "INV",
-      defaultGst: profile?.pharmacy?.billing?.defaultGst ?? 5,
-      roundOff: profile?.pharmacy?.billing?.roundOff ?? false,
       autoPrintAfterSave:
         profile?.pharmacy?.billing?.autoPrintAfterSave ?? false,
       autoGenerateBill: profile?.pharmacy?.billing?.autoGenerateBill ?? false,
@@ -84,7 +80,7 @@ export default function Billing({
                 Billing & Invoice
               </CardTitle>
               <CardDescription className="text-sm text-slate-500">
-                Control bill series, GST and rounding behaviour.
+                Control bill series and printing behaviour.
               </CardDescription>
             </div>
           </div>
@@ -108,50 +104,9 @@ export default function Billing({
                 Appears before bill number. Useful if multiple counters.
               </p>
             </div>
-
-            <div className="space-y-2">
-              <Label className="text-xs font-medium text-slate-700">
-                Default GST %
-              </Label>
-              <Select
-                value={String(payload.defaultGst)}
-                onValueChange={(v) =>
-                  setPayload((prev) => ({ ...prev, defaultGst: Number(v) }))
-                }
-              >
-                <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-sky-500/70">
-                  <SelectValue placeholder="Select GST %" />
-                </SelectTrigger>
-                <SelectContent className="border-slate-200 bg-white text-sm">
-                  <SelectItem value="0">0% (Exempt)</SelectItem>
-                  <SelectItem value="5">5%</SelectItem>
-                  <SelectItem value="12">12%</SelectItem>
-                  <SelectItem value="18">18%</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-slate-500">
-                Applied when item does not have specific GST set.
-              </p>
-            </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-slate-900">
-                  Round off bill total
-                </p>
-                <p className="text-xs text-slate-500">
-                  Rounds to nearest whole rupee.
-                </p>
-              </div>
-              <Switch
-                checked={payload.roundOff}
-                onCheckedChange={(v) =>
-                  setPayload((prev) => ({ ...prev, roundOff: v }))
-                }
-              />
-            </div>
             <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
               <div className="space-y-1">
                 <p className="text-sm font-medium text-slate-900">
@@ -231,8 +186,7 @@ export default function Billing({
         <CardContent className="space-y-3 text-xs text-slate-500">
           <ul className="list-disc space-y-1 pl-4">
             <li>Use different prefixes for OP, IP and Pharmacy counters.</li>
-            <li>Keep GST default same as most used slab.</li>
-            <li>Enable round off to avoid coin differences at counter.</li>
+            <li>Configure auto-print to streamline desk checkout.</li>
           </ul>
         </CardContent>
       </Card>

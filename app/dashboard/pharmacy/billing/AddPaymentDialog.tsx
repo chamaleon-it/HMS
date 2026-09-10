@@ -31,9 +31,7 @@ interface BillData {
         total: number;
         quantity: number;
         unitPrice: number;
-        gst: number;
     }[];
-    roundOff: boolean;
 }
 
 interface AddPaymentDialogProps {
@@ -52,7 +50,6 @@ export default function AddPaymentDialog({
     const [payment, setPayment] = useState({
         cash: 0,
         online: 0,
-        insurance: 0,
         discount: 0,
     });
 
@@ -61,7 +58,6 @@ export default function AddPaymentDialog({
             setPayment({
                 cash: bill.cash,
                 online: bill.online,
-                insurance: bill.insurance,
                 discount: bill.discount,
             });
         }
@@ -79,11 +75,9 @@ export default function AddPaymentDialog({
     } = useBillCalculations({
         items: bill.items,
         discount: payment.discount,
-        roundOff: bill.roundOff,
         payments: {
             cash: payment.cash,
             online: payment.online,
-            insurance: payment.insurance
         }
     });
 
@@ -110,7 +104,7 @@ export default function AddPaymentDialog({
                         <div className="rounded-2xl border border-slate-200 p-4 shadow-sm bg-white dark:border-slate-800 dark:bg-slate-900">
                             <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                                 <Wallet2 className="h-4 w-4" />
-                                Payments & Insurance
+                                Payments
                             </div>
                             <div className="grid grid-cols-12 gap-4">
                                 {[
@@ -125,12 +119,6 @@ export default function AddPaymentDialog({
                                         label: "Card / UPI",
                                         icon: CreditCard,
                                         tint: "bg-indigo-50 text-indigo-700 border-indigo-200",
-                                    },
-                                    {
-                                        key: "insurance",
-                                        label: "Insurance",
-                                        icon: Building2,
-                                        tint: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
                                     },
                                 ].map(({ key, label, icon: Icon, tint }) => (
                                     <div key={key} className="col-span-12 md:col-span-6">
@@ -148,16 +136,16 @@ export default function AddPaymentDialog({
                                                     onFocus={(e) => (e.target.placeholder = "")}
                                                     onBlur={(e) => (e.target.placeholder = "0")}
                                                     value={
-                                                        payment[key as "cash" | "online" | "insurance"] === 0
+                                                        payment[key as "cash" | "online"] === 0
                                                             ? ""
                                                             : payment[
-                                                                key as "cash" | "online" | "insurance"
+                                                                key as "cash" | "online"
                                                             ].toString()
                                                     }
                                                     onChange={(e) =>
                                                         setPayment((prev) => ({
                                                             ...prev,
-                                                            [key as "cash" | "online" | "insurance"]: Number(
+                                                            [key as "cash" | "online"]: Number(
                                                                 e.target.value
                                                             ),
                                                         }))
@@ -194,19 +182,6 @@ export default function AddPaymentDialog({
                                     <span className="text-slate-500">Discount</span>
                                     <span className="font-medium tabular-nums">
                                         -{formatINR(payment.discount)}
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-slate-500">GST</span>
-                                    <span className="font-medium tabular-nums">
-                                        {formatINR(totalGst)}
-                                    </span>
-                                </div>
-
-                                <div className="flex items-center justify-between">
-                                    <span className="text-slate-500">Round off</span>
-                                    <span className="font-medium tabular-nums">
-                                        {formatINR(roundOffAmount)}
                                     </span>
                                 </div>
                                 <div className="my-2 h-px bg-slate-200" />

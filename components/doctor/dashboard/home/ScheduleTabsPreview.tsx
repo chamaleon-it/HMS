@@ -3,11 +3,8 @@
 import React, { JSX, useMemo } from "react";
 import {
   CheckCircle,
-  Eye,
   Clock,
   AlertTriangle,
-  FlaskConical,
-  Bed,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import useSWR from "swr";
@@ -16,52 +13,35 @@ export default function ScheduleTabsPreview({
   currenctStatus,
   setCurrenctStatus,
 }: {
-  currenctStatus: "Upcoming" | "Consulted" | "Observation" | "Not show";
+  currenctStatus: "Upcoming" | "Consulted" | "Not show";
   setCurrenctStatus: React.Dispatch<
-    React.SetStateAction<"Upcoming" | "Consulted" | "Observation" | "Not show">
+    React.SetStateAction<"Upcoming" | "Consulted" | "Not show">
   >;
 }): JSX.Element {
   const { data: appointmentStatisticsData } = useSWR<{
     message: string;
     data: {
-      completed: number;
       consulted: number;
       notShow: number;
-      observation: number;
       today: number;
       upcoming: number;
-      test: number;
-      admit: number;
     };
   }>("/appointments/statistics");
 
   const appointmentStatistics = appointmentStatisticsData?.data ?? {
-    completed: 0,
     consulted: 0,
     notShow: 0,
-    observation: 0,
     today: 0,
     upcoming: 0,
-    test: 0,
-    admit: 0,
   };
-
-  
 
   const tabs = useMemo(
     () => [
       { key: "Upcoming", label: "Upcoming", icon: Clock },
-      {
-        key: "Test",
-        label: `Test Report (${appointmentStatistics.test})`,
-        icon: FlaskConical,
-      },
       { key: "Consulted", label: "Consulted", icon: CheckCircle },
-      { key: "Observation", label: "Observation", icon: Eye },
-      { key: "Admit", label: "Admit", icon: Bed },
       { key: "Not show", label: "Not show", icon: AlertTriangle },
     ],
-    [appointmentStatistics.test]
+    []
   );
 
   return (
@@ -73,7 +53,7 @@ export default function ScheduleTabsPreview({
             key={key}
             onClick={() =>
               setCurrenctStatus(
-                key as "Upcoming" | "Consulted" | "Observation" | "Not show"
+                key as "Upcoming" | "Consulted" | "Not show"
               )
             }
             className={

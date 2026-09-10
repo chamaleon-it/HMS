@@ -100,7 +100,7 @@ export default function OrderTable({
     };
     invoiceDetails?: {
       prefix: string;
-      roundOffAmount: number;
+      roundOffAmount?: number;
       subtotal: number;
       totalGst: number;
       grandTotal: number;
@@ -174,12 +174,9 @@ export default function OrderTable({
       const items = data.data.items.map((e) => {
         const unitPrice = e.name.unitPrice || 0;
         const quantity = e.quantity || 0;
-        // Since GST might not be in the order fetch, we fallback to defaultGst or 0
-        const itemGst = defaultGst;
         const basePrice = unitPrice * quantity;
-        const gstAmount = basePrice * (itemGst / 100);
         return {
-          gst: itemGst,
+          gst: 0,
           name: e.name.name,
           generic: e.name.genericName,
           manufacturer: e.name.manufacturer,
@@ -187,7 +184,7 @@ export default function OrderTable({
           expiryDate: e.expiryDate || e.name.expiryDate,
           quantity,
           unitPrice,
-          total: Math.round((basePrice + gstAmount) * 100) / 100,
+          total: basePrice,
         };
       });
 
@@ -195,12 +192,9 @@ export default function OrderTable({
         (a, b) => a + b.unitPrice * b.quantity,
         0
       );
-      const totalGst = items.reduce(
-        (a, b) => a + b.unitPrice * b.quantity * (b.gst / 100),
-        0
-      );
+      const totalGst = 0;
       const discount = data.data.discount || 0;
-      const grandTotal = subtotal + totalGst - discount;
+      const grandTotal = subtotal - discount;
 
       setPrintBill({
         patient: data.data.patient,
@@ -216,7 +210,7 @@ export default function OrderTable({
           note: "",
         },
         invoiceDetails: {
-          totalGst,
+          totalGst: 0,
           prefix,
           roundOffAmount: 0, // Simplified for now
           subtotal,
@@ -399,7 +393,7 @@ export default function OrderTable({
                     </TooltipContent>
                   </Tooltip>
 
-                  {r?.status === "Ready" && (
+                  {r?.status !== "Completed" && (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
@@ -559,9 +553,7 @@ function PriorityBadge({ priority }: { priority: string }) {
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    Filling: "bg-blue-100 text-blue-700",
-    "Clinical Check": "bg-amber-100 text-amber-700",
-    Ready: "bg-emerald-100 text-emerald-700",
+    Pending: "bg-amber-100 text-amber-700",
     Completed: "bg-emerald-100 text-emerald-700",
   };
   return (

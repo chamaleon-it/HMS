@@ -19,13 +19,7 @@ import { PatientCard } from "@/components/layout/SearchBar";
 export const STATUSES = [
   "Upcoming",
   "Consulted",
-  // "Observation",
-  // "Completed",
-  // "Not show",
-  // "Admit",
-  // "Test",
-  "All",
-  // "Deleted"
+  "Not show",
 ] as const;
 
 

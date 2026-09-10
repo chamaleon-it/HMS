@@ -25,8 +25,7 @@ export default function TopSummary({ profile }: { profile?: ProfileType }) {
           </div>
         </CardHeader>
         <CardContent className="pt-0 text-sm text-slate-500">
-          Linked with main clinic account. GST active and syncing with cloud
-          backup.
+          Linked with main clinic account and syncing with cloud backup.
         </CardContent>
       </Card>
 
@@ -34,11 +33,10 @@ export default function TopSummary({ profile }: { profile?: ProfileType }) {
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <div className="space-y-1">
             <CardTitle className="text-sm font-medium text-slate-500">
-              Billing
+              Billing Prefix
             </CardTitle>
             <p className="text-base font-semibold text-slate-900">
-              GST {profile?.pharmacy?.billing?.defaultGst ?? 12}% • Rounding{" "}
-              {profile?.pharmacy?.billing?.roundOff ? "ON" : "OFF"}
+              {profile?.pharmacy?.billing?.prefix ?? "INV"}
             </p>
           </div>
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 ring-1 ring-sky-100">

@@ -14,13 +14,7 @@ import DateFilter from "../DateFilter";
 export const STATUSES = [
   "Upcoming",
   "Consulted",
-  "Observation",
-  "Completed",
   "Not show",
-  "Admit",
-  "Test",
-  "All",
-  "Deleted"
 ] as const;
 
 

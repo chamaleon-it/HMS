@@ -14,12 +14,12 @@ interface PrintReceiptProps {
             expiryDate?: string | Date;
             quantity: number;
             unitPrice: number;
-            gst: number;
+            gst?: number;
             total: number;
         }[];
         cash: number;
         online: number;
-        insurance: number;
+        insurance?: number;
         discount: number;
         doctor?: string;
         department?: string;
@@ -35,7 +35,7 @@ interface PrintReceiptProps {
     } | null;
     invoiceDetails?: {
         prefix: string;
-        roundOffAmount: number;
+        roundOffAmount?: number;
         subtotal: number;
         totalGst: number;
         grandTotal: number;
@@ -199,22 +199,16 @@ export default function PrintReceipt({
                     <table className="w-full border-collapse relative z-10 table-layout-fixed">
                         <thead className="bg-[#d9d9d9] border-b border-[#c5c9cf] text-[11px] font-semibold text-black">
                             <tr>
-                                <th style={{ width: "5%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">SL</th>
-                                <th style={{ width: "28%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Medicine Description</th>
-                                <th style={{ width: "12%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Batch No</th>
-                                <th style={{ width: "12%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Expiry Date</th>
-                                <th style={{ width: "6%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Qty</th>
-                                <th style={{ width: "10%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">Unit Price</th>
-                                <th style={{ width: "5%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">GST</th>
-                                <th style={{ width: "12%" }} className="px-3 py-2 text-right">Amount</th>
+                                <th style={{ width: "6%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">SL</th>
+                                <th style={{ width: "54%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Medicine Description</th>
+                                <th style={{ width: "10%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Qty</th>
+                                <th style={{ width: "15%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">Unit Price</th>
+                                <th style={{ width: "15%" }} className="px-3 py-2 text-right">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
                             {payload.items.map((item, index) => {
                                 const dbInfo = getBatchInfo(item.name);
-                                const rawBatch = item.batchNumber && item.batchNumber !== " " && item.batchNumber !== "—" ? item.batchNumber : dbInfo.batchNumber;
-                                const displayBatch = rawBatch === "—" ? "" : rawBatch;
-                                const displayExpiry = item.expiryDate ? item.expiryDate : dbInfo.expiryDate;
                                 const displayGeneric = item.generic || dbInfo.generic;
 
                                 return (
@@ -224,11 +218,8 @@ export default function PrintReceipt({
                                             <p className="font-bold text-black text-[12px]">{item.name}</p>
                                             {displayGeneric && <p className="text-[10px] text-gray-500 font-medium leading-none mt-0.5">{displayGeneric}</p>}
                                         </td>
-                                        <td className="px-2 py-0.5 text-center text-black text-[12px] border-r border-[#c5c9cf]">{displayBatch}</td>
-                                        <td className="px-2 py-0.5 text-center text-black text-[12px] border-r border-[#c5c9cf]">{formatExpiry(displayExpiry)}</td>
                                         <td className="px-2 py-0.5 text-center font-bold text-black text-[12px] border-r border-[#c5c9cf]">{item.quantity}</td>
                                         <td className="px-2 py-0.5 text-right font-medium text-black text-[12px] border-r border-[#c5c9cf]">{formatINR(item.unitPrice)}</td>
-                                        <td className="px-2 py-0.5 text-right font-medium text-black text-[12px] border-r border-[#c5c9cf]">{item.gst}%</td>
                                         <td className="px-3 py-0.5 text-right font-bold text-black text-[12px]">{formatINR(item.total)}</td>
                                     </tr>
                                 );
@@ -237,9 +228,6 @@ export default function PrintReceipt({
                                 <tr key={`empty-${idx}`} className="h-[38px] bg-transparent select-none">
                                     <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                     <td className="border-r border-[#c5c9cf] px-3 py-0.5">&nbsp;</td>
-                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
-                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
-                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                     <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                     <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                     <td className="px-3 py-0.5">&nbsp;</td>
@@ -278,17 +266,12 @@ export default function PrintReceipt({
 
                     {/* Right: Consolidated Billing Summary Box */}
                     <div className="w-[36%] border border-[#9ca3af] rounded-br-2xl rounded-bl-2xl overflow-hidden bg-white flex flex-col justify-between">
-                        {/* Top: Gross Amount & GST */}
+                        {/* Top: Gross Amount & Discount */}
                         <div className="px-4 py-1.5 flex flex-col justify-center text-[12px] bg-white gap-0.5 flex-1">
                             <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
                                 <span className="font-semibold text-gray-700">Gross Amount</span>
                                 <span className="font-bold">:</span>
                                 <span className="font-bold text-right">{formatINR(invoiceDetails.subtotal)}</span>
-                            </div>
-                            <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
-                                <span className="font-semibold text-gray-700">CGST/SGST Total</span>
-                                <span className="font-bold">:</span>
-                                <span className="font-bold text-right">{formatINR(invoiceDetails.totalGst)}</span>
                             </div>
                             {payload.discount > 0 && (
                                 <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">

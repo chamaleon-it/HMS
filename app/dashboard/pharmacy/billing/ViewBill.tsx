@@ -12,7 +12,6 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Printer } from "lucide-react";
 import PharmacyHeader from "../components/PharmacyHeader";
 import React, { useState } from "react";
-import { getDecimal } from "@/lib/fNumber";
 import PrintReceipt from "./PrintReceipt";
 import configuration from "@/config/configuration";
 
@@ -52,14 +51,11 @@ export default function ViewBill({ id }: { id: string }) {
                 name: string;
                 quantity: number;
                 unitPrice: number;
-                gst: number;
                 discount: number;
                 total: number;
             }[];
-            roundOff: boolean;
             cash: number;
             online: number;
-            insurance: number;
             discount: number;
             mrn: string;
             createdAt: Date;
@@ -88,20 +84,12 @@ export default function ViewBill({ id }: { id: string }) {
         0
     );
 
-    const totalGst = billing.items.reduce(
-        (sum, item) =>
-            sum + ((item.quantity * item.unitPrice - item.discount) * item.gst) / 100,
-        0
-    );
-
     const grandTotal = billing.items.reduce((s, { total }) => s + total, 0);
 
     const paymentMethod =
-        billing.insurance > 0
-            ? "Insurance"
-            : billing.online > 0
-                ? "Online"
-                : "Cash";
+        billing.online > 0
+            ? "Online"
+            : "Cash";
 
     return (
         <AppShell>
@@ -170,7 +158,6 @@ export default function ViewBill({ id }: { id: string }) {
                                         <th className="px-3 py-3 text-left">Medicine Description</th>
                                         <th className="px-3 py-3 text-center w-20">Qty</th>
                                         <th className="px-3 py-3 text-right w-24">Unit Price</th>
-                                        <th className="px-3 py-3 text-right w-20">GST</th>
                                         <th className="px-3 py-3 text-right w-28">Amount</th>
                                     </tr>
                                 </thead>
@@ -184,7 +171,6 @@ export default function ViewBill({ id }: { id: string }) {
                                             </td>
                                             <td className="px-3 py-2.5 text-center font-bold text-slate-700">{item.quantity}</td>
                                             <td className="px-3 py-2.5 text-right font-medium text-slate-600">{formatINR(item.unitPrice)}</td>
-                                            <td className="px-3 py-2.5 text-right font-medium text-slate-500">{item.gst}%</td>
                                             <td className="px-3 py-2.5 text-right font-bold text-slate-900">{formatINR(item.total)}</td>
                                         </tr>
                                     ))}
@@ -211,7 +197,6 @@ export default function ViewBill({ id }: { id: string }) {
 
                             <div className="w-[320px] border border-slate-200 rounded-lg p-5 space-y-2 bg-slate-50">
                                 <Line label="Gross Amount" value={formatINR(subtotal)} />
-                                <Line label="CGST/SGST Total" value={formatINR(totalGst)} />
                                 {billing.discount > 0 && (
                                     <Line label="Discount (Billing level)" value={`-${formatINR(billing.discount)}`} />
                                 )}
@@ -255,7 +240,6 @@ export default function ViewBill({ id }: { id: string }) {
                         items: printBill.items.map((i: any) => ({ ...i, name: i.name })),
                         cash: printBill.cash,
                         online: printBill.online,
-                        insurance: printBill.insurance,
                         discount: printBill.discount,
                     }}
                     patient={{
@@ -264,17 +248,12 @@ export default function ViewBill({ id }: { id: string }) {
                     }}
                     invoiceDetails={{
                         prefix: "MINV",
-                        roundOffAmount: printBill.roundOff
-                            ? getDecimal(printBill.items.reduce((a: any, b: any) => a + b.total, 0))
-                            : 0,
+                        roundOffAmount: 0,
                         subtotal: printBill.items.reduce(
                             (a: any, b: any) => a + b.unitPrice * b.quantity,
                             0
                         ),
-                        totalGst: printBill.items.reduce(
-                            (a: any, b: any) => a + (b.total - b.unitPrice * b.quantity),
-                            0
-                        ),
+                        totalGst: 0,
                         grandTotal: printBill.items.reduce((a: any, b: any) => a + b.total, 0),
                     }}
                 />

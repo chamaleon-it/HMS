@@ -30,8 +30,6 @@ export default function CreateBill({
   billingMutate: () => void;
   pharmacyBilling: {
     autoPrintAfterSave: boolean;
-    defaultGst?: number | undefined;
-    roundOff: boolean;
     prefix: string;
   }
 }) {
@@ -44,17 +42,14 @@ export default function CreateBill({
     department: "",
     items: [],
     cash: 0,
-    insurance: 0,
     online: 0,
     discount: 0,
-    roundOff: pharmacyBilling.roundOff
-  }), [pharmacyBilling.roundOff])
+  }), [])
 
 
   const [item, setItem] = useState<null | string>(null);
   const itemRef = useRef<null | HTMLInputElement>(null);
   const [payload, setPayload] = useState<{
-    roundOff: boolean,
     patient: string;
     doctor: string;
     department: string;
@@ -62,17 +57,12 @@ export default function CreateBill({
       name: string;
       quantity: number;
       unitPrice: number;
-      gst: number;
+      gst?: number;
       total: number;
     }[];
     cash: number;
     online: number;
-    insurance: number;
     discount: number;
-    payer?: string;
-    policyNo?: string;
-    tpa?: string;
-    preAuthNo?: string;
     note?: string;
     rxId?: string;
   }>(defaultPayload);
@@ -107,10 +97,9 @@ export default function CreateBill({
           ...prev.items,
           {
             name: nameToAdd,
-            gst: pharmacyBilling.defaultGst ?? 0,
             quantity: 1,
             unitPrice: priceToAdd,
-            total: calcTotal(priceToAdd, 1, pharmacyBilling.defaultGst ?? 0),
+            total: calcTotal(priceToAdd, 1),
           },
         ],
       }));
@@ -118,7 +107,7 @@ export default function CreateBill({
       // itemRef.current?.focus();
       setItem(null);
     },
-    [item, payload.items, pharmacyBilling.defaultGst]
+    [item, payload.items]
   );
 
 
@@ -140,7 +129,6 @@ export default function CreateBill({
         unitPrice: number;
         quantity: number;
         discount: number;
-        gst: number;
       }>
     ) => {
       setPayload((prev) => {
@@ -150,14 +138,12 @@ export default function CreateBill({
             "unitPrice" in patch ? patch.unitPrice ?? 0 : it.unitPrice ?? 0;
           const quantity =
             "quantity" in patch ? patch.quantity ?? 0 : it.quantity ?? 0;
-          const gst = "gst" in patch ? patch.gst ?? 0 : it.gst ?? 0;
-          const total = calcTotal(unitPrice, quantity, gst);
+          const total = calcTotal(unitPrice, quantity);
           return {
             ...it,
             ...patch,
             unitPrice,
             quantity,
-            gst,
             total,
           };
         });
@@ -178,13 +164,6 @@ export default function CreateBill({
   const updatePrice = useCallback(
     (itemName: string, unitPrice: number) => {
       updateItem(itemName, { unitPrice });
-    },
-    [updateItem]
-  );
-
-  const updateGST = useCallback(
-    (itemName: string, gst: number) => {
-      updateItem(itemName, { gst });
     },
     [updateItem]
   );
@@ -328,11 +307,9 @@ export default function CreateBill({
   } = useBillCalculations({
     items: payload.items,
     discount: payload.discount,
-    roundOff: pharmacyBilling.roundOff,
     payments: {
       cash: payload.cash,
       online: payload.online,
-      insurance: payload.insurance
     }
   });
 
@@ -357,7 +334,6 @@ export default function CreateBill({
             payload={payload}
             updateQty={updateQty}
             updatePrice={updatePrice}
-            updateGST={updateGST}
             removeItem={removeItem}
             addItem={addItem}
             item={item}
@@ -399,7 +375,7 @@ export default function CreateBill({
         patient={selectedPatient}
         invoiceDetails={{
           prefix: pharmacyBilling.prefix,
-          roundOffAmount: roundOffAmount,
+          roundOffAmount: 0,
           subtotal: subtotal,
           totalGst: totalGst,
           grandTotal: finalTotal
@@ -426,9 +402,6 @@ const PrimaryButton: React.FC<
 const calcTotal = (
   unitPrice: number = 0,
   quantity: number = 0,
-  gstPct: number = 0
 ) => {
-  const base = unitPrice * quantity;
-  const gstAmount = base * (gstPct / 100);
-  return Math.round((base + gstAmount) * 100) / 100;
+  return Math.round(unitPrice * quantity * 100) / 100;
 };

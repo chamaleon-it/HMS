@@ -64,7 +64,7 @@ export default function DailyViewTimeline({
 
 
   const [currenctStatus, setCurrenctStatus] = useState<
-    "Upcoming" | "Consulted" | "Observation" | "Not show"
+    "Upcoming" | "Consulted" | "Not show"
   >("Upcoming");
 
   const selectedAppointments = useMemo(

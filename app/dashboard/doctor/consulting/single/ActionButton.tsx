@@ -2,10 +2,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import {
   CheckCircle2,
-  Eye,
   FileText,
-  FlaskConical,
-  Hospital,
 } from "lucide-react";
 import React, { useState } from "react";
 import { DataType } from "./interface";
@@ -65,36 +62,6 @@ export default function ActionButton({ data,testIsOK }: { data: DataType ,testIs
         <FileText className="w-4 h-4 mr-1" /> Print
       </Button>
       <motion.div whileTap={{ scale: 0.98 }} className="flex flex-wrap gap-3">
-        {/* Test Button */}
-        <Button
-          type="button"
-          onClick={() => consulting("Test")}
-          className="flex items-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-semibold shadow-sm cursor-pointer"
-        >
-          <FlaskConical className="w-4 h-4" />
-          Send for Test
-        </Button>
-
-        {/* Observation Button */}
-        <Button
-          type="button"
-          onClick={() => consulting("Observation")}
-          className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold shadow-sm cursor-pointer"
-        >
-          <Eye className="w-4 h-4" />
-          Observation
-        </Button>
-
-        {/* Admit Button */}
-        <Button
-          type="button"
-          onClick={() => consulting("Admit")}
-          className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-sm cursor-pointer"
-        >
-          <Hospital className="w-4 h-4" />
-          Admit
-        </Button>
-
         {/* Complete Consultation */}
         <Button
           type="button"
@@ -102,7 +69,7 @@ export default function ActionButton({ data,testIsOK }: { data: DataType ,testIs
           className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-sm cursor-pointer"
         >
           <CheckCircle2 className="w-4 h-4" />
-          Complete
+          Complete Consultation
         </Button>
       </motion.div>
     </div>

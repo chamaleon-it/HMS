@@ -35,7 +35,6 @@ import {
   Filter,
   DollarSign,
   CreditCard,
-  Building2,
   Calendar,
   Eye,
   RefreshCw,
@@ -93,7 +92,6 @@ export default function AdminBillingPage() {
         totalRevenue: number;
         totalCash: number;
         totalOnline: number;
-        totalInsurance: number;
       };
     };
   }>(`/admin/billing?${queryParams.toString()}`);
@@ -104,7 +102,6 @@ export default function AdminBillingPage() {
     totalRevenue: 0,
     totalCash: 0,
     totalOnline: 0,
-    totalInsurance: 0,
   };
 
   const totalPages = Math.ceil(total / limit) || 1;
@@ -138,12 +135,12 @@ export default function AdminBillingPage() {
           </div>
         </div>
 
-        {/* Financial KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Metric Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="p-5 rounded-2xl border bg-emerald-50/60 border-emerald-100 shadow-xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-emerald-800/80">
-                Total Billed
+                Total Revenue
               </span>
               <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs">
                 <DollarSign className="w-4 h-4" />
@@ -185,21 +182,6 @@ export default function AdminBillingPage() {
               {formatINR(totals.totalOnline)}
             </h3>
             <p className="text-xs text-purple-700/80 mt-1">Digital gateway transactions</p>
-          </Card>
-
-          <Card className="p-5 rounded-2xl border bg-amber-50/60 border-amber-100 shadow-xs">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-amber-800/80">
-                Insurance / TPA
-              </span>
-              <div className="w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center shadow-xs">
-                <Building2 className="w-4 h-4" />
-              </div>
-            </div>
-            <h3 className="text-2xl font-bold text-amber-950">
-              {formatINR(totals.totalInsurance)}
-            </h3>
-            <p className="text-xs text-amber-700/80 mt-1">Covered & claimed claims</p>
           </Card>
         </div>
 
@@ -279,7 +261,6 @@ export default function AdminBillingPage() {
                 <SelectItem value="all">All Methods</SelectItem>
                 <SelectItem value="Cash">Cash</SelectItem>
                 <SelectItem value="Online">Online</SelectItem>
-                <SelectItem value="Insurance">Insurance</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -328,9 +309,6 @@ export default function AdminBillingPage() {
                 <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 text-right">
                   Online
                 </TableHead>
-                <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 text-right">
-                  Insurance
-                </TableHead>
                 <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 text-right font-bold pr-4">
                   Net Total
                 </TableHead>
@@ -355,14 +333,14 @@ export default function AdminBillingPage() {
                 </TableRow>
               ) : bills.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={12} className="text-center py-12 text-slate-400">
+                  <TableCell colSpan={11} className="text-center py-12 text-slate-400">
                     No billing records found matching your filters.
                   </TableCell>
                 </TableRow>
               ) : (
                 bills.map((bill: any, idx: number) => {
                   const netTotal =
-                    (bill.cash || 0) + (bill.online || 0) + (bill.insurance || 0);
+                    (bill.cash || 0) + (bill.online || 0);
                   const isLab = bill.user?.role === "Lab" || !!bill.reportId;
 
                   return (
@@ -413,9 +391,6 @@ export default function AdminBillingPage() {
                       </TableCell>
                       <TableCell className="py-2.5 text-right font-medium text-slate-700">
                         {bill.online ? formatINR(bill.online) : "-"}
-                      </TableCell>
-                      <TableCell className="py-2.5 text-right font-medium text-slate-700">
-                        {bill.insurance ? formatINR(bill.insurance) : "-"}
                       </TableCell>
                       <TableCell className="py-2.5 text-right font-bold text-slate-900 pr-4">
                         {formatINR(netTotal)}
@@ -529,7 +504,6 @@ export default function AdminBillingPage() {
                           <th className="py-2.5 px-3">Item / Service</th>
                           <th className="py-2.5 px-3 text-right">Qty</th>
                           <th className="py-2.5 px-3 text-right">Unit Price</th>
-                          <th className="py-2.5 px-3 text-right">GST</th>
                           <th className="py-2.5 px-3 text-right">Total</th>
                         </tr>
                       </thead>
@@ -539,7 +513,6 @@ export default function AdminBillingPage() {
                             <td className="py-2 px-3 font-medium text-slate-900">{item.name}</td>
                             <td className="py-2 px-3 text-right">{item.quantity || 1}</td>
                             <td className="py-2 px-3 text-right">{formatINR(item.unitPrice || 0)}</td>
-                            <td className="py-2 px-3 text-right">{item.gst ? `${item.gst}%` : "-"}</td>
                             <td className="py-2 px-3 text-right font-semibold text-slate-900">
                               {formatINR(item.total || 0)}
                             </td>
@@ -560,10 +533,6 @@ export default function AdminBillingPage() {
                     <span>Online / Digital:</span>
                     <span className="font-medium">{formatINR(selectedBill.online || 0)}</span>
                   </div>
-                  <div className="flex justify-between text-xs">
-                    <span>Insurance / TPA:</span>
-                    <span className="font-medium">{formatINR(selectedBill.insurance || 0)}</span>
-                  </div>
                   {selectedBill.discount > 0 && (
                     <div className="flex justify-between text-xs text-rose-600">
                       <span>Discount:</span>
@@ -575,8 +544,7 @@ export default function AdminBillingPage() {
                     <span>
                       {formatINR(
                         (selectedBill.cash || 0) +
-                          (selectedBill.online || 0) +
-                          (selectedBill.insurance || 0)
+                          (selectedBill.online || 0)
                       )}
                     </span>
                   </div>

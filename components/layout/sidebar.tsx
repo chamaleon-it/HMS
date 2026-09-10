@@ -130,20 +130,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         link: "/dashboard/pharmacy/billing/",
       },
     ]) ||
-    (user?.role === "Pharmacy Wholesaler" && [
-      {
-        key: "dashboard",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        link: "/dashboard/pharmacy-wholesaler",
-      },
-      {
-        key: "billing",
-        label: "Billing",
-        icon: CreditCard,
-        link: "/dashboard/pharmacy-wholesaler/billing/",
-      },
-    ]) ||
     (user?.role === "Lab" && [
       {
         key: "appointments",
@@ -331,7 +317,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
 
 const settingsLinks: Record<string, string> = {
   Pharmacy: "/dashboard/pharmacy/settings/",
-  "Pharmacy Wholesaler": "/dashboard/pharmacy-wholesaler/settings/",
   Doctor: "/dashboard/doctor/settings/",
   Lab: "/dashboard/lab/settings/",
   Admin: "/dashboard/admin/settings/",

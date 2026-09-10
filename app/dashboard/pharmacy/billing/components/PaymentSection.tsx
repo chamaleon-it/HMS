@@ -31,14 +31,6 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
             activeBorder: "border-indigo-500",
             activeBg: "bg-indigo-50"
         },
-        {
-            key: "insurance",
-            label: "Insurance / TPA",
-            icon: Building2,
-            color: "text-fuchsia-600",
-            activeBorder: "border-fuchsia-500",
-            activeBg: "bg-fuchsia-50"
-        },
     ];
 
     const {
@@ -47,11 +39,9 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
     } = useBillCalculations({
         items: payload.items,
         discount: payload.discount,
-        roundOff: payload.roundOff,
         payments: {
             cash: payload.cash,
             online: payload.online,
-            insurance: payload.insurance
         }
     });
 
@@ -61,10 +51,10 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
         <div className="mb-2 relative z-10">
             <div className="mb-6 flex items-center gap-2 text-[11px] font-semibold text-slate-400 uppercase tracking-widest">
                 <Wallet2 className="h-4 w-4" />
-                Payments & Insurance
+                Payments
             </div>
             {/* Payment Section Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {paymentModes.map(({ key, label, icon: Icon, color, activeBorder, activeBg }) => {
                     const active = payload[key] && payload[key] > 0;
                     return (

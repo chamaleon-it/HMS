@@ -58,11 +58,7 @@ export function CreateAppointmentForm({
     status:
     | "Upcoming"
     | "Consulted"
-    | "Observation"
-    | "Completed"
-    | "Not show"
-    | "Admit"
-    | "Test";
+    | "Not show";
     isPaid: boolean;
     createdAt: Date;
     visitCount: number;

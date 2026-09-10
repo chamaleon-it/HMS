@@ -43,13 +43,13 @@ function InvoiceViewContent() {
         name: string;
         quantity: number;
         unitPrice: number;
-        gst: number;
+        gst?: number;
         discount: number;
         total: number;
       }[];
       cash: number;
       online: number;
-      insurance: number;
+      insurance?: number;
       discount: number;
       mrn: string;
       createdAt: Date;
@@ -113,8 +113,7 @@ function InvoiceViewContent() {
                     );
                     const paid =
                       (billing?.cash ?? 0) +
-                      (billing?.online ?? 0) +
-                      (billing?.insurance ?? 0);
+                      (billing?.online ?? 0);
                     return Math.max(0, totalItems - paid - (billing?.discount ?? 0));
                   })()
                 )}
@@ -131,8 +130,7 @@ function InvoiceViewContent() {
                   const total = subtotal - (billing?.discount ?? 0);
                   const paid =
                     (billing?.cash ?? 0) +
-                    (billing?.online ?? 0) +
-                    (billing?.insurance ?? 0);
+                    (billing?.online ?? 0);
 
                   if (total <= paid) return "Paid";
                   if (paid === 0) return "Unpaid";
@@ -182,10 +180,6 @@ function InvoiceViewContent() {
                 <th className="text-right p-4 font-semibold text-gray-700">
                   Discount
                 </th>
-
-                <th className="text-right p-4 font-semibold text-gray-700">
-                  GST%
-                </th>
                 <th className="text-right p-4 font-semibold text-gray-700">
                   Amount
                 </th>
@@ -203,7 +197,6 @@ function InvoiceViewContent() {
                     <td className="text-right p-4">
                       {formatINR(item.discount)}
                     </td>
-                    <td className="text-right p-4">{item.gst}%</td>
                     <td className="text-right p-4">{formatINR(item.total)}</td>
                   </tr>
                 );
@@ -226,19 +219,6 @@ function InvoiceViewContent() {
                 )}
               </span>
             </div>
-            <div className="flex justify-between py-1">
-              <span>GST</span>{" "}
-              <span>
-                {formatINR(
-                  billing?.items?.reduce(
-                    (totalGst, { quantity, unitPrice, discount, gst }) =>
-                      totalGst +
-                      ((quantity * unitPrice - discount) * gst) / 100,
-                    0
-                  ) ?? 0
-                )}
-              </span>
-            </div>
             {billing?.discount ? (
               <div className="flex justify-between py-1 text-sm text-amber-700">
                 <span>Discount</span> <span>- {formatINR(billing.discount)}</span>
@@ -256,7 +236,7 @@ function InvoiceViewContent() {
               </span>
             </div>
             <div className="flex justify-between py-1 text-sm text-green-700">
-              <span>Paid</span> <span>{formatINR((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))}</span>
+              <span>Paid</span> <span>{formatINR((billing?.cash ?? 0) + (billing?.online ?? 0))}</span>
             </div>
             <div className="flex justify-between py-1 text-sm text-red-600">
               <span>Due</span> <span>{formatINR(
@@ -264,7 +244,7 @@ function InvoiceViewContent() {
                   (acc, { total }) =>
                     acc + total,
                   0
-                ) ?? 0) - (billing?.discount ?? 0)) - ((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))
+                ) ?? 0) - (billing?.discount ?? 0)) - ((billing?.cash ?? 0) + (billing?.online ?? 0))
               )}</span>
             </div>
           </div>
@@ -302,9 +282,7 @@ function InvoiceViewContent() {
             {configuration().hospitalAddress} | {configuration().gstIn}
             | Contact: {configuration().hospitalPhone}
           </p>
-          <p>
-            All prices are inclusive of GST as per Government of India norms.
-          </p>
+
           <p className="italic">
             This is a computer-generated invoice and does not require a
             signature.

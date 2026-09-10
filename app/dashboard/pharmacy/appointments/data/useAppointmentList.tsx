@@ -54,8 +54,6 @@ export default function useAppointmentList({
       status:
       | "Upcoming"
       | "Consulted"
-      | "Observation"
-      // | "Completed"
       | "Not show";
       isPaid: boolean;
       isDeleted: boolean;

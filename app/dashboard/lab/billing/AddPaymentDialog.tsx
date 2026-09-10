@@ -26,7 +26,7 @@ interface BillItem {
     name: string;
     quantity: number;
     unitPrice: number;
-    gst: number;
+    gst?: number;
     discount: number;
     total: number;
 }
@@ -36,10 +36,8 @@ interface BillData {
     mrn: string;
     cash: number;
     online: number;
-    insurance: number;
     discount: number;
     items: BillItem[];
-    roundOff: boolean;
 }
 
 interface AddPaymentDialogProps {
@@ -52,8 +50,7 @@ interface AddPaymentDialogProps {
 function calcTotal(item: Omit<BillItem, "total">): number {
     const base = item.quantity * item.unitPrice;
     const afterDiscount = base - (item.discount ?? 0);
-    const gstAmount = (afterDiscount * (item.gst ?? 0)) / 100;
-    return Math.max(0, afterDiscount + gstAmount);
+    return Math.max(0, afterDiscount);
 }
 
 export default function AddPaymentDialog({
@@ -63,7 +60,7 @@ export default function AddPaymentDialog({
     billingMutate,
 }: AddPaymentDialogProps) {
     const [items, setItems] = useState<BillItem[]>([]);
-    const [payment, setPayment] = useState({ cash: 0, online: 0, insurance: 0, discount: 0 });
+    const [payment, setPayment] = useState({ cash: 0, online: 0, discount: 0 });
 
     // Sync state when bill or dialog opens
     useEffect(() => {
@@ -72,7 +69,6 @@ export default function AddPaymentDialog({
             setPayment({
                 cash: bill.cash,
                 online: bill.online,
-                insurance: bill.insurance,
                 discount: bill.discount,
             });
         }
@@ -101,7 +97,7 @@ export default function AddPaymentDialog({
 
     // ── Totals ────────────────────────────────────────────────────────────────
     const subtotal = items.reduce((a, i) => a + i.total, 0);
-    const totalPaid = payment.cash + payment.online + payment.insurance;
+    const totalPaid = payment.cash + payment.online;
     const due = Math.max(0, subtotal - totalPaid - (payment.discount ?? 0));
 
     // ── Submit ────────────────────────────────────────────────────────────────
@@ -110,7 +106,6 @@ export default function AddPaymentDialog({
             items,
             cash: payment.cash,
             online: payment.online,
-            insurance: payment.insurance,
             discount: payment.discount,
         };
         await toast.promise(api.patch(`/billing/${bill._id}`, payload), {
@@ -148,11 +143,10 @@ export default function AddPaymentDialog({
                                 <table className="w-full text-xs">
                                     <thead className="bg-slate-50 text-slate-500 uppercase tracking-wide">
                                         <tr>
-                                            <th className="px-3 py-2 text-left font-semibold w-[32%]">Name</th>
+                                            <th className="px-3 py-2 text-left font-semibold w-[40%]">Name</th>
                                             <th className="px-2 py-2 text-right font-semibold">Qty</th>
                                             <th className="px-2 py-2 text-right font-semibold">Price</th>
                                             <th className="px-2 py-2 text-right font-semibold">Disc</th>
-                                            <th className="px-2 py-2 text-right font-semibold">GST%</th>
                                             <th className="px-2 py-2 text-right font-semibold">Total</th>
                                             <th className="px-2 py-2 w-8"></th>
                                         </tr>
@@ -160,7 +154,7 @@ export default function AddPaymentDialog({
                                     <tbody className="divide-y divide-slate-100">
                                         {items.length === 0 && (
                                             <tr>
-                                                <td colSpan={7} className="text-center py-6 text-slate-400 text-sm">
+                                                <td colSpan={6} className="text-center py-6 text-slate-400 text-sm">
                                                     No items — click "Add Row" to add one
                                                 </td>
                                             </tr>
@@ -175,7 +169,7 @@ export default function AddPaymentDialog({
                                                         onChange={e => updateItemField(idx, "name", e.target.value)}
                                                     />
                                                 </td>
-                                                {(["quantity", "unitPrice", "discount", "gst"] as const).map(field => (
+                                                {(["quantity", "unitPrice", "discount"] as const).map(field => (
                                                     <td key={field} className="px-2 py-1.5">
                                                         <input
                                                             type="number"
@@ -204,7 +198,7 @@ export default function AddPaymentDialog({
                                     {items.length > 0 && (
                                         <tfoot className="bg-slate-50 border-t border-slate-200">
                                             <tr>
-                                                <td colSpan={5} className="px-3 py-2 text-right text-xs font-semibold text-slate-600">Subtotal</td>
+                                                <td colSpan={4} className="px-3 py-2 text-right text-xs font-semibold text-slate-600">Subtotal</td>
                                                 <td className="px-2 py-2 text-right text-xs font-bold text-slate-800 tabular-nums">{formatINR(subtotal)}</td>
                                                 <td />
                                             </tr>
@@ -218,13 +212,12 @@ export default function AddPaymentDialog({
                         <div className="rounded-2xl border border-slate-200 p-4 shadow-sm bg-white">
                             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700">
                                 <Wallet2 className="h-4 w-4" />
-                                Payments &amp; Insurance
+                                Payments
                             </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {([
                                     { key: "cash", label: "Cash", icon: Banknote, tint: "bg-emerald-50 text-emerald-700 border-emerald-200" },
                                     { key: "online", label: "Card / UPI", icon: CreditCard, tint: "bg-indigo-50 text-indigo-700 border-indigo-200" },
-                                    { key: "insurance", label: "Insurance", icon: Building2, tint: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200" },
                                 ] as const).map(({ key, label, icon: Icon, tint }) => (
                                     <div key={key} className={`rounded-xl border px-3 py-3 ${tint}`}>
                                         <div className="mb-1.5 flex items-center gap-2 text-xs font-semibold">

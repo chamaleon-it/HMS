@@ -26,7 +26,7 @@ import LabBillReceipt from "@/components/dashboard/lab/Home/LabBillReceipt";
 
 interface BillRow {
   status: "Paid" | "Partial" | "Unpaid";
-  method: "cash" | "online" | "insurance" | "mixed";
+  method: "cash" | "online" | "mixed";
 }
 
 interface PropsType {
@@ -38,7 +38,7 @@ interface PropsType {
     createdAt: Date;
     cash: number;
     online: number;
-    insurance: number;
+    insurance?: number;
     discount: number;
     items: {
       total: number;
@@ -155,7 +155,6 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                     <div className="text-[11px] text-slate-500 space-x-1 mt-1">
                       {Boolean(b.cash) && <MethodPill m="cash" />}
                       {Boolean(b.online) && <MethodPill m="online" />}
-                      {Boolean(b.insurance) && <MethodPill m="insurance" />}
                     </div>
                   </TableCell>
                   <TableCell className="py-3 text-slate-600 whitespace-nowrap">
@@ -179,13 +178,13 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                     {formatINR(b.discount || 0)}
                   </TableCell>
                   <TableCell className="py-3 text-right tabular-nums text-emerald-600 font-medium">
-                    {formatINR(b.insurance + b.cash + b.online)}
+                    {formatINR(b.cash + b.online)}
                   </TableCell>
                   <TableCell className="py-3 text-right tabular-nums text-rose-600 font-medium">
                     {formatINR(
                       b.items.reduce((a, b) => a + b.total, 0) -
                       (b.discount || 0) -
-                      (b.insurance + b.cash + b.online)
+                      (b.cash + b.online)
                     )}
                   </TableCell>
                   <TableCell className="py-3 text-center">
@@ -201,7 +200,7 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                           0
                         );
                         const total = subtotal - (b.discount || 0);
-                        const paid = b.cash + b.online + b.insurance;
+                        const paid = b.cash + b.online;
                         return total <= paid
                           ? "Paid"
                           : paid === 0
@@ -215,7 +214,7 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                       {(() => {
                         const subtotal = b.items.reduce((sum, i) => sum + i.total, 0);
                         const total = subtotal - (b.discount || 0);
-                        const paid = b.cash + b.online + b.insurance;
+                        const paid = b.cash + b.online;
                         const due = total - paid;
 
                         return (
@@ -342,7 +341,6 @@ const MethodPill: React.FC<{ m: BillRow["method"] }> = ({ m }) => {
   const map: Record<BillRow["method"], string> = {
     cash: "bg-slate-100 text-slate-700 border-slate-200",
     online: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    insurance: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
     mixed: "bg-sky-50 text-sky-700 border-sky-200",
   };
   return (

@@ -2,7 +2,7 @@ import { Eye, Printer, Search, CheckCircle } from "lucide-react";
 import React from "react";
 import Link from "next/link";
 import Filters from "./Filter";
-import { formatINR, getDecimal } from "@/lib/fNumber";
+import { formatINR } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { FilterType } from "./page";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import {
 
 interface BillRow {
   status: "Paid" | "Partial" | "Unpaid" | "Return";
-  method: "cash" | "online" | "insurance" | "mixed";
+  method: "cash" | "online" | "mixed";
 }
 
 interface PropsType {
@@ -30,20 +30,17 @@ interface PropsType {
   billing: {
     doctor: string;
     transactionType: "Return" | "Sale"
-    roundOff: boolean;
     mrn: string;
     _id: string;
     createdAt: Date;
     cash: number;
     online: number;
-    insurance: number;
     discount: number;
     items: {
       name: string;
       total: number;
       quantity: number;
       unitPrice: number;
-      gst: number;
     }[];
     patient: {
       name: string;
@@ -85,7 +82,6 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                 <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Doctor</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Items</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Total</TableHead>
-                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Round off</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Discount</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Paid</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Due</TableHead>
@@ -96,7 +92,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             <TableBody>
               {billing.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={12} className="py-20 text-center">
+                  <TableCell colSpan={11} className="py-20 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center dark:bg-slate-800">
                         <Search className="h-6 w-6 text-slate-300" />
@@ -128,7 +124,6 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       <div className="text-[11px] text-slate-500 space-x-1 mt-1">
                         {Boolean(b.cash) && <MethodPill m="cash" />}
                         {Boolean(b.online) && <MethodPill m="online" />}
-                        {Boolean(b.insurance) && <MethodPill m="insurance" />}
                       </div>
                     </TableCell>
                     <TableCell className="py-3 text-slate-600 whitespace-nowrap">{fDateandTime(b.createdAt)}</TableCell>
@@ -151,19 +146,15 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       {formatINR(b.items.reduce((a, b) => a + b.total, 0))}
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-slate-600">
-                      {(b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0)}
-                    </TableCell>
-                    <TableCell className="py-3 text-right tabular-nums text-slate-600">
                       {formatINR(b.discount)}
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-emerald-600 font-medium">
-                      {formatINR(b.insurance + b.cash + b.online)}
+                      {formatINR(b.cash + b.online)}
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-rose-600 font-medium">
                       {formatINR(
                         b.items.reduce((a, b) => a + b.total, 0) -
-                        (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
-                        (b.insurance + b.cash + b.online + (b.discount ?? 0))
+                        (b.cash + b.online + (b.discount ?? 0))
                       )}
                     </TableCell>
                     <TableCell className="py-3 text-center">
@@ -172,8 +163,8 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                           const total = b.items.reduce(
                             (sum, i) => sum + i.total,
                             0
-                          ) - (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0);
-                          const paid = b.cash + b.online + b.insurance + (b.discount ?? 0);
+                          );
+                          const paid = b.cash + b.online + (b.discount ?? 0);
                           return b.transactionType === "Return" ? "Return" : total <= paid
                             ? "Paid"
                             : paid === 0
@@ -204,7 +195,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                         {b.items.reduce(
                           (sum, i) => sum + i.total,
                           0
-                        ) > b.cash + b.online + b.insurance + (b.discount ?? 0) + (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) ? (
+                        ) > b.cash + b.online + (b.discount ?? 0) ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
@@ -213,8 +204,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                                 className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                                 onClick={async () => {
                                   const due = b.items.reduce((a, b) => a + b.total, 0) -
-                                    (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
-                                    (b.insurance + b.cash + b.online + (b.discount ?? 0))
+                                    (b.cash + b.online + (b.discount ?? 0))
                                   await toast.promise(api.patch(`/billing/mark_as_paid/${b._id}`, { amount: due }), {
                                     loading: "Marking as paid",
                                     success: "Marked as paid",
@@ -248,20 +238,16 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                   <TableCell className="py-4 text-right tabular-nums">
                     {formatINR(billing.reduce((acc, b) => acc + (b.transactionType === "Return" ? 0 : b.items.reduce((a, x) => a + x.total, 0)), 0) - billing.reduce((acc, b) => acc + (b.transactionType === "Sale" ? 0 : b.items.reduce((a, x) => a + x.total, 0)), 0))}
                   </TableCell>
-                  <TableCell className="py-4 text-right tabular-nums text-slate-700">
-                    {billing.reduce((acc, b) => acc + (b.transactionType === "Return" ? 0 : b.roundOff ? getDecimal(b.items.reduce((a, x) => a + x.total, 0)) : 0), 0).toFixed(2)}
-                  </TableCell>
                   <TableCell className="py-4 text-right tabular-nums">
                     {formatINR(billing.reduce((acc, b) => acc + (b.discount ?? 0), 0))}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums text-emerald-700 font-black">
-                    {formatINR(billing.reduce((acc, b) => b.transactionType === "Return" ? acc - b.cash : acc + b.insurance + b.cash + b.online, 0))}
+                    {formatINR(billing.reduce((acc, b) => b.transactionType === "Return" ? acc - b.cash : acc + b.cash + b.online, 0))}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums text-rose-700 font-black">
                     {formatINR(billing.reduce((acc, b) =>
                       acc + (b.transactionType === "Return" ? 0 : b.items.reduce((a, x) => a + x.total, 0) -
-                        (b.roundOff ? getDecimal(b.items.reduce((a, x) => a + x.total, 0)) : 0) -
-                        (b.insurance + b.cash + b.online + (b.discount ?? 0))), 0
+                        (b.cash + b.online + (b.discount ?? 0))), 0
                     )
                     )}
                   </TableCell>
@@ -296,7 +282,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             items: printBill.items.map((i) => ({ ...i, name: i.name })),
             cash: printBill.cash,
             online: printBill.online,
-            insurance: printBill.insurance,
+            insurance: 0,
             discount: printBill.discount,
             doctor: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.name : (printBill.doctor === "Self" ? "" : printBill.doctor)
           }}
@@ -306,17 +292,12 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
           }}
           invoiceDetails={{
             prefix: "MINV",
-            roundOffAmount: printBill.roundOff
-              ? getDecimal(printBill.items.reduce((a, b) => a + b.total, 0))
-              : 0,
+            roundOffAmount: 0,
             subtotal: printBill.items.reduce(
               (a, b) => a + b.unitPrice * b.quantity,
               0
             ),
-            totalGst: printBill.items.reduce(
-              (a, b) => a + (b.total - b.unitPrice * b.quantity),
-              0
-            ),
+            totalGst: 0,
             grandTotal: printBill.items.reduce((a, b) => a + b.total, 0),
           }}
         />
@@ -329,7 +310,6 @@ const MethodPill: React.FC<{ m: BillRow["method"] }> = ({ m }) => {
   const map: Record<BillRow["method"], string> = {
     cash: "bg-slate-100 text-slate-700 border-slate-200",
     online: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    insurance: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
     mixed: "bg-sky-50 text-sky-700 border-sky-200",
   };
   return (

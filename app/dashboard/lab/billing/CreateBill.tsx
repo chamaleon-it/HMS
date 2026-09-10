@@ -36,7 +36,6 @@ const defaultPayload = {
   patient: "",
   items: [],
   cash: 0,
-  insurance: 0,
   online: 0,
 };
 
@@ -56,17 +55,12 @@ export default function CreateBill({
       name: string;
       quantity: number;
       unitPrice: number;
-      gst: number;
+      gst?: number;
       discount: number;
       total: number;
     }[];
     cash: number;
     online: number;
-    insurance: number;
-    payer?: string;
-    policyNo?: string;
-    tpa?: string;
-    preAuthNo?: string;
     note?: string;
   }>(defaultPayload);
 
@@ -141,7 +135,6 @@ export default function CreateBill({
         unitPrice: number;
         quantity: number;
         discount: number;
-        gst: number;
       }>
     ) => {
       setPayload((prev) => {
@@ -153,15 +146,13 @@ export default function CreateBill({
             "quantity" in patch ? patch.quantity ?? 0 : it.quantity ?? 0;
           const discount =
             "discount" in patch ? patch.discount ?? 0 : it.discount ?? 0;
-          const gst = "gst" in patch ? patch.gst ?? 0 : it.gst ?? 0;
-          const total = calcTotal(unitPrice, quantity, discount, gst);
+          const total = calcTotal(unitPrice, quantity, discount);
           return {
             ...it,
             ...patch,
             unitPrice,
             quantity,
             discount,
-            gst,
             total,
           };
         });
@@ -182,13 +173,6 @@ export default function CreateBill({
   const updatePrice = useCallback(
     (itemName: string, unitPrice: number) => {
       updateItem(itemName, { unitPrice });
-    },
-    [updateItem]
-  );
-
-  const updateGST = useCallback(
-    (itemName: string, gst: number) => {
-      updateItem(itemName, { gst });
     },
     [updateItem]
   );
@@ -310,19 +294,17 @@ export default function CreateBill({
             <div className="overflow-x-auto">
               <table className="w-full table-fixed text-sm">
                 <colgroup>
-                  <col className="w-[42%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[16%]" />
-                  <col className="w-[12%]" />
+                  <col className="w-[46%]" />
                   <col className="w-[14%]" />
-                  <col className="w-[6%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[8%]" />
                 </colgroup>
                 <thead className="sticky top-0 z-10 bg-white/80 backdrop-blur">
                   <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
                     <th className="py-2 text-left">Item</th>
                     <th className="py-2 text-right">Qty</th>
                     <th className="py-2 text-right">Unit</th>
-                    <th className="py-2 text-right">GST%</th>
                     <th className="py-2 text-right">Amount</th>
                     <th className="py-2 text-center">• • •</th>
                   </tr>
@@ -392,24 +374,6 @@ export default function CreateBill({
                                 }
                               />
                             </td>
-                            <td className="py-2 pr-2 text-right">
-                              <input
-                                type="number"
-                                min={0}
-                                max={28}
-                                value={it.gst === 0 ? "" : it.gst.toString()}
-                                placeholder="0"
-                                onFocus={e => e.target.placeholder = ""}
-                                onBlur={e => e.target.placeholder = "0"}
-                                onChange={(e) =>
-                                  updateGST(it.name, Number(e.target.value))
-                                }
-                                className={
-                                  "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50" +
-                                  " text-right w-20"
-                                }
-                              />
-                            </td>
                             <td className="py-2 pr-2 text-right font-medium tabular-nums">
                               {formatINR(it.total)}
                             </td>
@@ -444,7 +408,7 @@ export default function CreateBill({
                                 exit={{ opacity: 0, height: 0 }}
                               >
                                 <td
-                                  colSpan={6}
+                                  colSpan={5}
                                   className="bg-slate-50/50 px-2 py-3 text-xs dark:bg-slate-800/40"
                                 >
                                   <div className="grid grid-cols-12 gap-3">
@@ -518,7 +482,7 @@ export default function CreateBill({
           >
             <div className="mb-2 flex items-center gap-2 text-sm font-medium">
               <Wallet2 className="h-4 w-4" />
-              Payments & Insurance
+              Payments
             </div>
             <div className="grid grid-cols-12 gap-4">
               {[
@@ -526,25 +490,16 @@ export default function CreateBill({
                   key: "cash",
                   label: "Cash",
                   icon: Banknote,
-
                   tint: "bg-emerald-50 text-emerald-700 border-emerald-200",
                 },
                 {
                   key: "online",
                   label: "Card / UPI",
                   icon: CreditCard,
-
                   tint: "bg-indigo-50 text-indigo-700 border-indigo-200",
                 },
-                {
-                  key: "insurance",
-                  label: "Insurance",
-                  icon: Building2,
-
-                  tint: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
-                },
               ].map(({ key, label, icon: Icon, tint }) => (
-                <div key={key} className="col-span-12 md:col-span-4">
+                <div key={key} className="col-span-12 md:col-span-6">
                   <div className={`rounded-xl border px-3 py-3 ${tint}`}>
                     <div className="mb-1 flex items-center gap-2 text-sm font-semibold">
                       <Icon className="h-4 w-4" />
@@ -559,16 +514,16 @@ export default function CreateBill({
                         onFocus={e => e.target.placeholder = ""}
                         onBlur={e => e.target.placeholder = "0"}
                         value={
-                          payload[key as "cash" | "online" | "insurance"] === 0
+                          payload[key as "cash" | "online"] === 0
                             ? ""
                             : payload[
-                              key as "cash" | "online" | "insurance"
+                              key as "cash" | "online"
                             ].toString()
                         }
                         onChange={(e) =>
                           setPayload((prev) => ({
                             ...prev,
-                            [key as "cash" | "online" | "insurance"]: Number(
+                            [key as "cash" | "online"]: Number(
                               e.target.value
                             ),
                           }))
@@ -582,72 +537,6 @@ export default function CreateBill({
                   </div>
                 </div>
               ))}
-
-              <div className="col-span-12 h-px bg-slate-200" />
-              <div className="col-span-12 md:col-span-3">
-                <label className="mb-1 block text-xs text-slate-500">
-                  Payer / Insurer
-                </label>
-                <input
-                  value={payload.payer}
-                  onChange={(e) =>
-                    setPayload((prev) => ({ ...prev, payer: e.target.value }))
-                  }
-                  placeholder="e.g., Star Health"
-                  className={
-                    "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                  }
-                />
-              </div>
-              <div className="col-span-12 md:col-span-3">
-                <label className="mb-1 block text-xs text-slate-500">
-                  Policy No.
-                </label>
-                <input
-                  value={payload.policyNo}
-                  onChange={(e) =>
-                    setPayload((prev) => ({
-                      ...prev,
-                      policyNo: e.target.value,
-                    }))
-                  }
-                  placeholder="Policy #"
-                  className={
-                    "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                  }
-                />
-              </div>
-              <div className="col-span-12 md:col-span-3">
-                <label className="mb-1 block text-xs text-slate-500">TPA</label>
-                <input
-                  value={payload.tpa}
-                  onChange={(e) =>
-                    setPayload((prev) => ({ ...prev, tpa: e.target.value }))
-                  }
-                  placeholder="TPA name"
-                  className={
-                    "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                  }
-                />
-              </div>
-              <div className="col-span-12 md:col-span-3">
-                <label className="mb-1 block text-xs text-slate-500">
-                  Pre-Auth No.
-                </label>
-                <input
-                  value={payload.preAuthNo}
-                  onChange={(e) =>
-                    setPayload((prev) => ({
-                      ...prev,
-                      preAuthNo: e.target.value,
-                    }))
-                  }
-                  placeholder="Pre-auth"
-                  className={
-                    "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                  }
-                />
-              </div>
             </div>
           </div>
 
@@ -707,19 +596,6 @@ export default function CreateBill({
                   {formatINR(payload.items.reduce((a, b) => a + b.discount, 0))}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-500">GST</span>
-                <span className="font-medium tabular-nums">
-                  {formatINR(
-                    payload.items.reduce(
-                      (a, b) =>
-                        a +
-                        ((b.quantity * b.unitPrice - b.discount) * b.gst) / 100,
-                      0
-                    )
-                  )}
-                </span>
-              </div>
               <div className="my-2 h-px bg-slate-200" />
               <div className="flex items-center justify-between text-base font-semibold">
                 <span>Total</span>
@@ -730,7 +606,7 @@ export default function CreateBill({
               <div className="flex items-center justify-between">
                 <span className="text-slate-500">Paid</span>
                 <span className="font-medium tabular-nums">
-                  {formatINR(payload.cash + payload.online + payload.insurance)}
+                  {formatINR(payload.cash + payload.online)}
                 </span>
               </div>
               <div className="flex items-center justify-between text-rose-600 dark:text-rose-400">
@@ -738,7 +614,7 @@ export default function CreateBill({
                 <span className="font-semibold tabular-nums">
                   {formatINR(
                     payload.items.reduce((a, b) => a + b.total, 0) -
-                    (payload.cash + payload.online + payload.insurance)
+                    (payload.cash + payload.online)
                   )}
                 </span>
               </div>
@@ -791,12 +667,8 @@ const PrimaryButton: React.FC<
 const calcTotal = (
   unitPrice: number = 0,
   quantity: number = 0,
-  discountPct: number = 0,
-  gstPct: number = 0
+  discount: number = 0
 ) => {
   const base = unitPrice * quantity;
-  const discountAmount = discountPct;
-  const taxable = base - discountAmount;
-  const gstAmount = taxable * (gstPct / 100);
-  return Math.round((taxable + gstAmount) * 100) / 100;
+  return Math.max(0, base - discount);
 };

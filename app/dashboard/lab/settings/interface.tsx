@@ -25,8 +25,6 @@ export interface ProfileType {
     }[],
     billing?: {
       prefix: string;
-      defaultGst: number;
-      roundOff: boolean;
       autoPrintAfterSave: boolean;
     };
     notifications?: {

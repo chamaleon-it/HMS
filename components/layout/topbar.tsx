@@ -39,10 +39,6 @@ export default function Header() {
       { key: "return", label: "Return", link: "/dashboard/pharmacy/return/" },
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy/billing/" },
     ]) ||
-    (user?.role === "Pharmacy Wholesaler" && [
-      { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy-wholesaler" },
-      { key: "billing", label: "Billing", link: "/dashboard/pharmacy-wholesaler/billing/" },
-    ]) ||
     (user?.role === "Lab" && [
       // { key: "appointments", label: "Appointments", link: "/dashboard/lab/appointments/" },
       { key: "dashboard", label: "Dashboard", link: "/dashboard/lab/" },

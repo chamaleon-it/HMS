@@ -61,11 +61,10 @@ const Customer: React.FC = () => {
 
         billing.forEach(b => {
             const itemsTotal = b.items.reduce((acc, it) => acc + (it.total || 0), 0);
-            const rOff = b.roundOff ? getDecimal(itemsTotal) : 0;
-            const paid = (b.cash || 0) + (b.online || 0) + (b.insurance || 0);
+            const paid = (b.cash || 0) + (b.online || 0);
 
             if (b.transactionType === "Sale") {
-                totalSpend += itemsTotal - rOff - (b.discount || 0);
+                totalSpend += itemsTotal - (b.discount || 0);
                 totalPaid += paid;
                 totalVisit++;
             } else {
@@ -166,10 +165,8 @@ const Customer: React.FC = () => {
                     }[];
                     cash: number;
                     online: number;
-                    insurance: number;
                     discount: number;
                     mrn: string;
-                    roundOff: boolean;
                     transactionType: "Sale" | "Return";
                     createdAt: string;
                     updatedAt: string;
@@ -187,10 +184,8 @@ const Customer: React.FC = () => {
             const items = bill.items.map(e => {
                 const unitPrice = e.unitPrice || 0;
                 const quantity = e.quantity || 0;
-                const itemGst = e.gst || 0;
                 const total = e.total || 0;
                 return {
-                    gst: itemGst,
                     name: e.name,
                     quantity,
                     unitPrice,
@@ -199,11 +194,9 @@ const Customer: React.FC = () => {
             });
 
             const subtotal = items.reduce((a, b) => a + b.unitPrice * b.quantity, 0);
-            const totalGst = items.reduce((a, b) => a + b.unitPrice * b.quantity * (b.gst / 100), 0);
+            const totalGst = 0;
             const discount = bill.discount || 0;
-            const grandTotalBeforeRoundOff = subtotal + totalGst - discount;
-            const roundOffAmount = bill.roundOff ? getDecimal(grandTotalBeforeRoundOff) : 0;
-            const grandTotal = grandTotalBeforeRoundOff - roundOffAmount;
+            const grandTotal = Math.max(0, subtotal - discount);
 
             setPrintBill({
                 patient: bill.patient,
@@ -211,7 +204,6 @@ const Customer: React.FC = () => {
                     items,
                     cash: bill.cash,
                     discount,
-                    insurance: bill.insurance,
                     online: bill.online,
                     patient: bill.patient._id,
                     department: "Pharmacy",
@@ -221,9 +213,9 @@ const Customer: React.FC = () => {
                 invoiceDetails: {
                     totalGst,
                     prefix,
-                    roundOffAmount,
+                    roundOffAmount: 0,
                     subtotal,
-                    grandTotal
+                    grandTotal,
                 }
             });
 
@@ -239,7 +231,7 @@ const Customer: React.FC = () => {
     }
 
     const calculatedDueAmount = selectedVisit?.transactionType === "Sale" && selectedVisit?.items
-        ? selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) - (selectedVisit?.discount || 0) - ((selectedVisit?.cash || 0) + (selectedVisit?.online || 0) + (selectedVisit?.insurance || 0))
+        ? selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) - (selectedVisit?.discount || 0) - ((selectedVisit?.cash || 0) + (selectedVisit?.online || 0))
         : 0;
 
     const handlePaymentUpdate = async () => {
@@ -248,7 +240,6 @@ const Customer: React.FC = () => {
             const payload = {
                 cash: (selectedVisit?.cash || 0) + (paymentMethod === "Cash" ? calculatedDueAmount : (paymentMethod === "Underpaid" ? Number(amountPaid) : 0)),
                 online: (selectedVisit?.online || 0) + (paymentMethod === "UPI" ? calculatedDueAmount : 0),
-                insurance: (selectedVisit?.insurance || 0),
             };
 
             await api.patch(`/billing/add_payment/${selectedVisit?._id}`, payload);
@@ -327,63 +318,6 @@ const Customer: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-
-                            <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-indigo-50 to-indigo-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                                    <div className="text-xs font-medium text-indigo-700 uppercase tracking-wide">
-                                        Total Spend
-                                    </div>
-                                    <div className="text-2xl font-bold text-indigo-900">
-                                        {formatINR(customer?.totalSpend ?? 0)}
-                                    </div>
-                                </div>
-
-
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                                    <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
-                                        Total Paid
-                                    </div>
-                                    <div className="text-2xl font-bold text-emerald-900">
-                                        {formatINR(customer?.totalPaid ?? 0)}
-                                    </div>
-                                </div>
-
-
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-rose-50 to-rose-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                                    <div className="text-xs font-medium text-rose-700 uppercase tracking-wide">
-                                        Total Due
-                                    </div>
-                                    <div className="text-2xl font-bold text-rose-900">
-                                        {formatINR(customer?.totalDue ?? 0)}
-                                    </div>
-                                </div>
-
-
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                                    <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
-                                        Total Visits
-                                    </div>
-                                    <div className="text-3xl font-semibold text-sky-900">
-                                        {customer?.totalVisit}
-                                    </div>
-                                </div>
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                                    <div className="text-xs font-medium text-violet-700 uppercase tracking-wide">
-                                        Last Purchase
-                                    </div>
-                                    <div className="text-sm font-semibold text-violet-900">
-                                        {customer?.lastPurchase ? fDate(customer.lastPurchase) : "N/A"}
-                                    </div>
-                                </div>
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                                    <div className="text-xs font-medium text-amber-700 uppercase tracking-wide">
-                                        Avg Spend
-                                    </div>
-                                    <div className="text-2xl font-semibold text-amber-900">
-                                        {formatINR(customer?.averageSpend || 0)}
-                                    </div>
-                                </div>
-                            </section>
 
                             <section className="grid gap-5 md:grid-cols-5 items-start">
                                 <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
@@ -533,9 +467,8 @@ const Customer: React.FC = () => {
                                                 const isReturn = item.type === "return";
 
                                                 const itemsTotal = item.items.reduce((a: number, b: any) => a + (b.total || 0), 0);
-                                                const rOff = item.roundOff ? getDecimal(itemsTotal) : 0;
-                                                const paid = (item.cash || 0) + (item.online || 0) + (item.insurance || 0);
-                                                const netTotal = itemsTotal - rOff - (item.discount || 0);
+                                                const paid = (item.cash || 0) + (item.online || 0);
+                                                const netTotal = itemsTotal - (item.discount || 0);
                                                 const due = Math.max(0, netTotal - paid);
 
                                                 return (
@@ -707,8 +640,7 @@ const Customer: React.FC = () => {
                                                                     <td className="p-2 text-right text-sm font-semibold text-emerald-700">
                                                                         {formatINR(
                                                                             (selectedVisit?.cash || 0) +
-                                                                            (selectedVisit?.online || 0) +
-                                                                            (selectedVisit?.insurance || 0)
+                                                                            (selectedVisit?.online || 0)
                                                                         )}
                                                                     </td>
                                                                 </tr>
@@ -721,8 +653,7 @@ const Customer: React.FC = () => {
                                                                             selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) -
                                                                             (selectedVisit?.discount || 0) -
                                                                             ((selectedVisit?.cash || 0) +
-                                                                                (selectedVisit?.online || 0) +
-                                                                                (selectedVisit?.insurance || 0))
+                                                                                (selectedVisit?.online || 0))
                                                                         )}
                                                                     </td>
                                                                 </tr>

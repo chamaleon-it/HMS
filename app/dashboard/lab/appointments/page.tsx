@@ -15,7 +15,7 @@ export default function AppointmentPage() {
   const [activeStatuses, setActiveStatuses] = useState<string[]>(["Upcoming"]);
   const [date, setDate] = useState<Date>(new Date());
   const [activeDate, setActiveDate] = useState<"Today" | "7 days" | "30 days" | "Custom">("Today");
-  const currentStatus = activeStatuses.length === 0 ? "All" : activeStatuses[0];
+  const currentStatus = activeStatuses[0] || "Upcoming";
 
   const { data, mutate, isLoading } = useAppointmentList({ activeStatuses, date, activeDate });
 
@@ -56,7 +56,7 @@ export default function AppointmentPage() {
                     <button
                       key={s}
                       onClick={() =>
-                        setActiveStatuses(s === "All" ? [] : [s])
+                        setActiveStatuses([s])
                       }
                       className={
                         "relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap " +

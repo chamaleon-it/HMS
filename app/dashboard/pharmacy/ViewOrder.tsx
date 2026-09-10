@@ -125,7 +125,6 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     const [localOrder, setLocalOrder] = useState<OrderType | null>(order);
     const [updatePayload, setUpdatePayload] = useState<OrderType | null>(order);
     const [openPrintConfirm, setOpenPrintConfirm] = useState(false);
-    const [markingAllPacked, setMarkingAllPacked] = useState(false);
     const [updatingOrder, setUpdatingOrder] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<"Cash" | "UPI" | "Underpaid">("Cash");
     const [amountPaid, setAmountPaid] = useState("");
@@ -222,42 +221,6 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         }
     };
 
-
-    const markAllPacked = async (currentOrder = localOrder) => {
-        if (!currentOrder) return;
-        if (checkIsDirty()) {
-            await handleUpdate()
-        }
-        try {
-            setMarkingAllPacked(true);
-            await toast.promise(
-                api.post("/pharmacy/orders/mark_all_as_packed", {
-                    order: currentOrder._id,
-                }),
-                {
-                    loading: "Marking all items as packed...",
-                    error: ({ response }) => response.data.message,
-                    success: ({ data }) => data.message,
-                }
-            );
-            setLocalOrder((prev) => {
-                const updated = prev
-                    ? {
-                        ...prev,
-                        items: prev.items.map((it) => ({ ...it, isPacked: true })),
-                    }
-                    : null;
-                setUpdatePayload(updated);
-                return updated;
-            });
-            OrderMutate();
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setMarkingAllPacked(false);
-        }
-    };
-
     const handleTogglePacked = async (it: any) => {
         if (checkIsDirty()) {
             // toast.error("Please update the order to save changes before packing.");
@@ -314,9 +277,6 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     const handleCompleteOrder = async (orderToComplete = localOrder) => {
         if (!orderToComplete) return;
         try {
-            if (orderToComplete.status !== "Ready") {
-                await markAllPacked(orderToComplete);
-            }
             await toast.promise(api.patch(`/pharmacy/orders/complete/${orderToComplete._id}`), {
                 loading: "Completing...",
                 success: (data) => {
@@ -551,19 +511,12 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                 </div>
 
                 <div className="flex items-center gap-2">
-                    {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
+                    {localOrder.status !== "Completed" && <Button
                         disabled={updatingOrder}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white"
                         onClick={handleUpdate}
                     >
                         {updatingOrder ? "Updating..." : "Update Order"}
-                    </Button>}
-                    {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
-                        disabled={markingAllPacked}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                        onClick={() => markAllPacked()}
-                    >
-                        {markingAllPacked ? "Marking..." : "Mark all packed"}
                     </Button>}
                     {
                         autoGenerateBill ?

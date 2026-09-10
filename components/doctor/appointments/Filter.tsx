@@ -18,8 +18,6 @@ import DateFilter from "./DateFilter";
 const STATUSES = [
   "Upcoming",
   "Consulted",
-  "Observation",
-  "Completed",
   "Not show",
 ] as const;
 

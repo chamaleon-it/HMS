@@ -17,16 +17,13 @@ export interface BillingRecord {
     name: string;
     quantity: number;
     unitPrice: number;
-    gst: number;
     discount: number;
     total: number;
   }[];
   cash: number;
   online: number;
-  insurance: number;
   discount: number;
   mrn: string;
-  roundOff: boolean;
   transactionType: "Sale" | "Return";
   createdAt: string;
   updatedAt: string;

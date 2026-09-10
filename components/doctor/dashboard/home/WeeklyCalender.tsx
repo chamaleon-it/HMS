@@ -70,8 +70,6 @@ function fmtTime(date: Date) {
 type ApiStatus =
   | "Upcoming"
   | "Consulted"
-  | "Observation"
-  | "Completed"
   | "Not show";
 type ApiType = keyof typeof colorMap;
 
@@ -216,11 +214,9 @@ export default function WeeklyCalender({
                     (heightMin / BLOCK_MINUTES) * ROW_HEIGHT_REM;
                   const typeStyles =
                     colorMap[e.type] ?? colorMap["Consultation"];
-                  const isConsulted =
-                    e.status === "Consulted" || e.status === "Completed";
+                  const isConsulted = e.status === "Consulted";
                   const isNotShow = e.status === "Not show";
-                  const isUpcoming =
-                    e.status === "Upcoming" || e.status === "Observation";
+                  const isUpcoming = e.status === "Upcoming";
 
                   return (
                     <motion.div

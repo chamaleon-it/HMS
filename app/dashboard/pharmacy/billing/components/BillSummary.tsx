@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 
 interface BillSummaryProps {
     subtotal: number;
-    totalGst: number;
-    roundOffAmount: number;
+    totalGst?: number;
+    roundOffAmount?: number;
     finalTotal: number;
     totalPaid: number;
     dueAmount: number;
@@ -63,10 +63,6 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
             <div className="space-y-3">
                 <SummaryRow label="Sub Total" value={subtotal} />
                 <SummaryRow label="Discount" value={payload.discount} isNegative />
-                <SummaryRow label="GST" value={totalGst} />
-                {roundOffAmount !== 0 && (
-                    <SummaryRow label="Round off" value={roundOffAmount} />
-                )}
 
                 <div className="h-px bg-slate-100/60 my-2" />
 
@@ -76,7 +72,6 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                         <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Net Payable</span>
                         <span className="text-3xl font-black tracking-tight">₹{Math.ceil(finalTotal).toLocaleString('en-IN')}</span>
                     </div>
-                    <div className="text-[9px] text-slate-500 uppercase tracking-widest font-medium text-right mt-1">Inclusive of all taxes</div>
                 </div>
 
                 <div className="bg-slate-50 p-4 rounded-xl space-y-2 border border-slate-100">

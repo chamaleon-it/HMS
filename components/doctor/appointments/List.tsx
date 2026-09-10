@@ -58,8 +58,6 @@ export default function List({
     status:
     | "Upcoming"
     | "Consulted"
-    | "Observation"
-    // | "Completed"
     | "Not show";
     isPaid: boolean;
     createdAt: Date;
@@ -192,17 +190,11 @@ const Chip: React.FC<{
   | "blue"
   | "amber"
   | "Upcoming"
-  | "Test"
-  | "Observation"
-  | "Admit"
   | "Consulted"
   | "Not show";
 }> = ({ label, tone = "gray" }) => {
   const tones: Record<string, string> = {
     Upcoming: "bg-slate-100 text-slate-700 ring-slate-200",
-    Test: "bg-sky-100  text-sky-700 ring-sky-200",
-    Observation: "bg-amber-100  text-amber-700 ring-amber-200",
-    Admit: "bg-rose-100  text-rose-700 ring-rose-200",
     Consulted: "bg-emerald-100  text-emerald-700 ring-emerald-200",
     "Not show": "bg-red-100 text-red-700 ring-red-200",
   };

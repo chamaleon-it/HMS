@@ -76,20 +76,17 @@ export default function AdminLabRegisterPage() {
     message: string;
     total: number;
     data: {
-      roundOff: boolean;
       _id: string;
       mrn: string;
       createdAt: Date;
       cash: number;
       online: number;
-      insurance: number;
       discount: number;
       items: {
         name: string;
         total: number;
         quantity: number;
         unitPrice: number;
-        gst: number;
       }[];
       patient: {
         name: string;
@@ -179,9 +176,6 @@ export default function AdminLabRegisterPage() {
                   <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 text-right">
                     Online
                   </TableHead>
-                  <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 text-right">
-                    Insurance
-                  </TableHead>
                   <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
                     Total
                   </TableHead>
@@ -190,17 +184,17 @@ export default function AdminLabRegisterPage() {
 
               <TableBody className="text-[14px]">
                 {isLoading ? (
-                  <TableSkeleton rows={10} columns={10} />
+                  <TableSkeleton rows={10} columns={9} />
                 ) : billing.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={10} className="text-center py-12 text-slate-400">
+                    <TableCell colSpan={9} className="text-center py-12 text-slate-400">
                       No lab register entries found for selected duration.
                     </TableCell>
                   </TableRow>
                 ) : (
                   billing.map((item, idx) => {
                     const totalAmt =
-                      (item.cash || 0) + (item.online || 0) + (item.insurance || 0);
+                      (item.cash || 0) + (item.online || 0);
 
                     return (
                       <TableRow
@@ -239,9 +233,6 @@ export default function AdminLabRegisterPage() {
                         </TableCell>
                         <TableCell className="py-2.5 text-right font-medium text-slate-700">
                           {item.online ? formatINR(item.online) : "-"}
-                        </TableCell>
-                        <TableCell className="py-2.5 text-right font-medium text-slate-700">
-                          {item.insurance ? formatINR(item.insurance) : "-"}
                         </TableCell>
                         <TableCell className="py-2.5 text-right font-bold text-slate-900 pr-4">
                           {formatINR(totalAmt)}

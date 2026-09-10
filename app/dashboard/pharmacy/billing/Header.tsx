@@ -14,20 +14,17 @@ interface PropsType {
   billing: {
     doctor: string;
     transactionType: "Return" | "Sale"
-    roundOff: boolean;
     mrn: string;
     _id: string;
     createdAt: Date;
     cash: number;
     online: number;
-    insurance: number;
     discount: number;
     items: {
       name: string;
       total: number;
       quantity: number;
       unitPrice: number;
-      gst: number;
     }[];
     patient: {
       name: string;

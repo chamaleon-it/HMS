@@ -13,7 +13,7 @@ interface LineItemsTableProps {
     payload: any;
     updateQty: (itemName: string, quantity: number) => void;
     updatePrice: (itemName: string, unitPrice: number) => void;
-    updateGST: (itemName: string, gst: number) => void;
+    updateGST?: (itemName: string, gst: number) => void;
     removeItem: (name: string) => void;
     addItem: (item: string, price: number) => void;
     item: string | null;
@@ -27,7 +27,6 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
     payload,
     updateQty,
     updatePrice,
-    updateGST,
     removeItem,
     addItem,
     item,
@@ -242,13 +241,12 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                 <div className="overflow-x-auto">
                     <table className="w-full table-fixed text-sm">
                         <colgroup>
-                            <col className="w-[1%]" />
-                            <col className="w-[30%]" />
+                            <col className="w-[5%]" />
+                            <col className="w-[38%]" />
+                            <col className="w-[12%]" />
+                            <col className="w-[18%]" />
+                            <col className="w-[17%]" />
                             <col className="w-[10%]" />
-                            <col className="w-[16%]" />
-                            <col className="w-[12%]" />
-                            <col className="w-[14%]" />
-                            <col className="w-[12%]" />
                         </colgroup>
                         <thead className="bg-[#334155]">
                             <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-white font-semibold">
@@ -256,7 +254,6 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                 <th className="py-2.5 pl-3 text-left">Item Name</th>
                                 <th className="py-2.5 pr-2 text-right">Qty</th>
                                 <th className="py-2.5 pr-2 text-right">Unit Price</th>
-                                <th className="py-2.5 pr-2 text-right">GST%</th>
                                 <th className="py-2.5 pr-2 text-right">Amount</th>
                                 <th className="py-2.5 text-center">Action</th>
                             </tr>
@@ -310,21 +307,6 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         onBlur={(e) => (e.target.placeholder = "0")}
                                                         onChange={(e) =>
                                                             updatePrice(it.name, Number(e.target.value))
-                                                        }
-                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all text-right"
-                                                    />
-                                                </td>
-                                                <td className="py-3 pr-2 text-right">
-                                                    <input
-                                                        type="number"
-                                                        min={0}
-                                                        max={28}
-                                                        value={it.gst === 0 ? "" : it.gst.toString()}
-                                                        placeholder="0"
-                                                        onFocus={(e) => (e.target.placeholder = "")}
-                                                        onBlur={(e) => (e.target.placeholder = "0")}
-                                                        onChange={(e) =>
-                                                            updateGST(it.name, Number(e.target.value))
                                                         }
                                                         className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all text-right"
                                                     />

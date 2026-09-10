@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { formatINR, getDecimal } from "@/lib/fNumber";
+import { formatINR } from "@/lib/fNumber";
 import {
     Receipt,
     UserRound,
@@ -13,20 +13,17 @@ import useSWR from "swr";
 
 interface StatisticsProps {
     billing: {
-        roundOff: boolean;
         _id: string;
         mrn: string;
         createdAt: Date;
         cash: number;
         online: number;
-        insurance: number;
         discount: number;
         items: {
             name: string;
             total: number;
             quantity: number;
             unitPrice: number;
-            gst: number;
         }[];
         patient: {
             name: string;
@@ -60,7 +57,7 @@ export default function Statistics({ billing }: StatisticsProps) {
         const billingItemNames = new Set(billingItems.map(i => i.item));
 
         billing.forEach(bill => {
-            paid += (bill.cash || 0) + (bill.online || 0) + (bill.insurance || 0);
+            paid += (bill.cash || 0) + (bill.online || 0);
 
             let billTotal = 0;
             bill.items.forEach(item => {
@@ -79,8 +76,7 @@ export default function Statistics({ billing }: StatisticsProps) {
                 }
             });
 
-            const roundOffVal = bill.roundOff ? getDecimal(billTotal) : 0;
-            due += (billTotal - roundOffVal - (bill.insurance + bill.cash + bill.online + (bill.discount ?? 0)));
+            due += (billTotal - ((bill.cash || 0) + (bill.online || 0) + (bill.discount ?? 0)));
         });
 
         return {

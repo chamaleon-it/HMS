@@ -116,9 +116,9 @@ export default function MonthlyCalender({
                     key={j}
                     className={
                       cn('mt-1 text-[11px] rounded px-1 truncate bg-gray-200',
-                        ev.status === "Upcoming" && "bg-[#2b7fff]",
-                        ev.status === "Consulted" && "bg-gray-200",
-                        ev.status === "Test" && "bg-[#fe9a00]",
+                        ev.status === "Upcoming" && "bg-[#2b7fff] text-white",
+                        ev.status === "Consulted" && "bg-emerald-500 text-white",
+                        ev.status === "Not show" && "bg-rose-500 text-white",
                       )
                       
                       }

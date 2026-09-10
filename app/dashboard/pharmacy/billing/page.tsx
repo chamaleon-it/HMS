@@ -83,20 +83,17 @@ export default function BillingPage() {
     message: string;
     total: number;
     data: {
-      roundOff: boolean;
       _id: string;
       mrn: string;
       createdAt: Date;
       cash: number;
       online: number;
-      insurance: number;
       discount: number;
       items: {
         name: string;
         total: number;
         quantity: number;
         unitPrice: number;
-        gst: number;
       }[];
       patient: {
         name: string;
@@ -121,8 +118,6 @@ export default function BillingPage() {
       pharmacy: {
         billing: {
           autoPrintAfterSave: boolean,
-          defaultGst?: number | undefined,
-          roundOff: boolean,
           prefix: string
         }
       }
@@ -131,7 +126,6 @@ export default function BillingPage() {
 
   const pharmacyBilling = data?.data?.pharmacy?.billing ?? {
     autoPrintAfterSave: false,
-    roundOff: false,
     prefix: "INV"
   }
 

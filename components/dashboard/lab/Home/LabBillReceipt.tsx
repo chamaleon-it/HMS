@@ -178,9 +178,8 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                         <thead className="bg-[#d9d9d9] border-b border-[#c5c9cf] text-[11px] font-semibold text-black">
                             <tr>
                                 <th style={{ width: "10%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">SL</th>
-                                <th style={{ width: "60%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Test</th>
-                                <th style={{ width: "10%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">GST %</th>
-                                <th style={{ width: "20%" }} className="px-3 py-2 text-right">Amount</th>
+                                <th style={{ width: "65%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Test</th>
+                                <th style={{ width: "25%" }} className="px-3 py-2 text-right">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -191,7 +190,6 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                                         <td className="px-3 py-0.5 border-r border-[#c5c9cf] leading-snug">
                                             <p className="font-bold text-black text-[12px]">{item.name}</p>
                                         </td>
-                                        <td className="px-2 py-0.5 text-center text-black text-[12px] font-medium border-r border-[#c5c9cf]">{item.gst ?? 0}%</td>
                                         <td className="px-3 py-0.5 text-right font-bold text-black text-[12px]">{formatINR(item.total)}</td>
                                     </tr>
                                 );
@@ -200,7 +198,6 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                                 <tr key={`empty-${idx}`} className="h-[38px] bg-transparent select-none">
                                     <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                     <td className="border-r border-[#c5c9cf] px-3 py-0.5">&nbsp;</td>
-                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                     <td className="px-3 py-0.5">&nbsp;</td>
                                 </tr>
                             ))}
@@ -229,17 +226,12 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
 
                     {/* Right: Consolidated Billing Summary Box */}
                     <div className="w-[36%] border border-[#9ca3af] rounded-br-2xl rounded-bl-2xl overflow-hidden bg-white flex flex-col justify-between">
-                        {/* Top: Gross Amount & GST */}
+                        {/* Top: Gross Amount & Discount */}
                         <div className="px-4 py-1.5 flex flex-col justify-center text-[12px] bg-white gap-0.5 flex-1">
                             <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
                                 <span className="font-semibold text-gray-700">Gross Amount</span>
                                 <span className="font-bold">:</span>
                                 <span className="font-bold text-right">{formatINR(subtotal)}</span>
-                            </div>
-                            <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
-                                <span className="font-semibold text-gray-700">CGST/SGST Total</span>
-                                <span className="font-bold">:</span>
-                                <span className="font-bold text-right">{formatINR(totalGst)}</span>
                             </div>
                             {Boolean(bill?.discount) && (
                                 <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
