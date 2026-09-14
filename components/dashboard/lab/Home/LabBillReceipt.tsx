@@ -172,7 +172,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
     const netAmount = Math.max(0, totalAmount - billDiscount);
 
     const content = (
-        <div className="print-receipt hidden print:flex bg-white text-black font-sans leading-tight overflow-visible relative flex-row gap-2">
+        <div className="print-receipt hidden print:flex bg-white text-black font-sans leading-tight overflow-hidden relative flex-row gap-2">
             <style
                 dangerouslySetInnerHTML={{
                     __html: `
@@ -181,22 +181,30 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             size: A5 landscape;
             margin: 4mm;
           }
-          body { 
-            visibility: hidden !important; 
+          html, body { 
             margin: 0 !important;
             padding: 0 !important;
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            overflow: hidden !important;
+            height: auto !important;
+          }
+          body > *:not(.print-receipt) {
+            display: none !important;
+          }
+          #__next, #root, [data-radix-portal] {
+            display: none !important;
           }
           .print-receipt { 
             visibility: visible !important;
-            position: absolute !important;
+            position: relative !important;
             left: 0 !important;
             top: 0 !important;
             width: 202mm !important;
+            max-height: 140mm !important;
             padding: 0 !important;
-            margin: 0 !important;
+            margin: 0 auto !important;
             background: white !important;
             box-sizing: border-box !important;
             display: flex !important;
@@ -204,6 +212,12 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             align-items: stretch !important;
             gap: 4mm !important;
             z-index: 999999999 !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+            page-break-before: avoid !important;
+            break-before: avoid !important;
             font-family: Arial, Helvetica, sans-serif !important;
           }
           .no-print, aside, header, footer, nav, button {
