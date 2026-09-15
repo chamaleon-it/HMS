@@ -78,14 +78,15 @@ export default function DateRangeFilter({
 
   const handleApply = () => {
     if (tempRange?.from) {
+      const fromDate = tempRange.from;
       const finalRange: DateRange = {
-        from: tempRange.from,
-        to: tempRange.to || tempRange.from,
+        from: fromDate,
+        to: tempRange.to || fromDate,
       };
       setDateRange(finalRange);
       setActiveDate("Custom");
       if (setDate) {
-        setDate(finalRange.from);
+        setDate(fromDate);
       }
     }
     setPopoverOpen(false);
