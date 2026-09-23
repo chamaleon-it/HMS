@@ -32,6 +32,7 @@ export default function Billing({
   const [payload, setPayload] = useState({
     prefix: "INV",
     autoPrintAfterSave: false,
+    printDualCopies: true,
   });
 
   useEffect(() => {
@@ -40,6 +41,7 @@ export default function Billing({
       prefix: profile?.lab?.billing?.prefix ?? "INV",
       autoPrintAfterSave:
         profile?.lab?.billing?.autoPrintAfterSave ?? false,
+      printDualCopies: profile?.lab?.billing?.printDualCopies ?? true,
     }));
   }, [profile]);
 
@@ -115,6 +117,23 @@ export default function Billing({
                 checked={payload.autoPrintAfterSave}
                 onCheckedChange={(v) =>
                   setPayload((prev) => ({ ...prev, autoPrintAfterSave: v }))
+                }
+              />
+            </div>
+
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-slate-900">
+                  Print dual copies
+                </p>
+                <p className="text-xs text-slate-500">
+                  Prints a patient copy and a lab copy of every bill.
+                </p>
+              </div>
+              <Switch
+                checked={payload.printDualCopies}
+                onCheckedChange={(v) =>
+                  setPayload((prev) => ({ ...prev, printDualCopies: v }))
                 }
               />
             </div>

@@ -29,7 +29,10 @@ export default function General({
     email: "",
     gstin: "",
     address: "",
+    slogan: "",
+    advertisement: "",
   });
+  const [servicesText, setServicesText] = useState("");
 
   useEffect(() => {
     setPayload((prev) => ({
@@ -40,7 +43,10 @@ export default function General({
       email: profile?.email ?? "",
       gstin: profile?.pharmacy?.general?.gstin ?? "",
       address: profile?.address ?? "",
+      slogan: profile?.pharmacy?.general?.slogan ?? "",
+      advertisement: profile?.pharmacy?.general?.advertisement ?? "",
     }));
+    setServicesText((profile?.pharmacy?.general?.services ?? []).join(", "));
   }, [profile]);
 
   const [loading, setLoading] = useState(false);
@@ -48,7 +54,11 @@ export default function General({
   const updateGeneralSettings = async () => {
     try {
       setLoading(true);
-      await toast.promise(api.patch("/users/pharmacy/general", payload), {
+      const services = servicesText
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      await toast.promise(api.patch("/users/pharmacy/general", { ...payload, services }), {
         loading: "Updating general settings...!",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
@@ -171,6 +181,53 @@ export default function General({
                 setPayload((prev) => ({ ...prev, address: e.target.value }))
               }
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs font-medium text-slate-700">Slogan</Label>
+            <Input
+              className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-sky-500/70"
+              placeholder="Eg: Caring hands, healing hearts"
+              value={payload.slogan}
+              onChange={(e) =>
+                setPayload((prev) => ({ ...prev, slogan: e.target.value }))
+              }
+            />
+            <p className="text-xs text-slate-500">
+              Printed under the hospital name on receipts and prescriptions.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs font-medium text-slate-700">
+              Advertisement
+            </Label>
+            <Textarea
+              className="min-h-[70px] rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-sky-500/70"
+              placeholder="Short promotional line for the receipt footer"
+              value={payload.advertisement}
+              onChange={(e) =>
+                setPayload((prev) => ({
+                  ...prev,
+                  advertisement: e.target.value,
+                }))
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs font-medium text-slate-700">
+              Services
+            </Label>
+            <Textarea
+              className="min-h-[70px] rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-sky-500/70"
+              placeholder="Comma separated, eg: Pharmacy, Laboratory, ECG, Dressing"
+              value={servicesText}
+              onChange={(e) => setServicesText(e.target.value)}
+            />
+            <p className="text-xs text-slate-500">
+              Separate each service with a comma. Shown in the print footer.
+            </p>
           </div>
 
           <div className="flex justify-end pt-2">

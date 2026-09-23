@@ -132,7 +132,7 @@ export default function Statistics({ billing }: StatisticsProps) {
             headingColor: "text-emerald-900"
         },
         {
-            label: "Procedure Fees",
+            label: "Clinical Fees",
             value: formatINR(procedureFee),
             icon: Syringe,
             bg: "bg-amber-50/50",

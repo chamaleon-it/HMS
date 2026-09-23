@@ -277,7 +277,6 @@ export default function CreateBill({
           items: uniqueItems,
           discount: (order.discount ?? 0),
           cash: 0,
-          insurance: 0,
           online: 0,
           patient: order.patient._id || "",
           // Use stored doctorName first; fall back to populated doctor name; null/empty → "-"

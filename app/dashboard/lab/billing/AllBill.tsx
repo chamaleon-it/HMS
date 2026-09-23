@@ -38,7 +38,6 @@ interface PropsType {
     createdAt: Date;
     cash: number;
     online: number;
-    insurance?: number;
     discount: number;
     items: {
       total: number;

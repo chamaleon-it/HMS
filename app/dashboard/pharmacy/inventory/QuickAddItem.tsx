@@ -135,7 +135,7 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
               register("generic").ref(e);
               refs.generic.current = e;
             }}
-            onKeyDown={(e) => handleKeyDown(e, refs.batchNumber)}
+            onKeyDown={(e) => handleKeyDown(e, refs.rackLocation)}
           />
           {errors.generic && (
             <p className="text-xs text-red-600 my-1">
@@ -145,27 +145,6 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
           <p className="text-[11px] text-gray-400">
             Will display as (Gen: ...)
           </p>
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Batch Number
-          </label>
-          <Input
-            placeholder="e.g. Batch 001"
-            className="mt-1"
-            {...register("batchNumber")}
-            ref={(e) => {
-              register("batchNumber").ref(e);
-              refs.batchNumber.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.rackLocation)}
-          />
-          {errors.batchNumber && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.batchNumber.message}
-            </p>
-          )}
         </div>
 
         <div>
@@ -421,7 +400,7 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
               register("manufacturer").ref(e);
               refs.manufacturer.current = e;
             }}
-            onKeyDown={(e) => handleKeyDown(e, refs.openingStockQuantity)}
+            onKeyDown={(e) => handleKeyDown(e, refs.status)}
           />
           {errors.manufacturer && (
             <p className="text-xs text-red-600 my-1">
@@ -431,51 +410,6 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
         </div>
 
 
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Current Stock Qty
-          </label>
-          <Input
-            type="number"
-            placeholder="e.g. 100"
-            className="mt-1"
-            {...register("openingStockQuantity")}
-            ref={(e) => {
-              register("openingStockQuantity").ref(e);
-              refs.openingStockQuantity.current = e;
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                const el = document.querySelector('input[data-field="expiryDate"]') as HTMLInputElement;
-                if (el) el.focus();
-              }
-            }}
-          />
-          {errors.openingStockQuantity && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.openingStockQuantity.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Expiry Date *
-          </label>
-
-          <TypableExpiryInput
-            value={values.expiryDate || ""}
-            onChange={(date: string) => setValue("expiryDate", date, { shouldValidate: true })}
-            onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, refs.status)}
-          />
-          {errors.expiryDate && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.expiryDate.message}
-            </p>
-          )}
-        </div>
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
@@ -502,6 +436,88 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
       </div>
 
 
+
+      <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50/60 p-4 space-y-3">
+        <div>
+          <div className="text-[13px] font-semibold text-gray-800">
+            Opening Batch & Stock
+            <span className="ml-2 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-600">
+              Optional
+            </span>
+          </div>
+          <p className="text-[11px] text-gray-500">
+            Register the medicine now and add batch, expiry and stock later from
+            Purchase Entry or Update Batch.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 text-sm">
+          <div>
+            <label className="text-[12px] text-gray-600 font-medium">
+              Batch Number
+            </label>
+            <Input
+              placeholder="e.g. Batch 001"
+              className="mt-1"
+              {...register("batchNumber")}
+              ref={(e) => {
+                register("batchNumber").ref(e);
+                refs.batchNumber.current = e;
+              }}
+              onKeyDown={(e) => handleKeyDown(e, refs.openingStockQuantity)}
+            />
+            {errors.batchNumber && (
+              <p className="text-xs text-red-600 my-1">
+                {errors.batchNumber.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="text-[12px] text-gray-600 font-medium">
+              Current Stock Qty
+            </label>
+            <Input
+              type="number"
+              placeholder="e.g. 100"
+              className="mt-1"
+              {...register("openingStockQuantity")}
+              ref={(e) => {
+                register("openingStockQuantity").ref(e);
+                refs.openingStockQuantity.current = e;
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  const el = document.querySelector('input[data-field="expiryDate"]') as HTMLInputElement;
+                  if (el) el.focus();
+                }
+              }}
+            />
+            {errors.openingStockQuantity && (
+              <p className="text-xs text-red-600 my-1">
+                {errors.openingStockQuantity.message}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="text-[12px] text-gray-600 font-medium">
+              Expiry Date
+            </label>
+            <TypableExpiryInput
+              value={values.expiryDate || ""}
+              onChange={(date: string) => setValue("expiryDate", date, { shouldValidate: true })}
+              onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, refs.saveButton)}
+            />
+            {errors.expiryDate && (
+              <p className="text-xs text-red-600 my-1">
+                {errors.expiryDate.message}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="flex gap-2 pt-2">
         <Button className="bg-indigo-600 hover:bg-indigo-700 text-white flex-1 h-11 shadow-md font-semibold" type="submit" ref={refs.saveButton}>

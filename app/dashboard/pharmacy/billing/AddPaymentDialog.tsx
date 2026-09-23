@@ -1,10 +1,7 @@
 import {
-    BadgePercent,
     Banknote,
-    Building2,
     CreditCard,
     IndianRupee,
-    Percent,
     Wallet2,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -25,7 +22,6 @@ interface BillData {
     mrn: string;
     cash: number;
     online: number;
-    insurance: number;
     discount: number;
     items: {
         total: number;

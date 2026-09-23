@@ -282,7 +282,6 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             items: printBill.items.map((i) => ({ ...i, name: i.name })),
             cash: printBill.cash,
             online: printBill.online,
-            insurance: 0,
             discount: printBill.discount,
             doctor: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.name : (printBill.doctor === "Self" ? "" : printBill.doctor)
           }}

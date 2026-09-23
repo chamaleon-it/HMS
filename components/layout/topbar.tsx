@@ -25,6 +25,8 @@ export default function Header() {
   const { user } = useAuth();
   const pathname = usePathname();
 
+  const isAdmin = user?.role === "Admin" || user?.role === "Super Admin";
+
   const items: TopNavItem[] =
     (user?.role === "Doctor" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/doctor/" },
@@ -36,6 +38,7 @@ export default function Header() {
       { key: "inventory", label: "Inventory", link: "/dashboard/pharmacy/inventory/" },
       { key: "purchase-entry", label: "Purchase Entry", link: "/dashboard/pharmacy/purchase-entry/" },
       { key: "customers", label: "Customers", link: "/dashboard/pharmacy/customers/" },
+      { key: "consumables", label: "Consumables", link: "/dashboard/pharmacy/consumables/" },
       { key: "return", label: "Return", link: "/dashboard/pharmacy/return/" },
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy/billing/" },
     ]) ||
@@ -44,10 +47,10 @@ export default function Header() {
       { key: "dashboard", label: "Dashboard", link: "/dashboard/lab/" },
       { key: "inventory", label: "Catalogue", link: "/dashboard/lab/inventory/" },
       { key: "patients", label: "Customers", link: "/dashboard/lab/patients/" },
-      { key: "billing", label: "Billing", link: "/dashboard/lab/billing/" },
+      // Billing is centralised in the pharmacy counter — see /dashboard/pharmacy/billing
       { key: "register", label: "Lab Register", link: "/dashboard/lab/register/" },
     ]) ||
-    (user?.role === "Admin" && [
+    (isAdmin && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/admin/" },
       { key: "inventory", label: "Inventory", link: "/dashboard/admin/inventory/" },
       { key: "suppliers", label: "Suppliers", link: "/dashboard/admin/suppliers/" },
@@ -57,6 +60,8 @@ export default function Header() {
       { key: "staff", label: "Staff", link: "/dashboard/admin/staff/" },
       { key: "lab-catalogue", label: "Lab Catalogue", link: "/dashboard/admin/lab-catalogue/" },
       { key: "lab-register", label: "Lab Register", link: "/dashboard/admin/lab-register/" },
+      { key: "consumables", label: "Consumables", link: "/dashboard/pharmacy/consumables/" },
+      { key: "pnl", label: "P&L", link: "/dashboard/admin/pnl/" },
     ]) || [];
 
   return (
@@ -158,7 +163,7 @@ export default function Header() {
           </nav>
 
           {/* Search */}
-          {user?.role !== "Admin" && <SearchBar />}
+          {!isAdmin && <SearchBar />}
 
           {/* Actions */}
           <div

@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { formatINR } from "@/lib/fNumber";
 import UpdateBatch from "./UpdateBatch";
+import { useAuth } from "@/auth/context/auth-context";
 
 
 interface Props {
@@ -70,6 +71,13 @@ export default function ItemTable({
   sortBy,
   orderBy
 }: Props) {
+  const { user } = useAuth();
+
+  // Pharmacy staff get a read-only master: stock arrives via Purchase Entry and
+  // Update Batch, and only administrators may edit or delete an item.
+  const canManageItems =
+    user?.role === "Admin" || user?.role === "Super Admin";
+
   const handleSort = (field: "createdAt" | "quantity") => {
     setFilter((prev: FilterType): FilterType => ({
       ...prev,
@@ -241,22 +249,25 @@ export default function ItemTable({
                           <TooltipContent>View Details</TooltipContent>
                         </Tooltip>
 
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                              onClick={() => handleEdit(item)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>Edit Item</TooltipContent>
-                        </Tooltip>
+                        {canManageItems && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                onClick={() => handleEdit(item)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Edit Item</TooltipContent>
+                          </Tooltip>
+                        )}
 
                         <UpdateBatch item={item} mutate={mutate} />
 
+                        {canManageItems && (
                         <AlertDialog>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -297,6 +308,7 @@ export default function ItemTable({
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

@@ -49,7 +49,6 @@ function InvoiceViewContent() {
       }[];
       cash: number;
       online: number;
-      insurance?: number;
       discount: number;
       mrn: string;
       createdAt: Date;

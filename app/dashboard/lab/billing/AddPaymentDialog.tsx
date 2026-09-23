@@ -2,7 +2,6 @@
 
 import {
     Banknote,
-    Building2,
     CreditCard,
     IndianRupee,
     Plus,

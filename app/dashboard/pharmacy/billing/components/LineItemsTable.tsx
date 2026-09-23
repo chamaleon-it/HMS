@@ -13,7 +13,6 @@ interface LineItemsTableProps {
     payload: any;
     updateQty: (itemName: string, quantity: number) => void;
     updatePrice: (itemName: string, unitPrice: number) => void;
-    updateGST?: (itemName: string, gst: number) => void;
     removeItem: (name: string) => void;
     addItem: (item: string, price: number) => void;
     item: string | null;
@@ -108,7 +107,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                 {(() => {
                                     const categories = [
                                         { name: "Dressing", keywords: ["dressing"] },
-                                        { name: "Procedure", keywords: ["procedure", "injection", "cannulation", "extraction", "catheterisation", "enema"] },
+                                        { name: "Clinical", keywords: ["procedure", "injection", "cannulation", "extraction", "catheterisation", "enema"] },
                                         { name: "Consultation", keywords: ["consultation"] }
                                     ];
 
@@ -452,7 +451,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                             }}
                             disabled={!customItem.name.trim() || !customItem.procedureCode.trim()}
                         >
-                            Add Procedure
+                            Add Clinical Fee
                         </PrimaryButton>
                     </DialogFooter>
                 </DialogContent>

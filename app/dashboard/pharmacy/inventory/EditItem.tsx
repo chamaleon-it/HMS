@@ -141,6 +141,11 @@ export function EditItem({
 
   const { user } = useAuth()
 
+  // Only Admin / Super Admin may revalue stock or correct quantities; pharmacy
+  // staff add stock through Purchase Entry and Update Batch instead.
+  const canEditStock =
+    user?.role === "Admin" || user?.role === "Super Admin";
+
   const [openCalendar, setOpenCalendar] = useState(false)
 
   // Refs for keyboard navigation
@@ -182,6 +187,13 @@ export function EditItem({
         <div className="text-xs text-gray-500">
           Last updated: {fDate(item.updatedAt)} by {user?.name}
         </div>
+        {!canEditStock && (
+          <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] text-amber-800">
+            Quantity and pricing are locked for your role. Use Purchase Entry or
+            Update Batch to add stock, or ask an administrator to correct
+            valuations.
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-3 gap-4 text-sm">
@@ -310,6 +322,7 @@ export function EditItem({
               refs.packing.current = e;
             }}
             onKeyDown={(e) => handleKeyDown(e, refs.noOfPacking)}
+            disabled={!canEditStock}
           />
           {errors.packing && (
             <p className="text-xs text-red-600 my-1">
@@ -342,6 +355,7 @@ export function EditItem({
               }
             }}
             onKeyDown={(e) => handleKeyDown(e, refs.mrp)}
+            disabled={!canEditStock}
           />
         </div>
 
@@ -368,6 +382,7 @@ export function EditItem({
               setValue("mrp", mrpVal);
               setValue("unitPrice", Number((mrpVal / effectivePacking).toFixed(2)));
             }}
+            disabled={!canEditStock}
           />
           {errors.mrp && (
             <p className="text-xs text-red-600 my-1">
@@ -391,6 +406,7 @@ export function EditItem({
               refs.unitPrice.current = e;
             }}
             onKeyDown={(e) => handleKeyDown(e, refs.purchasePrice)}
+            disabled={!canEditStock}
           />
           {errors.unitPrice && (
             <p className="text-xs text-red-600 my-1">
@@ -415,6 +431,7 @@ export function EditItem({
               refs.purchasePrice.current = e;
             }}
             onKeyDown={(e) => handleKeyDown(e, refs.sku)}
+            disabled={!canEditStock}
           />
           {errors.purchasePrice && (
             <p className="text-xs text-red-600 my-1">
@@ -572,6 +589,7 @@ export function EditItem({
                 if (el) el.focus();
               }
             }}
+            disabled={!canEditStock}
           />
           {errors.openingStockQuantity && (
             <p className="text-xs text-red-600 my-1">

@@ -7,6 +7,9 @@ export interface ProfileType {
     general?: {
       owner?: string;
       gstin?: string;
+      slogan?: string | null;
+      advertisement?: string | null;
+      services?: string[];
     };
     catalogue: {
       showProfilesOnPatientBill: boolean;
@@ -26,6 +29,7 @@ export interface ProfileType {
     billing?: {
       prefix: string;
       autoPrintAfterSave: boolean;
+      printDualCopies?: boolean;
     };
     notifications?: {
       whatsapp: boolean;
