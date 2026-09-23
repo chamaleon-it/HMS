@@ -15,6 +15,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import useSWR from "swr";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -127,20 +128,20 @@ export default function InventoryPage() {
           </div>
 
           <Dialog open={openView || openEdit || openAdd} onOpenChange={closeAll}>
-            <DialogContent className={openView ? "max-w-3xl! w-full" : "max-w-2xl!" + " max-h-[90vh] overflow-y-auto p-0! gap-1"}>
-              <DialogHeader className="flex justify-between items-center border-b p-0!">
-                {/* <DialogTitle>
+            <DialogContent className={openView ? "max-w-5xl! w-full p-0! max-h-[92vh] overflow-hidden flex flex-col rounded-2xl" : "max-w-2xl! max-h-[90vh] overflow-y-auto p-0! gap-1"}>
+              <DialogHeader className="sr-only">
+                <DialogTitle>
                   {openView
                     ? "View Item"
                     : openEdit
                       ? "Edit Item"
                       : openAdd
-                        ? " New Item"
-                        : ""}
-                </DialogTitle> */}
+                        ? "New Item"
+                        : "Inventory Item"}
+                </DialogTitle>
               </DialogHeader>
 
-              <div className="w-full">
+              <div className="w-full flex-1 overflow-hidden flex flex-col">
                 {openView && selectedItem && (
                   <ViewItem
                     item={selectedItem}

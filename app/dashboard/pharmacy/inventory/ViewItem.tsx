@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Banknote, Coins, ShoppingCart, ArrowLeftRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Package, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Banknote, Coins, ShoppingCart, ArrowLeftRight, Layers, Pencil, Loader2, Power } from "lucide-react";
 import { ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -17,10 +19,23 @@ import { DateRange } from "react-day-picker";
 import { format, startOfDay, endOfDay } from "date-fns";
 import { Calendar as CalendarIcon, FilterX, History as HistoryIcon, } from "lucide-react";
 import { PaginationBar } from "../components/PaginationBar";
+import useSWR from "swr";
 
 
 
 export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, editItem: () => void, mutate: () => void, onClose: () => void }) {
+
+  // Fetch live item data so the dialog always reflects latest batch state
+  const { data: liveData, mutate: mutateItem } = useSWR<{ data: ItemType }>(
+    item?._id ? `/pharmacy/items/${item._id}` : null,
+    { fallbackData: { data: item }, revalidateOnFocus: false }
+  );
+  const liveItem: ItemType = liveData?.data ?? item;
+
+  const refreshAll = () => {
+    mutateItem();
+    mutate();
+  };
 
 
   const deleteItem = useCallback(
@@ -41,6 +56,40 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
   const [activeTab, setActiveTab] = useState<"Batch History" | "Medicine History" | "Sold History">("Batch History");
   const [pagination, setPagination] = useState({ page: 1, limit: 5 });
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [editingBatch, setEditingBatch] = useState<any | null>(null);
+  const [editForm, setEditForm] = useState<any>({});
+  const [isSavingBatch, setIsSavingBatch] = useState(false);
+
+  const openBatchEdit = (batch: any) => {
+    setEditingBatch(batch);
+    setEditForm({
+      batchNumber: batch.batchNumber || "",
+      expiryDate: batch.expiryDate ? new Date(batch.expiryDate).toISOString().split("T")[0] : "",
+      quantity: batch.quantity ?? 0,
+      packing: batch.packing ?? 0,
+      stripCount: batch.stripCount ?? 0,
+      mrp: batch.mrp ?? 0,
+      unitPrice: batch.unitPrice ?? 0,
+      purchasePrice: batch.purchasePrice ?? 0,
+      gst: batch.gst ?? 0,
+      supplier: batch.supplier || "",
+    });
+  };
+
+  const saveBatch = async () => {
+    if (!editingBatch?._id) return;
+    setIsSavingBatch(true);
+    try {
+      await api.patch(`/pharmacy/items/${item._id}/batch/${editingBatch._id}`, editForm);
+      toast.success("Batch updated successfully");
+      refreshAll();
+      setEditingBatch(null);
+    } catch {
+      toast.error("Failed to update batch");
+    } finally {
+      setIsSavingBatch(false);
+    }
+  };
 
 
   const tabs = useMemo(() => [
@@ -49,21 +98,18 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
     { key: "Sold History", icon: ShoppingCart },
   ], []);
 
-  const latestBatch = useMemo(() => {
-    return item?.batches && item.batches.length > 0 ? item.batches[item.batches.length - 1] : undefined;
-  }, [item]);
 
   const sortedData = useMemo(() => {
     if (activeTab === "Batch History") {
-      return item?.batches
-        ? [...item.batches].sort(
+      return liveItem?.batches
+        ? [...liveItem.batches].sort(
             (a, b) =>
               new Date(b.createdAt || 0).getTime() -
               new Date(a.createdAt || 0).getTime()
           )
         : [];
     } else if (activeTab === "Medicine History") {
-      let filtered = item?.soldHistory ? [...item.soldHistory] : [];
+      let filtered = liveItem?.soldHistory ? [...liveItem.soldHistory] : [];
       if (dateRange?.from) {
         filtered = filtered.filter(h => {
           const d = new Date(h.date);
@@ -98,7 +144,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
       return Object.values(groups).sort((a, b) => b.date.getTime() - a.date.getTime());
     } else {
       // Sold History - Individual sales transactions with customer details
-      let filtered = item?.soldHistory ? [...item.soldHistory] : [];
+      let filtered = liveItem?.soldHistory ? [...liveItem.soldHistory] : [];
       if (dateRange?.from) {
         filtered = filtered.filter(h => {
           const d = new Date(h.date);
@@ -110,12 +156,12 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
       }
       return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
-  }, [item, activeTab, dateRange]);
+  }, [liveItem, activeTab, dateRange]);
 
   const salesStats = useMemo(() => {
     if (activeTab !== "Medicine History" && activeTab !== "Sold History") return null;
 
-    let filtered = item?.soldHistory ? [...item.soldHistory] : [];
+    let filtered = liveItem?.soldHistory ? [...liveItem.soldHistory] : [];
     if (dateRange?.from) {
       filtered = filtered.filter(h => {
         const d = new Date(h.date);
@@ -131,8 +177,15 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
     const averageUnitPrice = totalQuantitySold > 0 ? totalSales / totalQuantitySold : 0;
 
     return { totalQuantitySold, totalSales, averageUnitPrice };
-  }, [item, activeTab, dateRange]);
+  }, [liveItem, activeTab, dateRange]);
 
+  const latestBatch = useMemo(() => {
+    if (!liveItem?.batches || liveItem.batches.length === 0) return undefined;
+    return [...liveItem.batches].sort(
+      (a, b) =>
+        new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+    )[0];
+  }, [liveItem?.batches]);
 
   const paginatedData = useMemo(() => {
     return sortedData.slice((pagination.page - 1) * pagination.limit, pagination.page * pagination.limit);
@@ -142,6 +195,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
 
   return (
+    <>
     <div className="w-full bg-white rounded-2xl shadow-xl p-2 space-y-4 text-sm max-h-[calc(100vh-200px)] overflow-y-auto">
       {/* Header */}
       <div className="flex items-start justify-between border-b pb-4">
@@ -464,12 +518,14 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch No</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Pack/Strip</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Starting Qty</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Stock (Qty)</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">MRP</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Unit Price</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Purchase Rate</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">GST</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Supplier</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Actions</TableHead>
                   </>
                 ) : activeTab === "Medicine History" ? (
                   <>
@@ -494,7 +550,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             <TableBody>
               {paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={activeTab === "Batch History" ? 10 : activeTab === "Sold History" ? 7 : 4} className="text-center py-20 text-slate-400">
+                  <TableCell colSpan={activeTab === "Batch History" ? 12 : activeTab === "Sold History" ? 7 : 4} className="text-center py-20 text-slate-400">
                     <div className="flex flex-col items-center gap-2">
                       {activeTab === "Batch History" ? <Barcode className="h-8 w-8 opacity-20" /> : <HistoryIcon className="h-8 w-8 opacity-20" />}
                       <p className="font-bold uppercase tracking-widest text-[11px]">No {activeTab.toLowerCase()} found</p>
@@ -521,12 +577,48 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                         </TableCell>
                         <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(data.expiryDate)}</TableCell>
                         <TableCell className="text-right text-xs py-3 text-slate-700">{data.packing ? `${data.packing}` : "-"}{data.stripCount ? ` / ${data.stripCount}` : ""}</TableCell>
+                        <TableCell className="text-right text-xs py-3 text-slate-500 tabular-nums">
+                          {data.startingQuantity != null ? data.startingQuantity : "-"}
+                        </TableCell>
                         <TableCell className="text-right text-xs py-3 font-bold text-emerald-700 bg-emerald-50/20 tabular-nums">{data.quantity ?? 0}</TableCell>
                         <TableCell className="text-right text-xs py-3 text-slate-700">{data.mrp ? formatINR(data.mrp) : "-"}</TableCell>
                         <TableCell className="text-right text-xs py-3 font-semibold text-slate-800">{data.unitPrice ? formatINR(data.unitPrice) : "-"}</TableCell>
                         <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(data.purchasePrice)}</TableCell>
                         <TableCell className="text-right text-xs py-3 text-slate-700">{data.gst ? `${data.gst}%` : "0%"}</TableCell>
                         <TableCell className="text-xs py-3 text-slate-600 truncate max-w-[120px] pr-4">{data.supplier || "-"}</TableCell>
+                        <TableCell className="text-center py-3 pr-4">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const wasActive = data.isActive !== false;
+                                try {
+                                  await api.patch(`/pharmacy/items/${item._id}/batch/${data._id}/toggle`);
+                                  toast.success(wasActive ? "Batch deactivated" : "Batch activated");
+                                  refreshAll();
+                                } catch {
+                                  toast.error("Failed to toggle batch status");
+                                }
+                              }}
+                              className={`inline-flex items-center justify-center w-7 h-7 rounded-full transition-all cursor-pointer ${
+                                data.isActive !== false
+                                  ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+                                  : "bg-slate-100 text-slate-400 hover:bg-slate-200"
+                              }`}
+                              title={data.isActive !== false ? "Active — click to deactivate" : "Inactive — click to activate"}
+                            >
+                              <Power className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => openBatchEdit(data)}
+                              className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-all cursor-pointer"
+                              title="Edit batch"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </TableCell>
                       </>
                     ) : activeTab === "Medicine History" ? (
                       <>
@@ -575,13 +667,13 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
       </div>
 
       {/* Actions */}
-      < div className="flex gap-3 pt-4 border-t mt-2" >
+      <div className="flex gap-3 pt-4 border-t mt-2">
         <Button className="flex-1 bg-(--color-synapse-light) gap-2" onClick={() => editItem()}>
           <Edit className="w-4 h-4" />
           Edit Item
         </Button>
 
-        <AlertDialog >
+        <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive" className="flex-1 bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:border-red-300 shadow-sm gap-2">
               <Trash2 className="w-4 h-4" />
@@ -590,7 +682,6 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
           </AlertDialogTrigger>
 
           <AlertDialogContent className="max-w-sm! rounded-xl">
-            {/* ... existing alert content doesn't need much change save for maybe rounding ... */}
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
@@ -602,7 +693,6 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                 .
               </AlertDialogDescription>
             </AlertDialogHeader>
-
             <AlertDialogFooter>
               <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
               <AlertDialogAction
@@ -614,7 +704,63 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div >
-    </div >
+      </div>
+    </div>
+
+
+
+      {/* Batch Edit Dialog */}
+      <Dialog open={!!editingBatch} onOpenChange={(open) => { if (!open) setEditingBatch(null); }}>
+        <DialogContent className="max-w-lg!">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold text-slate-900">
+              Edit Batch &bull; <span className="font-mono text-indigo-600">{editingBatch?.batchNumber}</span>
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="grid grid-cols-2 gap-3 py-2 text-xs">
+            {[
+              { label: "Batch Number", key: "batchNumber", type: "text" },
+              { label: "Expiry Date", key: "expiryDate", type: "date" },
+              { label: "Stock Qty", key: "quantity", type: "number" },
+              { label: "Packing", key: "packing", type: "number" },
+              { label: "Strip Count", key: "stripCount", type: "number" },
+              { label: "MRP (₹)", key: "mrp", type: "number" },
+              { label: "Unit Price (₹)", key: "unitPrice", type: "number" },
+              { label: "Purchase Rate (₹)", key: "purchasePrice", type: "number" },
+              { label: "GST (%)", key: "gst", type: "number" },
+              { label: "Supplier", key: "supplier", type: "text" },
+            ].map(({ label, key, type }) => (
+              <div key={key} className="flex flex-col gap-1">
+                <label className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">{label}</label>
+                <Input
+                  type={type}
+                  step={type === "number" ? "0.01" : undefined}
+                  min={type === "number" ? 0 : undefined}
+                  value={editForm[key] ?? ""}
+                  onChange={(e) => setEditForm((prev: any) => ({ ...prev, [key]: e.target.value }))}
+                  className="h-8 text-xs bg-white border-slate-200"
+                />
+              </div>
+            ))}
+          </div>
+
+          <DialogFooter className="gap-2">
+            <DialogClose asChild>
+              <Button variant="outline" size="sm" className="text-xs h-8">Cancel</Button>
+            </DialogClose>
+            <Button
+              size="sm"
+              onClick={saveBatch}
+              disabled={isSavingBatch}
+              className="bg-(--color-synapse-light) text-white text-xs h-8 gap-1.5"
+            >
+              {isSavingBatch && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

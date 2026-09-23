@@ -8,6 +8,8 @@ export interface BatchType {
   purchasePrice?: number;
   gst?: number;
   quantity: number;
+  startingQuantity?: number;
+  isActive?: boolean;
   supplier: string;
   expiryDate: Date | string;
   createdAt?: Date;

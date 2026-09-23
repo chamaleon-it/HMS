@@ -56,19 +56,24 @@ export default function BatchSelector({
       ? initialBatches
       : itemData?.data?.batches || [];
 
-  const selectedBatch = batches.find(
+  // Only show active batches with stock > 0 in new orders
+  const availableBatches = batches.filter(
+    (b) => b.isActive !== false && (b.quantity ?? 0) > 0
+  );
+
+  const selectedBatch = availableBatches.find(
     (b) =>
       b.batchNumber &&
       b.batchNumber.toLowerCase() === selectedBatchNumber?.trim().toLowerCase()
   );
 
-  // Auto-select if there is only 1 batch and none is selected yet
+  // Auto-select if there is only 1 available batch and none is selected yet
   useEffect(() => {
-    if (!selectedBatchNumber && batches.length === 1 && batches[0]?.batchNumber) {
-      onSelectBatch(batches[0]);
+    if (!selectedBatchNumber && availableBatches.length === 1 && availableBatches[0]?.batchNumber) {
+      onSelectBatch(availableBatches[0]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [batches.length, selectedBatchNumber]);
+  }, [availableBatches.length, selectedBatchNumber]);
 
   if (disabled || !itemId) {
     return (
@@ -83,6 +88,15 @@ export default function BatchSelector({
       <div className="h-8 px-2 rounded-lg border border-amber-200 bg-amber-50 text-amber-700 text-[11px] flex items-center gap-1.5 truncate">
         <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />
         <span className="truncate">No batches available</span>
+      </div>
+    );
+  }
+
+  if (availableBatches.length === 0) {
+    return (
+      <div className="h-8 px-2 rounded-lg border border-amber-200 bg-amber-50 text-amber-700 text-[11px] flex items-center gap-1.5 truncate">
+        <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+        <span className="truncate">No stock available</span>
       </div>
     );
   }
@@ -109,7 +123,7 @@ export default function BatchSelector({
               </span>
             ) : (
               <span className="truncate font-medium text-amber-800">
-                Select Batch ({batches.length})
+                Select Batch ({availableBatches.length})
               </span>
             )}
           </div>
@@ -132,13 +146,13 @@ export default function BatchSelector({
             </div>
           </div>
           <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-            {batches.length} {batches.length === 1 ? "Batch" : "Batches"}
+            {availableBatches.length} {availableBatches.length === 1 ? "Batch" : "Batches"}
           </span>
         </div>
 
         {/* List of Batches */}
         <div className="overflow-y-auto p-2 space-y-2 max-h-[290px]">
-          {batches.map((batch, idx) => {
+          {availableBatches.map((batch, idx) => {
             const isSelected =
               batch.batchNumber.toLowerCase() ===
               selectedBatchNumber?.trim().toLowerCase();

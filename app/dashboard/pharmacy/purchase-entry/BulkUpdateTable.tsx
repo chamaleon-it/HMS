@@ -295,6 +295,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     batch: item.batch,
                     quantity: item.qty,
                     pack: item.pack,
+                    noOfPack: item.noOfPack,
                     unitPrice: item.unitPrice,
                     expiryDate: item.expiryDate,
                     free: item.schema_free,

@@ -305,7 +305,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
             generateTimeSlots(
               availability?.startTime ?? "09:00",
               availability?.endTime ?? "18:00",
-              10
+              5
             ).map((time) => {
               const round = getRoundForTime(time, availability?.rounds);
               const isDisabledByRound = !!round;

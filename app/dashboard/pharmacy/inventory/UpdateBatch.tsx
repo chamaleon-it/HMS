@@ -30,7 +30,7 @@ import useSWR from 'swr';
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, PackagePlus } from "lucide-react";
+import { Loader2, PackagePlus, Power } from "lucide-react";
 import React, { useRef, useState } from 'react';
 import {
     Tooltip,
@@ -420,12 +420,13 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                         <TableHead className="text-right">P. Rate</TableHead>
                                         <TableHead className="text-right">GST</TableHead>
                                         <TableHead>Supplier</TableHead>
+                                        <TableHead className="text-center">Status</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {paginatedBatches.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={9} className="text-center py-6 text-slate-400 text-xs">
+                                            <TableCell colSpan={10} className="text-center py-6 text-slate-400 text-xs">
                                                 No batches added yet. Add a batch above to register stock and pricing.
                                             </TableCell>
                                         </TableRow>
@@ -445,6 +446,33 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                                 <TableCell className="text-right text-slate-600">{batch.purchasePrice ? formatINR(batch.purchasePrice) : "-"}</TableCell>
                                                 <TableCell className="text-right text-slate-600">{batch.gst ? `${batch.gst}%` : "0%"}</TableCell>
                                                 <TableCell className="text-slate-600 truncate max-w-[120px]">{batch.supplier || "-"}</TableCell>
+                                                <TableCell className="text-center">
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <button
+                                                                type="button"
+                                                                onClick={async () => {
+                                                                    try {
+                                                                        await api.patch(`/pharmacy/items/${item._id}/batch/${batch._id}/toggle`);
+                                                                        mutate();
+                                                                    } catch {
+                                                                        toast.error("Failed to toggle batch status");
+                                                                    }
+                                                                }}
+                                                                className={`inline-flex items-center justify-center w-7 h-7 rounded-full transition-all cursor-pointer ${
+                                                                    batch.isActive !== false
+                                                                        ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+                                                                        : "bg-slate-100 text-slate-400 hover:bg-slate-200"
+                                                                }`}
+                                                            >
+                                                                <Power className="w-3.5 h-3.5" />
+                                                            </button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            {batch.isActive !== false ? "Active — click to deactivate" : "Inactive — click to activate"}
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TableCell>
                                             </TableRow>
                                         ))
                                     )}
