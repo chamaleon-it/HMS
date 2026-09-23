@@ -331,7 +331,7 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
         bill={selectedBill}
         billingMutate={billingMutate}
       />
-      <LabBillReceipt bill={printBill} />
+      <LabBillReceipt bill={printBill} copy="both" />
     </div>
   );
 }

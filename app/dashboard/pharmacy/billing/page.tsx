@@ -118,6 +118,7 @@ export default function BillingPage() {
       pharmacy: {
         billing: {
           autoPrintAfterSave: boolean,
+          printDualCopies?: boolean,
           prefix: string
         }
       }
@@ -126,6 +127,7 @@ export default function BillingPage() {
 
   const pharmacyBilling = data?.data?.pharmacy?.billing ?? {
     autoPrintAfterSave: false,
+    printDualCopies: false,
     prefix: "INV"
   }
 

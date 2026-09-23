@@ -3,6 +3,8 @@ import { formatINR } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import useSWR from "swr";
 import configuration from "@/config/configuration";
+import usePrintBranding from "@/hooks/usePrintBranding";
+import BrandingFooter from "@/components/print/BrandingFooter";
 
 interface PrintReceiptProps {
     payload?: {
@@ -39,25 +41,18 @@ interface PrintReceiptProps {
         totalGst: number;
         grandTotal: number;
     };
+    /** Appends a prescription page so receipt and prescription print together. */
+    withPrescription?: boolean;
 }
-
-const formatExpiry = (dateStr?: string | Date) => {
-    if (!dateStr) return "";
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return String(dateStr);
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
-};
 
 export default function PrintReceipt({
     payload,
     patient,
     invoiceDetails,
+    withPrescription = false,
 }: PrintReceiptProps) {
 
+    const { slogan, advertisement, services } = usePrintBranding();
     const { data: itemsData } = useSWR<{ data: any[] }>("/pharmacy/items?limit=1000");
     const dbItems = itemsData?.data || [];
 
@@ -96,46 +91,8 @@ export default function PrintReceipt({
     const itemsCount = payload.items.length;
     const emptyRowsCount = Math.max(0, totalRowsNeeded - itemsCount);
 
-    return (
-        <div className="print-receipt hidden print:block bg-white text-black font-sans leading-tight overflow-visible relative">
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-        @media print {
-          @page {
-            size: A4;
-            margin: 4mm;
-          }
-          body { 
-            visibility: hidden !important; 
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          .font-cinzel {
-            font-family: 'Cinzel Decorative', serif !important;
-          }
-          .print-receipt { 
-            visibility: visible !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 202mm !important;
-            height: 289mm !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            background: white !important;
-            box-sizing: border-box !important;
-            display: block !important;
-          }
-          .no-print, aside, header, footer, nav, button {
-            display: none !important;
-          }
-        }
-      `}} />
-
+    const receiptPage = (
+        <div className="print-receipt-page bg-white text-black font-sans leading-tight overflow-visible relative">
             <div className="w-full h-full relative flex flex-col">
                 {/* 1. Header Layout */}
                 <div className="flex justify-between items-start pb-3 py-2">
@@ -148,6 +105,9 @@ export default function PrintReceipt({
                         </div>
                         <div className="flex flex-col gap-0 select-none">
                             <h1 className="text-[26px] font-bold text-black leading-none tracking-tight uppercase font-cinzel">{configuration().hospitalName}</h1>
+                            {slogan && (
+                                <p className="text-[11px] font-semibold italic text-gray-600 mt-0.5">{slogan}</p>
+                            )}
                             <p className="text-[12px] font-medium text-black mt-1">Kunduthode, Edavanna, Malappuram</p>
                             <p className="text-[12px] font-medium text-black">Kerala, India - 676541</p>
                             {/*<p className="text-[12px] font-bold text-black uppercase mt-1">DIGIPIN: MC9-955-6F2F</p>*/}
@@ -250,7 +210,7 @@ export default function PrintReceipt({
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                     </svg>
                                 </div>
-                                <span>+91 8075016480</span>
+                                <span>+91 8075016480, +91 9496172670</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-[22px] h-[22px] rounded-full border border-black flex items-center justify-center shrink-0">
@@ -295,11 +255,12 @@ export default function PrintReceipt({
                     </div>
                 </div>
 
-                {/* Prescription validation disclaimer */}
-                <div className="w-[64%] select-none mt-1">
+                {/* Prescription validation disclaimer + branding */}
+                <div className="w-[64%] select-none mt-1 space-y-1">
                     <p className="text-[10px] text-gray-500 font-semibold leading-tight">
                         * This prescription is valid only if signed by registered medical practitioner.
                     </p>
+                    <BrandingFooter services={services} advertisement={advertisement} />
                 </div>
 
                 {/* 5. Powered by Footer */}
@@ -308,6 +269,161 @@ export default function PrintReceipt({
                     <p className="text-[10px] text-gray-800 font-bold tracking-tight uppercase">CARESOFT INNOVATIONS LLP</p>
                 </div>
             </div>
+        </div>
+    );
+
+    const prescriptionPage = (
+        <div className="print-receipt-page bg-white text-black font-sans leading-tight overflow-visible relative">
+            <div className="w-full h-full relative flex flex-col">
+                <div className="flex justify-between items-start border-b border-black pb-3 py-2">
+                    <div className="flex gap-3 items-center">
+                        <img src="/print/image.png" alt="Logo" className="w-[90px] h-auto object-contain" />
+                        <div className="flex flex-col gap-0 select-none">
+                            <h1 className="text-[26px] font-bold text-black leading-none tracking-tight uppercase font-cinzel">{configuration().hospitalName}</h1>
+                            {slogan && (
+                                <p className="text-[11px] font-semibold italic text-gray-600 mt-0.5">{slogan}</p>
+                            )}
+                            <p className="text-[12px] font-medium text-black mt-1">Kunduthode, Edavanna, Malappuram</p>
+                            <p className="text-[12px] font-medium text-black">Kerala, India - 676541</p>
+                        </div>
+                    </div>
+                    <div className="text-right flex flex-col items-end gap-2 pt-1">
+                        <div className="border border-black rounded-[8px] px-6 py-1.5 text-center select-none">
+                            <span className="text-[16px] font-bold text-black uppercase tracking-wider">PRESCRIPTION</span>
+                        </div>
+                        <div className="text-[12px] text-gray-500 font-medium space-y-0.5 mt-2 italic">
+                            <p>Ref No: <span className="font-bold text-black">{invoiceNo}</span></p>
+                            <p>Date : <span className="font-bold text-black">{fDateandTime(new Date())}</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-4 bg-[#eaeaea] text-black select-none py-2 px-6 mt-3">
+                    <Field label="Patient" value={patient.name} />
+                    <Field label="PID" value={patient.mrn?.replace("MRN", "P-") || " "} />
+                    <Field label="Phone" value={patient.phoneNumber || " "} />
+                    <Field label="Doctor" value={payload.doctor || "-"} />
+                </div>
+
+                <div className="relative border border-[#c5c9cf] rounded-tr-2xl rounded-tl-2xl overflow-hidden w-full mt-3 mb-3 flex-1">
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 z-0 select-none">
+                        <img src="/print/image.png" alt="watermark" className="w-[70%] object-contain" />
+                    </div>
+                    <table className="w-full border-collapse relative z-10">
+                        <thead className="bg-[#d9d9d9] border-b border-[#c5c9cf] text-[11px] font-semibold text-black">
+                            <tr>
+                                <th style={{ width: "6%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">SL</th>
+                                <th style={{ width: "44%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Medicine</th>
+                                <th style={{ width: "10%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Qty</th>
+                                <th style={{ width: "40%" }} className="px-3 py-2 text-left">Dosage / Instructions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {payload.items.map((item, index) => {
+                                const displayGeneric = item.generic || getBatchInfo(item.name).generic;
+                                return (
+                                    <tr key={index} className="h-[38px] bg-transparent">
+                                        <td className="px-2 py-0.5 text-center text-black text-[12px] font-medium border-r border-[#c5c9cf]">{index + 1}</td>
+                                        <td className="px-3 py-0.5 border-r border-[#c5c9cf] leading-snug">
+                                            <p className="font-bold text-black text-[12px]">{item.name}</p>
+                                            {displayGeneric && <p className="text-[10px] text-gray-500 font-medium leading-none mt-0.5">{displayGeneric}</p>}
+                                        </td>
+                                        <td className="px-2 py-0.5 text-center font-bold text-black text-[12px] border-r border-[#c5c9cf]">{item.quantity}</td>
+                                        <td className="px-3 py-0.5">
+                                            <div className="h-[16px] border-b border-dotted border-gray-400" />
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                            {Array.from({ length: emptyRowsCount }).map((_, idx) => (
+                                <tr key={`rx-empty-${idx}`} className="h-[38px] bg-transparent select-none">
+                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
+                                    <td className="border-r border-[#c5c9cf] px-3 py-0.5">&nbsp;</td>
+                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
+                                    <td className="px-3 py-0.5">&nbsp;</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="mt-auto mb-6 flex items-end justify-between select-none">
+                    <div className="w-[64%] space-y-1">
+                        <p className="text-[10px] text-gray-500 font-semibold leading-tight">
+                            * This prescription is valid only if signed by registered medical practitioner.
+                        </p>
+                        <BrandingFooter services={services} advertisement={advertisement} />
+                    </div>
+                    <div className="w-[30%] text-center">
+                        <div className="border-b border-black mb-1" />
+                        <p className="text-[11px] font-bold uppercase text-black">{payload.doctor || "Doctor"}</p>
+                        <p className="text-[9px] uppercase tracking-wide text-gray-600">{payload.department || "Signature"}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+
+    return (
+        <div className="print-receipt hidden print:block bg-white">
+            <style dangerouslySetInnerHTML={{
+                __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+        @media print {
+          @page {
+            size: A4;
+            margin: 4mm;
+          }
+          body {
+            visibility: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .font-cinzel {
+            font-family: 'Cinzel Decorative', serif !important;
+          }
+          .print-receipt {
+            visibility: visible !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 202mm !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+            box-sizing: border-box !important;
+            display: block !important;
+          }
+          .print-receipt-page {
+            width: 202mm !important;
+            height: 289mm !important;
+            box-sizing: border-box !important;
+            break-after: page;
+            page-break-after: always;
+          }
+          .print-receipt-page:last-child {
+            break-after: auto;
+            page-break-after: auto;
+          }
+          .no-print, aside, header, footer, nav, button {
+            display: none !important;
+          }
+        }
+      `}} />
+            {receiptPage}
+            {withPrescription && prescriptionPage}
+        </div>
+    );
+}
+
+function Field({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="flex flex-col justify-center">
+            <span className="text-[11px] text-gray-500 font-medium leading-none">{label}</span>
+            <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{value}</span>
         </div>
     );
 }

@@ -4,16 +4,21 @@ import { fDateandTime } from "@/lib/fDateAndTime";
 import useGetTest from "@/data/useGetTest";
 import { formatINR } from "@/lib/fNumber";
 import configuration from "@/config/configuration";
+import usePrintBranding from "@/hooks/usePrintBranding";
+import BrandingFooter from "@/components/print/BrandingFooter";
 
 interface LabBillReceiptProps {
     report?: any | null;
     bill?: any | null;
     panels?: { name: string; price: number; tests?: any[] }[];
+    /** Distinct header per copy; "both" prints a patient and a lab page. */
+    copy?: "patient" | "lab" | "both";
 }
 
-export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptProps) {
+export default function LabBillReceipt({ report, bill, panels, copy }: LabBillReceiptProps) {
     const [mounted, setMounted] = useState(false);
     const { tests } = useGetTest();
+    const { slogan, advertisement, services } = usePrintBranding();
 
     useEffect(() => {
         setMounted(true);
@@ -78,48 +83,11 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
     const itemsCount = items.length;
     const emptyRowsCount = Math.max(0, totalRowsNeeded - itemsCount);
 
-    const content = (
-        <div className="print-receipt hidden print:flex bg-white text-black font-sans leading-tight overflow-visible relative flex-col">
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-        @media print {
-          @page {
-            size: A4;
-            margin: 4mm;
-          }
-          body { 
-            visibility: hidden !important; 
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          .font-cinzel {
-            font-family: 'Cinzel Decorative', serif !important;
-          }
-          .print-receipt { 
-            visibility: visible !important;
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 202mm !important;
-            height: 289mm !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            background: white !important;
-            box-sizing: border-box !important;
-            display: flex !important;
-            flex-direction: column !important;
-            z-index: 999999999 !important;
-          }
-          .no-print, aside, header, footer, nav, button {
-            display: none !important;
-          }
-        }
-      `}} />
-
+    const renderCopy = (copyLabel?: "patient" | "lab") => (
+        <div
+            key={copyLabel ?? "single"}
+            className="print-receipt-page bg-white text-black font-sans leading-tight overflow-visible relative flex-col"
+        >
             <div className="w-full h-full relative flex flex-col">
                 {/* 1. Header Layout */}
                 <div className="flex justify-between items-start pb-3 py-2">
@@ -130,6 +98,9 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                         </div>
                         <div className="flex flex-col gap-0 select-none">
                             <h1 className="text-[26px] font-bold text-black leading-none tracking-tight uppercase font-cinzel">{configuration().hospitalName}</h1>
+                            {slogan && (
+                                <p className="text-[11px] font-semibold italic text-gray-600 mt-0.5">{slogan}</p>
+                            )}
                             <p className="text-[12px] font-medium text-black mt-1">Kunduthode, Edavanna, Malappuram</p>
                             <p className="text-[12px] font-medium text-black">Kerala, India - 676541</p>
                         </div>
@@ -138,7 +109,9 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                     {/* Right: Cash Receipt Title & Invoice Info */}
                     <div className="text-right flex flex-col items-end gap-2 pt-1">
                         <div className="border border-black rounded-[8px] px-6 py-1.5 text-center select-none">
-                            <span className="text-[16px] font-bold text-black uppercase tracking-wider">CASH RECEIPT</span>
+                            <span className="text-[16px] font-bold text-black uppercase tracking-wider">
+                                {copyLabel === "lab" ? "LAB COPY" : copyLabel === "patient" ? "PATIENT COPY" : "CASH RECEIPT"}
+                            </span>
                         </div>
                         <div className="text-[12px] text-gray-500 font-medium space-y-0.5 mt-2 italic">
                             <p>Invoice No: <span className="font-bold text-black">{invoiceNo}</span></p>
@@ -256,11 +229,9 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                     </div>
                 </div>
 
-                {/* Prescription validation disclaimer */}
+                {/* Branding footer */}
                 <div className="w-[64%] select-none mt-1">
-                    {/* <p className="text-[10px] text-gray-500 font-semibold leading-tight">
-                        * This receipt is valid only if signed by registered medical practitioner.
-                    </p> */}
+                    <BrandingFooter services={services} advertisement={advertisement} />
                 </div>
 
                 {/* 5. Powered by Footer */}
@@ -269,6 +240,65 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                     <p className="text-[10px] text-gray-800 font-bold tracking-tight uppercase">CARESOFT INNOVATIONS LLP</p>
                 </div>
             </div>
+        </div>
+    );
+
+    const copies: ("patient" | "lab" | undefined)[] =
+        copy === "both" ? ["patient", "lab"] : [copy];
+
+    const content = (
+        <div className="print-receipt hidden print:block bg-white">
+            <style dangerouslySetInnerHTML={{
+                __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+        @media print {
+          @page {
+            size: A4;
+            margin: 4mm;
+          }
+          body {
+            visibility: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .font-cinzel {
+            font-family: 'Cinzel Decorative', serif !important;
+          }
+          .print-receipt {
+            visibility: visible !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 202mm !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+            box-sizing: border-box !important;
+            display: block !important;
+            z-index: 999999999 !important;
+          }
+          .print-receipt-page {
+            width: 202mm !important;
+            height: 289mm !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
+            break-after: page;
+            page-break-after: always;
+          }
+          .print-receipt-page:last-child {
+            break-after: auto;
+            page-break-after: auto;
+          }
+          .no-print, aside, header, footer, nav, button {
+            display: none !important;
+          }
+        }
+      `}} />
+            {copies.map((c) => renderCopy(c))}
         </div>
     );
 

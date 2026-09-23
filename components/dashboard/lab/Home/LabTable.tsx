@@ -868,7 +868,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
         </tbody>
       </table>
       {printReport && <ReportCard report={printReport} panels={panels} panelPerPage={panelPerPage} />}
-      <LabBillReceipt report={printBillReport} bill={printBill} panels={panels} />
+      <LabBillReceipt report={printBillReport} bill={printBill} panels={panels} copy="both" />
     </div>
   );
 }

@@ -293,7 +293,7 @@ function InvoiceViewContent() {
         </div>
       </div>
       </div>
-      <LabBillReceipt bill={printBill} />
+      <LabBillReceipt bill={printBill} copy="both" />
     </AppShell>
   );
 }

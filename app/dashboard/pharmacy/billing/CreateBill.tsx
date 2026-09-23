@@ -30,6 +30,7 @@ export default function CreateBill({
   billingMutate: () => void;
   pharmacyBilling: {
     autoPrintAfterSave: boolean;
+    printDualCopies?: boolean;
     prefix: string;
   }
 }) {
@@ -206,13 +207,18 @@ export default function CreateBill({
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
-      setPayload(defaultPayload);
       billingMutate();
-      router.push("/dashboard/pharmacy");
+      if (pharmacyBilling.autoPrintAfterSave) {
+        // usePrint's afterprint handler navigates back to the pharmacy queue.
+        onClick();
+      } else {
+        setPayload(defaultPayload);
+        router.push("/dashboard/pharmacy");
+      }
     } catch (error) {
       // Handle error
     }
-  }, [payload, billingMutate, defaultPayload, router]);
+  }, [payload, billingMutate, defaultPayload, router, pharmacyBilling.autoPrintAfterSave]);
 
 
   const [orderPatient, setOrderPatient] = useState<{ _id: string, mrn: string, name: string } | undefined>(undefined)
@@ -368,10 +374,13 @@ export default function CreateBill({
         </div>
       </div>
 
-      {/* Printable Receipt Component */}
+      {/* Printable Receipt Component — prescription page follows when dual copies are on */}
       <PrintReceipt
         payload={payload}
         patient={selectedPatient}
+        withPrescription={
+          pharmacyBilling.printDualCopies || pharmacyBilling.autoPrintAfterSave
+        }
         invoiceDetails={{
           prefix: pharmacyBilling.prefix,
           roundOffAmount: 0,

@@ -8,7 +8,8 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import useSWR from "swr";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
-import { FilePlus2 } from "lucide-react";
+import { FilePlus2, Info } from "lucide-react";
+import Link from "next/link";
 
 export interface FilterType {
   q: null | string;
@@ -71,6 +72,21 @@ export default function BillingPage() {
 
       >
         <div className="">
+          <div className="mb-4 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <Info className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>
+              Billing is centralised at the pharmacy counter. New invoices and
+              payments should be raised from{" "}
+              <Link
+                href="/dashboard/pharmacy/billing/"
+                className="font-semibold underline"
+              >
+                Pharmacy Billing
+              </Link>
+              . This view is kept for lab bill history and reprints.
+            </p>
+          </div>
+
           <div className="mb-4">
             <LabHeader
               title="Billing"
