@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Bell, Plus, Menu, CloudUpload } from "lucide-react";
+import { Bell, Plus, Menu, CloudUpload, Link2 } from "lucide-react";
 import DoctorProfile from "./Profile";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import { SyncDialog } from "@/components/shared/sync/SyncDialog";
+import { TallyDialog } from "@/components/shared/tally/TallyDialog";
 import useAppointmentList from "@/hooks/useAppointmentList";
 import { useAuth } from "@/auth/context/auth-context";
 import SearchBar from "./SearchBar";
@@ -19,6 +20,7 @@ export default function Header() {
   const [openCreate, setOpenCreate] = useState(false);
   const [openPatient, setOpenPatient] = useState(false);
   const [openSync, setOpenSync] = useState(false);
+  const [openTally, setOpenTally] = useState(false);
 
 
   const { user } = useAuth();
@@ -228,6 +230,15 @@ export default function Header() {
                 <Plus className="h-4 w-4" /> New Order
               </button>
             )}
+            {user?.role === "Pharmacy" && (
+              <button
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-(--color-synapse-light) px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
+                onClick={() => setOpenTally(true)}
+                title="Connect Tally"
+              >
+                <Link2 className="h-4 w-4" /> Connect Tally
+              </button>
+            )}
             {user?.role === "Lab" && (
               <button
                 className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-(--color-synapse-light) px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
@@ -265,6 +276,10 @@ export default function Header() {
       <SyncDialog
         open={openSync}
         onOpenChange={(v) => !v && setOpenSync(false)}
+      />
+      <TallyDialog
+        open={openTally}
+        onOpenChange={(v) => !v && setOpenTally(false)}
       />
       {(user?.role === "Doctor" || user?.role === "Lab" || user?.role === "Pharmacy" || user?.role === "Reception") && (
         <div className="w-full overflow-hidden">
