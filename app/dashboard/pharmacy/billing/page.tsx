@@ -17,6 +17,7 @@ export interface FilterType {
   qEnd: null | string;
   status: string;
   method: string;
+  billingType: string;
   activeDate: "Today" | "7 days" | "30 days" | "Custom";
   date: Date;
   page: number;
@@ -31,6 +32,7 @@ export default function BillingPage() {
     qEnd: null,
     status: "",
     method: "",
+    billingType: "all",
     activeDate: "Today",
     date: new Date(),
     page: 1,
@@ -54,6 +56,10 @@ export default function BillingPage() {
 
   if (filter.method !== "all") {
     params.set("method", filter.method);
+  }
+
+  if (filter.billingType && filter.billingType !== "all") {
+    params.set("billingType", filter.billingType);
   }
 
 

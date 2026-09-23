@@ -25,7 +25,7 @@ interface PropsType {
 export default function Filters({ filter, setFilter }: PropsType) {
 
   const handleReset = () => {
-    setFilter({ q: null, qEnd: null, status: "all", method: "all", activeDate: "Today", date: new Date(), page: 1, limit: 10, doctor: [] });
+    setFilter({ q: null, qEnd: null, status: "all", method: "all", billingType: "all", activeDate: "Today", date: new Date(), page: 1, limit: 10, doctor: [] });
   };
 
   return (
@@ -66,6 +66,39 @@ export default function Filters({ filter, setFilter }: PropsType) {
           </div>
         </div>
 
+        {/* Billing Type */}
+        <div className="space-y-2 min-w-[180px]">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
+            Billing Type
+          </label>
+          <Select
+            value={filter.billingType || "all"}
+            onValueChange={(value) =>
+              setFilter((prev) => ({ ...prev, billingType: value, page: 1 }))
+            }
+          >
+            <SelectTrigger className="h-10! bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all">
+              <div className="flex items-center gap-2">
+                <FilterIcon className="h-4 w-4 text-slate-400" />
+                <SelectValue placeholder="Billing type" />
+              </div>
+            </SelectTrigger>
+            <SelectContent className="rounded-lg border-slate-200 shadow-xl">
+              <SelectGroup>
+                <SelectLabel className="text-[10px] uppercase tracking-wider text-slate-400">Type</SelectLabel>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="Consultation">Consultation</SelectItem>
+                <SelectItem value="Clinical">Procedure / Clinical Fees</SelectItem>
+                <SelectItem value="Dressing">Dressing</SelectItem>
+                <SelectItem value="Pharmacy">Pharmacy</SelectItem>
+                <SelectItem value="Lab">Lab</SelectItem>
+                <SelectItem value="Sale">Sale</SelectItem>
+                <SelectItem value="Return">Return</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* Method */}
         <div className="space-y-2 min-w-[180px]">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
@@ -90,6 +123,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
                   <SelectItem value="all">All Methods</SelectItem>
                   <SelectItem value="Cash">Cash</SelectItem>
                   <SelectItem value="Online">Online</SelectItem>
+                  <SelectItem value="Insurance">Insurance</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>

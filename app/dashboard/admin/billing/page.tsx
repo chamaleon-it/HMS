@@ -47,6 +47,7 @@ export default function AdminBillingPage() {
   const [department, setDepartment] = useState<"All" | "Pharmacy" | "Lab">("All");
   const [status, setStatus] = useState<string>("all");
   const [method, setMethod] = useState<string>("all");
+  const [billingType, setBillingType] = useState<string>("all");
   const [search, setSearch] = useState<string>("");
   const [activeDate, setActiveDate] = useState<"Today" | "7 days" | "30 days" | "All Time">("30 days");
   const [page, setPage] = useState<number>(1);
@@ -75,6 +76,7 @@ export default function AdminBillingPage() {
   if (department !== "All") queryParams.set("department", department);
   if (status !== "all") queryParams.set("status", status);
   if (method !== "all") queryParams.set("method", method);
+  if (billingType !== "all") queryParams.set("billingType", billingType);
   if (search.trim()) queryParams.set("q", search.trim());
   if (startDate && endDate) {
     queryParams.set("startDate", startDate);
@@ -261,6 +263,30 @@ export default function AdminBillingPage() {
                 <SelectItem value="all">All Methods</SelectItem>
                 <SelectItem value="Cash">Cash</SelectItem>
                 <SelectItem value="Online">Online</SelectItem>
+                <SelectItem value="Insurance">Insurance</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Billing Type Select */}
+            <Select
+              value={billingType}
+              onValueChange={(v) => {
+                setBillingType(v);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[180px] text-xs h-9 bg-white">
+                <SelectValue placeholder="Billing type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="Consultation">Consultation</SelectItem>
+                <SelectItem value="Clinical">Clinical / Procedure</SelectItem>
+                <SelectItem value="Dressing">Dressing</SelectItem>
+                <SelectItem value="Pharmacy">Pharmacy</SelectItem>
+                <SelectItem value="Lab">Lab</SelectItem>
+                <SelectItem value="Sale">Sale</SelectItem>
+                <SelectItem value="Return">Return</SelectItem>
               </SelectContent>
             </Select>
           </div>

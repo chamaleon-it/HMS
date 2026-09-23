@@ -261,7 +261,7 @@ const Customers: React.FC = () => {
                                     onClick={(e: React.MouseEvent) => {
                                       e.stopPropagation();
                                       router.push(
-                                        `/dashboard/pharmacy?id=${p.patient._id}&mrn=${p.patient.mrn}&name=${p.patient.name}&allergies=${p.patient.allergies || ""}#newOrder`
+                                        `/dashboard/pharmacy?id=${p.patient._id}&mrn=${p.patient.mrn}&name=${p.patient.name}#newOrder`
                                       )
                                     }}
                                   >

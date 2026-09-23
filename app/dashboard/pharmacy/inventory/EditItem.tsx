@@ -111,7 +111,9 @@ export function EditItem({
 
   const editItem = handleSubmit(async (data) => {
     try {
-      await toast.promise(api.patch(`/pharmacy/items/${item._id}`, data), {
+      // SKU is identity — omit from edit payload so clients cannot rekey.
+      const { sku: _sku, ...payload } = data;
+      await toast.promise(api.patch(`/pharmacy/items/${item._id}`, payload), {
         loading: "Please wait, Editing item...!",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
@@ -156,7 +158,6 @@ export function EditItem({
     packing: useRef<HTMLInputElement>(null),
     noOfPacking: useRef<HTMLInputElement>(null),
     hsnCode: useRef<HTMLInputElement>(null),
-    sku: useRef<HTMLInputElement>(null),
     category: useRef<HTMLButtonElement>(null),
     supplier: useRef<HTMLButtonElement>(null),
     manufacturer: useRef<HTMLInputElement>(null),
@@ -430,38 +431,13 @@ export function EditItem({
               register("purchasePrice").ref(e);
               refs.purchasePrice.current = e;
             }}
-            onKeyDown={(e) => handleKeyDown(e, refs.sku)}
+            onKeyDown={(e) => handleKeyDown(e, refs.category)}
             disabled={!canEditStock}
           />
           {errors.purchasePrice && (
             <p className="text-xs text-red-600 my-1">
               {errors.purchasePrice.message}
             </p>
-          )}
-        </div>
-
-
-
-
-
-
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            SKU / Internal Code
-          </label>
-          <Input
-            placeholder="e.g. MED001"
-            className="mt-1"
-            {...register("sku")}
-            ref={(e) => {
-              register("sku").ref(e);
-              refs.sku.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.category)}
-          />
-          {errors.sku && (
-            <p className="text-xs text-red-600 my-1">{errors.sku.message}</p>
           )}
         </div>
 

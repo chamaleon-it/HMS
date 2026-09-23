@@ -161,13 +161,13 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
           <DialogHeader>
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
-          <RegisterPatient patient={{ name: nameToRegister }} onClose={(id?: string, name?: string, allergies?: string, mrn?: string) => {
+          <RegisterPatient patient={{ name: nameToRegister }} onClose={(id?: string, name?: string, mrn?: string) => {
             setOpenCreate(false);
             mutate();
             setNameToRegister("");
             if (id && name) {
               router.push(
-                `/dashboard/pharmacy?id=${id}&mrn=${mrn || ""}&name=${encodeURIComponent(name)}&allergies=${encodeURIComponent(allergies || "")}#newOrder`
+                `/dashboard/pharmacy?id=${id}&mrn=${mrn || ""}&name=${encodeURIComponent(name)}#newOrder`
               );
             }
           }} />

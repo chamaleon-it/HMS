@@ -4,15 +4,12 @@ import PrescriptionCard from "./PrescriptionCard";
 import { DataType } from "./interface";
 import PatientSelection from "./PatientSelection";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
 import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { AlertTriangle, Eye, Printer, UserPlus } from "lucide-react";
+import { Eye, Printer } from "lucide-react";
 import PharmacistSelection from "./PharmacistSelection";
 import DoctorSelection from "./billing/DoctorSelection";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Draft, useDrafts } from "./DraftContext";
@@ -29,15 +26,10 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
     }));
   };
 
-  const hasAllergy = draft.hasAllergy;
-  const setHasAllergy = (val: boolean) => updateDraft(draft.id, { hasAllergy: val });
-
   const showAllFields = draft.showAllFields;
   const setShowAllFields = (val: boolean) => updateDraft(draft.id, { showAllFields: val });
 
   const patientName = draft.patientName;
-  const setPatientName = (val: string) => updateDraft(draft.id, { patientName: val });
-
   const createOrder = async () => {
     try {
       if (!payload.patient) {
@@ -58,7 +50,11 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
           return;
         }
       }
-      const payloadToSubmit = { ...payload, items: validItems };
+      // Omit allergies from order payload — patient allergy stays on Patient record only.
+      const { allergies: _allergies, ...orderWithoutAllergies } = payload as DataType & {
+        allergies?: string;
+      };
+      const payloadToSubmit = { ...orderWithoutAllergies, items: validItems };
       const { data } = await toast.promise(api.post("/pharmacy/orders", payloadToSubmit), {
         loading: "Order is creating...",
         success: ({ data }) => data.message,
@@ -101,21 +97,16 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
               //     New Customer
               //   </Button>
               // }
-              setValue={(id: string, allergies?: string, name?: string) => {
-                setPayload((prev: any) => ({ ...prev, patient: id, allergies: allergies || undefined }));
+              setValue={(id: string, name?: string) => {
+                setPayload((prev: any) => ({ ...prev, patient: id }));
                 updateDraft(draft.id, { patientName: name || "" });
-                if (allergies && allergies.trim().toLowerCase() !== "none" && allergies.trim().toLowerCase() !== "n/a" && allergies.trim() !== "") {
-                  setHasAllergy(true);
-                } else {
-                  setHasAllergy(false);
-                }
               }}
               register={(name) => {
                 window.dispatchEvent(new CustomEvent('open-register-patient', { detail: { name, draftId: draft.id } }));
               }}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2 items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 items-stretch">
               <div className="flex flex-col p-3.5 border border-slate-200 bg-slate-50/40 rounded-xl transition-shadow hover:shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="p-1.5 rounded-lg bg-slate-200/60 text-slate-500">
@@ -148,54 +139,6 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
                   pharmacistName={payload.pharmacist}
                   className="mt-auto"
                 />
-              </div>
-
-              <div className={cn(
-                "flex flex-col p-3.5 border transition-all duration-300 rounded-xl hover:shadow-sm",
-                hasAllergy
-                  ? "bg-amber-50/60 border-amber-200 shadow-sm shadow-amber-100/30"
-                  : "bg-slate-50/40 border-slate-200"
-              )}>
-                <div className="flex items-center justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className={cn(
-                      "p-1.5 rounded-lg transition-colors",
-                      hasAllergy ? "bg-amber-100 text-amber-600" : "bg-slate-200/60 text-slate-400"
-                    )}>
-                      <AlertTriangle className="h-4 w-4" />
-                    </div>
-                    <Label htmlFor={`allergy-toggle-${draft.id}`} className="text-sm font-semibold text-slate-700 cursor-pointer">
-                      Patient Allergy?
-                    </Label>
-                  </div>
-                  <Switch
-                    id={`allergy-toggle-${draft.id}`}
-                    checked={hasAllergy}
-                    onCheckedChange={setHasAllergy}
-                    className="data-[state=checked]:bg-amber-500"
-                  />
-                </div>
-
-                <div className="flex-1 flex flex-col justify-center">
-                  {hasAllergy ? (
-                    <div className="space-y-1.5">
-                      <Input
-                        id={`allergy-input-${draft.id}`}
-                        placeholder="Specify medical/food allergies..."
-                        value={payload.allergies ?? ""}
-                        onChange={(e) => setPayload((prev) => ({ ...prev, allergies: e.target.value }))}
-                        className="h-9 focus:ring-amber-500/20 focus:border-amber-400 bg-white border-amber-100 placeholder:text-slate-400 text-sm"
-                      />
-                      <p className="text-[10px] text-amber-600 font-medium px-1">
-                        Critical for medication safety
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-slate-400 italic px-1">
-                      Toggle if patient has known allergies
-                    </p>
-                  )}
-                </div>
               </div>
             </div>
           </div>

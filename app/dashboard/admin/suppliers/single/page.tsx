@@ -87,6 +87,9 @@ export default function AdminSingleSupplierPage() {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState<string>("0");
   const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+  const [isBulkPaymentModalOpen, setIsBulkPaymentModalOpen] = useState(false);
+  const [bulkPaymentAmount, setBulkPaymentAmount] = useState<string>("0");
+  const [isSubmittingBulkPayment, setIsSubmittingBulkPayment] = useState(false);
 
   React.useEffect(() => {
     if (orders.length > 0) {
@@ -152,6 +155,60 @@ export default function AdminSingleSupplierPage() {
       toast.error(error.response?.data?.message || "Failed to process payment");
     } finally {
       setIsSubmittingPayment(false);
+    }
+  };
+
+  const fifoPreview = React.useMemo(() => {
+    const amount = Number(bulkPaymentAmount);
+    if (!Number.isFinite(amount) || amount <= 0) return [];
+    let remaining = Math.round(amount * 100) / 100;
+    const sorted = [...orders]
+      .filter((o) => (o.total || 0) - (o.paidAmount || 0) > 0)
+      .sort(
+        (a, b) =>
+          new Date(a.invoiceDate).getTime() - new Date(b.invoiceDate).getTime()
+      );
+    const preview: { invoiceNumber: string; allocated: number }[] = [];
+    for (const order of sorted) {
+      if (remaining <= 0) break;
+      const due = Math.round(((order.total || 0) - (order.paidAmount || 0)) * 100) / 100;
+      const allocated = Math.min(remaining, due);
+      preview.push({ invoiceNumber: order.invoiceNumber, allocated });
+      remaining = Math.round((remaining - allocated) * 100) / 100;
+    }
+    return preview;
+  }, [bulkPaymentAmount, orders]);
+
+  const handleBulkPaymentSubmit = async () => {
+    if (!id) return;
+    const amount = Number(bulkPaymentAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    if (amount > totalDueAmount + 1e-6) {
+      toast.error(
+        `Payment cannot exceed total due (₹${totalDueAmount.toFixed(2)}). Advances are not supported.`
+      );
+      return;
+    }
+
+    setIsSubmittingBulkPayment(true);
+    try {
+      const { data } = await api.post(`/purchase_entry/supplier/${id}/pay`, {
+        amount,
+      });
+      const allocatedCount = data?.data?.allocations?.length ?? 0;
+      toast.success(
+        `₹${amount.toFixed(2)} allocated across ${allocatedCount} invoice(s)`
+      );
+      setIsBulkPaymentModalOpen(false);
+      setBulkPaymentAmount("");
+      mutateOrders();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to process payment");
+    } finally {
+      setIsSubmittingBulkPayment(false);
     }
   };
 
@@ -231,6 +288,18 @@ export default function AdminSingleSupplierPage() {
                 </p>
                 <p className="text-lg font-bold text-rose-700">{formatINR(totalDueAmount)}</p>
               </div>
+              {totalDueAmount > 0 && (
+                <Button
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white h-auto py-3 px-4"
+                  onClick={() => {
+                    setBulkPaymentAmount(String(totalDueAmount));
+                    setIsBulkPaymentModalOpen(true);
+                  }}
+                >
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Pay Outstanding
+                </Button>
+              )}
             </div>
           </div>
 
@@ -332,7 +401,7 @@ export default function AdminSingleSupplierPage() {
         </main>
       </div>
 
-      <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
+          <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Record Payment</DialogTitle>
@@ -369,6 +438,61 @@ export default function AdminSingleSupplierPage() {
               disabled={isSubmittingPayment}
             >
               {isSubmittingPayment ? "Processing..." : "Confirm Payment"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isBulkPaymentModalOpen} onOpenChange={setIsBulkPaymentModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Pay Outstanding (FIFO)</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-3">
+            <div>
+              <Label className="text-xs text-slate-500">Total Due</Label>
+              <p className="text-lg font-bold text-rose-600">{formatINR(totalDueAmount)}</p>
+              <p className="text-xs text-slate-400 mt-1">
+                Allocates oldest invoices first. Overpayment / advances are blocked.
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="bulkPayAmount">Payment Amount (₹)</Label>
+              <Input
+                id="bulkPayAmount"
+                type="number"
+                value={bulkPaymentAmount}
+                onChange={(e) => setBulkPaymentAmount(e.target.value)}
+                className="mt-1 font-mono text-base"
+              />
+            </div>
+            {fifoPreview.length > 0 && (
+              <div className="rounded-lg border bg-slate-50 p-3 space-y-1.5 max-h-40 overflow-y-auto">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                  Allocation preview
+                </p>
+                {fifoPreview.map((row) => (
+                  <div
+                    key={row.invoiceNumber}
+                    className="flex justify-between text-sm text-slate-700"
+                  >
+                    <span className="font-mono">{row.invoiceNumber}</span>
+                    <span className="font-medium">{formatINR(row.allocated)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsBulkPaymentModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              onClick={handleBulkPaymentSubmit}
+              disabled={isSubmittingBulkPayment}
+            >
+              {isSubmittingBulkPayment ? "Processing..." : "Confirm FIFO Payment"}
             </Button>
           </DialogFooter>
         </DialogContent>

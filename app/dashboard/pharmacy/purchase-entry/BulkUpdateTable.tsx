@@ -105,7 +105,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     const [billDetails, setBillDetails] = useState({
         invoiceNumber: "",
         invoiceDate: "",
-        transportCharges: "0",
         paidAmount: "0",
         description: ""
     });
@@ -201,8 +200,8 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             acc.schema_amt += sam;
             acc.total += (taxable + sgst + cgst);
             return acc;
-        }, { gross: 0, discount: 0, sgst: 0, cgst: 0, schema_amt: 0, total: Number(billDetails.transportCharges) || 0 });
-    }, [newItems, billDetails.transportCharges]);
+        }, { gross: 0, discount: 0, sgst: 0, cgst: 0, schema_amt: 0, total: 0 });
+    }, [newItems]);
 
     const handleSaveChanges = async () => {
         if (!selectedSupplierId) {
@@ -262,7 +261,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 supplier: selectedSupplierId,
                 invoiceNumber: billDetails.invoiceNumber,
                 invoiceDate: billDetails.invoiceDate,
-                transportCharge: Number(billDetails.transportCharges) || 0,
+                transportCharge: 0,
                 paidAmount: Number(billDetails.paidAmount) || 0,
                 description: billDetails.description,
                 items: validItems.map(item => ({
@@ -293,7 +292,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             setBillDetails({
                 invoiceNumber: "",
                 invoiceDate: "",
-                transportCharges: "0",
                 paidAmount: "0",
                 description: ""
             });
@@ -348,7 +346,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             setBillDetails({
                 invoiceNumber: "",
                 invoiceDate: "",
-                transportCharges: "0",
                 paidAmount: "0",
                 description: ""
             });
@@ -476,20 +473,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                             value={billDetails.invoiceNumber}
                             onChange={(e) => handleBillDetailChange("invoiceNumber", e.target.value)}
                         />
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-[11px]  text-slate-400 uppercase tracking-widest font-semibold">Transport Charges</label>
-                        <div className="relative ">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm  ">₹</span>
-                            <Input
-                                type="number"
-                                placeholder="0.00"
-                                className="h-11 bg-slate-50/50 border-slate-200 rounded-lg pl-7 focus:ring-2 focus:ring-indigo-500/20 transition-all  text-slate-700 "
-                                value={Number(billDetails.transportCharges) || ""}
-                                onChange={(e) => handleBillDetailChange("transportCharges", e.target.value)}
-                            />
-                        </div>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-10 pt-7 ">
