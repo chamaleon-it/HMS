@@ -7,7 +7,8 @@ import NewTest from "./NewTest";
 import LabTable from "./LabTable";
 import DateFilter from "./DateFilter";
 import LabHeader from "../LabHeader";
-import { Clock, CheckCircle2, FlaskConical, AlertTriangle, TestTube2 } from "lucide-react";
+import { Clock, CheckCircle2, FlaskConical, AlertTriangle, UserRound } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -19,25 +20,19 @@ const StatCard: React.FC<{
   icon: React.ReactNode;
   label: string;
   value: number;
-  colorClass: string;
   iconBgClass: string;
   borderClass: string;
   delay: number;
-}> = ({ icon, label, value, colorClass, iconBgClass, borderClass, delay }) => (
+}> = ({ icon, label, value, iconBgClass, borderClass, delay }) => (
   <motion.div
-    initial={{ opacity: 0, y: 15 }}
+    initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.4, delay }}
-    whileHover={{ y: -4, transition: { duration: 0.2 } }}
+    transition={{ duration: 0.3, delay }}
   >
-    <Card className={cn(
-      "relative overflow-hidden border-zinc-200/60 transition-all duration-300 shadow-sm hover:shadow-md",
-      borderClass
-    )}>
-      <div className={cn("absolute inset-0 bg-linear-to-br opacity-50", colorClass)} />
-      <div className="relative p-2 flex items-center gap-2">
+    <Card className={cn("border-zinc-200/70 shadow-none transition-colors", borderClass)}>
+      <div className="p-2 flex items-center gap-2">
         <div className={cn(
-          "h-10 w-10 rounded-xl flex items-center justify-center shadow-sm border border-white/50 shrink-0",
+          "h-9 w-9 rounded-lg flex items-center justify-center shrink-0",
           iconBgClass
         )}>{icon}</div>
         <div>
@@ -156,48 +151,20 @@ export default function LabResultsPage() {
 
 
 
-          <div className="flex items-center gap-3 flex-wrap">
-            {/* Lab In-charge Status */}
-            <div className="flex items-center gap-3 px-3 py-2 rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-xs transition-all duration-200 hover:shadow-sm">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-500 shadow-inner">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-              </div>
-              <div className="flex flex-col leading-tight pr-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Lab In-charge</span>
-                <span className="text-sm font-bold text-slate-800">{inChargeTechnician?.name ?? "—"}</span>
-              </div>
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2 text-sm text-slate-500">
+              <UserRound className="h-4 w-4 text-slate-400" />
+              <span className="text-slate-400">Lab in-charge</span>
+              <span className="font-semibold text-slate-700">{inChargeTechnician?.name ?? "—"}</span>
             </div>
 
-            {/* Auto ID Generation Toggle */}
-            <div className="flex items-center gap-4 px-3 py-2 rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-xs transition-all duration-200 hover:shadow-sm">
-              <div className="flex flex-col leading-tight pl-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Auto Generate</span>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Sample ID</span>
-              </div>
-              <button
-                onClick={() => setShowSampleId(!showSampleId)}
-                className={cn(
-                  "relative flex items-center w-16 h-8 rounded-full p-1 transition-all duration-300 cursor-pointer shadow-inner ring-1 ring-slate-200/50",
-                  showSampleId ? "bg-linear-to-r from-indigo-600 to-fuchsia-600" : "bg-slate-100"
-                )}
-              >
-                <span className={cn(
-                  "absolute left-2.5 text-[9px] font-black text-white transition-all duration-300 uppercase tracking-tighter",
-                  showSampleId ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
-                )}>YES</span>
-                <span className={cn(
-                  "absolute right-3 text-[9px] font-black text-slate-400 transition-all duration-300 uppercase tracking-tighter",
-                  showSampleId ? "opacity-0 translate-x-2" : "opacity-100 translate-x-0"
-                )}>NO</span>
-                <motion.div
-                  className="z-10 h-6 w-6 rounded-full bg-white shadow-md flex items-center justify-center border border-slate-200"
-                  animate={{ x: showSampleId ? 32 : 0 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                >
-                  <div className="w-4 h-4 rounded-full border border-slate-100 shadow-inner" />
-                </motion.div>
-              </button>
-            </div>
+            <label className="flex items-center gap-2 text-sm text-slate-500">
+              <Switch
+                checked={showSampleId}
+                onCheckedChange={setShowSampleId}
+              />
+              Auto sample ID
+            </label>
           </div>
 
           <DateFilter
@@ -215,46 +182,41 @@ export default function LabResultsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 print:hidden">
         <StatCard
           delay={0.1}
-          icon={<FlaskConical className="h-6 w-6" />}
+          icon={<FlaskConical className="h-5 w-5" />}
           label="Total Reports"
           value={statsData.total}
-          colorClass="from-zinc-500/10 to-zinc-500/5"
           iconBgClass="bg-zinc-100 text-zinc-600"
           borderClass="hover:border-zinc-200"
         />
         <StatCard
           delay={0.2}
-          icon={<Clock className="h-6 w-6" />}
+          icon={<Clock className="h-5 w-5" />}
           label="Upcoming"
           value={statsData.upcoming}
-          colorClass="from-amber-500/10 to-amber-500/5"
           iconBgClass="bg-amber-100 text-amber-600"
           borderClass="hover:border-amber-200"
         />
         <StatCard
           delay={0.3}
-          icon={<FlaskConical className="h-6 w-6" />}
+          icon={<FlaskConical className="h-5 w-5" />}
           label="Waiting For Result"
           value={statsData.waitingForResult}
-          colorClass="from-indigo-500/10 to-indigo-500/5"
           iconBgClass="bg-indigo-100 text-indigo-600"
           borderClass="hover:border-indigo-200"
         />
         <StatCard
           delay={0.4}
-          icon={<CheckCircle2 className="h-6 w-6" />}
+          icon={<CheckCircle2 className="h-5 w-5" />}
           label="Completed"
           value={statsData.completed}
-          colorClass="from-emerald-500/10 to-emerald-500/5"
           iconBgClass="bg-emerald-100 text-emerald-600"
           borderClass="hover:border-emerald-200"
         />
         <StatCard
           delay={0.5}
-          icon={<AlertTriangle className="h-6 w-6" />}
+          icon={<AlertTriangle className="h-5 w-5" />}
           label="Flagged"
           value={statsData.flagged}
-          colorClass="from-rose-500/10 to-rose-500/5"
           iconBgClass="bg-rose-100 text-rose-600"
           borderClass="hover:border-rose-200"
         />
