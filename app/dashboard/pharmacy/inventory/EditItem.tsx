@@ -375,7 +375,7 @@ export function EditItem({
               register("mrp").ref(e);
               refs.mrp.current = e;
             }}
-            onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
+            onKeyDown={(e) => handleKeyDown(e, refs.purchasePrice)}
             onChange={e => {
               const mrpVal = Number(e.target.value) || 0;
               const packing = Number(values?.packing);
@@ -390,32 +390,12 @@ export function EditItem({
               {errors.mrp.message}
             </p>
           )}
+          <p className="text-[11px] text-gray-400">
+            Pricing lives on batches. Derived sale rate (MRP ÷ packing) is denormalized only.
+          </p>
         </div>
 
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Unit Price (MRP ÷ Packing) (₹)
-          </label>
-          <Input
-            type="number"
-            step="0.01"
-            placeholder="e.g. 2.50"
-            className="mt-1"
-            {...register("unitPrice")}
-            ref={(e) => {
-              register("unitPrice").ref(e);
-              refs.unitPrice.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.purchasePrice)}
-            disabled={!canEditStock}
-          />
-          {errors.unitPrice && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.unitPrice.message}
-            </p>
-          )}
-        </div>
-
+        {/* Root unit price input removed — batch.saleRate is source of truth */}
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
