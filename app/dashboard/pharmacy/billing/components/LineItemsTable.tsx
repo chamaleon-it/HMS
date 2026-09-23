@@ -19,7 +19,11 @@ interface LineItemsTableProps {
     setItem: (item: string | null) => void;
     itemRef: React.RefObject<HTMLInputElement | null>;
     PrimaryButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>>;
-
+    reconsult?: {
+        eligible: boolean;
+        freeDays: number;
+        daysSinceLastConsult: number | null;
+    } | null;
 }
 
 export const LineItemsTable: React.FC<LineItemsTableProps> = ({
@@ -32,6 +36,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
     setItem,
     itemRef,
     PrimaryButton,
+    reconsult,
 }) => {
     const [favorites, setFavorites] = useState<{ name: string; unitPrice: number; gst: number }[]>([]);
     const [isCustomItemModalOpen, setIsCustomItemModalOpen] = useState(false);
@@ -130,6 +135,15 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                 <div className="flex items-center gap-2 px-1">
                                                     <div className="h-1 w-1 rounded-full bg-slate-400" />
                                                     <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{catName}</h4>
+                                                    {catName === "Consultation" && reconsult?.eligible && (
+                                                        <span className="flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                                            <Sparkles className="h-3 w-3" />
+                                                            Free re-consult
+                                                            <span className="font-normal opacity-70">
+                                                                (within {reconsult.freeDays} days)
+                                                            </span>
+                                                        </span>
+                                                    )}
                                                     <div className="h-px flex-1 bg-slate-100" />
                                                 </div>
                                                 <motion.div
@@ -280,6 +294,13 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                             disabled
                                                             className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
                                                         />
+                                                        {reconsult?.eligible &&
+                                                            it.name.toLowerCase().includes("consultation") && (
+                                                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                                                    <Sparkles className="h-3 w-3" />
+                                                                    Free re-consult
+                                                                </span>
+                                                            )}
                                                     </div>
                                                 </td>
                                                 <td className="py-3 pr-2 text-right">

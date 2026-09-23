@@ -69,6 +69,58 @@ export default function CreateBill({
   }>(defaultPayload);
 
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [doctorId, setDoctorId] = useState<string | null>(null);
+  const [reconsult, setReconsult] = useState<{
+    eligible: boolean;
+    freeDays: number;
+    daysSinceLastConsult: number | null;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!payload.patient) {
+      setReconsult(null);
+      return;
+    }
+
+    let cancelled = false;
+    const query = `patientId=${payload.patient}${doctorId ? `&doctorId=${doctorId}` : ""}`;
+
+    api
+      .get<{
+        data: {
+          eligible: boolean;
+          freeDays: number;
+          daysSinceLastConsult: number | null;
+        };
+      }>(`/billing/reconsult_eligibility?${query}`)
+      .then(({ data }) => {
+        if (!cancelled) setReconsult(data.data);
+      })
+      .catch(() => {
+        if (!cancelled) setReconsult(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [payload.patient, doctorId]);
+
+  // A patient returning inside the free window should not be charged again for
+  // the consultation line, whichever consultation fee tier was picked.
+  useEffect(() => {
+    if (!reconsult?.eligible) return;
+
+    setPayload((prev) => {
+      let changed = false;
+      const items = prev.items.map((it) => {
+        if (!it.name.toLowerCase().includes("consultation")) return it;
+        if (it.unitPrice === 0 && it.total === 0) return it;
+        changed = true;
+        return { ...it, unitPrice: 0, total: 0 };
+      });
+      return changed ? { ...prev, items } : prev;
+    });
+  }, [reconsult, payload.items]);
 
 
 
@@ -329,6 +381,7 @@ export default function CreateBill({
         setSelectedPatient={setSelectedPatient}
         openCreate={openCreate}
         setOpenCreate={setOpenCreate}
+        setDoctorId={setDoctorId}
       />
 
 
@@ -345,6 +398,7 @@ export default function CreateBill({
             setItem={setItem}
             itemRef={itemRef}
             PrimaryButton={PrimaryButton}
+            reconsult={reconsult}
           />
 
           <PaymentSection payload={payload} setPayload={setPayload} />
