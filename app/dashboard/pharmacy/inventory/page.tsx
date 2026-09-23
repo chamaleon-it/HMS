@@ -140,7 +140,7 @@ export default function InventoryPage() {
                 </DialogTitle> */}
               </DialogHeader>
 
-              <div className="">
+              <div className="w-full">
                 {openView && selectedItem && (
                   <ViewItem
                     item={selectedItem}

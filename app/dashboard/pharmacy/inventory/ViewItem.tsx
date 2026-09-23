@@ -49,6 +49,10 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
     { key: "Sold History", icon: ShoppingCart },
   ], []);
 
+  const latestBatch = useMemo(() => {
+    return item?.batches && item.batches.length > 0 ? item.batches[item.batches.length - 1] : undefined;
+  }, [item]);
+
   const sortedData = useMemo(() => {
     if (activeTab === "Batch History") {
       return item?.batches
@@ -207,7 +211,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
               Supplier
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{item.supplier}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{latestBatch?.supplier || (item as any).supplier || "-"}</div>
           </div>
 
           <div className="space-y-2">
@@ -217,7 +221,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
               Unit Price
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">₹ {item.unitPrice.toFixed(2)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{latestBatch?.unitPrice !== undefined ? `₹ ${latestBatch.unitPrice.toFixed(2)}` : "-"}</div>
           </div>
 
           <div className="space-y-2">
@@ -227,7 +231,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
               MRP
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">₹ {item.mrp.toFixed(2)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{latestBatch?.mrp !== undefined ? `₹ ${latestBatch.mrp.toFixed(2)}` : "-"}</div>
           </div>
 
           <div className="space-y-2">
@@ -237,7 +241,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
               Expiry
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{fDate(item.expiryDate)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{latestBatch?.expiryDate ? fDate(latestBatch.expiryDate) : "-"}</div>
           </div>
 
           {/* Row 2 */}
@@ -268,7 +272,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
               Total Value
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(item.quantity * item.unitPrice)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(item.quantity * (latestBatch?.unitPrice || 0))}</div>
           </div>
 
           <div className="space-y-2">
@@ -299,7 +303,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
               Packing
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{item.packing}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{latestBatch?.packing ? `${latestBatch.packing}${latestBatch.stripCount ? ` / ${latestBatch.stripCount}` : ""}` : (item as any).packing || "-"}</div>
           </div>
 
           <div className="space-y-2">

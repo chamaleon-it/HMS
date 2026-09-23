@@ -168,11 +168,11 @@ export default function ItemTable({
                   </TableCell>
                   {(() => {
                     const latestBatch = item.batches && item.batches.length > 0 ? item.batches[item.batches.length - 1] : undefined;
-                    const pPrice = latestBatch?.purchasePrice ?? item.purchasePrice ?? 0;
-                    const uPrice = latestBatch?.unitPrice ?? item.unitPrice ?? 0;
-                    const mrpVal = latestBatch?.mrp ?? item.mrp ?? 0;
-                    const expVal = latestBatch?.expiryDate ?? item.expiryDate;
-                    const suppVal = latestBatch?.supplier ?? item.supplier ?? "-";
+                    const pPrice = latestBatch?.purchasePrice ?? (item as any).purchasePrice ?? 0;
+                    const uPrice = latestBatch?.unitPrice ?? (item as any).unitPrice ?? 0;
+                    const mrpVal = latestBatch?.mrp ?? (item as any).mrp ?? 0;
+                    const expVal = latestBatch?.expiryDate ?? (item as any).expiryDate;
+                    const suppVal = latestBatch?.supplier ?? (item as any).supplier ?? "-";
 
                     return (
                       <>

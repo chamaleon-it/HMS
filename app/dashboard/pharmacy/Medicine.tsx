@@ -24,7 +24,7 @@ interface Medicine {
   batches?: any[];
 }
 
-type Item = { _id: string; name: string; generic: string; quantity: number; unitPrice: number; batches?: any[] };
+type Item = { _id: string; name: string; generic: string; quantity: number; unitPrice?: number; batches?: any[] };
 type ItemsApi = { message: string; data: Item[] };
 type ItemApi = { message: string; data: Item };
 
@@ -94,8 +94,9 @@ export default function MedicineField({
       if (m.availableQuantity !== itemById.data.quantity) {
         updateField(i, "availableQuantity", itemById.data.quantity);
       }
-      if (m.unitPrice !== itemById.data.unitPrice) {
-        updateField(i, "unitPrice", itemById.data.unitPrice);
+      const targetUnitPrice = itemById.data.batches?.[0]?.unitPrice ?? itemById.data.unitPrice ?? 0;
+      if (m.unitPrice !== targetUnitPrice) {
+        updateField(i, "unitPrice", targetUnitPrice);
       }
       if (!open) setQuery("");
     }
