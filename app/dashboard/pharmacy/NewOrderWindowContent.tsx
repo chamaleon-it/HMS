@@ -38,6 +38,16 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
       }
 
       const validItems = payload.items.filter((item: any) => item.name && item.name.trim() !== "");
+      for (const [index, item] of validItems.entries()) {
+        if (!item.batchId) {
+          toast.error(`Item ${index + 1}: Select a batch before saving`);
+          return;
+        }
+        if (item.quantity > (item.availableQuantity ?? item.batchStock ?? 0)) {
+          toast.error(`Item ${index + 1}: Quantity exceeds selected batch stock`);
+          return;
+        }
+      }
       if (validItems.length === 0) {
         toast.error("Please select atleast on item");
         return;

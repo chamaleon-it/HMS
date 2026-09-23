@@ -5,6 +5,7 @@ import HospitalName from "@/components/print/HospitalName";
 import configuration from "@/config/configuration";
 import usePrintBranding from "@/hooks/usePrintBranding";
 import BrandingFooter from "@/components/print/BrandingFooter";
+import { doctorPrintLines } from "@/lib/doctorPrintLines";
 
 interface PrintPrescriptionProps {
     order: OrderType | null;
@@ -17,9 +18,8 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
 
     const patient = order.patient;
     const doctor = order.doctor;
-    // doctorName stored on order takes priority; fall back to populated doctor name; null = Self = "-"
-    const rawDoctorName = order.doctorName || doctor?.name || null;
-    const displayDoctorName = !rawDoctorName || rawDoctorName === "-" ? "-" : `DR. ${rawDoctorName}`;
+    const lines = doctorPrintLines(doctor, order.doctorName);
+    const displayDoctorName = lines.name;
 
     return (
         <div className="print-prescription hidden print:block bg-white text-black font-sans leading-relaxed overflow-visible">
@@ -83,7 +83,9 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                         <Info label="PID" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
                         <Info label="Date" value={fDateandTime(order.createdAt).split(",")[0]} />
                         <Info label="Doctor" value={displayDoctorName} />
-                        <Info label="Dept" value={displayDoctorName === "-" ? "-" : doctor?.specialization || "GENERAL MEDICINE"} />
+                        <Info label="Designation" value={lines.designation} />
+                        <Info label="Qualification" value={lines.qualification} />
+                        <Info label="Specialization" value={lines.specialization} />
                     </div>
 
                     {/* MEDICINES */}

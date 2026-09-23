@@ -1,0 +1,171 @@
+"use client";
+
+import React, { useEffect, useMemo, useState } from "react";
+import useSWR from "swr";
+import { fDate } from "@/lib/fDateAndTime";
+import { formatINR } from "@/lib/fNumber";
+import { cn } from "@/lib/utils";
+
+export type BatchOption = {
+  batchId: string;
+  batchNumber: string;
+  expiryDate?: string | Date;
+  purchasePrice?: number;
+  sellingPrice?: number;
+  mrp?: number;
+  gst?: number;
+  stock: number;
+  supplier?: string;
+  packing?: number;
+  expired?: boolean;
+  available?: boolean;
+};
+
+type BatchesApi = {
+  data: {
+    batches: BatchOption[];
+    packing?: number;
+    unitPrice?: number;
+    mrp?: number;
+  };
+};
+
+type Props = {
+  itemId: string | null | undefined;
+  value?: string | null;
+  onSelect: (batch: BatchOption | null) => void;
+  sort?: "fefo" | "fifo";
+  className?: string;
+};
+
+/**
+ * Manual batch picker. Defaults list order to FEFO (or FIFO) but always
+ * allows the user to pick any available non-expired batch.
+ */
+export default function BatchSelect({
+  itemId,
+  value,
+  onSelect,
+  sort = "fefo",
+  className,
+}: Props) {
+  const [sortMode, setSortMode] = useState<"fefo" | "fifo">(sort);
+  const key = itemId
+    ? `/pharmacy/items/${itemId}/batches?sort=${sortMode}`
+    : null;
+  const { data, isLoading } = useSWR<BatchesApi>(key);
+
+  const batches = useMemo(
+    () => (data?.data?.batches || []).filter((b) => !b.expired),
+    [data],
+  );
+
+  const selected = batches.find((b) => b.batchId === value) || null;
+
+  useEffect(() => {
+    if (!itemId) {
+      onSelect(null);
+      return;
+    }
+    // Auto-suggest first available (FEFO/FIFO) when none selected
+    if (!value && batches.length > 0) {
+      const pick = batches.find((b) => b.available) || batches[0];
+      if (pick) onSelect(pick);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemId, batches.length, sortMode]);
+
+  if (!itemId) {
+    return (
+      <div className={cn("text-[11px] text-slate-400", className)}>
+        Select medicine first
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("space-y-1.5", className)}>
+      <div className="flex items-center gap-2">
+        <select
+          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-xs"
+          value={value || ""}
+          disabled={isLoading || batches.length === 0}
+          onChange={(e) => {
+            const b = batches.find((x) => x.batchId === e.target.value) || null;
+            onSelect(b);
+          }}
+        >
+          <option value="" disabled>
+            {isLoading
+              ? "Loading batches…"
+              : batches.length === 0
+                ? "No available batches"
+                : "Select batch"}
+          </option>
+          {batches.map((b) => (
+            <option key={b.batchId} value={b.batchId} disabled={!b.available}>
+              {b.batchNumber} · Exp{" "}
+              {b.expiryDate ? fDate(b.expiryDate) : "—"} · Stock {b.stock}
+            </option>
+          ))}
+        </select>
+        <div className="flex shrink-0 rounded-md border border-slate-200 overflow-hidden text-[10px]">
+          <button
+            type="button"
+            className={cn(
+              "px-2 py-1",
+              sortMode === "fefo" ? "bg-slate-800 text-white" : "bg-white",
+            )}
+            onClick={() => setSortMode("fefo")}
+            title="Earliest expiry first"
+          >
+            FEFO
+          </button>
+          <button
+            type="button"
+            className={cn(
+              "px-2 py-1",
+              sortMode === "fifo" ? "bg-slate-800 text-white" : "bg-white",
+            )}
+            onClick={() => setSortMode("fifo")}
+            title="Oldest intake first"
+          >
+            FIFO
+          </button>
+        </div>
+      </div>
+
+      {selected && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-1 rounded-lg bg-slate-50 border border-slate-100 px-2.5 py-2 text-[10px] text-slate-600">
+          <Detail label="Batch #" value={selected.batchNumber} />
+          <Detail
+            label="Expiry"
+            value={selected.expiryDate ? fDate(selected.expiryDate) : "—"}
+          />
+          <Detail label="MRP" value={formatINR(selected.mrp || 0)} />
+          <Detail
+            label="Purchase"
+            value={formatINR(selected.purchasePrice || 0)}
+          />
+          <Detail
+            label="Selling"
+            value={formatINR(selected.sellingPrice || 0)}
+          />
+          <Detail label="GST %" value={String(selected.gst ?? 0)} />
+          <Detail label="Stock" value={String(selected.stock)} />
+          <Detail label="Supplier" value={selected.supplier || "—"} />
+          <Detail label="Packing" value={String(selected.packing ?? 1)} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Detail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span className="uppercase tracking-wide text-slate-400">{label}: </span>
+      <span className="font-medium text-slate-700">{value}</span>
+    </div>
+  );
+}

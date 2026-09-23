@@ -22,6 +22,7 @@ import { EditSupplier } from "./EditSupplier";
 import { Supplier } from "./interface";
 import useSWR from "swr";
 import api from "@/lib/axios";
+import toast from "react-hot-toast";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data.data);
 
@@ -53,6 +54,29 @@ const AdminSuppliersPage: React.FC = () => {
     } else {
       setSortBy(column);
       setSortOrder("desc");
+    }
+  };
+
+  const handleDeleteSupplier = async (supplier: Supplier) => {
+    const due = supplier.totalDue || 0;
+    const purchases = supplier.totalPurchaseCount || 0;
+    const action =
+      purchases > 0 || due > 0
+        ? "deactivate (soft-delete) — history will be kept and it will be hidden from new purchase selection"
+        : "permanently delete (no purchase history)";
+    if (
+      !confirm(
+        `Are you sure you want to ${action} for "${supplier.name}"?\nPurchases: ${purchases}, Outstanding: ${due}`
+      )
+    ) {
+      return;
+    }
+    try {
+      const res = await api.delete(`/suppliers/${supplier._id}?mode=auto`);
+      toast.success(res.data?.data?.message || res.data?.message || "Supplier updated");
+      mutate();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to delete/deactivate supplier");
     }
   };
 
@@ -273,6 +297,17 @@ const AdminSuppliersPage: React.FC = () => {
                           }}
                         >
                           Edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteSupplier(supplier);
+                          }}
+                        >
+                          Delete
                         </Button>
                       </TableCell>
                     </TableRow>

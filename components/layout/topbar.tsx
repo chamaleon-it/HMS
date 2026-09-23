@@ -62,6 +62,7 @@ export default function Header() {
       { key: "lab-register", label: "Lab Register", link: "/dashboard/admin/lab-register/" },
       { key: "consumables", label: "Consumables", link: "/dashboard/pharmacy/consumables/" },
       { key: "pnl", label: "P&L", link: "/dashboard/admin/pnl/" },
+      { key: "reports", label: "Reports", link: "/dashboard/admin/reports/" },
     ]) || [];
 
   return (

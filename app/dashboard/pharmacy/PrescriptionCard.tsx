@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { DataType } from "./interface";
 import Medicine from "./Medicine";
+import BatchSelect, { BatchOption } from "./components/BatchSelect";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import toast from "react-hot-toast";
@@ -29,6 +30,16 @@ interface Medicine {
   quantity: number;
   availableQuantity: number;
   unitPrice: number;
+  batchId?: string | null;
+  batchNumber?: string | null;
+  batchExpiryDate?: string | Date | null;
+  batchMrp?: number | null;
+  batchPurchasePrice?: number | null;
+  batchSellingPrice?: number | null;
+  batchGst?: number | null;
+  batchStock?: number | null;
+  batchSupplier?: string | null;
+  batchPacking?: number | null;
 }
 
 export default function PrescriptionCard({
@@ -43,11 +54,50 @@ export default function PrescriptionCard({
   const updateField = (
     idx: number,
     key: keyof Medicine,
-    val: string | number
+    val: string | number | null
   ) => {
     setData((prev) => ({
       ...prev,
-      items: prev.items.map((m, i) => (i === idx ? { ...m, [key]: val } : m)),
+      items: prev.items.map((m, i) => (i === idx ? { ...m, [key]: val as any } : m)),
+    }));
+  };
+
+  const applyBatch = (idx: number, batch: BatchOption | null) => {
+    setData((prev) => ({
+      ...prev,
+      items: prev.items.map((m, i) => {
+        if (i !== idx) return m;
+        if (!batch) {
+          return {
+            ...m,
+            batchId: null,
+            batchNumber: null,
+            batchExpiryDate: null,
+            batchMrp: null,
+            batchPurchasePrice: null,
+            batchSellingPrice: null,
+            batchGst: null,
+            batchStock: null,
+            batchSupplier: null,
+            batchPacking: null,
+          };
+        }
+        return {
+          ...m,
+          batchId: batch.batchId,
+          batchNumber: batch.batchNumber,
+          batchExpiryDate: batch.expiryDate || null,
+          batchMrp: batch.mrp ?? null,
+          batchPurchasePrice: batch.purchasePrice ?? null,
+          batchSellingPrice: batch.sellingPrice ?? null,
+          batchGst: batch.gst ?? 0,
+          batchStock: batch.stock,
+          batchSupplier: batch.supplier || null,
+          batchPacking: batch.packing ?? 1,
+          availableQuantity: batch.stock,
+          unitPrice: batch.sellingPrice ?? m.unitPrice,
+        };
+      }),
     }));
   };
 
@@ -67,6 +117,8 @@ export default function PrescriptionCard({
           quantity: 0,
           availableQuantity: 0,
           unitPrice: 0,
+          batchId: null,
+          batchNumber: null,
         },
       ],
     }));
@@ -133,10 +185,10 @@ export default function PrescriptionCard({
         </div>
 
         {data.items.map((m, i) => (
+          <div key={m.rowId} className="border-b last:border-b-0">
           <div
-            key={m.rowId}
             className={`grid ${showAllFields ? "grid-cols-[35px_repeat(11,1fr)]" : "grid-cols-[35px_repeat(7,1fr)]"
-              } gap-1 items-center py-1 px-2 border-b last:border-b-0 hover:bg-slate-50/50 transition-colors`}
+              } gap-1 items-center py-1 px-2 hover:bg-slate-50/50 transition-colors`}
           >
             <div className="col-span-1 flex items-center justify-center text-slate-400 text-[11px] font-medium">
               {i + 1}
@@ -147,7 +199,10 @@ export default function PrescriptionCard({
                 m={m}
                 updateField={updateField}
                 onEnter={() => handleEnterOnDrug(i)}
-                onSelect={() => focusQuantity(i)}
+                onSelect={() => {
+                  applyBatch(i, null);
+                  focusQuantity(i);
+                }}
                 inputRef={{
                   get current() {
                     return medicineRefs.current[i] || null;
@@ -292,6 +347,16 @@ export default function PrescriptionCard({
                 <Trash className="w-4 h-4" />
               </Button>
             </div>
+          </div>
+          {m.name ? (
+            <div className="px-2 pb-2 pl-[43px]">
+              <BatchSelect
+                itemId={m.name}
+                value={m.batchId}
+                onSelect={(batch) => applyBatch(i, batch)}
+              />
+            </div>
+          ) : null}
           </div>
         ))}
       </div>
