@@ -18,7 +18,7 @@ interface LabBillReceiptProps {
 export default function LabBillReceipt({ report, bill, panels, copy }: LabBillReceiptProps) {
     const [mounted, setMounted] = useState(false);
     const { tests } = useGetTest();
-    const { slogan, advertisement, services } = usePrintBranding();
+    const { slogan, advertisement, services } = usePrintBranding("lab");
 
     useEffect(() => {
         setMounted(true);

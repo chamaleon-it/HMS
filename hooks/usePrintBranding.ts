@@ -24,9 +24,11 @@ interface BrandingSection {
 
 /**
  * Slogan / advertisement / services printed on receipts and prescriptions.
- * Pharmacy settings win when a user holds both sections.
+ * Prefer pharmacy or lab branding depending on the print surface.
  */
-export default function usePrintBranding(): PrintBranding {
+export default function usePrintBranding(
+  prefer: "pharmacy" | "lab" = "pharmacy",
+): PrintBranding {
   const { data } = useSWR<{
     data: { pharmacy?: BrandingSection; lab?: BrandingSection };
   }>("/users/profile");
@@ -34,16 +36,15 @@ export default function usePrintBranding(): PrintBranding {
   const pharmacy = data?.data?.pharmacy;
   const lab = data?.data?.lab;
 
-  const billing = pharmacy?.billing ?? lab?.billing;
+  const primary = prefer === "lab" ? lab : pharmacy;
+  const fallback = prefer === "lab" ? pharmacy : lab;
+  const billing = primary?.billing ?? fallback?.billing;
+  const general = primary?.general ?? fallback?.general;
 
   return {
-    slogan: pharmacy?.general?.slogan || lab?.general?.slogan || "",
-    advertisement:
-      pharmacy?.general?.advertisement || lab?.general?.advertisement || "",
-    services:
-      pharmacy?.general?.services?.length
-        ? pharmacy.general.services
-        : lab?.general?.services ?? [],
+    slogan: general?.slogan || "",
+    advertisement: general?.advertisement || "",
+    services: general?.services ?? [],
     printDualCopies: billing?.printDualCopies ?? false,
     autoPrintAfterSave: billing?.autoPrintAfterSave ?? false,
     freeReconsultDays: billing?.freeReconsultDays ?? 7,

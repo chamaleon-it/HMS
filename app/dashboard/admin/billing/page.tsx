@@ -263,7 +263,6 @@ export default function AdminBillingPage() {
                 <SelectItem value="all">All Methods</SelectItem>
                 <SelectItem value="Cash">Cash</SelectItem>
                 <SelectItem value="Online">Online</SelectItem>
-                <SelectItem value="Insurance">Insurance</SelectItem>
               </SelectContent>
             </Select>
 
@@ -281,7 +280,7 @@ export default function AdminBillingPage() {
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="Consultation">Consultation</SelectItem>
-                <SelectItem value="Clinical">Clinical / Procedure</SelectItem>
+                <SelectItem value="Clinical">Clinical Fees</SelectItem>
                 <SelectItem value="Dressing">Dressing</SelectItem>
                 <SelectItem value="Pharmacy">Pharmacy</SelectItem>
                 <SelectItem value="Lab">Lab</SelectItem>

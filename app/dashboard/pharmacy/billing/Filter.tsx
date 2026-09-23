@@ -88,7 +88,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
                 <SelectLabel className="text-[10px] uppercase tracking-wider text-slate-400">Type</SelectLabel>
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="Consultation">Consultation</SelectItem>
-                <SelectItem value="Clinical">Procedure / Clinical Fees</SelectItem>
+                <SelectItem value="Clinical">Clinical Fees</SelectItem>
                 <SelectItem value="Dressing">Dressing</SelectItem>
                 <SelectItem value="Pharmacy">Pharmacy</SelectItem>
                 <SelectItem value="Lab">Lab</SelectItem>
@@ -123,7 +123,6 @@ export default function Filters({ filter, setFilter }: PropsType) {
                   <SelectItem value="all">All Methods</SelectItem>
                   <SelectItem value="Cash">Cash</SelectItem>
                   <SelectItem value="Online">Online</SelectItem>
-                  <SelectItem value="Insurance">Insurance</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
