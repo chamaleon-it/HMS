@@ -1,11 +1,16 @@
 export interface BatchType {
-  _id: string;
+  _id?: string;
   batchNumber: string;
-  expiryDate: Date;
+  packing?: number;
+  stripCount?: number;
+  mrp?: number;
+  unitPrice?: number;
+  purchasePrice?: number;
+  gst?: number;
   quantity: number;
-  purchasePrice: number;
   supplier: string;
-  createdAt: Date;
+  expiryDate: Date | string;
+  createdAt?: Date;
 }
 
 export interface ItemType {

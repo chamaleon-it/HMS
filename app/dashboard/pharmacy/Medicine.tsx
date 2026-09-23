@@ -13,9 +13,18 @@ interface Medicine {
   quantity: number;
   availableQuantity: number;
   unitPrice: number;
+  batchNumber?: string;
+  packing?: number;
+  stripCount?: number;
+  mrp?: number;
+  purchasePrice?: number;
+  gst?: number;
+  expiryDate?: string | Date;
+  supplier?: string;
+  batches?: any[];
 }
 
-type Item = { _id: string; name: string; generic: string; quantity: number, unitPrice: number };
+type Item = { _id: string; name: string; generic: string; quantity: number; unitPrice: number; batches?: any[] };
 type ItemsApi = { message: string; data: Item[] };
 type ItemApi = { message: string; data: Item };
 
@@ -36,6 +45,7 @@ export default function MedicineField({
   i,
   onEnter,
   onSelect,
+  onItemObjectSelect,
   inputRef,
 }: {
   m: Medicine;
@@ -43,6 +53,7 @@ export default function MedicineField({
   i: number;
   onEnter?: () => void;
   onSelect?: () => void;
+  onItemObjectSelect?: (item: any) => void;
   inputRef?: React.RefObject<HTMLInputElement>;
 }) {
   // what the user is typing
@@ -118,14 +129,34 @@ export default function MedicineField({
     // store only id in your form
     updateField(i, "name", item._id);
     updateField(i, "medicineName", item.name);
-    updateField(i, "availableQuantity", item.quantity);
-    updateField(i, "unitPrice", item.unitPrice);
+
+    const itemBatches = item.batches || [];
+    updateField(i, "batches" as any, itemBatches as any);
+
+    if (itemBatches.length > 0) {
+      const b = itemBatches[0];
+      updateField(i, "batchNumber", b.batchNumber);
+      updateField(i, "availableQuantity", b.quantity ?? 0);
+      updateField(i, "unitPrice", b.unitPrice || (b.packing ? b.mrp / b.packing : b.mrp) || 0);
+      updateField(i, "mrp" as any, b.mrp || 0);
+      updateField(i, "purchasePrice" as any, b.purchasePrice || 0);
+      updateField(i, "gst" as any, b.gst || 0);
+      updateField(i, "packing" as any, b.packing || 0);
+      updateField(i, "stripCount" as any, b.stripCount || 0);
+      updateField(i, "expiryDate" as any, b.expiryDate || "");
+      updateField(i, "supplier" as any, b.supplier || "-");
+    } else {
+      updateField(i, "availableQuantity", item.quantity || 0);
+      updateField(i, "unitPrice", item.unitPrice || 0);
+    }
+
     // remember the label locally
     setSelected({ id: item._id, name: item.name });
     // clear query and close
     setQuery("");
     setFilter((f) => ({ ...f, q: "", page: 1 }));
     setOpen(false);
+    onItemObjectSelect?.(item);
     onSelect?.();
   };
 

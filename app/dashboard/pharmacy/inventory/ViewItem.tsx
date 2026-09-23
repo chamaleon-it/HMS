@@ -51,7 +51,13 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
   const sortedData = useMemo(() => {
     if (activeTab === "Batch History") {
-      return item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
+      return item?.batches
+        ? [...item.batches].sort(
+            (a, b) =>
+              new Date(b.createdAt || 0).getTime() -
+              new Date(a.createdAt || 0).getTime()
+          )
+        : [];
     } else if (activeTab === "Medicine History") {
       let filtered = item?.soldHistory ? [...item.soldHistory] : [];
       if (dateRange?.from) {
@@ -450,12 +456,16 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
                 {activeTab === "Batch History" ? (
                   <>
-                    <TableHead className="w-30 text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date Added</TableHead>
+                    <TableHead className="w-28 text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date Added</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch No</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Pack/Strip</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Stock (Qty)</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">MRP</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Unit Price</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Purchase Rate</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Qty</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">GST</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Supplier</TableHead>
                   </>
                 ) : activeTab === "Medicine History" ? (
                   <>
@@ -480,7 +490,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             <TableBody>
               {paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={activeTab === "Batch History" ? 6 : activeTab === "Sold History" ? 7 : 4} className="text-center py-20 text-slate-400">
+                  <TableCell colSpan={activeTab === "Batch History" ? 10 : activeTab === "Sold History" ? 7 : 4} className="text-center py-20 text-slate-400">
                     <div className="flex flex-col items-center gap-2">
                       {activeTab === "Batch History" ? <Barcode className="h-8 w-8 opacity-20" /> : <HistoryIcon className="h-8 w-8 opacity-20" />}
                       <p className="font-bold uppercase tracking-widest text-[11px]">No {activeTab.toLowerCase()} found</p>
@@ -506,9 +516,13 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                           </span>
                         </TableCell>
                         <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(data.expiryDate)}</TableCell>
-                        <TableCell className="text-xs py-3 text-slate-600">{data.supplier || "-"}</TableCell>
+                        <TableCell className="text-right text-xs py-3 text-slate-700">{data.packing ? `${data.packing}` : "-"}{data.stripCount ? ` / ${data.stripCount}` : ""}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-emerald-700 bg-emerald-50/20 tabular-nums">{data.quantity ?? 0}</TableCell>
+                        <TableCell className="text-right text-xs py-3 text-slate-700">{data.mrp ? formatINR(data.mrp) : "-"}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-semibold text-slate-800">{data.unitPrice ? formatINR(data.unitPrice) : "-"}</TableCell>
                         <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(data.purchasePrice)}</TableCell>
-                        <TableCell className="text-right text-xs py-3 font-bold text-(--color-synapse-light) bg-synapse-light/10/20 pr-4 tabular-nums">{data.quantity}</TableCell>
+                        <TableCell className="text-right text-xs py-3 text-slate-700">{data.gst ? `${data.gst}%` : "0%"}</TableCell>
+                        <TableCell className="text-xs py-3 text-slate-600 truncate max-w-[120px] pr-4">{data.supplier || "-"}</TableCell>
                       </>
                     ) : activeTab === "Medicine History" ? (
                       <>

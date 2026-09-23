@@ -166,25 +166,42 @@ export default function ItemTable({
                   <TableCell className="py-3 font-medium text-slate-700">
                     {item.soldQuantity ?? 0}
                   </TableCell>
-                  <TableCell className="py-3">{formatINR(item.purchasePrice)}</TableCell>
-                  <TableCell className="py-3">{formatINR(item.unitPrice)}</TableCell>
-                  <TableCell className="py-3">{formatINR(item.mrp)}</TableCell>
-                  <TableCell className="py-3">
-                    {new Date(item.expiryDate) < new Date() ? (
-                      <div className="flex items-center gap-1.5 text-red-600 font-medium">
-                        <AlertCircle className="w-4 h-4" />
-                        <span>{fDate(item.expiryDate)}</span>
-                      </div>
-                    ) : new Date(item.expiryDate) < new Date(Date.now() + pharmacyInventory.expiryAlert * 24 * 60 * 60 * 1000) ? (
-                      <div className="flex items-center gap-1.5 text-amber-600 font-medium">
-                        <AlertTriangle className="w-4 h-4" />
-                        <span>{fDate(item.expiryDate)}</span>
-                      </div>
-                    ) : (
-                      <span className="text-slate-700">{fDate(item.expiryDate)}</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="py-3">{item.supplier}</TableCell>
+                  {(() => {
+                    const latestBatch = item.batches && item.batches.length > 0 ? item.batches[item.batches.length - 1] : undefined;
+                    const pPrice = latestBatch?.purchasePrice ?? item.purchasePrice ?? 0;
+                    const uPrice = latestBatch?.unitPrice ?? item.unitPrice ?? 0;
+                    const mrpVal = latestBatch?.mrp ?? item.mrp ?? 0;
+                    const expVal = latestBatch?.expiryDate ?? item.expiryDate;
+                    const suppVal = latestBatch?.supplier ?? item.supplier ?? "-";
+
+                    return (
+                      <>
+                        <TableCell className="py-3 text-xs">{formatINR(pPrice)}</TableCell>
+                        <TableCell className="py-3 text-xs font-semibold text-slate-800">{formatINR(uPrice)}</TableCell>
+                        <TableCell className="py-3 text-xs">{formatINR(mrpVal)}</TableCell>
+                        <TableCell className="py-3 text-xs">
+                          {expVal ? (
+                            new Date(expVal) < new Date() ? (
+                              <div className="flex items-center gap-1.5 text-red-600 font-medium">
+                                <AlertCircle className="w-3.5 h-3.5" />
+                                <span>{fDate(expVal)}</span>
+                              </div>
+                            ) : new Date(expVal) < new Date(Date.now() + pharmacyInventory.expiryAlert * 24 * 60 * 60 * 1000) ? (
+                              <div className="flex items-center gap-1.5 text-amber-600 font-medium">
+                                <AlertTriangle className="w-3.5 h-3.5" />
+                                <span>{fDate(expVal)}</span>
+                              </div>
+                            ) : (
+                              <span className="text-slate-700">{fDate(expVal)}</span>
+                            )
+                          ) : (
+                            <span className="text-slate-400">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="py-3 text-xs truncate max-w-[130px]">{suppVal}</TableCell>
+                      </>
+                    );
+                  })()}
                   <TableCell className="py-3">
                     <Chip
                       label={item.status}

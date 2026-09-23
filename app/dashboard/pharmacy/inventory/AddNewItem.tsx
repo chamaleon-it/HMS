@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -9,27 +8,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import api from "@/lib/axios";
-import { fDate } from "@/lib/fDateAndTime";
 import { pharmacyItemAddSchema } from "@/schemas/pharmacyItemAddSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDownIcon } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import useSWR from "swr";
-import TypableExpiryInput from "../purchase-entry/components/TypableExpiryInput";
-
-const months = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-];
-const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() + i);
 
 export function AddNewItem({ onClose }: { onClose: () => void }) {
   const {
     register,
     formState: { errors },
-    watch,
     reset,
     handleSubmit,
     setValue,
@@ -38,52 +26,38 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
     defaultValues: {
       status: "Active",
       category: "Medicine",
+      name: "",
+      generic: "",
+      rackLocation: "",
+      hsnCode: "",
+      sku: "",
+      manufacturer: "",
     },
   });
-
-  const values = watch();
 
   const addItem = handleSubmit(async (data) => {
     try {
       await toast.promise(api.post("/pharmacy/items", data), {
-        loading: "Please wait, Adding item to database...!",
+        loading: "Please wait, Adding item to inventory...",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
       reset();
       onClose();
     } catch (error) {
-
+      // Handled by toast.promise
     }
   });
-
-  useEffect(() => {
-    setValue("quantity", values.openingStockQuantity);
-  }, [values.openingStockQuantity, setValue]);
-  const { data: suppliersData } = useSWR<{ message: string; data: { _id: string; name: string }[] }>("/suppliers/get_id_and_name");
-  const suppliers = suppliersData?.data || [];
-
-  const [openCalendar, setOpenCalendar] = useState(false)
 
   // Refs for keyboard navigation
   const refs = {
     name: useRef<HTMLInputElement>(null),
     generic: useRef<HTMLInputElement>(null),
-    batchNumber: useRef<HTMLInputElement>(null),
-    rackLocation: useRef<HTMLInputElement>(null),
-    packing: useRef<HTMLInputElement>(null),
-    noOfPacking: useRef<HTMLInputElement>(null),
-    hsnCode: useRef<HTMLInputElement>(null),
     sku: useRef<HTMLInputElement>(null),
     category: useRef<HTMLButtonElement>(null),
-    supplier: useRef<HTMLButtonElement>(null),
+    rackLocation: useRef<HTMLInputElement>(null),
+    hsnCode: useRef<HTMLInputElement>(null),
     manufacturer: useRef<HTMLInputElement>(null),
-    purchasePrice: useRef<HTMLInputElement>(null),
-    unitPrice: useRef<HTMLInputElement>(null),
-    mrp: useRef<HTMLInputElement>(null),
-    gst: useRef<HTMLInputElement>(null),
-    openingStockQuantity: useRef<HTMLInputElement>(null),
-    expiryDate: useRef<HTMLButtonElement>(null),
     status: useRef<HTMLButtonElement>(null),
     saveButton: useRef<HTMLButtonElement>(null),
   };
@@ -103,12 +77,12 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
       <div>
         <div className="text-xl font-semibold text-gray-900">Add New Item</div>
         <div className="text-xs text-gray-500">
-          Add a new medicine / consumable / equipment to inventory
+          Add a new medicine / consumable / equipment to inventory (pricing & stock are managed at the batch level)
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 text-sm">
-        <div className="col-span-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div className="sm:col-span-2">
           <label className="text-[12px] text-gray-600 font-medium">
             Brand Name *
           </label>
@@ -124,14 +98,14 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             autoFocus
           />
           {errors.name && (
-            <p className="text-xs text-red-600 my-1">{errors.name.message}</p>
+            <p className="text-xs text-red-600 my-1">{errors.name.message as string}</p>
           )}
           <p className="text-[11px] text-gray-400">
             This is what doctors see / gets billed
           </p>
         </div>
 
-        <div className="col-span-3">
+        <div className="sm:col-span-2">
           <label className="text-[12px] text-gray-600 font-medium">
             Generic / Content
           </label>
@@ -143,227 +117,16 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
               register("generic").ref(e);
               refs.generic.current = e;
             }}
-            onKeyDown={(e) => handleKeyDown(e, refs.batchNumber)}
+            onKeyDown={(e) => handleKeyDown(e, refs.sku)}
           />
           {errors.generic && (
             <p className="text-xs text-red-600 my-1">
-              {errors.generic.message}
+              {errors.generic.message as string}
             </p>
           )}
           <p className="text-[11px] text-gray-400">
             Will display as (Gen: ...)
           </p>
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Batch Number
-          </label>
-          <Input
-            placeholder="e.g. Batch 001"
-            className="mt-1"
-            {...register("batchNumber")}
-            ref={(e) => {
-              register("batchNumber").ref(e);
-              refs.batchNumber.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.rackLocation)}
-          />
-          {errors.batchNumber && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.batchNumber.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Rack Location
-          </label>
-          <Input
-            placeholder="e.g. Rack 001"
-            className="mt-1"
-            {...register("rackLocation")}
-            ref={(e) => {
-              register("rackLocation").ref(e);
-              refs.rackLocation.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.packing)}
-          />
-          {errors.rackLocation && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.rackLocation.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Packing
-          </label>
-          <Input
-            placeholder="e.g. 100"
-            className="mt-1"
-            value={values.packing as string || ""}
-            onChange={e => {
-              setValue("packing", Number(e.target.value))
-              setValue("unitPrice", Number(((Number(values.mrp) || 0) / (e.target.value ? Number(e.target.value) : 1)).toFixed(2)))
-            }
-            }
-            ref={(e) => {
-              register("packing").ref(e);
-              refs.packing.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.noOfPacking)}
-          />
-          {errors.packing && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.packing.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Strip Count
-          </label>
-          <Input
-            className="mt-1"
-            placeholder="e.g. 5 or 10"
-            type="number"
-            min={1}
-            {...register("noOfPacking")}
-            ref={(e) => {
-              register("noOfPacking").ref(e);
-              refs.noOfPacking.current = e;
-            }}
-            onChange={(e) => {
-              const noOfPacking = Number(e.target.value) || 0;
-              const packing = Number(values.packing) || 0;
-              setValue("noOfPacking", noOfPacking);
-              setValue("openingStockQuantity", packing * noOfPacking);
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.mrp)}
-          />
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            MRP (₹)
-          </label>
-          <Input
-            type="number"
-            step="0.01"
-            placeholder="e.g. 2.50"
-            className="mt-1"
-            // {...register("mrp")}
-            value={values.mrp as string || ""}
-            ref={(e) => {
-              register("mrp").ref(e);
-              refs.mrp.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
-            onChange={e => {
-              setValue("mrp", Number(e.target.value))
-              setValue("unitPrice", Number(((Number(e.target.value) || 0) / (values?.packing ? Number(values.packing) : 1)).toFixed(2)))
-            }
-            }
-          />
-          {errors.mrp && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.mrp.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Unit Price (MRP ÷ Packing) (₹)
-          </label>
-          <Input
-            type="number"
-            step="0.01"
-            placeholder="e.g. 2.50"
-            className="mt-1"
-            {...register("unitPrice")}
-            ref={(e) => {
-              register("unitPrice").ref(e);
-              refs.unitPrice.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.purchasePrice)}
-          />
-          {errors.unitPrice && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.unitPrice.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Purchase Rate (P. Rate) (₹)
-          </label>
-          <Input
-            type="number"
-            step="0.01"
-            placeholder="e.g. 2.50"
-            className="mt-1"
-            {...register("purchasePrice")}
-            ref={(e) => {
-              register("purchasePrice").ref(e);
-              refs.purchasePrice.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.gst)}
-          />
-          {errors.purchasePrice && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.purchasePrice.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            GST (%)
-          </label>
-          <Input
-            type="number"
-            step="0.01"
-            placeholder="e.g. 5"
-            className="mt-1"
-            {...register("gst")}
-            ref={(e) => {
-              register("gst").ref(e);
-              refs.gst.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.hsnCode)}
-          />
-          {errors.gst && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.gst.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            HSN Code
-          </label>
-          <Input
-            placeholder="e.g. 30045010"
-            className="mt-1"
-            {...register("hsnCode")}
-            ref={(e) => {
-              register("hsnCode").ref(e);
-              refs.hsnCode.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.sku)}
-          />
-          {errors.hsnCode && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.hsnCode.message}
-            </p>
-          )}
         </div>
 
         <div>
@@ -381,7 +144,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             onKeyDown={(e) => handleKeyDown(e, refs.category)}
           />
           {errors.sku && (
-            <p className="text-xs text-red-600 my-1">{errors.sku.message}</p>
+            <p className="text-xs text-red-600 my-1">{errors.sku.message as string}</p>
           )}
         </div>
 
@@ -390,7 +153,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             Category
           </label>
           <Select onValueChange={(value) => setValue("category", value)} defaultValue="Medicine">
-            <SelectTrigger className="mt-1 w-full" ref={refs.category} onKeyDown={(e) => handleKeyDown(e, refs.supplier)}>
+            <SelectTrigger className="mt-1 w-full" ref={refs.category} onKeyDown={(e) => handleKeyDown(e, refs.rackLocation)}>
               <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
@@ -402,34 +165,49 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
           </Select>
           {errors.category && (
             <p className="text-xs text-red-600 my-1">
-              {errors.category.message}
+              {errors.category.message as string}
             </p>
           )}
         </div>
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Supplier
+            Rack Location
           </label>
-          <Select value={watch("supplier")} onValueChange={(value) => setValue("supplier", value)}>
-            <SelectTrigger
-              className="mt-1 w-full"
-              ref={refs.supplier}
-              onKeyDown={(e) => handleKeyDown(e, refs.manufacturer)}
-            >
-              <SelectValue placeholder="Select Supplier" />
-            </SelectTrigger>
-            <SelectContent className="rounded-lg border-slate-200">
-              {suppliers.map((s: { _id: string; name: string }) => (
-                <SelectItem key={s._id} value={s.name} className="rounded-md focus:bg-synapse-light/10">
-                  {s.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.supplier && (
+          <Input
+            placeholder="e.g. Rack 001"
+            className="mt-1"
+            {...register("rackLocation")}
+            ref={(e) => {
+              register("rackLocation").ref(e);
+              refs.rackLocation.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.hsnCode)}
+          />
+          {errors.rackLocation && (
             <p className="text-xs text-red-600 my-1">
-              {errors.supplier.message}
+              {errors.rackLocation.message as string}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="text-[12px] text-gray-600 font-medium">
+            HSN Code
+          </label>
+          <Input
+            placeholder="e.g. 30045010"
+            className="mt-1"
+            {...register("hsnCode")}
+            ref={(e) => {
+              register("hsnCode").ref(e);
+              refs.hsnCode.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.manufacturer)}
+          />
+          {errors.hsnCode && (
+            <p className="text-xs text-red-600 my-1">
+              {errors.hsnCode.message as string}
             </p>
           )}
         </div>
@@ -446,58 +224,11 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
               register("manufacturer").ref(e);
               refs.manufacturer.current = e;
             }}
-            onKeyDown={(e) => handleKeyDown(e, refs.openingStockQuantity)}
+            onKeyDown={(e) => handleKeyDown(e, refs.status)}
           />
           {errors.manufacturer && (
             <p className="text-xs text-red-600 my-1">
-              {errors.manufacturer.message}
-            </p>
-          )}
-        </div>
-
-
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Current Stock Qty
-          </label>
-          <Input
-            type="number"
-            placeholder="e.g. 100"
-            className="mt-1"
-            {...register("openingStockQuantity")}
-            ref={(e) => {
-              register("openingStockQuantity").ref(e);
-              refs.openingStockQuantity.current = e;
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                const el = document.querySelector('input[data-field="expiryDate"]') as HTMLInputElement;
-                if (el) el.focus();
-              }
-            }}
-          />
-          {errors.openingStockQuantity && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.openingStockQuantity.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Expiry Date *
-          </label>
-
-          <TypableExpiryInput
-            value={values.expiryDate || ""}
-            onChange={(date: string) => setValue("expiryDate", date, { shouldValidate: true })}
-            onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, refs.status)}
-          />
-          {errors.expiryDate && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.expiryDate.message}
+              {errors.manufacturer.message as string}
             </p>
           )}
         </div>
@@ -521,20 +252,18 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             </SelectContent>
           </Select>
           {errors.status && (
-            <p className="text-xs text-red-600 my-1">{errors.status.message}</p>
+            <p className="text-xs text-red-600 my-1">{errors.status.message as string}</p>
           )}
         </div>
       </div>
 
-
-
       <div className="flex gap-2">
-        <Button className="bg-(--color-synapse-light) text-white flex-1" type="submit" ref={refs.saveButton}>
+        <Button className="bg-(--color-synapse-light) text-white flex-1 cursor-pointer" type="submit" ref={refs.saveButton}>
           Save Item
         </Button>
         <Button
           variant="outline"
-          className="flex-1"
+          className="flex-1 cursor-pointer"
           type="button"
           onClick={() => {
             reset();

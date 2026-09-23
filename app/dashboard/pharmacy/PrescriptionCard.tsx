@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { DataType } from "./interface";
 import Medicine from "./Medicine";
+import BatchSelector from "./BatchSelector";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import toast from "react-hot-toast";
@@ -22,6 +23,14 @@ import { formatINR } from "@/lib/fNumber";
 interface Medicine {
   name: string;
   medicineName: string;
+  batchNumber?: string;
+  packing?: number;
+  stripCount?: number;
+  mrp?: number;
+  purchasePrice?: number;
+  gst?: number;
+  expiryDate?: string | Date;
+  supplier?: string;
   dosage: string;
   frequency: string;
   food: string;
@@ -29,6 +38,7 @@ interface Medicine {
   quantity: number;
   availableQuantity: number;
   unitPrice: number;
+  batches?: any[];
 }
 
 export default function PrescriptionCard({
@@ -61,6 +71,7 @@ export default function PrescriptionCard({
           dosage: "1 tab",
           name: "",
           medicineName: "",
+          batchNumber: "",
           duration: "",
           food: "",
           frequency: "",
@@ -105,49 +116,55 @@ export default function PrescriptionCard({
     }));
   };
 
-  const subTotal = data.items.reduce((a, b) => a + b.quantity * b.unitPrice, 0);
+  const subTotal = data.items.reduce((a, b) => a + (b.quantity || 0) * (b.unitPrice || 0), 0);
 
   return (
-
     <div className="border rounded-xl bg-white shadow-sm max-h-[50vh] overflow-y-auto overflow-x-hidden">
-      <div className="flex flex-col min-w-225">
+      <div className="flex flex-col min-w-240">
         <div
-          className={`grid ${showAllFields ? "grid-cols-[35px_repeat(11,1fr)]" : "grid-cols-[35px_repeat(7,1fr)]"
-            } gap-1 text-[11px] uppercase font-bold tracking-wider text-slate-500 py-2 border-b bg-slate-50/50 px-2 rounded-t-lg`}
+          className={`grid ${
+            showAllFields
+              ? "grid-cols-[35px_2.5fr_2.5fr_repeat(4,1fr)_1fr_1fr_1fr_1fr_40px]"
+              : "grid-cols-[35px_2.5fr_2.5fr_1fr_1fr_1fr_1fr_40px]"
+          } gap-1.5 text-[11px] uppercase font-bold tracking-wider text-slate-500 py-2 border-b bg-slate-50/50 px-2 rounded-t-lg items-center`}
         >
-          <div className="col-span-1 flex items-center justify-center">Sl</div>
-          <div className="col-span-2">Drug</div>
+          <div className="flex items-center justify-center">Sl</div>
+          <div>Drug</div>
+          <div>Batch</div>
           {showAllFields && (
             <>
-              <div className="col-span-1">Dosage</div>
-              <div className="col-span-1">Freq</div>
-              <div className="col-span-1">Food</div>
-              <div className="col-span-1">Dur</div>
+              <div>Dosage</div>
+              <div>Freq</div>
+              <div>Food</div>
+              <div>Dur</div>
             </>
           )}
-          <div className="col-span-1">Avail</div>
-          <div className="col-span-1">Qty</div>
-          <div className="col-span-1">Price</div>
-          <div className="col-span-1">Total</div>
-          <div className="col-span-1 text-right pr-2">Act</div>
+          <div>Avail</div>
+          <div>Qty</div>
+          <div>Price</div>
+          <div>Total</div>
+          <div className="text-right pr-2">Act</div>
         </div>
 
         {data.items.map((m, i) => (
           <div
             key={m.rowId}
-            className={`grid ${showAllFields ? "grid-cols-[35px_repeat(11,1fr)]" : "grid-cols-[35px_repeat(7,1fr)]"
-              } gap-1 items-center py-1 px-2 border-b last:border-b-0 hover:bg-slate-50/50 transition-colors`}
+            className={`grid ${
+              showAllFields
+                ? "grid-cols-[35px_2.5fr_2.5fr_repeat(4,1fr)_1fr_1fr_1fr_1fr_40px]"
+                : "grid-cols-[35px_2.5fr_2.5fr_1fr_1fr_1fr_1fr_40px]"
+            } gap-1.5 items-center py-1.5 px-2 border-b last:border-b-0 hover:bg-slate-50/50 transition-colors`}
           >
-            <div className="col-span-1 flex items-center justify-center text-slate-400 text-[11px] font-medium">
+            <div className="flex items-center justify-center text-slate-400 text-[11px] font-medium">
               {i + 1}
             </div>
-            <div className="col-span-2">
+            <div>
               <Medicine
                 i={i}
                 m={m}
                 updateField={updateField}
                 onEnter={() => handleEnterOnDrug(i)}
-                onSelect={() => focusQuantity(i)}
+                onSelect={() => {}}
                 inputRef={{
                   get current() {
                     return medicineRefs.current[i] || null;
@@ -158,9 +175,48 @@ export default function PrescriptionCard({
                 } as React.RefObject<HTMLInputElement>}
               />
             </div>
+
+            <div>
+              <BatchSelector
+                itemId={m.name}
+                medicineName={m.medicineName}
+                initialBatches={(m as any).batches}
+                selectedBatchNumber={m.batchNumber}
+                onSelectBatch={(batch) => {
+                  updateField(i, "batchNumber", batch.batchNumber);
+                  updateField(i, "availableQuantity", batch.quantity ?? 0);
+                  updateField(
+                    i,
+                    "unitPrice",
+                    batch.unitPrice ||
+                      (batch.packing && batch.mrp ? batch.mrp / batch.packing : (batch.mrp || 0)) ||
+                      0
+                  );
+                  updateField(i, "mrp" as any, batch.mrp || 0);
+                  updateField(i, "purchasePrice" as any, batch.purchasePrice || 0);
+                  updateField(i, "gst" as any, batch.gst || 0);
+                  updateField(i, "packing" as any, batch.packing || 0);
+                  updateField(i, "stripCount" as any, batch.stripCount || 0);
+                  updateField(
+                    i,
+                    "expiryDate" as any,
+                    batch.expiryDate
+                      ? typeof batch.expiryDate === "string"
+                        ? batch.expiryDate
+                        : new Date(batch.expiryDate).toISOString().split("T")[0]
+                      : ""
+                  );
+                  updateField(i, "supplier" as any, batch.supplier || "-");
+                  focusQuantity(i);
+                }}
+                disabled={!m.name}
+                onEnter={() => focusQuantity(i)}
+              />
+            </div>
+
             {showAllFields && (
               <>
-                <div className="col-span-1">
+                <div>
                   <LabeledCombobox
                     options={[
                       "½ tab",
@@ -179,7 +235,7 @@ export default function PrescriptionCard({
                   />
                 </div>
 
-                <div className="col-span-1">
+                <div>
                   <LabeledCombobox
                     options={[
                       "1-0-1",
@@ -198,7 +254,7 @@ export default function PrescriptionCard({
                   />
                 </div>
 
-                <div className="col-span-1">
+                <div>
                   <LabeledCombobox
                     options={[
                       "After food",
@@ -216,7 +272,7 @@ export default function PrescriptionCard({
                   />
                 </div>
 
-                <div className="col-span-1">
+                <div>
                   <LabeledCombobox
                     options={[
                       "3 days",
@@ -236,15 +292,17 @@ export default function PrescriptionCard({
                 </div>
               </>
             )}
-            <div className="col-span-1">
+
+            <div>
               <input
                 placeholder="0"
                 disabled
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 h-9 text-sm outline-none text-slate-500 font-medium"
-                value={m.availableQuantity || 0}
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 h-9 text-xs outline-none text-slate-600 font-semibold text-center"
+                value={m.availableQuantity ?? 0}
               />
             </div>
-            <div className="col-span-1">
+
+            <div>
               <QuantityInput
                 updateField={updateField}
                 i={i}
@@ -263,29 +321,37 @@ export default function PrescriptionCard({
               />
             </div>
 
-            <div className="col-span-1">
+            <div>
               <input
                 placeholder="0.00"
-                disabled
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 h-9 text-sm outline-none text-slate-500 font-medium text-right"
-                value={m.unitPrice === 0 ? "" : m.unitPrice.toFixed(2)}
+                type="number"
+                step="0.01"
+                className="w-full rounded-md border border-slate-200 bg-white px-2 h-9 text-xs outline-none text-slate-800 font-medium text-right"
+                value={m.unitPrice === 0 ? "" : m.unitPrice}
+                onChange={(e) =>
+                  updateField(i, "unitPrice", Number(e.target.value) || 0)
+                }
               />
             </div>
 
-            <div className="col-span-1">
+            <div>
               <input
                 placeholder="0.00"
                 disabled
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 h-9 text-sm outline-none text-slate-500 font-bold text-right"
-                value={m.unitPrice * m.quantity === 0 ? "" : (m.unitPrice * m.quantity).toFixed(2)}
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 h-9 text-xs outline-none text-slate-800 font-bold text-right"
+                value={
+                  (m.unitPrice || 0) * (m.quantity || 0) === 0
+                    ? ""
+                    : ((m.unitPrice || 0) * (m.quantity || 0)).toFixed(2)
+                }
               />
             </div>
 
-            <div className="col-span-1 flex justify-end">
+            <div className="flex justify-end pr-1">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                 onClick={() => removeMedicineRow(m.rowId)}
                 title="Remove medicine"
               >
@@ -295,46 +361,50 @@ export default function PrescriptionCard({
           </div>
         ))}
       </div>
+
       <div className="p-4 bg-slate-50/50 border-t space-y-2">
         <div className="flex gap-3 mb-2">
           <Button
             onClick={addMedicineRow}
             size="sm"
-            className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white rounded-md h-8"
+            className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white rounded-md h-8 cursor-pointer"
           >
             + Add Medicine
           </Button>
         </div>
 
-
-
         <div
-          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
-            } gap-2 text-[11px] uppercase tracking-wide text-slate-500`}
+          className={`grid ${
+            showAllFields ? "grid-cols-12" : "grid-cols-8"
+          } gap-2 text-[11px] uppercase tracking-wide text-slate-500`}
         >
           <div
-            className={`${showAllFields ? "col-span-10" : "col-span-5"}`}
+            className={`${showAllFields ? "col-span-10" : "col-span-6"}`}
           ></div>
           <div className="text-right">Sub Total</div>
           <div className="text-right font-medium">{formatINR(subTotal)}</div>
         </div>
 
         <div
-          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
-            } gap-2 text-[11px] uppercase tracking-wide text-slate-500`}
+          className={`grid ${
+            showAllFields ? "grid-cols-12" : "grid-cols-8"
+          } gap-2 text-[11px] uppercase tracking-wide text-slate-500`}
         >
           <div
-            className={`${showAllFields ? "col-span-10" : "col-span-5"}`}
+            className={`${showAllFields ? "col-span-10" : "col-span-6"}`}
           ></div>
-          <div className="text-right font-bold text-slate-900 text-sm">Grand Total</div>
-          <div className="text-right font-bold text-emerald-700 text-sm">{formatINR(subTotal - data.discount)}</div>
+          <div className="text-right font-bold text-slate-900 text-sm">
+            Grand Total
+          </div>
+          <div className="text-right font-bold text-emerald-700 text-sm">
+            {formatINR(subTotal - (data.discount || 0))}
+          </div>
         </div>
       </div>
-
     </div>
-
   );
 }
+
 
 const QuantityInput = ({
   updateField,

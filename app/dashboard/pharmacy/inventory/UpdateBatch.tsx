@@ -1,5 +1,4 @@
-import { Button } from '@/components/ui/button'
-import { Calendar } from "@/components/ui/calendar"
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogClose,
@@ -9,7 +8,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger
-} from '@/components/ui/dialog'
+} from '@/components/ui/dialog';
 import {
     Select,
     SelectContent,
@@ -17,8 +16,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Input } from "@/components/ui/input";
 import {
     Table,
     TableBody,
@@ -26,31 +24,36 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table"
-import api from "@/lib/axios"
-import useSWR from 'swr'
-import { fDate } from "@/lib/fDateAndTime"
-import { formatINR } from "@/lib/fNumber"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { ChevronDownIcon, Loader2, PackagePlus } from "lucide-react"
-import React, { useRef, useState } from 'react'
+} from "@/components/ui/table";
+import api from "@/lib/axios";
+import useSWR from 'swr';
+import { fDate } from "@/lib/fDateAndTime";
+import { formatINR } from "@/lib/fNumber";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, PackagePlus } from "lucide-react";
+import React, { useRef, useState } from 'react';
 import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useForm } from "react-hook-form"
-import toast from "react-hot-toast"
-import { z } from "zod"
-import { ItemType } from './interface'
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { z } from "zod";
+import { ItemType } from './interface';
 import TypableExpiryInput from '../purchase-entry/components/TypableExpiryInput';
 
-// Schema for adding a batch
+// Schema for adding a batch with all 10 batch-level fields
 const addBatchSchema = z.object({
     batchNumber: z.string().min(1, "Batch number is required"),
     expiryDate: z.coerce.date(),
-    quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
-    purchasePrice: z.coerce.number().min(0, "Price must be positive"),
+    quantity: z.coerce.number().min(0, "Quantity must be 0 or more"),
+    purchasePrice: z.coerce.number().min(0, "Price must be positive").default(0),
+    mrp: z.coerce.number().min(0, "MRP must be positive").default(0),
+    unitPrice: z.coerce.number().min(0, "Unit price must be positive").default(0),
+    packing: z.coerce.number().min(0).default(0),
+    stripCount: z.coerce.number().min(0).default(0),
+    gst: z.coerce.number().min(0).max(100).default(0),
     supplier: z.string().min(1, "Supplier is required"),
 });
 
@@ -61,10 +64,8 @@ interface Props {
     mutate: () => void;
 }
 
-
 export default function UpdateBatch({ item, mutate }: Props) {
     const [open, setOpen] = useState(false);
-    const [openCalander, setOpenCalander] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
 
     const {
@@ -78,7 +79,14 @@ export default function UpdateBatch({ item, mutate }: Props) {
         // @ts-expect-error zodResolver
         resolver: zodResolver(addBatchSchema),
         defaultValues: {
-            supplier: item.supplier
+            supplier: item.supplier || "",
+            quantity: 0,
+            purchasePrice: 0,
+            mrp: 0,
+            unitPrice: 0,
+            packing: 0,
+            stripCount: 0,
+            gst: 0,
         }
     });
 
@@ -86,13 +94,18 @@ export default function UpdateBatch({ item, mutate }: Props) {
     const suppliers = suppliersData?.data || [];
 
     const expiryDate = watch("expiryDate");
+    const values = watch();
 
     // Refs for keyboard navigation
     const refs = {
         batchNumber: useRef<HTMLInputElement>(null),
-        expiryDate: useRef<HTMLButtonElement>(null),
+        packing: useRef<HTMLInputElement>(null),
+        stripCount: useRef<HTMLInputElement>(null),
         quantity: useRef<HTMLInputElement>(null),
+        mrp: useRef<HTMLInputElement>(null),
+        unitPrice: useRef<HTMLInputElement>(null),
         purchasePrice: useRef<HTMLInputElement>(null),
+        gst: useRef<HTMLInputElement>(null),
         supplier: useRef<HTMLButtonElement>(null),
         addButton: useRef<HTMLButtonElement>(null),
     };
@@ -109,10 +122,16 @@ export default function UpdateBatch({ item, mutate }: Props) {
             await api.post(`/pharmacy/items/add_batch/${item._id}`, data);
             toast.success("Batch added successfully");
             reset({
-                supplier: item.supplier
+                supplier: item.supplier || "",
+                quantity: 0,
+                purchasePrice: 0,
+                mrp: 0,
+                unitPrice: 0,
+                packing: 0,
+                stripCount: 0,
+                gst: 0,
             });
             mutate();
-            // Focus back on first field for next entry
             refs.batchNumber.current?.focus();
         } catch (error) {
             console.error(error);
@@ -121,7 +140,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
     });
 
     const ITEMS_PER_PAGE = 5;
-    const sortedBatches = item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
+    const sortedBatches = item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()) : [];
     const totalPages = Math.ceil(sortedBatches.length / ITEMS_PER_PAGE);
     const paginatedBatches = sortedBatches.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
@@ -143,33 +162,37 @@ export default function UpdateBatch({ item, mutate }: Props) {
                         <Button
                             size="icon"
                             variant="ghost"
-                            className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                            className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 cursor-pointer"
                         >
                             <PackagePlus className="h-4 w-4" />
                         </Button>
                     </DialogTrigger>
                 </TooltipTrigger>
-                <TooltipContent>Update Batch</TooltipContent>
+                <TooltipContent>Manage Batches</TooltipContent>
             </Tooltip>
-            <DialogContent className="max-w-4xl! max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-4xl! max-h-[92vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Update Batch for {item.name}</DialogTitle>
-                    <DialogDescription>
-                        Add a new batch or view past batches.
+                    <DialogTitle className="text-lg font-bold text-slate-900">
+                        Manage Batches &bull; {item.name}
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-slate-500">
+                        Each batch holds its own pricing, stock, supplier, expiry, and packing details.
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="grid gap-6 py-4">
+                <div className="grid gap-6 py-2">
                     {/* Add Batch Form */}
-                    <div className="rounded-lg border p-4 bg-slate-50">
-                        <h3 className="font-semibold text-sm mb-4 text-gray-800">Add New Batch</h3>
-                        <form onSubmit={onSubmit} className="grid grid-cols-2 gap-4">
-                            <div className="col-span-1">
-                                <label className="text-xs font-medium text-gray-600">Batch Number *</label>
+                    <div className="rounded-xl border border-slate-200 p-4 bg-slate-50/70 shadow-xs">
+                        <h3 className="font-semibold text-xs uppercase tracking-wider text-slate-700 mb-3">
+                            Add New Batch
+                        </h3>
+                        <form onSubmit={onSubmit} className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                            <div className="sm:col-span-2">
+                                <label className="text-[11px] font-medium text-slate-600">Batch Number *</label>
                                 <Input
                                     {...register("batchNumber")}
-                                    placeholder="e.g. BATCH001"
-                                    className="mt-1 h-9"
+                                    placeholder="e.g. BTH-001"
+                                    className="mt-1 h-8 text-xs bg-white"
                                     ref={(e) => {
                                         register("batchNumber").ref(e);
                                         refs.batchNumber.current = e;
@@ -183,57 +206,172 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                     }}
                                     autoFocus
                                 />
-                                {errors.batchNumber && <p className="text-xs text-red-500 mt-1">{errors.batchNumber.message}</p>}
+                                {errors.batchNumber && <p className="text-[10px] text-red-500 mt-0.5">{errors.batchNumber.message}</p>}
                             </div>
 
-                            <div className="col-span-1">
-                                <label className="text-xs font-medium text-gray-600">Expiry Date *</label>
+                            <div className="sm:col-span-2">
+                                <label className="text-[11px] font-medium text-slate-600">Expiry Date *</label>
                                 <TypableExpiryInput
                                     value={expiryDate ? (expiryDate instanceof Date ? expiryDate.toISOString() : expiryDate as any) : ""}
                                     onChange={(dt) => setValue("expiryDate", dt as any, { shouldValidate: true })}
-                                    onKeyDown={(e) => handleKeyDown(e, refs.quantity)}
+                                    onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, refs.packing)}
                                 />
-                                {errors.expiryDate && <p className="text-xs text-red-500 mt-1">{errors.expiryDate.message}</p>}
+                                {errors.expiryDate && <p className="text-[10px] text-red-500 mt-0.5">{errors.expiryDate.message}</p>}
                             </div>
 
-                            <div className="col-span-1">
-                                <label className="text-xs font-medium text-gray-600">Quantity *</label>
+                            <div>
+                                <label className="text-[11px] font-medium text-slate-600">Packing</label>
                                 <Input
                                     type="number"
+                                    min={0}
+                                    {...register("packing")}
+                                    placeholder="e.g. 10"
+                                    className="mt-1 h-8 text-xs bg-white"
+                                    ref={(e) => {
+                                        register("packing").ref(e);
+                                        refs.packing.current = e;
+                                    }}
+                                    onChange={(e) => {
+                                        const p = Number(e.target.value) || 0;
+                                        setValue("packing", p);
+                                        const currentStrip = Number(values.stripCount) || 0;
+                                        if (p > 0 && currentStrip > 0) {
+                                            setValue("quantity", p * currentStrip, { shouldValidate: true });
+                                        }
+                                        const currentMrp = Number(values.mrp) || 0;
+                                        if (p > 0 && currentMrp > 0) {
+                                            setValue("unitPrice", Number((currentMrp / p).toFixed(2)), { shouldValidate: true });
+                                        }
+                                    }}
+                                    onKeyDown={(e) => handleKeyDown(e, refs.stripCount)}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-[11px] font-medium text-slate-600">Strip Count</label>
+                                <Input
+                                    type="number"
+                                    min={0}
+                                    {...register("stripCount")}
+                                    placeholder="e.g. 10"
+                                    className="mt-1 h-8 text-xs bg-white"
+                                    ref={(e) => {
+                                        register("stripCount").ref(e);
+                                        refs.stripCount.current = e;
+                                    }}
+                                    onChange={(e) => {
+                                        const s = Number(e.target.value) || 0;
+                                        setValue("stripCount", s);
+                                        const currentPacking = Number(values.packing) || 0;
+                                        if (s > 0 && currentPacking > 0) {
+                                            setValue("quantity", currentPacking * s, { shouldValidate: true });
+                                        }
+                                    }}
+                                    onKeyDown={(e) => handleKeyDown(e, refs.quantity)}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-[11px] font-medium text-slate-600">
+                                    Available Stock (Qty) * <span className="text-[10px] text-slate-400 font-normal">(Pack × Strip)</span>
+                                </label>
+                                <Input
+                                    type="number"
+                                    min={0}
                                     {...register("quantity")}
                                     placeholder="e.g. 100"
-                                    className="mt-1 h-9"
+                                    className="mt-1 h-8 text-xs bg-white font-medium"
                                     ref={(e) => {
                                         register("quantity").ref(e);
                                         refs.quantity.current = e;
                                     }}
-                                    onKeyDown={(e) => handleKeyDown(e, refs.purchasePrice)}
+                                    onKeyDown={(e) => handleKeyDown(e, refs.mrp)}
                                 />
-                                {errors.quantity && <p className="text-xs text-red-500 mt-1">{errors.quantity.message}</p>}
+                                {errors.quantity && <p className="text-[10px] text-red-500 mt-0.5">{errors.quantity.message}</p>}
                             </div>
 
-                            <div className="col-span-1">
-                                <label className="text-xs font-medium text-gray-600">Purchase Price (₹) *</label>
+                            <div>
+                                <label className="text-[11px] font-medium text-slate-600">MRP (₹)</label>
                                 <Input
                                     type="number"
                                     step="0.01"
+                                    min={0}
+                                    {...register("mrp")}
+                                    placeholder="e.g. 50.00"
+                                    className="mt-1 h-8 text-xs bg-white"
+                                    ref={(e) => {
+                                        register("mrp").ref(e);
+                                        refs.mrp.current = e;
+                                    }}
+                                    onChange={(e) => {
+                                        const m = Number(e.target.value) || 0;
+                                        setValue("mrp", m);
+                                        const p = Number(values.packing) || 1;
+                                        if (p > 0) {
+                                            setValue("unitPrice", Number((m / p).toFixed(2)), { shouldValidate: true });
+                                        }
+                                    }}
+                                    onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-[11px] font-medium text-slate-600">Unit Price (₹)</label>
+                                <Input
+                                    type="number"
+                                    step="0.01"
+                                    min={0}
+                                    {...register("unitPrice")}
+                                    placeholder="e.g. 5.00"
+                                    className="mt-1 h-8 text-xs bg-white"
+                                    ref={(e) => {
+                                        register("unitPrice").ref(e);
+                                        refs.unitPrice.current = e;
+                                    }}
+                                    onKeyDown={(e) => handleKeyDown(e, refs.purchasePrice)}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-[11px] font-medium text-slate-600">Purchase Rate (P. Rate) (₹)</label>
+                                <Input
+                                    type="number"
+                                    step="0.01"
+                                    min={0}
                                     {...register("purchasePrice")}
-                                    placeholder="e.g. 10.50"
-                                    className="mt-1 h-9"
+                                    placeholder="e.g. 3.50"
+                                    className="mt-1 h-8 text-xs bg-white"
                                     ref={(e) => {
                                         register("purchasePrice").ref(e);
                                         refs.purchasePrice.current = e;
                                     }}
-                                    onKeyDown={(e) => handleKeyDown(e, refs.supplier)}
+                                    onKeyDown={(e) => handleKeyDown(e, refs.gst)}
                                 />
-                                {errors.purchasePrice && <p className="text-xs text-red-500 mt-1">{errors.purchasePrice.message}</p>}
                             </div>
 
-                            <div className="col-span-2">
-                                <label className="text-xs font-medium text-gray-600">Supplier</label>
-                                <Select value={watch("supplier")} onValueChange={(value) => setValue("supplier", value)}>
+                            <div>
+                                <label className="text-[11px] font-medium text-slate-600">GST (%)</label>
+                                <Input
+                                    type="number"
+                                    step="0.01"
+                                    min={0}
+                                    max={100}
+                                    {...register("gst")}
+                                    placeholder="e.g. 12"
+                                    className="mt-1 h-8 text-xs bg-white"
+                                    ref={(e) => {
+                                        register("gst").ref(e);
+                                        refs.gst.current = e;
+                                    }}
+                                    onKeyDown={(e) => handleKeyDown(e, refs.supplier)}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-[11px] font-medium text-slate-600">Supplier *</label>
+                                <Select value={watch("supplier")} onValueChange={(value) => setValue("supplier", value, { shouldValidate: true })}>
                                     <SelectTrigger
-                                        className="mt-1 h-9 w-full"
+                                        className="mt-1 h-8 w-full text-xs bg-white"
                                         ref={refs.supplier}
                                         onKeyDown={(e) => handleKeyDown(e, refs.addButton)}
                                     >
@@ -241,54 +379,72 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                     </SelectTrigger>
                                     <SelectContent className="rounded-lg border-slate-200">
                                         {suppliers.map((s: { _id: string; name: string }) => (
-                                            <SelectItem key={s._id} value={s.name} className="rounded-md focus:bg-synapse-light/10">
+                                            <SelectItem key={s._id} value={s.name} className="text-xs">
                                                 {s.name}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
+                                {errors.supplier && <p className="text-[10px] text-red-500 mt-0.5">{errors.supplier.message}</p>}
                             </div>
 
-                            <div className="col-span-2 flex justify-end mt-2">
-                                <Button type="submit" size="sm" disabled={isSubmitting} ref={refs.addButton} className="bg-(--color-synapse-light)">
-                                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Add Batch
+                            <div className="sm:col-span-4 flex justify-end mt-1">
+                                <Button type="submit" size="sm" disabled={isSubmitting} ref={refs.addButton} className="bg-(--color-synapse-light) text-white text-xs cursor-pointer h-8 px-4">
+                                    {isSubmitting && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
+                                    Save Batch
                                 </Button>
                             </div>
                         </form>
                     </div>
 
-                    {/* Past Batches Table */}
+                    {/* Batches Table */}
                     <div>
-                        <h3 className="font-semibold text-sm mb-3 text-gray-800">Past Batches</h3>
-                        <div className="border rounded-md">
-                            <Table>
+                        <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-semibold text-xs uppercase tracking-wider text-slate-700">
+                                Active & Past Batches ({sortedBatches.length})
+                            </h3>
+                            <span className="text-[11px] text-slate-500">
+                                Total Item Stock: <strong className="text-slate-800">{item.quantity ?? sortedBatches.reduce((sum, b) => sum + (Number(b.quantity) || 0), 0)} units</strong>
+                            </span>
+                        </div>
+                        <div className="border rounded-xl overflow-hidden bg-white shadow-xs">
+                            <Table className="text-xs">
                                 <TableHeader>
-                                    <TableRow className="bg-slate-50">
-                                        <TableHead className="w-30">Date Added</TableHead>
+                                    <TableRow className="bg-slate-50 text-[11px] uppercase font-semibold text-slate-600">
                                         <TableHead>Batch No</TableHead>
                                         <TableHead>Expiry</TableHead>
+                                        <TableHead className="text-right">Pack / Strip</TableHead>
+                                        <TableHead className="text-right">Stock (Qty)</TableHead>
+                                        <TableHead className="text-right">MRP</TableHead>
+                                        <TableHead className="text-right">Unit Price</TableHead>
+                                        <TableHead className="text-right">P. Rate</TableHead>
+                                        <TableHead className="text-right">GST</TableHead>
                                         <TableHead>Supplier</TableHead>
-                                        <TableHead className="text-right">Purchase Rate</TableHead>
-                                        <TableHead className="text-right">Qty</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {paginatedBatches.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={6} className="text-center py-6 text-muted-foreground text-sm">
-                                                No batch history found.
+                                            <TableCell colSpan={9} className="text-center py-6 text-slate-400 text-xs">
+                                                No batches added yet. Add a batch above to register stock and pricing.
                                             </TableCell>
                                         </TableRow>
                                     ) : (
-                                        paginatedBatches.map((batch) => (
-                                            <TableRow key={batch._id}>
-                                                <TableCell className="text-xs">{fDate(batch.createdAt)}</TableCell>
-                                                <TableCell className="font-medium text-xs">{batch.batchNumber}</TableCell>
-                                                <TableCell className="text-xs">{fDate(batch.expiryDate)}</TableCell>
-                                                <TableCell className="text-xs">{batch.supplier || "-"}</TableCell>
-                                                <TableCell className="text-right text-xs">{formatINR(batch.purchasePrice)}</TableCell>
-                                                <TableCell className="text-right text-xs font-medium">{batch.quantity}</TableCell>
+                                        paginatedBatches.map((batch, idx) => (
+                                            <TableRow key={batch._id || idx} className="hover:bg-slate-50/60">
+                                                <TableCell className="font-semibold text-slate-800">{batch.batchNumber}</TableCell>
+                                                <TableCell className="text-slate-600">{fDate(batch.expiryDate)}</TableCell>
+                                                <TableCell className="text-right text-slate-600">
+                                                    {batch.packing ? `${batch.packing}` : "-"}{batch.stripCount ? ` / ${batch.stripCount}` : ""}
+                                                </TableCell>
+                                                <TableCell className="text-right font-bold text-emerald-700">
+                                                    {batch.quantity ?? 0}
+                                                </TableCell>
+                                                <TableCell className="text-right text-slate-600">{batch.mrp ? formatINR(batch.mrp) : "-"}</TableCell>
+                                                <TableCell className="text-right font-medium text-slate-800">{batch.unitPrice ? formatINR(batch.unitPrice) : "-"}</TableCell>
+                                                <TableCell className="text-right text-slate-600">{batch.purchasePrice ? formatINR(batch.purchasePrice) : "-"}</TableCell>
+                                                <TableCell className="text-right text-slate-600">{batch.gst ? `${batch.gst}%` : "0%"}</TableCell>
+                                                <TableCell className="text-slate-600 truncate max-w-[120px]">{batch.supplier || "-"}</TableCell>
                                             </TableRow>
                                         ))
                                     )}
@@ -296,12 +452,13 @@ export default function UpdateBatch({ item, mutate }: Props) {
                             </Table>
                         </div>
                         {sortedBatches.length > ITEMS_PER_PAGE && (
-                            <div className="flex items-center justify-end space-x-2 py-4">
+                            <div className="flex items-center justify-end space-x-2 py-3">
                                 <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={handlePrevPage}
                                     disabled={currentPage === 1}
+                                    className="text-xs h-7"
                                 >
                                     Previous
                                 </Button>
@@ -314,7 +471,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                             e.preventDefault();
                                             setCurrentPage(page);
                                         }}
-                                        className="w-8 h-8 p-0"
+                                        className="w-7 h-7 p-0 text-xs"
                                     >
                                         {page}
                                     </Button>
@@ -324,6 +481,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                     size="sm"
                                     onClick={handleNextPage}
                                     disabled={currentPage === totalPages}
+                                    className="text-xs h-7"
                                 >
                                     Next
                                 </Button>
@@ -334,10 +492,10 @@ export default function UpdateBatch({ item, mutate }: Props) {
 
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant="outline">Close</Button>
+                        <Button variant="outline" className="text-xs h-8">Close</Button>
                     </DialogClose>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-    )
+    );
 }

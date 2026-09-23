@@ -90,13 +90,21 @@ export interface DataType {
         rowId: string;
         name: string;
         medicineName: string;
+        batchNumber?: string;
+        packing?: number;
+        stripCount?: number;
+        mrp?: number;
+        unitPrice: number;
+        purchasePrice?: number;
+        gst?: number;
+        expiryDate?: string | Date;
+        supplier?: string;
         dosage: string;
         frequency: string;
         food: string;
         duration: string;
         quantity: number;
-        availableQuantity: number
-        unitPrice: number;
+        availableQuantity: number;
     }[];
     discount: number;
     priority: string;
