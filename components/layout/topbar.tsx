@@ -7,7 +7,7 @@ import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import { SyncDialog } from "@/components/shared/sync/SyncDialog";
-import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
+import useAppointmentList from "@/hooks/useAppointmentList";
 import { useAuth } from "@/auth/context/auth-context";
 import SearchBar from "./SearchBar";
 import useSWR from "swr";
@@ -31,7 +31,6 @@ export default function Header() {
   const items =
     (user?.role === "Doctor" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/doctor/" },
-      { key: "appointments", label: "Appointments", link: "/dashboard/doctor/appointments/" },
       { key: "patients", label: "Patients", link: "/dashboard/doctor/patients/" },
       { key: "ip", label: "IP (In Patient)", link: "/dashboard/doctor/ip/" },
       { key: "lab-results", label: "Investigations", link: "/dashboard/doctor/lab-report/" },
@@ -213,7 +212,7 @@ export default function Header() {
                 <CloudUpload className="h-4 w-4" /> Sync
               </button>
             )}
-            {(user?.role === "Doctor" || user?.role === "Reception") && (
+            {user?.role === "Reception" && (
               <button
                 className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-(--color-synapse-light) px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => setOpenCreate(true)}
@@ -237,7 +236,7 @@ export default function Header() {
                 <Plus className="h-4 w-4" /> Book Now
               </button>
             )}
-            {(user?.role === "Doctor" || user?.role === "Pharmacy" || user?.role === "Lab" || user?.role === "Reception") && (
+            {(user?.role === "Pharmacy" || user?.role === "Lab" || user?.role === "Reception") && (
               <button
                 className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-(--color-synapse-light) px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => setOpenPatient(true)}

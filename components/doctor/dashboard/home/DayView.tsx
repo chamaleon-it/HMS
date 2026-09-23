@@ -5,11 +5,11 @@ import React, {
   Dispatch,
   SetStateAction,
 } from "react";
-import { CalendarPlus, UserPlus } from "lucide-react";
+
 import ScheduleTabsPreview from "./ScheduleTabsPreview";
 import { AppointmentType } from "./interface";
 import { PatientCard } from "./PatientCard";
-import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
+import useAppointmentList from "@/hooks/useAppointmentList";
 
 // ---- time helpers ----
 export function fromMinutes(min: number) {
@@ -136,24 +136,6 @@ export default function DailyViewTimeline({
     <div>
       <div className="flex items-center justify-between mb-3">
         <h1 className="text-2xl font-semibold">Today&apos;s Schedule</h1>
-        <div className="flex gap-5">
-          <button
-            className="inline-flex items-center gap-2 rounded-xl bg-(--color-synapse-light) text-white px-4 py-2 hover:bg-(--color-synapse-light) transition font-medium shadow-sm cursor-pointer"
-            onClick={() => setOpenAppointment("walk-in")}
-          >
-            <UserPlus className="h-4 w-4" />
-            Walk-in Appointment
-          </button>
-
-          {/* Regular Appointment */}
-          <button
-            className="inline-flex items-center gap-2 rounded-xl bg-(--color-synapse-light) text-white px-4 py-2 transition font-medium shadow-sm cursor-pointer"
-            onClick={() => setOpenAppointment(true)}
-          >
-            <CalendarPlus className="h-4 w-4" />
-            Add Appointment
-          </button>
-        </div>
       </div>
 
       <ScheduleTabsPreview

@@ -8,7 +8,7 @@ import MonthlyCalender from "./MonthlyCalender";
 import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import Statistics from "./Statistics";
 import WeeklyCalender from "./WeeklyCalender";
-import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
+import useAppointmentList from "@/hooks/useAppointmentList";
 import { motion } from "framer-motion";
 import { LayoutGrid, Calendar, CalendarRange } from "lucide-react";
 

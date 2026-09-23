@@ -511,10 +511,7 @@ function AppointmentPageContent() {
                   </div> */}
                 </>
               )}
-              <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block" />
-              <PrimaryButton onClick={() => router.push("/dashboard/reception/billing/#new")} className="bg-(--color-synapse-light)  " title="Direct">
-                Direct
-              </PrimaryButton>
+
 
               <PrimaryButton onClick={() => setOpenCreate(true)} className="bg-(--color-synapse-light)  " title="New Appointment (N)">
                 <Plus className="h-4 w-4 mr-2" /> Schedule

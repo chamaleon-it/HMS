@@ -356,7 +356,7 @@ function ConsultingTwoContent() {
   }
 
   if (!appointment && !isLoading) {
-    redirect("/dashboard/doctor/appointments");
+    redirect("/dashboard/doctor/");
   }
 
   const pillClass = (active: boolean) =>

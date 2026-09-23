@@ -104,7 +104,7 @@ function ConsultingMenuContent() {
   }
 
   if (!appointment) {
-    redirect("/dashboard/doctor/appointments");
+    redirect("/dashboard/doctor/");
   }
 
 

@@ -283,13 +283,29 @@ export function CreateAppointmentForm({
   const [open, setOpen] = useState(false);
 
   const handleSelect = useCallback(
-    (p: any) => {
+    async (p: any) => {
       setSelected(p);
       setValue("patient", p._id, { shouldValidate: true });
       setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
       setOpen(false);
+
+      // Auto-fill doctor from patient's most recent appointment
+      if (!appointment) {
+        try {
+          const { data: apptData } = await api.get(`/appointments/patient/${p._id}`);
+          const lastAppt = apptData?.data?.[0];
+          if (lastAppt?.doctor) {
+            const doctorId = typeof lastAppt.doctor === "object" ? lastAppt.doctor._id : lastAppt.doctor;
+            if (doctorId) {
+              setValue("doctor", doctorId, { shouldValidate: true });
+            }
+          }
+        } catch {
+          // Silently ignore — keep current doctor selection
+        }
+      }
     },
-    [setValue]
+    [setValue, appointment]
   );
 
   return (

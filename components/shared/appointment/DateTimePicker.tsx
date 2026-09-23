@@ -11,13 +11,11 @@ import {
   combineToIST,
   dayNameToIndex,
   generateTimeSlots,
-  isBeforeDay,
   isSameDay,
   startOfDay,
   to12h,
   toMinutes,
   endOfDay,
-  startOfToday,
 } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
 import WaklInAppoinmentUI from "./WaklInAppoinmentUI";
@@ -151,12 +149,9 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
   const bookedSlot: Date[] = bookedSlotData?.data ?? [];
 
   const disabledMatchers = useMemo<Matcher[]>(() => {
-    const today = startOfToday();
-    const availStart = availability?.startDate
-      ? startOfDay(new Date(availability.startDate))
-      : today;
-    const min = availStart < today ? today : availStart;
-    const matchers: Matcher[] = [{ before: min }];
+    const matchers: Matcher[] = [];
+    if (availability?.startDate)
+      matchers.push({ before: startOfDay(new Date(availability.startDate)) });
     if (availability?.endDate)
       matchers.push({ after: endOfDay(new Date(availability.endDate)) });
     if (availability?.days?.length) {
@@ -315,39 +310,26 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
               const round = getRoundForTime(time, availability?.rounds);
               const isDisabledByRound = !!round;
 
-              const now = new Date();
-              const today = startOfDay(now);
-              const sel = selectedDate ?? today;
-
-              const isPastDay = isBeforeDay(sel, today);
-              const isToday = isSameDay(sel, today);
-
-              const tm = toMinutes(time);
-              const nowMins = now.getHours() * 60 + now.getMinutes();
-              const isPastTime = isPastDay || (isToday && tm < nowMins);
+              const sel = selectedDate ?? startOfDay(new Date());
 
               const slotDate = combineToIST(sel, time);
               const isBooked = bookedSlot.some(
                 (d) => new Date(d).getTime() === slotDate.getTime()
               );
 
-              const isDisabled = isDisabledByRound || isPastTime || isBooked;
+              const isDisabled = isDisabledByRound || isBooked;
 
               const reason = isDisabledByRound
                 ? round?.label ?? "Unavailable"
                 : isBooked
                   ? "Already booked"
-                  : isPastTime
-                    ? "Past time"
-                    : undefined;
+                  : undefined;
 
               const disabledClasses = isDisabledByRound
                 ? "bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100 hover:text-amber-800 hover:border-amber-300 cursor-not-allowed"
                 : isBooked
                   ? "bg-red-100 text-red-700 border-red-300 hover:bg-red-100 hover:text-red-700 hover:border-red-300 cursor-not-allowed"
-                  : isPastTime
-                    ? "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-400 hover:border-zinc-200 cursor-not-allowed"
-                    : "";
+                  : "";
 
               return (
                 <motion.div
