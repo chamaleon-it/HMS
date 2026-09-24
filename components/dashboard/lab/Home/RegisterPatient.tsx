@@ -99,6 +99,41 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     };
   };
 
+  useEffect(() => {
+    if (patient?._id) {
+      reset({
+        name: patient?.name || "",
+        phoneNumber: patient?.phoneNumber || "",
+        doctor: patient?.doctor || user?._id,
+        gender: patient?.gender,
+        dateOfBirth: patient?.dateOfBirth || "",
+        age: patient?.age || "",
+        month: patient?.month || "",
+        address: patient?.address || "",
+        allergies: patient?.allergies || "",
+        mrn: patient?.mrn || "",
+      });
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await api.get<{ data: { pid: string } }>(
+          "/patients/next-pid"
+        );
+        if (!cancelled && data?.data?.pid) {
+          setValue("mrn", data.data.pid);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [patient, setValue, reset, user?._id]);
+
 
   const createEditPatient = handleSubmit(async (data) => {
     try {
@@ -164,7 +199,9 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               {...register("mrn")}
               ref={mergeRefs(refs.mrn, register("mrn").ref)}
               value={values.mrn ?? ""}
-              disabled={patient?._id}
+              readOnly
+              disabled={!!patient?._id}
+              className="bg-zinc-50"
               onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
             />
             {errors.mrn && (

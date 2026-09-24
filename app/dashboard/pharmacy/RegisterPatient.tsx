@@ -146,8 +146,26 @@ export function RegisterPatient({
         age: ages.age,
         month: ages.month,
       });
+      return;
     }
-  }, [patient]);
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await api.get<{ data: { pid: string } }>(
+          "/patients/next-pid"
+        );
+        if (!cancelled && data?.data?.pid) {
+          setValue("mrn", data.data.pid);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [patient, setValue, reset, user?._id]);
 
   const createEditPatient = handleSubmit(async (data) => {
     // Omit clinical fields pharmacy no longer collects (kept for doctor/lab).
@@ -239,7 +257,9 @@ export function RegisterPatient({
               {...register("mrn")}
               ref={mergeRefs(refs.mrn, register("mrn").ref)}
               value={values.mrn ?? ""}
-              disabled={patient?._id}
+              readOnly
+              disabled={!!patient?._id}
+              className="bg-zinc-50"
               onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
             />
             {errors.mrn && (
