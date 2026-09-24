@@ -22,17 +22,6 @@ import api from "@/lib/axios";
 import { fDate, fTime } from "@/lib/fDateAndTime";
 import { useAuth } from "@/auth/context/auth-context";
 import { TableSkeleton } from "../components/PharmacySkeleton";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { useSearchParams } from "next/navigation";
 import { Trash, CreditCard, User, MessageSquareText } from "lucide-react";
 import {
@@ -494,36 +483,14 @@ export default function PharmacyReturnPage() {
               </div>
 
               <div className="flex flex-col gap-2 mt-6 text-right">
-
-                <div className="flex justify-end gap-2 flex-wrap">
-
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button disabled={returning} className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(16,185,129,0.3)]">
-                        {returning ? "Returning..." : "Confirm & Refund"}
-                      </Button>
-                    </AlertDialogTrigger>
-
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Confirm Refund</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to confirm this return and
-                          process the refund? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-emerald-600 hover:bg-emerald-700"
-                          onClick={returnOrder}
-                        >
-                          Yes, Confirm
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                <div className="flex justify-end">
+                  <Button
+                    disabled={returning}
+                    onClick={returnOrder}
+                    className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(16,185,129,0.3)]"
+                  >
+                    {returning ? "Returning..." : "Confirm & Refund"}
+                  </Button>
                 </div>
               </div>
             </CardContent>
