@@ -10,7 +10,7 @@ interface LabBillReceiptProps {
     report?: any | null;
     bill?: any | null;
     panels?: { name: string; price: number; tests?: any[] }[];
-    /** Distinct header per copy; "both" prints patient + lab columns (slit). */
+    /** "both"/undefined → two identical narrow halves on one page; single copy → one half. */
     copy?: "patient" | "lab" | "both";
 }
 
@@ -45,11 +45,6 @@ const formatBillTime = (d: Date) => {
 
 const formatAmount = (num: number) => {
     return (Number(num) || 0).toFixed(2);
-};
-
-const formatRateOrQty = (num: number) => {
-    const val = Number(num) || 0;
-    return Number.isInteger(val) ? String(val) : val.toFixed(2);
 };
 
 export default function LabBillReceipt({ report, bill, panels, copy }: LabBillReceiptProps) {
@@ -89,15 +84,6 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
     const genderStr = patient?.gender ? String(patient.gender) : "";
     const ageSex = [ageStr, genderStr].filter(Boolean).join(" / ");
 
-    const doctorVal = bill?.doctor || report?.doctor;
-    let doctorName = typeof doctorVal === "object" ? doctorVal?.name : doctorVal;
-    if (typeof doctorVal === "object" && doctorVal?.qualification) {
-        doctorName = `${doctorName} ,${doctorVal.qualification}`;
-    }
-    if (!doctorName || doctorName.toLowerCase() === "null") {
-        doctorName = "Self";
-    }
-
     const invoiceNo =
         bill?.mrn ||
         (report?.mrn !== undefined
@@ -114,10 +100,10 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
 
     const config = configuration();
     const hospitalName = config.hospitalName || "RAHMATH HOSPITAL";
-    const hospitalAddress = config.hospitalAddress || "NILAMBUR ROAD, MAMPAD";
+    const hospitalAddress = config.hospitalAddress || "";
     const hospitalPhone = config.hospitalPhone
         ? `PH: ${config.hospitalPhone.trim()}`
-        : "PH: 9279100700";
+        : "";
 
     let items: BillItemRow[] = [];
 
@@ -174,139 +160,16 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
     const billDiscount = bill?.discount || 0;
     const netAmount = Math.max(0, totalAmount - billDiscount);
 
-    // Preserve prior dual-copy settings: "both"/undefined → slit dual columns;
-    // "patient" / "lab" → single column.
-    const showPatient = copy !== "lab";
-    const showLab = copy === "both" || copy === "lab" || copy == null;
+    // Dual by default when copy is "both" or omitted (billing pages pass "both").
+    const dual = copy === "both" || copy == null;
 
-    const patientColumn = (
-        <div className={`${showLab ? "w-[63%]" : "w-full"} border border-black p-2 flex flex-col bg-white box-border min-w-0`}>
+    const renderNarrowBill = (key: string, showBranding: boolean) => (
+        <div
+            key={key}
+            className={`${dual ? "w-1/2" : "w-full max-w-[95mm]"} border border-black p-2 flex flex-col bg-white box-border min-w-0 print-receipt-half`}
+        >
             <div className="text-center pb-1">
-                <h1 className="text-[14px] font-bold text-black uppercase tracking-wider leading-snug">
-                    {hospitalName}
-                </h1>
-                {slogan && (
-                    <p className="text-[9px] font-medium italic text-black leading-snug">{slogan}</p>
-                )}
-                <p className="text-[9.5px] font-medium text-black uppercase tracking-wide leading-snug">
-                    {hospitalAddress}
-                </p>
-                <p className="text-[9.5px] font-medium text-black tracking-wide leading-snug">
-                    {hospitalPhone}
-                </p>
-            </div>
-
-            <div className="border-b border-black w-full my-0.5"></div>
-
-            <div className="text-center py-1">
-                <span className="text-[12.5px] font-bold text-black uppercase tracking-wider">
-                    CASH BILL
-                </span>
-            </div>
-
-            <div className="grid grid-cols-[1fr_auto] gap-2 pb-1.5 px-0.5 text-[10px] leading-tight text-black">
-                <div className="space-y-0.5">
-                    <div className="grid grid-cols-[60px_10px_1fr] items-center">
-                        <span className="font-semibold text-black">Bill No</span>
-                        <span>:</span>
-                        <span className="font-bold text-black">{invoiceNo}</span>
-                    </div>
-                    <div className="grid grid-cols-[60px_10px_1fr] items-center">
-                        <span className="font-semibold text-black">Name</span>
-                        <span>:</span>
-                        <span className="font-bold text-black uppercase">{patientName}</span>
-                    </div>
-                    <div className="grid grid-cols-[60px_10px_1fr] items-center">
-                        <span className="font-semibold text-black">Age/Sex</span>
-                        <span>:</span>
-                        <span className="font-medium text-black">{ageSex || "—"}</span>
-                    </div>
-                    <div className="grid grid-cols-[60px_10px_1fr] items-center">
-                        <span className="font-semibold text-black">Ref. by Dr</span>
-                        <span>:</span>
-                        <span className="font-bold text-black uppercase">{doctorName}</span>
-                    </div>
-                </div>
-
-                <div className="space-y-0.5">
-                    <div className="grid grid-cols-[35px_10px_1fr] items-center">
-                        <span className="font-semibold text-black">Date</span>
-                        <span>:</span>
-                        <span className="font-medium text-black">{formatBillDate(billDate)}</span>
-                    </div>
-                    <div className="grid grid-cols-[35px_10px_1fr] items-center">
-                        <span className="font-semibold text-black">Time</span>
-                        <span>:</span>
-                        <span className="font-medium text-black">{formatBillTime(billDate)}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div className="w-full border border-black">
-                <table className="w-full border-collapse text-[10px] table-fixed">
-                    <thead>
-                        <tr className="border-b border-black font-semibold text-black">
-                            <th style={{ width: "7%" }} className="py-0.5 px-1 text-center border-r border-black">S.No</th>
-                            <th style={{ width: "43%" }} className="py-0.5 px-1.5 text-left border-r border-black">Test Name</th>
-                            <th style={{ width: "13%" }} className="py-0.5 px-1 text-right border-r border-black">Rate</th>
-                            <th style={{ width: "8%" }} className="py-0.5 px-1 text-center border-r border-black">Qty</th>
-                            <th style={{ width: "9%" }} className="py-0.5 px-1 text-center border-r border-black">Disc %</th>
-                            <th style={{ width: "9%" }} className="py-0.5 px-1 text-right border-r border-black">Dis Amt</th>
-                            <th style={{ width: "11%" }} className="py-0.5 px-1 text-right">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {items.map((item, idx) => (
-                            <tr key={idx} className="text-black">
-                                <td className="py-0.5 px-1 text-center border-r border-black">{idx + 1}</td>
-                                <td className="py-0.5 px-1.5 text-left font-medium border-r border-black uppercase truncate">{item.name}</td>
-                                <td className="py-0.5 px-1 text-right border-r border-black">{formatRateOrQty(item.rate)}</td>
-                                <td className="py-0.5 px-1 text-center border-r border-black">{item.qty}</td>
-                                <td className="py-0.5 px-1 text-center border-r border-black">{item.discPercent}</td>
-                                <td className="py-0.5 px-1 text-right border-r border-black">{formatRateOrQty(item.disAmt)}</td>
-                                <td className="py-0.5 px-1 text-right font-medium">{formatRateOrQty(item.amount)}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            <div className="pt-1 text-[10px] text-black">
-                <div className="flex justify-end">
-                    <div className="w-[50%] space-y-0.5">
-                        <div className="grid grid-cols-[80px_8px_1fr] items-center text-right">
-                            <span className="font-semibold text-black text-left">Total Amount</span>
-                            <span className="text-center">:</span>
-                            <span className="font-bold text-black">{formatAmount(totalAmount)}</span>
-                        </div>
-                        <div className="grid grid-cols-[80px_8px_1fr] items-center text-right">
-                            <span className="font-semibold text-black text-left">Discount</span>
-                            <span className="text-center">:</span>
-                            <span className="font-bold text-black">{formatAmount(billDiscount)}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="border-t border-black my-1"></div>
-
-                <div className="flex justify-end gap-8 items-center font-bold text-[12.5px] pr-0.5">
-                    <span>Net Amount :</span>
-                    <span className="min-w-[55px] text-right">{formatAmount(netAmount)}</span>
-                </div>
-
-                {(services || advertisement) && (
-                    <div className="mt-1">
-                        <BrandingFooter services={services} advertisement={advertisement} />
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-
-    const labColumn = (
-        <div className={`${showPatient ? "w-[37%]" : "w-full"} border border-black p-2 flex flex-col bg-white box-border min-w-0`}>
-            <div className="text-center pb-1">
-                <h2 className="text-[14px] font-bold text-black uppercase tracking-wider leading-tight">
+                <h2 className="text-[13px] font-bold text-black uppercase tracking-wider leading-tight">
                     {hospitalName.split(" ").length > 1 ? (
                         <>
                             <div>{hospitalName.split(" ").slice(0, -1).join(" ")}</div>
@@ -316,39 +179,58 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
                         <div>{hospitalName}</div>
                     )}
                 </h2>
+                {slogan && (
+                    <p className="text-[8px] font-medium italic text-black leading-snug">{slogan}</p>
+                )}
+                {hospitalAddress && (
+                    <p className="text-[8.5px] font-medium text-black uppercase tracking-wide leading-snug">
+                        {hospitalAddress}
+                    </p>
+                )}
+                {hospitalPhone && (
+                    <p className="text-[8.5px] font-medium text-black tracking-wide leading-snug">
+                        {hospitalPhone}
+                    </p>
+                )}
             </div>
 
             <div className="border-b border-black w-full mb-1"></div>
 
+            <div className="text-center py-0.5 mb-0.5">
+                <span className="text-[11px] font-bold text-black uppercase tracking-wider">
+                    CASH BILL
+                </span>
+            </div>
+
             <div className="space-y-0.5 text-[10px] text-black pb-1.5 px-0.5 leading-tight">
-                <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                <div className="grid grid-cols-[52px_8px_1fr] items-center">
                     <span className="font-semibold text-black">Bill No</span>
                     <span>:</span>
                     <span className="font-bold text-black">{invoiceNo}</span>
                 </div>
-                <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                <div className="grid grid-cols-[52px_8px_1fr] items-center">
                     <span className="font-semibold text-black">Date</span>
                     <span>:</span>
                     <span className="font-medium text-black">{formatBillDate(billDate)}</span>
                 </div>
-                <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                <div className="grid grid-cols-[52px_8px_1fr] items-center">
                     <span className="font-semibold text-black">Time</span>
                     <span>:</span>
                     <span className="font-medium text-black">{formatBillTime(billDate)}</span>
                 </div>
-                <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                <div className="grid grid-cols-[52px_8px_1fr] items-center">
                     <span className="font-semibold text-black">Name</span>
                     <span>:</span>
                     <span className="font-bold text-black uppercase">{patientName}</span>
                 </div>
-                <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                <div className="grid grid-cols-[52px_8px_1fr] items-center">
                     <span className="font-semibold text-black">Age/Sex</span>
                     <span>:</span>
                     <span className="font-medium text-black">{ageSex || ""}</span>
                 </div>
             </div>
 
-            <div className="w-full border border-black">
+            <div className="w-full border border-black flex-1">
                 <div className="py-0.5 px-1 font-semibold text-[10px] text-black border-b border-black">
                     Test Name
                 </div>
@@ -361,7 +243,7 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
                 </div>
             </div>
 
-            <div className="pt-1 text-[10px] text-black">
+            <div className="pt-1 text-[10px] text-black mt-auto">
                 <div className="space-y-0.5 px-0.5">
                     <div className="grid grid-cols-[75px_8px_1fr] items-center">
                         <span className="font-semibold text-black">Total Amount</span>
@@ -377,16 +259,24 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
 
                 <div className="border-t border-black my-1"></div>
 
-                <div className="flex justify-between items-center font-bold text-[12.5px] px-0.5">
+                <div className="flex justify-between items-center font-bold text-[12px] px-0.5">
                     <span>Net Amount :</span>
                     <span className="text-right">{formatAmount(netAmount)}</span>
                 </div>
+
+                {showBranding && (services || advertisement) && (
+                    <div className="mt-1">
+                        <BrandingFooter services={services} advertisement={advertisement} />
+                    </div>
+                )}
             </div>
         </div>
     );
 
     const content = (
-        <div className="print-receipt hidden print:flex bg-white text-black font-sans leading-tight overflow-hidden relative flex-row gap-2">
+        <div
+            className={`print-receipt hidden print:flex bg-white text-black font-sans leading-tight overflow-hidden relative flex-row gap-2 justify-center${dual ? " print-receipt-dual" : " print-receipt-single"}`}
+        >
             <style
                 dangerouslySetInnerHTML={{
                     __html: `
@@ -424,7 +314,8 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
             display: flex !important;
             flex-direction: row !important;
             align-items: stretch !important;
-            gap: 4mm !important;
+            justify-content: center !important;
+            gap: 3mm !important;
             z-index: 999999999 !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
@@ -434,6 +325,18 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
             break-before: avoid !important;
             font-family: Arial, Helvetica, sans-serif !important;
           }
+          .print-receipt-dual .print-receipt-half {
+            width: 50% !important;
+            max-width: none !important;
+            flex: 1 1 0 !important;
+            box-sizing: border-box !important;
+          }
+          .print-receipt-single .print-receipt-half {
+            width: 95mm !important;
+            max-width: 95mm !important;
+            flex: 0 0 95mm !important;
+            box-sizing: border-box !important;
+          }
           .no-print, aside, header, footer, nav, button {
             display: none !important;
           }
@@ -441,8 +344,14 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
       `,
                 }}
             />
-            {showPatient && patientColumn}
-            {showLab && labColumn}
+            {dual ? (
+                <>
+                    {renderNarrowBill("copy-a", true)}
+                    {renderNarrowBill("copy-b", false)}
+                </>
+            ) : (
+                renderNarrowBill(copy === "lab" ? "lab" : "patient", true)
+            )}
         </div>
     );
 
