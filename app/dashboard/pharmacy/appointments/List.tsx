@@ -102,7 +102,6 @@ export default function List({
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-25">Time</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Patient</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Doctor</TableHead>
-            <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Reason / Notes</TableHead>
             <TableHead className="py-3 pr-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</TableHead>
