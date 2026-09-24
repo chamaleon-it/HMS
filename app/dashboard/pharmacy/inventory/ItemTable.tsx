@@ -195,9 +195,6 @@ export default function ItemTable({
                         );
                       })()}
                     </TableCell>
-                    <TableCell className="py-3 text-slate-700">
-                      {item.soldQuantity ?? "-"}
-                    </TableCell>
                     <TableCell className="py-3">{formatINR(item.purchasePrice)}</TableCell>
                     <TableCell className="py-3">{formatINR(item.unitPrice)}</TableCell>
                     <TableCell className="py-3">{formatINR(item.mrp)}</TableCell>
@@ -317,7 +314,7 @@ export default function ItemTable({
               {items.length === 0 && (
                 <TableRow>
                   <TableCell
-                    colSpan={14}
+                    colSpan={13}
                     className="text-center py-10 text-muted-foreground"
                   >
                     No items found.
@@ -334,9 +331,6 @@ export default function ItemTable({
                   </TableCell>
                   <TableCell className="py-3 text-slate-900 font-bold tabular-nums pl-2">
                     {totalPageStock}
-                  </TableCell>
-                  <TableCell className="py-3 text-slate-900 font-bold tabular-nums">
-                    {totalPageSold}
                   </TableCell>
                   <TableCell className="py-3" />
                   <TableCell className="py-3" />
