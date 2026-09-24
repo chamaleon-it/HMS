@@ -10,7 +10,7 @@ interface LabBillReceiptProps {
     report?: any | null;
     bill?: any | null;
     panels?: { name: string; price: number; tests?: any[] }[];
-    /** "both"/undefined → two identical narrow halves on one page; single copy → one half. */
+    /** Kept for call-site compat; cash bill always prints two identical halves. */
     copy?: "patient" | "lab" | "both";
 }
 
@@ -47,7 +47,7 @@ const formatAmount = (num: number) => {
     return (Number(num) || 0).toFixed(2);
 };
 
-export default function LabBillReceipt({ report, bill, panels, copy }: LabBillReceiptProps) {
+export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptProps) {
     const [mounted, setMounted] = useState(false);
     const { tests } = useGetTest();
     const { slogan, advertisement, services } = usePrintBranding("lab");
@@ -160,13 +160,11 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
     const billDiscount = bill?.discount || 0;
     const netAmount = Math.max(0, totalAmount - billDiscount);
 
-    // Dual by default when copy is "both" or omitted (billing pages pass "both").
-    const dual = copy === "both" || copy == null;
-
     const renderNarrowBill = (key: string, showBranding: boolean) => (
         <div
             key={key}
-            className={`${dual ? "w-1/2" : "w-full max-w-[95mm]"} border border-black p-2 flex flex-col bg-white box-border min-w-0 print-receipt-half`}
+            className="print-receipt-half border border-black p-2 flex flex-col bg-white box-border min-w-0"
+            style={{ width: "50%", flex: "1 1 0" }}
         >
             <div className="text-center pb-1">
                 <h2 className="text-[13px] font-bold text-black uppercase tracking-wider leading-tight">
@@ -274,16 +272,14 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
     );
 
     const content = (
-        <div
-            className={`print-receipt hidden print:flex bg-white text-black font-sans leading-tight overflow-hidden relative flex-row gap-2 justify-center${dual ? " print-receipt-dual" : " print-receipt-single"}`}
-        >
+        <div className="print-receipt hidden print:flex bg-white text-black font-sans leading-tight overflow-hidden relative flex-row gap-2">
             <style
                 dangerouslySetInnerHTML={{
                     __html: `
         @media print {
           @page {
-            size: A5 landscape;
-            margin: 4mm;
+            size: A4 landscape;
+            margin: 6mm;
           }
           html, body {
             margin: 0 !important;
@@ -305,8 +301,8 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
             position: relative !important;
             left: 0 !important;
             top: 0 !important;
-            width: 202mm !important;
-            max-height: 140mm !important;
+            width: 285mm !important;
+            max-height: 190mm !important;
             padding: 0 !important;
             margin: 0 auto !important;
             background: white !important;
@@ -314,8 +310,8 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
             display: flex !important;
             flex-direction: row !important;
             align-items: stretch !important;
-            justify-content: center !important;
-            gap: 3mm !important;
+            justify-content: space-between !important;
+            gap: 4mm !important;
             z-index: 999999999 !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
@@ -325,17 +321,13 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
             break-before: avoid !important;
             font-family: Arial, Helvetica, sans-serif !important;
           }
-          .print-receipt-dual .print-receipt-half {
-            width: 50% !important;
+          .print-receipt-half {
+            width: calc(50% - 2mm) !important;
             max-width: none !important;
             flex: 1 1 0 !important;
             box-sizing: border-box !important;
-          }
-          .print-receipt-single .print-receipt-half {
-            width: 95mm !important;
-            max-width: 95mm !important;
-            flex: 0 0 95mm !important;
-            box-sizing: border-box !important;
+            display: flex !important;
+            flex-direction: column !important;
           }
           .no-print, aside, header, footer, nav, button {
             display: none !important;
@@ -344,14 +336,8 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
       `,
                 }}
             />
-            {dual ? (
-                <>
-                    {renderNarrowBill("copy-a", true)}
-                    {renderNarrowBill("copy-b", false)}
-                </>
-            ) : (
-                renderNarrowBill(copy === "lab" ? "lab" : "patient", true)
-            )}
+            {renderNarrowBill("copy-left", true)}
+            {renderNarrowBill("copy-right", false)}
         </div>
     );
 

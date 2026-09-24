@@ -30,7 +30,6 @@ import useGetGroups from "@/data/useGetGroups";
 import { useLabDrafts } from "@/app/dashboard/lab/LabDraftContext";
 import { Eye, Trash2, FileEdit } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import usePrintBranding from "@/hooks/usePrintBranding";
 
 const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
   const [timeLeft, setTimeLeft] = React.useState(5);
@@ -143,7 +142,6 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
   const { user } = useAuth();
   const { panels } = useGetPanels();
   const { groups } = useGetGroups();
-  const { printDualCopies } = usePrintBranding("lab");
   const [printReport, setPrintReport] = React.useState<any | null>(null);
   const [printBillReport, setPrintBillReport] = React.useState<any | null>(null);
   const [printBill, setPrintBill] = React.useState<any | null>(null);
@@ -756,7 +754,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
         report={printBillReport}
         bill={printBill}
         panels={panels}
-        copy={printDualCopies ? "both" : "patient"}
+        copy="both"
       />
     </div>
   );
