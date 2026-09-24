@@ -186,12 +186,6 @@ const Customers: React.FC = () => {
                             </div>
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
-                            <HighlightText
-                              text={p.patient.mrn}
-                              highlight={filter.query || ""}
-                            />
-                          </TableCell>
-                          <TableCell className="py-1.5 align-middle text-slate-700">
                            {fAgeString(p.patient.dateOfBirth)}/ {p.patient.gender}
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
