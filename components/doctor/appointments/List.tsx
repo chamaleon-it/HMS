@@ -1,5 +1,5 @@
-import { fDateandTime, fTime } from "@/lib/fDateAndTime";
-import { MapPin, Phone, Video, Search } from "lucide-react";
+import { fDateandTime } from "@/lib/fDateAndTime";
+import { Search } from "lucide-react";
 import React, { useState } from "react";
 import useAppointmentList from "./data/useAppointmentList";
 import Drawer from "@/components/ui/drawer";
@@ -50,7 +50,6 @@ export default function List({
       profilePic: string | null;
     };
     createdBy: string;
-    method: "In clinic" | "Video" | "Phone";
     date: Date;
     notes: string | null;
     internalNotes: string | null;
@@ -84,7 +83,6 @@ export default function List({
             <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Time</TableHead>
             <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Patient</TableHead>
             <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Doctor</TableHead>
-            <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Method</TableHead>
             <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Status</TableHead>
             <TableHead className="py-2.5 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider">Actions</TableHead>
           </TableRow>
@@ -92,7 +90,7 @@ export default function List({
         <TableBody>
           {filteredData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="py-20 text-center">
+              <TableCell colSpan={6} className="py-20 text-center">
                 <div className="flex flex-col items-center gap-2">
                   <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center dark:bg-slate-800">
                     <Search className="h-6 w-6 text-slate-300" />
@@ -144,14 +142,6 @@ export default function List({
                       </div>
                     </div>
                   </div>
-                </TableCell>
-                <TableCell className="py-3">
-                  <span className="inline-flex items-center gap-2 text-xs text-slate-600">
-                    {row?.method === "In clinic" && <MapPin className="h-3.5 w-3.5 text-slate-400" />}
-                    {row?.method === "Video" && <Video className="h-3.5 w-3.5 text-slate-400" />}
-                    {row?.method === "Phone" && <Phone className="h-3.5 w-3.5 text-slate-400" />}
-                    {row?.method}
-                  </span>
                 </TableCell>
                 <TableCell className="py-3">
                   <Chip label={row?.status} tone={row?.status || "gray"} />

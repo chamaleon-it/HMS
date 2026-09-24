@@ -47,7 +47,6 @@ export default function useAppointmentList({
         profilePic: string | null;
       };
       createdBy: string;
-      method: "In clinic" | "Video" | "Phone";
       date: Date;
       notes: string | null;
       internalNotes: string | null;

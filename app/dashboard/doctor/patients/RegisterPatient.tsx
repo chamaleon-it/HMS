@@ -131,14 +131,12 @@ export function RegisterPatient({
       const appointmentPayload: {
         patient: string;
         doctor: string;
-        method: string;
         date: string;
         isPaid: boolean;
         type: string;
       } = {
         patient: res.data.data._id,
         doctor: data.doctor,
-        method: "In clinic",
         isPaid: false,
         type: "New",
         date: istDate.toISOString(),

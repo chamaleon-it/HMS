@@ -1,5 +1,5 @@
-import { fDateandTime, fTime } from "@/lib/fDateAndTime";
-import { MapPin, Phone, Video, Search, Clock } from "lucide-react";
+import { fDateandTime } from "@/lib/fDateAndTime";
+import { Search, Clock } from "lucide-react";
 import React from "react";
 import {
   Table,
@@ -63,7 +63,7 @@ export default function List({
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-25">Time</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Doctor</TableHead>
-            <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type/Method</TableHead>
+            <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Reason / Notes</TableHead>
             <TableHead className="py-3 pr-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</TableHead>
@@ -149,17 +149,9 @@ export default function List({
                     </div>
                   </TableCell>
                   <TableCell className="py-2.5">
-                    <div className="flex flex-col items-start gap-1">
-                      <span className="inline-flex items-center gap-1.5 text-xs text-gray-700 font-medium">
-                        {row?.method === "In clinic" && <MapPin className="h-3 w-3 text-gray-400" />}
-                        {row?.method === "Video" && <Video className="h-3 w-3 text-gray-400" />}
-                        {row?.method === "Phone" && <Phone className="h-3 w-3 text-gray-400" />}
-                        {row?.method}
-                      </span>
-                      <span className="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
-                        {row?.type}
-                      </span>
-                    </div>
+                    <span className="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
+                      {row?.type}
+                    </span>
                   </TableCell>
                   <TableCell className="py-2.5">
                     <Chip label={row?.status} />

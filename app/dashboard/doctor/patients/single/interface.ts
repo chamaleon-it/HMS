@@ -24,7 +24,6 @@ export interface ConsultationType {
     patient: string;
     doctor: string;
     createdBy: string;
-    method: string;
     date: Date;
     notes: string;
     internalNotes: string;

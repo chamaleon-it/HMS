@@ -8,7 +8,6 @@ export interface AppointmentType {
   patient: Patient;
   doctor: Doctor;
   createdBy: string;
-  method: string;
   date: Date;
   notes: string;
   internalNotes: string;

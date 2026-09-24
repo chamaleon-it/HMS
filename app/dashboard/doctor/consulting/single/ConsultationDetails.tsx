@@ -83,14 +83,6 @@ export default function ConsultationDetails({
                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div>
                                         <p className="text-muted-foreground text-xs uppercase tracking-wider font-medium mb-1">
-                                            Method
-                                        </p>
-                                        <p className="font-medium">
-                                            {selectedRow?.appointment?.method ?? "—"}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-muted-foreground text-xs uppercase tracking-wider font-medium mb-1">
                                             Status
                                         </p>
                                         <Badge variant="secondary" className="font-normal">

@@ -15,7 +15,6 @@ import Select from "./AppointmentSelect";
 import BlankPrescription from "./BlankPrescription";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RegisterPatient } from "../RegisterPatient";
-const METHODS = ["In clinic", "Video", "Phone"] as const;
 
 export function CreateAppointmentForm({
   onClose,
@@ -50,7 +49,6 @@ export function CreateAppointmentForm({
       profilePic: string | null;
     };
     createdBy: string;
-    method: "In clinic" | "Video" | "Phone";
     date: Date;
     notes: string | null;
     internalNotes: string | null;
@@ -86,7 +84,6 @@ export function CreateAppointmentForm({
   } = useForm({
     resolver: zodResolver(createAppointmentSchema),
     defaultValues: {
-      method: "In clinic",
       type: "New",
       isPaid: "false",
     },
@@ -118,7 +115,6 @@ export function CreateAppointmentForm({
         doctor: doctorId || "",
         internalNotes: appointment.internalNotes || "",
         isPaid: appointment.isPaid ? "true" : "false",
-        method: appointment.method || "In clinic",
         notes: appointment.notes || "",
         patient: patientId || "",
         type: appointment.type || "New",
@@ -162,7 +158,6 @@ export function CreateAppointmentForm({
         );
         reset({
           doctor: doctorsData?.data[0]?._id,
-          method: "In clinic",
           type: "New",
           isPaid: "false",
         });
@@ -197,7 +192,6 @@ export function CreateAppointmentForm({
             if (mutate) mutate();
             reset({
               doctor: doctorsData?.data[0]?._id,
-              method: "In clinic",
               type: "New",
               isPaid: "false",
             });
@@ -216,7 +210,6 @@ export function CreateAppointmentForm({
 
       reset({
         doctor: doctorsData?.data[0]?._id,
-        method: "In clinic",
         type: "New",
         isPaid: "false",
       });
@@ -234,7 +227,6 @@ export function CreateAppointmentForm({
   const refs = {
     patient: useRef<HTMLInputElement>(null),
     doctor: useRef<HTMLButtonElement>(null),
-    method: useRef<HTMLButtonElement>(null),
     notes: useRef<HTMLTextAreaElement>(null),
     submitButton: useRef<HTMLButtonElement>(null),
   };
@@ -315,7 +307,7 @@ export function CreateAppointmentForm({
             <h3 className="font-medium">Appointment</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
+            <div className="sm:col-span-2">
               <Label>Doctor</Label>
               <Select
                 value={values.doctor}
@@ -325,27 +317,11 @@ export function CreateAppointmentForm({
                   doctorsData?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
                 }
                 ref={refs.doctor}
-                onKeyDown={(e) => handleKeyDown(e, refs.method)}
+                onKeyDown={(e) => handleKeyDown(e, refs.notes)}
               />
               {errors.doctor && (
                 <p className="text-red-500 text-xs mt-1.5">
                   Please select a doctor
-                </p>
-              )}
-            </div>
-            <div>
-              <Label>Method</Label>
-              <Select
-                value={values.method}
-                onChange={(v) => setValue("method", v)}
-                placeholder="In-clinic / Video / Phone"
-                options={METHODS.map((s) => ({ label: s, value: s })) ?? []}
-                ref={refs.method}
-                onKeyDown={(e) => handleKeyDown(e, refs.notes)}
-              />
-              {errors.method && (
-                <p className="text-red-500 text-xs mt-1.5">
-                  {errors.method.message}
                 </p>
               )}
             </div>

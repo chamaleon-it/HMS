@@ -15,7 +15,6 @@ export interface AppointmentType {
 
   doctor: string;
   createdBy: string;
-  method: string;
   date: Date;
   notes: string;
   internalNotes: string;
