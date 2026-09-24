@@ -42,7 +42,7 @@ import {
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
 import { z } from "zod"
-import { ItemType } from './interface'
+import { ItemType, batchPurchaseRate, batchSaleRate } from './interface'
 import TypableExpiryInput from '../purchase-entry/components/TypableExpiryInput';
 
 // Schema for adding a batch
@@ -50,7 +50,9 @@ const addBatchSchema = z.object({
     batchNumber: z.string().min(1, "Batch number is required"),
     expiryDate: z.coerce.date(),
     quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
-    purchasePrice: z.coerce.number().min(0, "Price must be positive"),
+    purchaseRate: z.coerce.number().min(0, "Purchase rate must be positive"),
+    saleRate: z.coerce.number().min(0).optional(),
+    mrp: z.coerce.number().min(0).optional(),
     supplier: z.string().min(1, "Supplier is required"),
 });
 
@@ -106,13 +108,24 @@ export default function UpdateBatch({ item, mutate }: Props) {
 
     const onSubmit = handleSubmit(async (data) => {
         try {
-            await api.post(`/pharmacy/items/add_batch/${item._id}`, data);
+            await api.post(`/pharmacy/items/${item._id}/batches`, {
+                batchNumber: data.batchNumber,
+                expiryDate: data.expiryDate,
+                quantity: data.quantity,
+                startingQuantity: data.quantity,
+                purchaseRate: data.purchaseRate,
+                purchasePrice: data.purchaseRate,
+                saleRate: data.saleRate ?? item.unitPrice,
+                mrp: data.mrp ?? item.mrp,
+                supplier: data.supplier,
+            });
             toast.success("Batch added successfully");
             reset({
-                supplier: item.supplier
+                supplier: item.supplier,
+                saleRate: item.unitPrice,
+                mrp: item.mrp,
             });
             mutate();
-            // Focus back on first field for next entry
             refs.batchNumber.current?.focus();
         } catch (error) {
             console.error(error);
@@ -224,20 +237,44 @@ export default function UpdateBatch({ item, mutate }: Props) {
                             </div>
 
                             <div className="col-span-1">
-                                <label className="text-xs font-medium text-gray-600">Purchase Price (₹) *</label>
+                                <label className="text-xs font-medium text-gray-600">Purchase Rate (₹) *</label>
                                 <Input
                                     type="number"
                                     step="0.01"
-                                    {...register("purchasePrice")}
+                                    {...register("purchaseRate")}
                                     placeholder="e.g. 10.50"
                                     className="mt-1 h-9"
                                     ref={(e) => {
-                                        register("purchasePrice").ref(e);
+                                        register("purchaseRate").ref(e);
                                         refs.purchasePrice.current = e;
                                     }}
                                     onKeyDown={(e) => handleKeyDown(e, refs.supplier)}
                                 />
-                                {errors.purchasePrice && <p className="text-xs text-red-500 mt-1">{errors.purchasePrice.message}</p>}
+                                {errors.purchaseRate && <p className="text-xs text-red-500 mt-1">{errors.purchaseRate.message}</p>}
+                            </div>
+
+                            <div className="col-span-1">
+                                <label className="text-xs font-medium text-gray-600">Sale Rate (₹)</label>
+                                <Input
+                                    type="number"
+                                    step="0.01"
+                                    {...register("saleRate")}
+                                    placeholder="e.g. 12.00"
+                                    className="mt-1 h-9"
+                                    defaultValue={item.unitPrice}
+                                />
+                            </div>
+
+                            <div className="col-span-1">
+                                <label className="text-xs font-medium text-gray-600">MRP (₹)</label>
+                                <Input
+                                    type="number"
+                                    step="0.01"
+                                    {...register("mrp")}
+                                    placeholder="e.g. 15.00"
+                                    className="mt-1 h-9"
+                                    defaultValue={item.mrp}
+                                />
                             </div>
 
                             <div className="col-span-2">
@@ -281,6 +318,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                         <TableHead>Expiry</TableHead>
                                         <TableHead>Supplier</TableHead>
                                         <TableHead className="text-right">Purchase Rate</TableHead>
+                                        <TableHead className="text-right">Sale Rate</TableHead>
                                         <TableHead className="text-right">Qty</TableHead>
                                         <TableHead className="text-center w-[60px]">Action</TableHead>
                                     </TableRow>
@@ -288,7 +326,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                 <TableBody>
                                     {paginatedBatches.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={7} className="text-center py-6 text-muted-foreground text-sm">
+                                            <TableCell colSpan={8} className="text-center py-6 text-muted-foreground text-sm">
                                                 No batch history found.
                                             </TableCell>
                                         </TableRow>
@@ -299,7 +337,8 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                                 <TableCell className="font-medium text-xs">{batch.batchNumber}</TableCell>
                                                 <TableCell className="text-xs">{fDate(batch.expiryDate)}</TableCell>
                                                 <TableCell className="text-xs">{batch.supplier || "-"}</TableCell>
-                                                <TableCell className="text-right text-xs">{formatINR(batch.purchasePrice)}</TableCell>
+                                                <TableCell className="text-right text-xs">{formatINR(batchPurchaseRate(batch))}</TableCell>
+                                                <TableCell className="text-right text-xs">{formatINR(batchSaleRate(batch))}</TableCell>
                                                 <TableCell className="text-right text-xs font-medium">{batch.quantity}</TableCell>
                                                 <TableCell className="text-center py-1">
                                                     <Button

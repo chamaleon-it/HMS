@@ -82,20 +82,23 @@ export default function PrescriptionCard({
             batchPacking: null,
           };
         }
+        const saleRate = batch.saleRate ?? batch.sellingPrice ?? m.unitPrice;
+        const stock = Number(batch.stock) || 0;
         return {
           ...m,
           batchId: batch.batchId,
           batchNumber: batch.batchNumber,
           batchExpiryDate: batch.expiryDate || null,
           batchMrp: batch.mrp ?? null,
-          batchPurchasePrice: batch.purchasePrice ?? null,
-          batchSellingPrice: batch.sellingPrice ?? null,
+          batchPurchasePrice: batch.purchaseRate ?? batch.purchasePrice ?? null,
+          batchSellingPrice: saleRate ?? null,
           batchGst: batch.gst ?? 0,
-          batchStock: batch.stock,
+          batchStock: stock,
           batchSupplier: batch.supplier || null,
           batchPacking: batch.packing ?? 1,
-          availableQuantity: batch.stock,
-          unitPrice: batch.sellingPrice ?? m.unitPrice,
+          availableQuantity: stock,
+          unitPrice: saleRate ?? m.unitPrice,
+          quantity: Math.min(Number(m.quantity) || 0, stock),
         };
       }),
     }));
@@ -489,10 +492,15 @@ const QuantityInput = ({
         (currentOptions.frequency[4] === m.frequency && 1) ||
         0;
       if (dosage * duration * frequency > 0) {
-        if (dosage * duration * frequency > m.availableQuantity) {
-          setOpenWarning(true)
+        const computed = Math.ceil(dosage * duration * frequency);
+        const capped =
+          m.availableQuantity > 0
+            ? Math.min(computed, m.availableQuantity)
+            : computed;
+        if (computed > m.availableQuantity && m.availableQuantity > 0) {
+          setOpenWarning(true);
         }
-        updateField(i, "quantity", Math.ceil(dosage * duration * frequency));
+        updateField(i, "quantity", capped);
       }
     }
   }, [m.dosage, m.duration, m.frequency]);
@@ -507,7 +515,11 @@ const QuantityInput = ({
           placeholder="0"
           onChange={(e) => {
             const value = Number(e.target.value);
-            updateField(i, "quantity", value || 0);
+            const capped =
+              m.availableQuantity > 0
+                ? Math.min(value || 0, m.availableQuantity)
+                : value || 0;
+            updateField(i, "quantity", capped);
           }}
           onKeyDown={onKeyDown}
           inputMode={"numeric"}
@@ -517,7 +529,8 @@ const QuantityInput = ({
           onBlur={(e) => {
             e.target.placeholder = "0";
             const value = Number(e.target.value);
-            if (value > m.availableQuantity) {
+            if (m.availableQuantity > 0 && value > m.availableQuantity) {
+              updateField(i, "quantity", m.availableQuantity);
               setOpenWarning(true);
             }
           }}
@@ -526,27 +539,14 @@ const QuantityInput = ({
       <AlertDialog open={openWarning} onOpenChange={setOpenWarning}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Quantity capped to batch stock</AlertDialogTitle>
             <AlertDialogDescription>
               Available quantity: {m.availableQuantity} <br />
-              Entered quantity: {m.quantity}
-              <br />
-              <br />
-              <span className="text-destructive">
-                The quantity you entered exceeds the available stock.
-              </span>{" "}
-              Do you want to continue anyway?
+              Entered quantity exceeded batch stock and was capped.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={() => {
-                updateField(i, "quantity", 0);
-              }}
-            >
-              No
-            </AlertDialogCancel>
-            <AlertDialogAction>Yes</AlertDialogAction>
+            <AlertDialogAction>OK</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
