@@ -11,7 +11,6 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import AppShell from "@/components/layout/app-shell";
 import { OrderType } from "./interface";
 import Header from "./Header";
