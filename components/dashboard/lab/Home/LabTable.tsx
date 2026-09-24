@@ -628,7 +628,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                         Report
                       </Button>}
 
-                      {status === "Completed" && <Button
+                      {(status === "Completed" || status === "Waiting For Result") && <Button
                         variant={"outline"}
                         size="sm"
                         className="gap-2 h-8 text-xs text-teal-700 border-teal-200 hover:bg-teal-50 hover:text-teal-800 bg-white"
