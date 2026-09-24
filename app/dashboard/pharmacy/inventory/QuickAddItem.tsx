@@ -40,7 +40,6 @@ export function QuickAddItem({
       generic: "",
       rackLocation: "",
       hsnCode: "",
-      sku: "",
       manufacturer: "",
     },
   });
@@ -49,12 +48,12 @@ export function QuickAddItem({
 
   const addItem = handleSubmit(async (data) => {
     try {
+      // SKU is auto-generated on the backend — not user-facing.
       const payload = {
         name: data.name,
         generic: data.generic,
         rackLocation: data.rackLocation,
         hsnCode: data.hsnCode,
-        sku: data.sku,
         category: data.category,
         manufacturer: data.manufacturer,
         status: data.status,
@@ -87,7 +86,6 @@ export function QuickAddItem({
   const refs = {
     name: useRef<HTMLInputElement>(null),
     generic: useRef<HTMLInputElement>(null),
-    sku: useRef<HTMLInputElement>(null),
     category: useRef<HTMLButtonElement>(null),
     rackLocation: useRef<HTMLInputElement>(null),
     hsnCode: useRef<HTMLInputElement>(null),
@@ -149,22 +147,6 @@ export function QuickAddItem({
             ref={(e) => {
               register("generic").ref(e);
               refs.generic.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.sku)}
-          />
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            SKU / Internal Code
-          </label>
-          <Input
-            placeholder="e.g. MED001"
-            className="mt-1"
-            {...register("sku")}
-            ref={(e) => {
-              register("sku").ref(e);
-              refs.sku.current = e;
             }}
             onKeyDown={(e) => handleKeyDown(e, refs.category)}
           />

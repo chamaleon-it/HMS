@@ -7,11 +7,16 @@ import AppShell from "@/components/layout/app-shell";
 import List from "./List";
 import { CreateAppointmentForm } from "./CreateAppointmentForm";
 import Filter, { STATUSES } from "./Filter";
-import Drawer from "@/components/ui/drawer";
 import useAppointmentList from "./data/useAppointmentList";
 import PharmacyHeader from "../components/PharmacyHeader";
 import { motion } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const PrimaryButton = ({ children, className, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
   <button
@@ -28,7 +33,7 @@ const PrimaryButton = ({ children, className, ...props }: React.ButtonHTMLAttrib
 export default function AppointmentPage() {
   const [query, setQuery] = useState("");
   const [activeStatuses, setActiveStatuses] = useState<string[]>(["Upcoming"]);
-  const [openCreate, setOpenCreate] = useState<"walk-in" | boolean | any>(false);
+  const [openCreate, setOpenCreate] = useState<boolean | any>(false);
   const [date, setDate] = useState(new Date());
   const [activeDate, setActiveDate] = useState<"Today" | "7 days" | "30 days" | "Custom">("Today");
 
@@ -53,20 +58,18 @@ export default function AppointmentPage() {
     }
   }, [searchParams]);
 
-  // Global Keyboard Shortcuts
+  // Global Keyboard Shortcuts — always walk-in create
   React.useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
-      // New Appointment: N
       if (e.key.toLowerCase() === "n" && !e.shiftKey) {
         e.preventDefault();
         setOpenCreate(true);
       }
-      // Walk-in: Shift + W
       if (e.key.toLowerCase() === "w" && e.shiftKey) {
         e.preventDefault();
-        setOpenCreate("walk-in");
+        setOpenCreate(true);
       }
     };
 
@@ -75,6 +78,7 @@ export default function AppointmentPage() {
   }, []);
 
   const currentStatus = activeStatuses[0] || "Upcoming";
+  const isEdit = Boolean(openCreate?._id);
 
   return (
     <AppShell>
@@ -95,18 +99,10 @@ export default function AppointmentPage() {
 
               <PrimaryButton
                 onClick={() => setOpenCreate(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200"
-                title="New Appointment (N)"
-              >
-                <Plus className="h-4 w-4 mr-2" /> Schedule
-              </PrimaryButton>
-
-              <PrimaryButton
-                onClick={() => setOpenCreate("walk-in")}
                 className="bg-linear-to-br from-indigo-600 to-pink-500 shadow-indigo-200"
-                title="Walk-in (Shift + W)"
+                title="Create Appointment (N / Shift+W)"
               >
-                Walk-in
+                <Plus className="h-4 w-4 mr-2" /> Walk-in
               </PrimaryButton>
             </div>
           </PharmacyHeader>
@@ -163,18 +159,23 @@ export default function AppointmentPage() {
           />
         </div>
 
-        <Drawer
-          open={!!openCreate}
-          onClose={() => setOpenCreate(false)}
-          title={openCreate?._id ? "Edit Appointment" : "Create Appointment"}
-        >
-          <CreateAppointmentForm
-            onClose={() => setOpenCreate(false)}
-            mutate={mutate}
-            walkIn={openCreate === "walk-in" || openCreate?.walkIn}
-            appointment={typeof openCreate === "object" ? openCreate : undefined}
-          />
-        </Drawer>
+        <Dialog open={!!openCreate} onOpenChange={(o) => !o && setOpenCreate(false)}>
+          <DialogContent className="max-w-2xl! max-h-[90vh] overflow-hidden flex flex-col p-0! gap-0">
+            <DialogHeader className="px-6 pt-5 pb-3 border-b shrink-0">
+              <DialogTitle>
+                {isEdit ? "Edit Appointment" : "Create Appointment"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="overflow-y-auto flex-1 min-h-0 px-6 py-4">
+              <CreateAppointmentForm
+                onClose={() => setOpenCreate(false)}
+                mutate={mutate}
+                walkIn
+                appointment={typeof openCreate === "object" ? openCreate : undefined}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppShell>
   );

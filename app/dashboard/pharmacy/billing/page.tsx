@@ -14,7 +14,6 @@ import { endOfDay, startOfDay, subDays } from "date-fns";
 
 export interface FilterType {
   q: null | string;
-  qEnd: null | string;
   status: string;
   method: string;
   billingType: string;
@@ -29,7 +28,6 @@ export default function BillingPage() {
   const [tab, setTab] = useState<"all" | "new">("all");
   const [filter, setFilter] = useState<FilterType>({
     q: null,
-    qEnd: null,
     status: "",
     method: "",
     billingType: "all",
@@ -44,10 +42,6 @@ export default function BillingPage() {
 
   if (filter.q) {
     params.set("q", filter.q);
-  }
-
-  if (filter.qEnd && filter.qEnd.length >= 7) {
-    params.set("qEnd", filter.qEnd);
   }
 
   if (filter.status !== "all") {

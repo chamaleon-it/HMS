@@ -20,7 +20,7 @@ const METHODS = ["In clinic", "Video", "Phone"] as const;
 export function CreateAppointmentForm({
   onClose,
   mutate,
-  walkIn = false,
+  walkIn = true,
   appointment,
 }: {
   onClose: () => void;
@@ -95,14 +95,12 @@ export function CreateAppointmentForm({
   const { mutate: globalMutate } = useSWRConfig();
 
   const refreshCalendars = async () => {
-    // Invalidate monthly calendar
     await globalMutate(
       (key) => typeof key === 'string' && key.startsWith('/appointments/calender-monthly'),
       undefined,
       { revalidate: true }
     );
 
-    // Invalidate weekly calendar (which has query params)
     await globalMutate(
       (key) => typeof key === 'string' && key.startsWith('/appointments/calender/weekly'),
       undefined,
@@ -112,7 +110,6 @@ export function CreateAppointmentForm({
 
   useEffect(() => {
     if (appointment) {
-      // Safely access properties, as appointment might be a partial object when coming from "Book Follow-up"
       const doctorId = typeof appointment.doctor === 'object' ? appointment.doctor?._id : appointment.doctor;
       const patientId = typeof appointment.patient === 'object' ? appointment.patient?._id : appointment.patient;
 
@@ -151,7 +148,6 @@ export function CreateAppointmentForm({
   const autoGeneratePrescription = profile?.data?.pharmacy?.billing?.autoGeneratePrescription || false;
 
   const [printData, setPrintData] = React.useState<any>(null);
-
 
   const createAppointment = handleSubmit(async (data) => {
     try {
@@ -215,7 +211,6 @@ export function CreateAppointmentForm({
           }
         } catch (err) {
           console.error("Failed to prepare prescription print", err);
-          // Fallback simple close if print prep fails
         }
       }
 
@@ -236,15 +231,11 @@ export function CreateAppointmentForm({
     }
   });
 
-  // Refs for keyboard navigation
   const refs = {
     patient: useRef<HTMLInputElement>(null),
     doctor: useRef<HTMLButtonElement>(null),
     method: useRef<HTMLButtonElement>(null),
     notes: useRef<HTMLTextAreaElement>(null),
-    type: useRef<HTMLButtonElement>(null),
-    isPaid: useRef<HTMLButtonElement>(null),
-    internalNotes: useRef<HTMLTextAreaElement>(null),
     submitButton: useRef<HTMLButtonElement>(null),
   };
 
@@ -270,9 +261,11 @@ export function CreateAppointmentForm({
     [setValue]
   );
 
+  // Create flow is walk-in only (auto date/time). Edit keeps calendar if not walk-in.
+  const useWalkIn = appointment?._id ? walkIn : true;
+
   return (
     <>
-
       <form className="space-y-5" onSubmit={createAppointment}>
         <section className="space-y-3 print:hidden">
           <div className="flex items-center justify-between">
@@ -360,7 +353,7 @@ export function CreateAppointmentForm({
               <DateTimePicker
                 setValue={setValue}
                 doctor={values.doctor}
-                walkIn={walkIn}
+                walkIn={useWalkIn}
               />
               {errors.date && (
                 <p className="text-red-500 text-xs mt-1.5">
@@ -380,7 +373,7 @@ export function CreateAppointmentForm({
                   register("notes").ref(e);
                   refs.notes.current = e;
                 }}
-                onKeyDown={(e) => handleKeyDown(e, refs.type)}
+                onKeyDown={(e) => handleKeyDown(e, refs.submitButton)}
               />
               {errors.notes && (
                 <p className="text-red-500 text-xs mt-1.5">
@@ -388,58 +381,6 @@ export function CreateAppointmentForm({
                 </p>
               )}
             </div>
-          </div>
-        </section>
-
-        <section className="space-y-3 print:hidden">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Advanced</h3>
-          </div>
-
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <Label>Appointment Type</Label>
-
-                <Select
-                  value={values.type || "New"}
-                  onChange={(v) => setValue("type", v)}
-                  placeholder="Appointment Type"
-                  options={
-                    ["New", "Follow up"].map((s) => ({ label: s, value: s })) ??
-                    []
-                  }
-                  ref={refs.type}
-                  onKeyDown={(e) => handleKeyDown(e, refs.isPaid)}
-                />
-                {errors.type && (
-                  <p className="text-red-500 text-xs mt-1.5">
-                    {errors.type.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <Label>Payment Status</Label>
-
-                <Select
-                  value={values.isPaid}
-                  onChange={(v) => setValue("isPaid", v)}
-                  placeholder="Payment Status"
-                  options={[
-                    { value: "false", label: "Unpaid" },
-                    { value: "true", label: "Paid" },
-                  ]}
-                  ref={refs.isPaid}
-                  onKeyDown={(e) => handleKeyDown(e, refs.internalNotes)}
-                />
-                {errors.isPaid && (
-                  <p className="text-red-500 text-xs mt-1.5">
-                    {errors.isPaid.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
           </div>
         </section>
 
@@ -478,7 +419,6 @@ export function CreateAppointmentForm({
           />
         </DialogContent>
       </Dialog>
-
     </>
   );
 }

@@ -17,12 +17,6 @@ export const pharmacyItemAddSchema = z.object({
     // .regex(/^\d{4,8}$/, { error: "HSN code must be 4–8 digits" })
     .transform((s) => s.trim()),
 
-  sku: z
-    .string({ error: "SKU is required" })
-    .max(64, { error: "SKU must be at most 64 characters" })
-    .transform((s) => s.trim().toUpperCase())
-    .optional(),
-
   category: z
     .string({ error: "Category is required" })
     .min(2, { error: "Category must be at least 2 characters" })

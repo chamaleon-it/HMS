@@ -61,7 +61,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
           <div className="relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
             <Input
-              placeholder="Name, SKU, or Barcode..."
+              placeholder="Name, generic, or barcode..."
               className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
               onChange={(e) => setSearch(e.target.value)}
               value={search}

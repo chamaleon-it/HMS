@@ -48,7 +48,8 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     const [newItems, setNewItems] = useState<NewItem[]>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [selectedSupplierId, setSelectedSupplierId] = useState<string>(defaultSupplierId || "");
-    const [gstType, setGstType] = useState<"inclusive" | "exclusive">("inclusive");
+    // GST is always enabled (inclusive). Inclusive/exclusive radios removed from UI.
+    const gstType = "inclusive" as const;
     const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
     const focusNextElement = (currentElement: HTMLElement) => {
@@ -378,9 +379,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 if (parsed.selectedSupplierId) {
                     setSelectedSupplierId(parsed.selectedSupplierId);
                 }
-                if (parsed.gstType) {
-                    setGstType(parsed.gstType);
-                }
+                // gstType from draft ignored — GST always inclusive
                 if (parsed.billDetails) {
                     setBillDetails(parsed.billDetails);
                 }
@@ -479,39 +478,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                             onChange={(e) => handleBillDetailChange("invoiceNumber", e.target.value)}
                         />
                     </div>
-
-                    <div className="flex flex-wrap items-center gap-10 pt-7 ">
-                        <div className="flex items-center gap-10 ">
-                            <div className="flex items-center gap-6 ">
-                                <label className="flex items-center gap-2 cursor-pointer group ">
-                                    <div className="relative flex items-center justify-center ">
-                                        <input
-                                            type="radio"
-                                            name="gstType"
-                                            checked={gstType === "inclusive"}
-                                            onChange={() => setGstType("inclusive")}
-                                            className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
-                                        />
-                                        <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:border-[6px] transition-all "></div>
-                                    </div>
-                                    <span className="text-sm  text-slate-500 group-hover:text-slate-900 transition-colors font-semibold">GST Inclusive</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer group ">
-                                    <div className="relative flex items-center justify-center ">
-                                        <input
-                                            type="radio"
-                                            name="gstType"
-                                            checked={gstType === "exclusive"}
-                                            onChange={() => setGstType("exclusive")}
-                                            className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
-                                        />
-                                        <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:border-[6px] transition-all "></div>
-                                    </div>
-                                    <span className="text-sm  text-slate-500 group-hover:text-slate-900 transition-colors font-semibold">GST Exclusive</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </motion.div>
 
@@ -537,9 +503,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">MRP</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">EXPIRY</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">Rate</TableHead>
-                                {gstType === "inclusive" && (
-                                    <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">GST(%)</TableHead>
-                                )}
+                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">GST(%)</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">DIS(%)</TableHead>
                                 {/* <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">DIS AMT</TableHead> */}
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA (FREE)</TableHead>
@@ -636,8 +600,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "purchasePrice")}
                                             />
                                         </TableCell>
-                                        {gstType === "inclusive" && (
-                                            <TableCell className="p-2">
+                                        <TableCell className="p-2">
                                                 <Select
                                                     value={String(item.gst_p ?? ((item.sgst_p || 0) + (item.cgst_p || 0)))}
                                                     onValueChange={(v) => {
@@ -663,8 +626,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                         <SelectItem value="28" className="">28%</SelectItem>
                                                     </SelectContent>
                                                 </Select>
-                                            </TableCell>
-                                        )}
+                                        </TableCell>
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
@@ -749,14 +711,14 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className={`grid grid-cols-2 ${gstType === "exclusive" ? "md:grid-cols-4" : "md:grid-cols-5"} gap-6`}
+                className="grid grid-cols-2 md:grid-cols-5 gap-6"
             >
                 {[
                     { label: "GROSS AMOUNT", value: totals.gross, color: "text-slate-600" },
                     { label: "TOTAL DISCOUNT", value: totals.discount, color: "text-red-500", prefix: "-" },
                     { label: "GST PAYABLE", value: totals.gst, color: "text-slate-600" },
                     { label: "SCHEMA TOTAL", value: totals.schema_amt, color: "text-indigo-600" },
-                ].filter((stat) => gstType === "exclusive" ? stat.label !== "GST PAYABLE" : true).map((stat, i) => (
+                ].map((stat, i) => (
                     <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-indigo-200 transition-all">
                         <div className="absolute top-0 right-0 w-16 h-16 bg-slate-50 -mr-8 -mt-8 rounded-full group-hover:bg-indigo-50 transition-colors" />
                         <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest relative">{stat.label}</span>

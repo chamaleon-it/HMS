@@ -3,10 +3,15 @@ import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, Mo
 import React, { useState } from "react";
 import BlankPrescription from "./BlankPrescription";
 import useAppointmentList from "./data/useAppointmentList";
-import Drawer from "@/components/ui/drawer";
 import { CreateAppointmentForm } from "./CreateAppointmentForm";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -227,19 +232,23 @@ export default function List({
         </TableBody>
       </Table>
 
-      <Drawer
-        open={Boolean(edit)}
-        onClose={() => setEdit(null)}
-        title="Edit Appointment"
-      >
-        {edit && (
-          <CreateAppointmentForm
-            onClose={() => setEdit(null)}
-            mutate={mutate}
-            appointment={edit}
-          />
-        )}
-      </Drawer>
+      <Dialog open={Boolean(edit)} onOpenChange={(o) => !o && setEdit(null)}>
+        <DialogContent className="max-w-2xl! max-h-[90vh] overflow-hidden flex flex-col p-0! gap-0">
+          <DialogHeader className="px-6 pt-5 pb-3 border-b shrink-0">
+            <DialogTitle>Edit Appointment</DialogTitle>
+          </DialogHeader>
+          <div className="overflow-y-auto flex-1 min-h-0 px-6 py-4">
+            {edit && (
+              <CreateAppointmentForm
+                onClose={() => setEdit(null)}
+                mutate={mutate}
+                walkIn
+                appointment={edit}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {printData && <BlankPrescription data={printData} />}
     </div>
