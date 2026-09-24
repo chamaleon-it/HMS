@@ -24,6 +24,8 @@ export interface Doctor {
     name: string;
     phoneNumber: string;
     specialization: string;
+    qualification?: string;
+    designation?: string;
 }
 
 export interface Item {
@@ -33,7 +35,17 @@ export interface Item {
     food: string;
     duration: string;
     quantity: number;
-    isPacked: boolean
+    isPacked: boolean;
+    batchId?: string | null;
+    batchNumber?: string | null;
+    batchExpiryDate?: string | Date | null;
+    batchMrp?: number | null;
+    batchPurchasePrice?: number | null;
+    batchSellingPrice?: number | null;
+    batchGst?: number | null;
+    batchStock?: number | null;
+    batchSupplier?: string | null;
+    batchPacking?: number | null;
 }
 
 export interface Name {
@@ -96,8 +108,18 @@ export interface DataType {
         food: string;
         duration: string;
         quantity: number;
-        availableQuantity: number
+        availableQuantity: number;
         unitPrice: number;
+        batchId?: string | null;
+        batchNumber?: string | null;
+        batchExpiryDate?: string | Date | null;
+        batchMrp?: number | null;
+        batchPurchasePrice?: number | null;
+        batchSellingPrice?: number | null;
+        batchGst?: number | null;
+        batchStock?: number | null;
+        batchSupplier?: string | null;
+        batchPacking?: number | null;
     }[];
     discount: number;
     priority: string;

@@ -307,13 +307,29 @@ export default function CreateBill({
           discount: number;
           gst: number;
           total: number;
+          itemId?: string;
+          batchId?: string | null;
+          batchNumber?: string | null;
+          expiryDate?: string | Date | null;
+          mrp?: number | null;
+          purchasePrice?: number | null;
+          supplier?: string | null;
+          packing?: number | null;
         }[] = order.items.map((item: any) => ({
           name: item.name.name,
           quantity: item.quantity,
-          unitPrice: item.name.unitPrice,
+          unitPrice: item.batchSellingPrice ?? item.name.unitPrice,
           discount: 0,
-          gst: 0,
-          total: item.quantity * item.name.unitPrice,
+          gst: item.batchGst ?? 0,
+          total: item.quantity * (item.batchSellingPrice ?? item.name.unitPrice),
+          itemId: item.name._id,
+          batchId: item.batchId || null,
+          batchNumber: item.batchNumber || null,
+          expiryDate: item.batchExpiryDate || null,
+          mrp: item.batchMrp ?? item.name.mrp,
+          purchasePrice: item.batchPurchasePrice ?? item.name.purchasePrice,
+          supplier: item.batchSupplier || item.name.supplier || null,
+          packing: item.batchPacking ?? item.name.packing ?? 1,
         }));
 
         // 🔹 Remove duplicates by `name`
@@ -428,13 +444,11 @@ export default function CreateBill({
         </div>
       </div>
 
-      {/* Printable Receipt Component — prescription page follows when dual copies are on */}
+      {/* Printable Receipt Component — Rx page only when dual-copy setting is on */}
       <PrintReceipt
         payload={payload}
         patient={selectedPatient}
-        withPrescription={
-          pharmacyBilling.printDualCopies || pharmacyBilling.autoPrintAfterSave
-        }
+        withPrescription={!!pharmacyBilling.printDualCopies}
         invoiceDetails={{
           prefix: pharmacyBilling.prefix,
           roundOffAmount: 0,

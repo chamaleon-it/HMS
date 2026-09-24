@@ -76,6 +76,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
       endTime: string;
       days: string[];
       rounds: { label: string; start: string; end: string }[];
+      slotIntervalMinutes?: number;
     };
   }>(doctor ? `/users/doctor_availability/${doctor}` : null);
 
@@ -145,10 +146,11 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
       prev?.getTime() === nextDateTime ? prev : nextDate
     );
 
+    const slotMins = availability.slotIntervalMinutes || 15;
     const times = generateTimeSlots(
       availability.startTime ?? "09:00",
       availability.endTime ?? "18:00",
-      15
+      slotMins
     );
 
     const firstFree = times.find((time) => {
@@ -200,7 +202,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
           {generateTimeSlots(
             availability?.startTime ?? "09:00",
             availability?.endTime ?? "18:00",
-            15
+            availability?.slotIntervalMinutes || 15
           ).map((time) => {
             const round = getRoundForTime(time, availability?.rounds);
             const isDisabledByRound = !!round;

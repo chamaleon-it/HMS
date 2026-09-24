@@ -56,9 +56,17 @@ export default function PrintReceipt({
     const { data: itemsData } = useSWR<{ data: any[] }>("/pharmacy/items?limit=1000");
     const dbItems = itemsData?.data || [];
 
-    const getBatchInfo = (itemName: string) => {
+    const getBatchInfo = (item: { name: string; batchNumber?: string; expiryDate?: string | Date; generic?: string }) => {
+        // Prefer historical snapshot stored on the bill line
+        if (item.batchNumber) {
+            return {
+                batchNumber: item.batchNumber === "—" ? "" : item.batchNumber,
+                expiryDate: item.expiryDate,
+                generic: item.generic,
+            };
+        }
         const matched = dbItems.find(
-            (it) => it.name.trim().toLowerCase() === itemName.trim().toLowerCase()
+            (it) => it.name.trim().toLowerCase() === item.name.trim().toLowerCase()
         );
         if (!matched) return { batchNumber: "", expiryDate: undefined, generic: undefined };
 
@@ -167,7 +175,7 @@ export default function PrintReceipt({
                         </thead>
                         <tbody>
                             {payload.items.map((item, index) => {
-                                const dbInfo = getBatchInfo(item.name);
+                                const dbInfo = getBatchInfo(item);
                                 const displayGeneric = item.generic || dbInfo.generic;
 
                                 return (
@@ -320,7 +328,7 @@ export default function PrintReceipt({
                         </thead>
                         <tbody>
                             {payload.items.map((item, index) => {
-                                const displayGeneric = item.generic || getBatchInfo(item.name).generic;
+                                const displayGeneric = item.generic || getBatchInfo(item).generic;
                                 return (
                                     <tr key={index} className="h-[38px] bg-transparent">
                                         <td className="px-2 py-0.5 text-center text-black text-[12px] font-medium border-r border-[#c5c9cf]">{index + 1}</td>

@@ -233,6 +233,12 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         icon: FileBarChart,
         link: "/dashboard/admin/pnl/",
       },
+      {
+        key: "reports",
+        label: "Reports",
+        icon: FileBarChart,
+        link: "/dashboard/admin/reports/",
+      },
     ]) ||
     [];
   const pathname = usePathname();
