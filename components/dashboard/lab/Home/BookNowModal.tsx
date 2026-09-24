@@ -60,7 +60,6 @@ export default function BookNowModal({
         priority: "Normal" | "Urgent";
         sampleType: string;
         status: string;
-        technician: string;
     }>({
         patient: "",
         doctor: user?._id ?? "",
@@ -71,7 +70,6 @@ export default function BookNowModal({
         priority: "Normal",
         sampleType: "Other",
         status: "Upcoming",
-        technician: "",
     });
 
     useEffect(() => {
@@ -85,7 +83,6 @@ export default function BookNowModal({
                 panels: [],
                 date: new Date(),
                 priority: "Normal",
-                technician: "",
             }));
         }
     }, [patient, open, user, doctor]);

@@ -14,19 +14,18 @@ export interface LabDraft {
     priority: "Normal" | "Urgent";
     sampleType: string;
     status: string;
-    technician: string;
   };
   position: { x: number; y: number };
   zIndex: number;
   isOpen: boolean;
   minimized: boolean;
   patientName: string;
-  bookingType: "Book Now" | "Schedule";
+  bookingType: "Book Now";
 }
 
 interface LabDraftContextType {
   drafts: LabDraft[];
-  addDraft: (initialData?: Partial<LabDraft['payload']>, bookingType?: "Book Now" | "Schedule") => void;
+  addDraft: (initialData?: Partial<LabDraft['payload']>, bookingType?: "Book Now") => void;
   updateDraft: (id: string, updates: Partial<LabDraft> | ((prev: LabDraft) => Partial<LabDraft>)) => void;
   removeDraft: (id: string) => void;
   bringToFront: (id: string) => void;
@@ -48,9 +47,10 @@ export const LabDraftProvider: React.FC<{ children: React.ReactNode; userId: str
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Convert date strings back to Date objects
+        // Convert date strings back to Date objects; coerce legacy Schedule drafts to Book Now
         const hydrated = parsed.map((d: any) => ({
           ...d,
+          bookingType: "Book Now" as const,
           payload: {
             ...d.payload,
             date: d.payload.date ? new Date(d.payload.date) : undefined
@@ -72,7 +72,7 @@ export const LabDraftProvider: React.FC<{ children: React.ReactNode; userId: str
     }
   }, [drafts]);
 
-  const addDraft = (initialData?: Partial<LabDraft['payload']>, bookingType: "Book Now" | "Schedule" = "Book Now") => {
+  const addDraft = (initialData?: Partial<LabDraft['payload']>, bookingType: "Book Now" = "Book Now") => {
     const id = Date.now().toString();
     const maxZ = Math.max(40, ...drafts.map(d => d.zIndex), 40);
     const newDraft: LabDraft = {
@@ -88,7 +88,6 @@ export const LabDraftProvider: React.FC<{ children: React.ReactNode; userId: str
         priority: "Normal",
         sampleType: "Other",
         status: "Upcoming",
-        technician: "",
         ...initialData
       },
       position: { x: 100 + drafts.length * 30, y: 100 + drafts.length * 30 },

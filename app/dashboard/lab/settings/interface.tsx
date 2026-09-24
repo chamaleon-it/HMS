@@ -11,9 +11,9 @@ export interface ProfileType {
       advertisement?: string | null;
       services?: string[];
     };
-    catalogue: {
-      showProfilesOnPatientBill: boolean;
-      allowEditingPanelComposition: boolean;
+    catalogue?: {
+      showProfilesOnPatientBill?: boolean;
+      allowEditingPanelComposition?: boolean;
     }
     tests: {
       _id: string;
@@ -30,12 +30,6 @@ export interface ProfileType {
       prefix: string;
       autoPrintAfterSave: boolean;
       printDualCopies?: boolean;
-    };
-    notifications?: {
-      whatsapp: boolean;
-      sms: boolean;
-      inApp: boolean;
-      note: string;
     };
     reportLayout?: "Classic" | "Modern";
     panelPerPage?: boolean;

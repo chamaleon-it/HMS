@@ -2,7 +2,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Search, GripVertical, Check, Mars, Venus, Baby, Smile, Trash } from "lucide-react";
-import { ProfileType } from "./interface";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { Input } from "@/components/ui/input";
@@ -160,14 +159,7 @@ const useDragScroll = () => {
   return ref;
 };
 
-export default function TestCatalogue({
-  profile,
-  profileMutate,
-}: {
-  profile?: ProfileType;
-  profileMutate: () => void;
-}) {
-  const [loading, setLoading] = useState(false);
+export default function TestCatalogue() {
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const [isAddTestsDialogOpen, setIsAddTestsDialogOpen] = useState(false);
   const [isRemoveTestsDialogOpen, setIsRemoveTestsDialogOpen] = useState(false);
