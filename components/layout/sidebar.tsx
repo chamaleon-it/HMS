@@ -86,31 +86,17 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
     ]) ||
     (user?.role === "Pharmacy" && [
       {
-        key: "appointments",
-        label: "Appointments",
-        icon: CalendarClock,
-        badge: appointmentStatistics.today.toFixed(0),
-        link: "/dashboard/pharmacy/appointments/",
-      },
-      {
         key: "dashboard",
         label: "Dashboard",
         icon: LayoutDashboard,
         link: "/dashboard/pharmacy/",
       },
-
       {
-        key: "inventory",
-        label: "Inventory",
-        icon: Warehouse,
-        link: "/dashboard/pharmacy/inventory/",
-      },
-
-      {
-        key: "purchase-entry",
-        label: "Purchase Entry",
-        icon: ReceiptText,
-        link: "/dashboard/pharmacy/purchase-entry/",
+        key: "appointments",
+        label: "Appointments",
+        icon: CalendarClock,
+        badge: appointmentStatistics.today.toFixed(0),
+        link: "/dashboard/pharmacy/appointments/",
       },
       {
         key: "customers",
@@ -119,17 +105,28 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         link: "/dashboard/pharmacy/customers/",
       },
       {
+        key: "inventory",
+        label: "Inventory",
+        icon: Warehouse,
+        link: "/dashboard/pharmacy/inventory/",
+      },
+      {
         key: "consumables",
         label: "Consumables",
         icon: ClipboardList,
         link: "/dashboard/pharmacy/consumables/",
       },
-
       {
         key: "return",
         label: "Return",
         icon: Undo2,
         link: "/dashboard/pharmacy/return/",
+      },
+      {
+        key: "purchase-entry",
+        label: "Purchase Entry",
+        icon: ReceiptText,
+        link: "/dashboard/pharmacy/purchase-entry/",
       },
       {
         key: "billing",
