@@ -21,10 +21,16 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import TypableExpiryInput from "../purchase-entry/components/TypableExpiryInput";
+import { useAuth } from "@/auth/context/auth-context";
 
 
 
 export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { item: ItemType, editItem: () => void, mutate: () => void, onClose: () => void }) {
+  const { user } = useAuth();
+  // Align with Admin-only item stock edits: Pharmacy may edit rates/expiry but not batch qty.
+  const canEditBatchStock =
+    user?.role === "Admin" || user?.role === "Super Admin";
+
   const [item, setItem] = useState<ItemType>(initialItem);
 
   useEffect(() => {
@@ -66,19 +72,22 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
     if (!editingBatch) return;
     setIsSavingBatch(true);
     try {
+      const payload: Record<string, unknown> = {
+        expiryDate: editForm.expiryDate
+          ? new Date(editForm.expiryDate).toISOString()
+          : undefined,
+        mrp: editForm.mrp,
+        purchaseRate: editForm.purchaseRate,
+        saleRate: editForm.saleRate,
+        supplier: editForm.supplier || undefined,
+      };
+      if (canEditBatchStock) {
+        payload.quantity = editForm.quantity;
+        payload.startingQuantity = editForm.startingQuantity;
+      }
       const res = await api.put(
         `/pharmacy/items/${item._id}/batches/${encodeURIComponent(editingBatch.batchNumber)}`,
-        {
-          expiryDate: editForm.expiryDate
-            ? new Date(editForm.expiryDate).toISOString()
-            : undefined,
-          mrp: editForm.mrp,
-          purchaseRate: editForm.purchaseRate,
-          saleRate: editForm.saleRate,
-          quantity: editForm.quantity,
-          startingQuantity: editForm.startingQuantity,
-          supplier: editForm.supplier || undefined,
-        },
+        payload,
       );
       toast.success(res.data?.message || "Batch updated");
       if (res.data?.data) setItem(res.data.data);
@@ -784,6 +793,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               <Input
                 type="number"
                 value={editForm.quantity}
+                disabled={!canEditBatchStock}
                 onChange={(e) =>
                   setEditForm((f) => ({
                     ...f,
@@ -791,12 +801,18 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                   }))
                 }
               />
+              {!canEditBatchStock && (
+                <p className="text-[10px] text-amber-700 mt-1">
+                  Stock quantity is Admin-only. Use Purchase Entry to add stock.
+                </p>
+              )}
             </div>
             <div>
               <label className="text-xs text-slate-500">Starting qty</label>
               <Input
                 type="number"
                 value={editForm.startingQuantity}
+                disabled={!canEditBatchStock}
                 onChange={(e) =>
                   setEditForm((f) => ({
                     ...f,
