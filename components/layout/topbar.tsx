@@ -33,13 +33,13 @@ export default function Header() {
       { key: "patients", label: "Patients", link: "/dashboard/doctor/patients/" },
     ]) ||
     (user?.role === "Pharmacy" && [
-      { key: "appointments", label: "Appointments", link: "/dashboard/pharmacy/appointments/" },
       { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy/" },
-      { key: "inventory", label: "Inventory", link: "/dashboard/pharmacy/inventory/" },
-      { key: "purchase-entry", label: "Purchase Entry", link: "/dashboard/pharmacy/purchase-entry/" },
+      { key: "appointments", label: "Appointments", link: "/dashboard/pharmacy/appointments/" },
       { key: "customers", label: "Customers", link: "/dashboard/pharmacy/customers/" },
+      { key: "inventory", label: "Inventory", link: "/dashboard/pharmacy/inventory/" },
       { key: "consumables", label: "Consumables", link: "/dashboard/pharmacy/consumables/" },
       { key: "return", label: "Return", link: "/dashboard/pharmacy/return/" },
+      { key: "purchase-entry", label: "Purchase Entry", link: "/dashboard/pharmacy/purchase-entry/" },
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy/billing/" },
     ]) ||
     (user?.role === "Lab" && [
