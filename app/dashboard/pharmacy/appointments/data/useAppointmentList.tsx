@@ -24,6 +24,8 @@ export default function useAppointmentList({
     message: string;
     data: {
       _id: string;
+      /** Appointment Apt # (allocated at create). */
+      mrn?: number;
       patient: {
         _id: string;
         mrn: string;

@@ -69,7 +69,7 @@ export default function List({
     const q = query.toLowerCase();
     const name = a?.patient?.name?.toLowerCase() || "";
     const mrn = a?.patient?.mrn?.toLowerCase() || "";
-    const aptNo = String((a as any)?.mrn ?? "").toLowerCase();
+    const aptNo = String(a?.mrn ?? "").toLowerCase();
 
     return name.includes(q) || mrn.includes(q) || aptNo.includes(q);
   }) || [];
@@ -109,7 +109,7 @@ export default function List({
                 }
               >
                 <TableCell className="py-3 pl-4 font-semibold text-slate-900 tabular-nums">
-                  {(row as any).mrn ?? "—"}
+                  {row.mrn ?? "—"}
                 </TableCell>
                 <TableCell className="py-3 font-medium text-slate-900">
                   {fDateandTime(row.date)}
