@@ -8,13 +8,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { ReceiptIndianRupee, Save } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -64,8 +57,7 @@ export default function Billing({
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
-      {/* Billing settings */}
+    <div className="grid gap-6">
       <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between gap-4">
@@ -150,24 +142,6 @@ export default function Billing({
               {loading ? "Updating..!" : "Save Billing"}
             </Button>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Helper card */}
-      <Card className="border border-dashed border-slate-200 bg-white/80 shadow-sm rounded-2xl">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold text-slate-900">
-            Billing tips
-          </CardTitle>
-          <CardDescription className="text-xs text-slate-500">
-            Recommended defaults for small and mid-sized clinics.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 text-xs text-slate-500">
-          <ul className="list-disc space-y-1 pl-4">
-            <li>Use different prefixes for OP, IP and Lab counters.</li>
-            <li>Configure auto-print to streamline desk checkout.</li>
-          </ul>
         </CardContent>
       </Card>
     </div>
