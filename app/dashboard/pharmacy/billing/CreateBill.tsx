@@ -444,13 +444,11 @@ export default function CreateBill({
         </div>
       </div>
 
-      {/* Printable Receipt Component — prescription page follows when dual copies are on */}
+      {/* Printable Receipt Component — Rx page only when dual-copy setting is on */}
       <PrintReceipt
         payload={payload}
         patient={selectedPatient}
-        withPrescription={
-          pharmacyBilling.printDualCopies || pharmacyBilling.autoPrintAfterSave
-        }
+        withPrescription={!!pharmacyBilling.printDualCopies}
         invoiceDetails={{
           prefix: pharmacyBilling.prefix,
           roundOffAmount: 0,

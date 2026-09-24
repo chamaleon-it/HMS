@@ -11,12 +11,16 @@ export type BatchOption = {
   batchNumber: string;
   expiryDate?: string | Date;
   purchasePrice?: number;
+  purchaseRate?: number;
   sellingPrice?: number;
+  saleRate?: number;
   mrp?: number;
   gst?: number;
   stock: number;
+  quantity?: number;
   supplier?: string;
   packing?: number;
+  status?: "active" | "inactive" | string;
   expired?: boolean;
   available?: boolean;
 };
@@ -34,18 +38,21 @@ type Props = {
   itemId: string | null | undefined;
   value?: string | null;
   onSelect: (batch: BatchOption | null) => void;
+  /** Cap selected qty helper — parent should use this as max qty. */
+  onStockCap?: (maxQty: number) => void;
   sort?: "fefo" | "fifo";
   className?: string;
 };
 
 /**
- * Manual batch picker. Defaults list order to FEFO (or FIFO) but always
- * allows the user to pick any available non-expired batch.
+ * Manual batch picker. Only active batches with quantity > 0 are selectable.
+ * Option label: batch# | exp | stock | rate.
  */
 export default function BatchSelect({
   itemId,
   value,
   onSelect,
+  onStockCap,
   sort = "fefo",
   className,
 }: Props) {
@@ -55,10 +62,14 @@ export default function BatchSelect({
     : null;
   const { data, isLoading } = useSWR<BatchesApi>(key);
 
-  const batches = useMemo(
-    () => (data?.data?.batches || []).filter((b) => !b.expired),
-    [data],
-  );
+  const batches = useMemo(() => {
+    return (data?.data?.batches || []).filter((b) => {
+      if (b.expired) return false;
+      const status = String(b.status || "active").toLowerCase();
+      if (status === "inactive") return false;
+      return (Number(b.stock) || 0) > 0;
+    });
+  }, [data]);
 
   const selected = batches.find((b) => b.batchId === value) || null;
 
@@ -67,13 +78,24 @@ export default function BatchSelect({
       onSelect(null);
       return;
     }
-    // Auto-suggest first available (FEFO/FIFO) when none selected
     if (!value && batches.length > 0) {
-      const pick = batches.find((b) => b.available) || batches[0];
-      if (pick) onSelect(pick);
+      const pick = batches.find((b) => b.available !== false) || batches[0];
+      if (pick) {
+        onSelect(pick);
+        onStockCap?.(Number(pick.stock) || 0);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [itemId, batches.length, sortMode]);
+
+  useEffect(() => {
+    if (selected) {
+      onStockCap?.(Number(selected.stock) || 0);
+    }
+  }, [selected?.batchId, selected?.stock]);
+
+  const rateOf = (b: BatchOption) =>
+    Number(b.saleRate ?? b.sellingPrice ?? 0) || 0;
 
   if (!itemId) {
     return (
@@ -93,19 +115,21 @@ export default function BatchSelect({
           onChange={(e) => {
             const b = batches.find((x) => x.batchId === e.target.value) || null;
             onSelect(b);
+            if (b) onStockCap?.(Number(b.stock) || 0);
           }}
         >
           <option value="" disabled>
             {isLoading
               ? "Loading batches…"
               : batches.length === 0
-                ? "No available batches"
+                ? "No sellable batches"
                 : "Select batch"}
           </option>
           {batches.map((b) => (
-            <option key={b.batchId} value={b.batchId} disabled={!b.available}>
-              {b.batchNumber} · Exp{" "}
-              {b.expiryDate ? fDate(b.expiryDate) : "—"} · Stock {b.stock}
+            <option key={b.batchId} value={b.batchId}>
+              {b.batchNumber} | Exp{" "}
+              {b.expiryDate ? fDate(b.expiryDate) : "—"} | Stock {b.stock} |{" "}
+              {formatINR(rateOf(b))}
             </option>
           ))}
         </select>
@@ -145,16 +169,14 @@ export default function BatchSelect({
           <Detail label="MRP" value={formatINR(selected.mrp || 0)} />
           <Detail
             label="Purchase"
-            value={formatINR(selected.purchasePrice || 0)}
+            value={formatINR(
+              selected.purchaseRate ?? selected.purchasePrice ?? 0,
+            )}
           />
-          <Detail
-            label="Selling"
-            value={formatINR(selected.sellingPrice || 0)}
-          />
+          <Detail label="Sale rate" value={formatINR(rateOf(selected))} />
           <Detail label="GST %" value={String(selected.gst ?? 0)} />
           <Detail label="Stock" value={String(selected.stock)} />
           <Detail label="Supplier" value={selected.supplier || "—"} />
-          <Detail label="Packing" value={String(selected.packing ?? 1)} />
         </div>
       )}
     </div>
