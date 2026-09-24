@@ -86,88 +86,69 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between items-start gap-4">
-          <div className="flex-1">
-            <PatientSelection
-              patientName={patientName}
-              autoFocus
-              // actionElement={
-              //   <Button
-              //     type="button"
-              //     variant="outline"
-              //     size="sm"
-              //     onClick={() => {
-              //       window.dispatchEvent(new CustomEvent('open-register-patient', { detail: { name: '', draftId: draft.id } }));
-              //     }}
-              //     className="h-7 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-              //   >
-              //     <UserPlus className="h-3.5 w-3.5 mr-1.5" />
-              //     New Customer
-              //   </Button>
-              // }
-              setValue={(id: string, name?: string) => {
-                setPayload((prev: any) => ({ ...prev, patient: id }));
-                updateDraft(draft.id, { patientName: name || "" });
-              }}
-              register={(name) => {
-                window.dispatchEvent(new CustomEvent('open-register-patient', { detail: { name, draftId: draft.id } }));
-              }}
-            />
+    <div className="flex flex-col gap-2">
+      <div className="flex justify-between items-start gap-3">
+        <div className="flex-1 min-w-0">
+          <PatientSelection
+            patientName={patientName}
+            autoFocus
+            setValue={(id: string, name?: string) => {
+              setPayload((prev: any) => ({ ...prev, patient: id }));
+              updateDraft(draft.id, { patientName: name || "" });
+            }}
+            register={(name) => {
+              window.dispatchEvent(new CustomEvent('open-register-patient', { detail: { name, draftId: draft.id } }));
+            }}
+          />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 items-stretch">
-              <div className="flex flex-col p-3.5 border border-slate-200 bg-slate-50/40 rounded-xl transition-shadow hover:shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="p-1.5 rounded-lg bg-slate-200/60 text-slate-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-stethoscope"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
-                  </div>
-                  <Label className="text-sm font-semibold text-slate-700">Doctor</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1.5 items-stretch">
+            <div className="flex flex-col gap-1.5 p-2.5 border border-slate-200 bg-slate-50/40 rounded-lg">
+              <div className="flex items-center gap-1.5">
+                <div className="p-1 rounded-md bg-slate-200/60 text-slate-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-stethoscope"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
                 </div>
-                <div className="mt-auto">
-                  <DoctorSelection
-                    value={payload.doctorName || ""}
-                    onSelect={(name: string, id?: string | null) => {
-                      setPayload((prev: any) => ({ ...prev, doctorName: name, doctor: id ?? null }));
-                    }}
-                  />
-                </div>
+                <Label className="text-xs font-semibold text-slate-700">Doctor</Label>
               </div>
+              <DoctorSelection
+                value={payload.doctorName || ""}
+                onSelect={(name: string, id?: string | null) => {
+                  setPayload((prev: any) => ({ ...prev, doctorName: name, doctor: id ?? null }));
+                }}
+              />
+            </div>
 
-              <div className="flex flex-col p-3.5 border border-slate-200 bg-slate-50/40 rounded-xl transition-shadow hover:shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="p-1.5 rounded-lg bg-slate-200/60 text-slate-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user-cog"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /><circle cx="19" cy="11" r="2" /><path d="m19 13.5 0 .5" /><path d="m19 8.5 0 .5" /></svg>
-                  </div>
-                  <Label className="text-sm font-semibold text-slate-700">Pharmacist In-charge</Label>
+            <div className="flex flex-col gap-1.5 p-2.5 border border-slate-200 bg-slate-50/40 rounded-lg">
+              <div className="flex items-center gap-1.5">
+                <div className="p-1 rounded-md bg-slate-200/60 text-slate-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user-cog"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /><circle cx="19" cy="11" r="2" /><path d="m19 13.5 0 .5" /><path d="m19 8.5 0 .5" /></svg>
                 </div>
-                <PharmacistSelection
-                  hideLabel
-                  setValue={(name: string) => {
-                    setPayload((prev) => ({ ...prev, pharmacist: name }));
-                  }}
-                  pharmacistName={payload.pharmacist}
-                  className="mt-auto"
-                />
+                <Label className="text-xs font-semibold text-slate-700">Pharmacist In-charge</Label>
               </div>
+              <PharmacistSelection
+                hideLabel
+                setValue={(name: string) => {
+                  setPayload((prev) => ({ ...prev, pharmacist: name }));
+                }}
+                pharmacistName={payload.pharmacist}
+              />
             </div>
           </div>
+        </div>
 
-          <div className="shrink-0 pt-7">
-            <Button
-              variant="outline"
-              className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-sm"
-              onClick={() => setShowAllFields(!showAllFields)}
-            >
-              {showAllFields ? "Hide optional fields" : "Display all fields"}
-            </Button>
-          </div>
+        <div className="shrink-0 pt-6">
+          <Button
+            variant="outline"
+            className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-sm"
+            onClick={() => setShowAllFields(!showAllFields)}
+          >
+            {showAllFields ? "Hide optional fields" : "Display all fields"}
+          </Button>
         </div>
       </div>
 
       <PrescriptionCard setData={setPayload as any} data={payload} showAllFields={showAllFields} />
 
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center pt-0.5">
         <div className="">
           {payload.patient && (
             <Button

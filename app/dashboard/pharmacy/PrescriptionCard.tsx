@@ -352,7 +352,7 @@ export default function PrescriptionCard({
             </div>
           </div>
           {m.name ? (
-            <div className="px-2 pb-2 pl-[43px]">
+            <div className="px-2 pb-1 pl-[43px]">
               <BatchSelect
                 itemId={m.name}
                 value={m.batchId}
@@ -363,8 +363,8 @@ export default function PrescriptionCard({
           </div>
         ))}
       </div>
-      <div className="p-4 bg-slate-50/50 border-t space-y-2">
-        <div className="flex gap-3 mb-2">
+      <div className="px-3 py-2.5 bg-slate-50/50 border-t space-y-1.5">
+        <div className="flex gap-3 mb-1">
           <Button
             onClick={addMedicineRow}
             size="sm"

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import useSWR from "swr";
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
@@ -40,13 +40,14 @@ type Props = {
   onSelect: (batch: BatchOption | null) => void;
   /** Cap selected qty helper — parent should use this as max qty. */
   onStockCap?: (maxQty: number) => void;
+  /** Default FEFO; kept for API compat — UI is a single compact field. */
   sort?: "fefo" | "fifo";
   className?: string;
 };
 
 /**
- * Manual batch picker. Only active batches with quantity > 0 are selectable.
- * Option label: batch# | exp | stock | rate.
+ * Compact batch picker. Option label: batch# | exp | stock | rate.
+ * Defaults to FEFO sort from the API; no FEFO/FIFO pills or detail panel.
  */
 export default function BatchSelect({
   itemId,
@@ -56,9 +57,8 @@ export default function BatchSelect({
   sort = "fefo",
   className,
 }: Props) {
-  const [sortMode, setSortMode] = useState<"fefo" | "fifo">(sort);
   const key = itemId
-    ? `/pharmacy/items/${itemId}/batches?sort=${sortMode}`
+    ? `/pharmacy/items/${itemId}/batches?sort=${sort}`
     : null;
   const { data, isLoading } = useSWR<BatchesApi>(key);
 
@@ -86,7 +86,7 @@ export default function BatchSelect({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemId, batches.length, sortMode]);
+  }, [itemId, batches.length]);
 
   useEffect(() => {
     if (selected) {
@@ -106,88 +106,37 @@ export default function BatchSelect({
   }
 
   return (
-    <div className={cn("space-y-1.5", className)}>
-      <div className="flex items-center gap-2">
-        <select
-          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-xs"
-          value={value || ""}
-          disabled={isLoading || batches.length === 0}
-          onChange={(e) => {
-            const b = batches.find((x) => x.batchId === e.target.value) || null;
-            onSelect(b);
-            if (b) onStockCap?.(Number(b.stock) || 0);
-          }}
-        >
-          <option value="" disabled>
-            {isLoading
-              ? "Loading batches…"
-              : batches.length === 0
-                ? "No sellable batches"
-                : "Select batch"}
-          </option>
-          {batches.map((b) => (
-            <option key={b.batchId} value={b.batchId}>
-              {b.batchNumber} | Exp{" "}
-              {b.expiryDate ? fDate(b.expiryDate) : "—"} | Stock {b.stock} |{" "}
-              {formatINR(rateOf(b))}
-            </option>
-          ))}
-        </select>
-        <div className="flex shrink-0 rounded-md border border-slate-200 overflow-hidden text-[10px]">
-          <button
-            type="button"
-            className={cn(
-              "px-2 py-1",
-              sortMode === "fefo" ? "bg-slate-800 text-white" : "bg-white",
-            )}
-            onClick={() => setSortMode("fefo")}
-            title="Earliest expiry first"
-          >
-            FEFO
-          </button>
-          <button
-            type="button"
-            className={cn(
-              "px-2 py-1",
-              sortMode === "fifo" ? "bg-slate-800 text-white" : "bg-white",
-            )}
-            onClick={() => setSortMode("fifo")}
-            title="Oldest intake first"
-          >
-            FIFO
-          </button>
-        </div>
-      </div>
-
-      {selected && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-1 rounded-lg bg-slate-50 border border-slate-100 px-2.5 py-2 text-[10px] text-slate-600">
-          <Detail label="Batch #" value={selected.batchNumber} />
-          <Detail
-            label="Expiry"
-            value={selected.expiryDate ? fDate(selected.expiryDate) : "—"}
-          />
-          <Detail label="MRP" value={formatINR(selected.mrp || 0)} />
-          <Detail
-            label="Purchase"
-            value={formatINR(
-              selected.purchaseRate ?? selected.purchasePrice ?? 0,
-            )}
-          />
-          <Detail label="Sale rate" value={formatINR(rateOf(selected))} />
-          <Detail label="GST %" value={String(selected.gst ?? 0)} />
-          <Detail label="Stock" value={String(selected.stock)} />
-          <Detail label="Supplier" value={selected.supplier || "—"} />
-        </div>
+    <select
+      className={cn(
+        "h-8 max-w-md w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-700",
+        className,
       )}
-    </div>
-  );
-}
-
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <span className="uppercase tracking-wide text-slate-400">{label}: </span>
-      <span className="font-medium text-slate-700">{value}</span>
-    </div>
+      value={value || ""}
+      disabled={isLoading || batches.length === 0}
+      onChange={(e) => {
+        const b = batches.find((x) => x.batchId === e.target.value) || null;
+        onSelect(b);
+        if (b) onStockCap?.(Number(b.stock) || 0);
+      }}
+      title={
+        selected
+          ? `${selected.batchNumber} · Exp ${selected.expiryDate ? fDate(selected.expiryDate) : "—"} · Stock ${selected.stock} · ${formatINR(rateOf(selected))}`
+          : undefined
+      }
+    >
+      <option value="" disabled>
+        {isLoading
+          ? "Loading batches…"
+          : batches.length === 0
+            ? "No sellable batches"
+            : "Select batch"}
+      </option>
+      {batches.map((b) => (
+        <option key={b.batchId} value={b.batchId}>
+          {b.batchNumber} · Exp {b.expiryDate ? fDate(b.expiryDate) : "—"} · Stock{" "}
+          {b.stock} · {formatINR(rateOf(b))}
+        </option>
+      ))}
+    </select>
   );
 }

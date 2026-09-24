@@ -1,5 +1,5 @@
 import { fDateandTime, fTime } from "@/lib/fDateAndTime";
-import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw, Printer } from "lucide-react";
+import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Pencil, MoreHorizontal, Calendar, User, Clock, Printer } from "lucide-react";
 import React, { useState } from "react";
 import BlankPrescription from "./BlankPrescription";
 import useAppointmentList from "./data/useAppointmentList";
@@ -87,34 +87,6 @@ export default function List({
       if (status === "Consulted") {
         router.push(`/dashboard/pharmacy/?mrn=${appointment?.patient?.mrn}&name=${appointment?.patient?.name}&id=${appointment?.patient?._id}&doctor=${appointment?.doctor._id}&#newOrder`);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this appointment?")) return;
-    try {
-      await toast.promise(api.delete(`/appointments/${id}`), {
-        loading: "Deleting...",
-        success: "Deleted",
-        error: "Failed",
-      });
-      mutate();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleRecover = async (id: string) => {
-    if (!confirm("Recover this appointment?")) return;
-    try {
-      await toast.promise(api.post(`/appointments/recover/${id}`), {
-        loading: "Recovering...",
-        success: "Recovered",
-        error: "Failed",
-      });
-      mutate();
     } catch (error) {
       console.error(error);
     }
@@ -222,7 +194,7 @@ export default function List({
                   </TableCell>
                   <TableCell className="py-2.5 pr-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} onPlaceOrder={() => router.push(`/dashboard/pharmacy/?mrn=${row?.patient?.mrn}&name=${row?.patient?.name}&id=${row?.patient?._id}&doctor=${row?.doctor?._id}&#newOrder`)} onPrint={() => handlePrintPrescription(row)} />
+                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onPlaceOrder={() => router.push(`/dashboard/pharmacy/?mrn=${row?.patient?.mrn}&name=${row?.patient?.name}&id=${row?.patient?._id}&doctor=${row?.doctor?._id}&#newOrder`)} onPrint={() => handlePrintPrescription(row)} />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -255,7 +227,7 @@ export default function List({
   );
 }
 
-function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted, onPlaceOrder, onPrint }: any) {
+function ActionButtons({ status, id, onStatusUpdate, onEdit, onPlaceOrder, onPrint }: any) {
   return (
     <>
       {status !== "Consulted" && <button
@@ -283,25 +255,13 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover
         <DropdownMenuTrigger className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 border border-transparent hover:border-gray-200 outline-hidden">
           <MoreHorizontal size={16} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-40">
-          <DropdownMenuLabel>Change Status</DropdownMenuLabel>
-          <DropdownMenuItem onClick={onPlaceOrder}>Place Order</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Upcoming")}>Mark Upcoming</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Consulted")}>Mark Consulted</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Not show")} className="text-red-600 focus:text-red-700 focus:bg-red-50">Mark Not Show</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          {
-            isDeleted ? (
-              <DropdownMenuItem onClick={onRecover} className="text-green-600 focus:text-green-700 focus:bg-green-50">
-                <RefreshCw className="w-4 h-4 mr-2" /> Recover
-              </DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem onClick={onDelete} className="text-red-600 focus:text-red-700 focus:bg-red-50">
-                <Trash2 className="w-4 h-4 mr-2" /> Delete
-              </DropdownMenuItem>
-            )
-          }
+        <DropdownMenuContent align="end" className="w-44 p-1">
+          <DropdownMenuLabel className="py-1 px-2 text-xs">Change Status</DropdownMenuLabel>
+          <DropdownMenuItem className="py-1" onClick={onPlaceOrder}>Place Order</DropdownMenuItem>
+          <DropdownMenuItem className="py-1" onClick={() => onStatusUpdate(id, "Upcoming")}>Mark Upcoming</DropdownMenuItem>
+          <DropdownMenuItem className="py-1" onClick={() => onStatusUpdate(id, "Consulted")}>Mark Consulted</DropdownMenuItem>
+          <DropdownMenuSeparator className="my-0.5" />
+          <DropdownMenuItem className="py-1 text-red-600 focus:text-red-700 focus:bg-red-50" onClick={() => onStatusUpdate(id, "Not show")}>Mark Not Show</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

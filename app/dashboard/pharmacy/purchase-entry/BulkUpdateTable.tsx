@@ -444,13 +444,13 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="bg-white p-7 rounded-xl shadow-sm border border-slate-200"
+                className="bg-white p-4 rounded-xl shadow-sm border border-slate-200"
             >
-                <div className="flex gap-8">
-                    <div className="space-y-2">
-                        <label className="text-[11px]  text-slate-400 uppercase tracking-widest font-semibold">Supplier*</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="space-y-1.5 min-w-0">
+                        <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">Supplier*</label>
                         <Select value={selectedSupplierId} onValueChange={setSelectedSupplierId}>
-                            <SelectTrigger className="h-11! bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all  ">
+                            <SelectTrigger className="h-10! w-full bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all">
                                 <SelectValue placeholder="Select Supplier" />
                             </SelectTrigger>
                             <SelectContent className="rounded-lg border-slate-200 ">
@@ -461,19 +461,19 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         </Select>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-[11px]  text-slate-400 uppercase tracking-widest font-semibold">Invoice Date*</label>
+                    <div className="space-y-1.5 min-w-0">
+                        <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">Invoice Date*</label>
                         <TypableDateInput
                             value={billDetails.invoiceDate}
                             onChange={(date) => handleBillDetailChange("invoiceDate", date)}
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-[11px]  text-slate-400 uppercase tracking-widest font-semibold">Invoice No*</label>
+                    <div className="space-y-1.5 min-w-0">
+                        <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">Invoice No*</label>
                         <Input
                             placeholder="Invoice no."
-                            className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all  "
+                            className="h-10 w-full bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all"
                             value={billDetails.invoiceNumber}
                             onChange={(e) => handleBillDetailChange("invoiceNumber", e.target.value)}
                         />
