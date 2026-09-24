@@ -70,8 +70,9 @@ export default function List({
     const q = query.toLowerCase();
     const name = a?.patient?.name?.toLowerCase() || "";
     const mrn = a?.patient?.mrn?.toLowerCase() || "";
+    const aptNo = String((a as any)?.mrn ?? "").toLowerCase();
 
-    return name.includes(q) || mrn.includes(q);
+    return name.includes(q) || mrn.includes(q) || aptNo.includes(q);
   }) || [];
 
   return (
@@ -79,7 +80,8 @@ export default function List({
       <Table className="text-sm">
         <TableHeader className="bg-slate-700 hover:bg-slate-700">
           <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-            <TableHead className="py-2.5 text-left pl-4 text-white font-bold text-[11px] uppercase tracking-wider">Time</TableHead>
+            <TableHead className="py-2.5 text-left pl-4 text-white font-bold text-[11px] uppercase tracking-wider">Apt #</TableHead>
+            <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Time</TableHead>
             <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Patient</TableHead>
             <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Doctor</TableHead>
             <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Method</TableHead>
@@ -90,7 +92,7 @@ export default function List({
         <TableBody>
           {filteredData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="py-20 text-center">
+              <TableCell colSpan={7} className="py-20 text-center">
                 <div className="flex flex-col items-center gap-2">
                   <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center dark:bg-slate-800">
                     <Search className="h-6 w-6 text-slate-300" />
@@ -108,7 +110,10 @@ export default function List({
                   : "bg-slate-100 hover:bg-slate-100/60"
                 }
               >
-                <TableCell className="py-3 pl-4 font-medium text-slate-900">
+                <TableCell className="py-3 pl-4 font-semibold text-slate-900 tabular-nums">
+                  {(row as any).mrn ?? "—"}
+                </TableCell>
+                <TableCell className="py-3 font-medium text-slate-900">
                   {fDateandTime(row.date)}
                 </TableCell>
                 <TableCell className="py-3">

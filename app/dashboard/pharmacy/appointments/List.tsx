@@ -70,8 +70,9 @@ export default function List({
     const q = query.toLowerCase();
     const name = a?.patient?.name?.toLowerCase() || "";
     const mrn = a?.patient?.mrn?.toLowerCase() || "";
+    const aptNo = String(a?.mrn ?? "").toLowerCase();
 
-    return name.includes(q) || mrn.includes(q);
+    return name.includes(q) || mrn.includes(q) || aptNo.includes(q);
   }) || [];
 
   const handleStatusUpdate = async (id: string, status: string) => {
@@ -97,7 +98,8 @@ export default function List({
       <Table>
         <TableHeader className="bg-gray-50/50">
           <TableRow className="hover:bg-gray-50/50 border-gray-100">
-            <TableHead className="py-3 pl-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-25">Time</TableHead>
+            <TableHead className="py-3 pl-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-16">Apt #</TableHead>
+            <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-25">Time</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Patient</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Doctor</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type/Method</TableHead>
@@ -109,7 +111,7 @@ export default function List({
         <TableBody>
           {filteredData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="h-64 text-center">
+              <TableCell colSpan={8} className="h-64 text-center">
                 <div className="flex flex-col items-center justify-center gap-3">
                   <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center ring-1 ring-gray-100">
                     <Search className="h-8 w-8 text-gray-300" />
@@ -129,7 +131,10 @@ export default function List({
                   key={row._id}
                   className="group hover:bg-gray-50/50 transition-colors border-gray-100"
                 >
-                  <TableCell className="py-2.5 pl-4 font-medium text-gray-700 whitespace-nowrap">
+                  <TableCell className="py-2.5 pl-4 font-semibold text-gray-900 whitespace-nowrap tabular-nums">
+                    {row.mrn ?? "—"}
+                  </TableCell>
+                  <TableCell className="py-2.5 font-medium text-gray-700 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <Clock className="w-3.5 h-3.5 text-gray-400" />
                       {fDateandTime(row.date)}
