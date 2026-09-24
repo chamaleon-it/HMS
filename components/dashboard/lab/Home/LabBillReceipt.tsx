@@ -3,14 +3,12 @@ import { createPortal } from "react-dom";
 import { fAge, fDateandTime } from "@/lib/fDateAndTime";
 import useGetTest from "@/data/useGetTest";
 import configuration from "@/config/configuration";
-import usePrintBranding from "@/hooks/usePrintBranding";
-import BrandingFooter from "@/components/print/BrandingFooter";
 
 interface LabBillReceiptProps {
     report?: any | null;
     bill?: any | null;
     panels?: { name: string; price: number; tests?: any[] }[];
-    /** Kept for call-site compat; cash bill always prints two identical halves. */
+    /** Kept for call-site compat; layout always prints both slit halves. */
     copy?: "patient" | "lab" | "both";
 }
 
@@ -47,10 +45,14 @@ const formatAmount = (num: number) => {
     return (Number(num) || 0).toFixed(2);
 };
 
+const formatRateOrQty = (num: number) => {
+    const val = Number(num) || 0;
+    return Number.isInteger(val) ? String(val) : val.toFixed(2);
+};
+
 export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptProps) {
     const [mounted, setMounted] = useState(false);
     const { tests } = useGetTest();
-    const { slogan, advertisement, services } = usePrintBranding("lab");
 
     useEffect(() => {
         setMounted(true);
@@ -69,6 +71,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
 
     if ((!report && !bill) || !mounted) return null;
 
+    // Determine patient and doctor values
     const patient = bill?.patient || report?.patient;
     const patientName = patient?.name || "—";
 
@@ -83,6 +86,15 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
     }
     const genderStr = patient?.gender ? String(patient.gender) : "";
     const ageSex = [ageStr, genderStr].filter(Boolean).join(" / ");
+
+    const doctorVal = bill?.doctor || report?.doctor;
+    let doctorName = typeof doctorVal === "object" ? doctorVal?.name : doctorVal;
+    if (typeof doctorVal === "object" && doctorVal?.qualification) {
+        doctorName = `${doctorName} ,${doctorVal.qualification}`;
+    }
+    if (!doctorName || doctorName.toLowerCase() === "null") {
+        doctorName = "Self";
+    }
 
     const invoiceNo =
         bill?.mrn ||
@@ -100,11 +112,10 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
 
     const config = configuration();
     const hospitalName = config.hospitalName || "RAHMATH HOSPITAL";
-    const hospitalAddress = config.hospitalAddress || "";
-    const hospitalPhone = config.hospitalPhone
-        ? `PH: ${config.hospitalPhone.trim()}`
-        : "";
+    const hospitalAddress = config.hospitalAddress || "NILAMBUR ROAD, MAMPAD";
+    const hospitalPhone = config.hospitalPhone ? `PH: ${config.hospitalPhone.trim()}` : "PH: 9279100700";
 
+    // Calculate items
     let items: BillItemRow[] = [];
 
     if (bill && Array.isArray(bill.items)) {
@@ -113,8 +124,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             const rate = it.unitPrice ?? (it.total ? it.total / qty : 0);
             const disAmt = it.discount ?? 0;
             const baseTotal = rate * qty;
-            const discPercent =
-                baseTotal > 0 && disAmt > 0 ? Math.round((disAmt / baseTotal) * 100) : 0;
+            const discPercent = baseTotal > 0 && disAmt > 0 ? Math.round((disAmt / baseTotal) * 100) : 0;
             const amount = it.total !== undefined ? it.total : baseTotal - disAmt;
             return {
                 name: it.name || "Test",
@@ -126,6 +136,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             };
         });
     } else if (report) {
+        // Group tests by panels if they belong to a panel
         const selectedPanels = panels?.filter((p) => report.panels?.includes(p.name)) || [];
         selectedPanels.forEach((p) => {
             items.push({
@@ -140,6 +151,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
 
         const panelTests = selectedPanels.flatMap((e: any) => e.tests || []).map((e: any) => e._id);
 
+        // Standalone tests
         report.test
             ?.filter((t: any) => !panelTests.includes(t.name?._id))
             .forEach((t: any) => {
@@ -160,117 +172,6 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
     const billDiscount = bill?.discount || 0;
     const netAmount = Math.max(0, totalAmount - billDiscount);
 
-    const renderNarrowBill = (key: string, showBranding: boolean) => (
-        <div
-            key={key}
-            className="print-receipt-half border border-black p-2 flex flex-col bg-white box-border min-w-0"
-            style={{ width: "50%", flex: "1 1 0" }}
-        >
-            <div className="text-center pb-1">
-                <h2 className="text-[13px] font-bold text-black uppercase tracking-wider leading-tight">
-                    {hospitalName.split(" ").length > 1 ? (
-                        <>
-                            <div>{hospitalName.split(" ").slice(0, -1).join(" ")}</div>
-                            <div>{hospitalName.split(" ").slice(-1).join(" ")}</div>
-                        </>
-                    ) : (
-                        <div>{hospitalName}</div>
-                    )}
-                </h2>
-                {slogan && (
-                    <p className="text-[8px] font-medium italic text-black leading-snug">{slogan}</p>
-                )}
-                {hospitalAddress && (
-                    <p className="text-[8.5px] font-medium text-black uppercase tracking-wide leading-snug">
-                        {hospitalAddress}
-                    </p>
-                )}
-                {hospitalPhone && (
-                    <p className="text-[8.5px] font-medium text-black tracking-wide leading-snug">
-                        {hospitalPhone}
-                    </p>
-                )}
-            </div>
-
-            <div className="border-b border-black w-full mb-1"></div>
-
-            <div className="text-center py-0.5 mb-0.5">
-                <span className="text-[11px] font-bold text-black uppercase tracking-wider">
-                    CASH BILL
-                </span>
-            </div>
-
-            <div className="space-y-0.5 text-[10px] text-black pb-1.5 px-0.5 leading-tight">
-                <div className="grid grid-cols-[52px_8px_1fr] items-center">
-                    <span className="font-semibold text-black">Bill No</span>
-                    <span>:</span>
-                    <span className="font-bold text-black">{invoiceNo}</span>
-                </div>
-                <div className="grid grid-cols-[52px_8px_1fr] items-center">
-                    <span className="font-semibold text-black">Date</span>
-                    <span>:</span>
-                    <span className="font-medium text-black">{formatBillDate(billDate)}</span>
-                </div>
-                <div className="grid grid-cols-[52px_8px_1fr] items-center">
-                    <span className="font-semibold text-black">Time</span>
-                    <span>:</span>
-                    <span className="font-medium text-black">{formatBillTime(billDate)}</span>
-                </div>
-                <div className="grid grid-cols-[52px_8px_1fr] items-center">
-                    <span className="font-semibold text-black">Name</span>
-                    <span>:</span>
-                    <span className="font-bold text-black uppercase">{patientName}</span>
-                </div>
-                <div className="grid grid-cols-[52px_8px_1fr] items-center">
-                    <span className="font-semibold text-black">Age/Sex</span>
-                    <span>:</span>
-                    <span className="font-medium text-black">{ageSex || ""}</span>
-                </div>
-            </div>
-
-            <div className="w-full border border-black flex-1">
-                <div className="py-0.5 px-1 font-semibold text-[10px] text-black border-b border-black">
-                    Test Name
-                </div>
-                <div className="py-1 px-1 text-[10px] space-y-0.5">
-                    {items.map((item, idx) => (
-                        <div key={idx} className="font-medium text-black uppercase truncate">
-                            {item.name}
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="pt-1 text-[10px] text-black mt-auto">
-                <div className="space-y-0.5 px-0.5">
-                    <div className="grid grid-cols-[75px_8px_1fr] items-center">
-                        <span className="font-semibold text-black">Total Amount</span>
-                        <span>:</span>
-                        <span className="font-bold text-black text-right">{formatAmount(totalAmount)}</span>
-                    </div>
-                    <div className="grid grid-cols-[75px_8px_1fr] items-center">
-                        <span className="font-semibold text-black">Discount</span>
-                        <span>:</span>
-                        <span className="font-bold text-black text-right">{formatAmount(billDiscount)}</span>
-                    </div>
-                </div>
-
-                <div className="border-t border-black my-1"></div>
-
-                <div className="flex justify-between items-center font-bold text-[12px] px-0.5">
-                    <span>Net Amount :</span>
-                    <span className="text-right">{formatAmount(netAmount)}</span>
-                </div>
-
-                {showBranding && (services || advertisement) && (
-                    <div className="mt-1">
-                        <BrandingFooter services={services} advertisement={advertisement} />
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-
     const content = (
         <div className="print-receipt hidden print:flex bg-white text-black font-sans leading-tight overflow-hidden relative flex-row gap-2">
             <style
@@ -278,8 +179,8 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                     __html: `
         @media print {
           @page {
-            size: A4 landscape;
-            margin: 6mm;
+            size: A5 landscape;
+            margin: 4mm;
           }
           html, body {
             margin: 0 !important;
@@ -301,8 +202,8 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             position: relative !important;
             left: 0 !important;
             top: 0 !important;
-            width: 285mm !important;
-            max-height: 190mm !important;
+            width: 202mm !important;
+            max-height: 140mm !important;
             padding: 0 !important;
             margin: 0 auto !important;
             background: white !important;
@@ -310,7 +211,6 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             display: flex !important;
             flex-direction: row !important;
             align-items: stretch !important;
-            justify-content: space-between !important;
             gap: 4mm !important;
             z-index: 999999999 !important;
             page-break-inside: avoid !important;
@@ -321,14 +221,6 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             break-before: avoid !important;
             font-family: Arial, Helvetica, sans-serif !important;
           }
-          .print-receipt-half {
-            width: calc(50% - 2mm) !important;
-            max-width: none !important;
-            flex: 1 1 0 !important;
-            box-sizing: border-box !important;
-            display: flex !important;
-            flex-direction: column !important;
-          }
           .no-print, aside, header, footer, nav, button {
             display: none !important;
           }
@@ -336,8 +228,224 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
       `,
                 }}
             />
-            {renderNarrowBill("copy-left", true)}
-            {renderNarrowBill("copy-right", false)}
+
+            {/* LEFT CONTAINER: "CASH BILL" (Patient/Customer Copy) */}
+            <div className="w-[63%] border border-black p-2 flex flex-col bg-white box-border">
+                {/* 1. Header Layout */}
+                <div className="text-center pb-1">
+                    <h1 className="text-[14px] font-bold text-black uppercase tracking-wider leading-snug">
+                        {hospitalName}
+                    </h1>
+                    <p className="text-[9.5px] font-medium text-black uppercase tracking-wide leading-snug">
+                        {hospitalAddress}
+                    </p>
+                    <p className="text-[9.5px] font-medium text-black tracking-wide leading-snug">
+                        {hospitalPhone}
+                    </p>
+                </div>
+
+                {/* Divider Line */}
+                <div className="border-b border-black w-full my-0.5"></div>
+
+                {/* 2. Bill Title */}
+                <div className="text-center py-1">
+                    <span className="text-[12.5px] font-bold text-black uppercase tracking-wider">
+                        CASH BILL
+                    </span>
+                </div>
+
+                {/* 3. Patient & Bill Metadata Grid */}
+                <div className="grid grid-cols-[1fr_auto] gap-2 pb-1.5 px-0.5 text-[10px] leading-tight text-black">
+                    {/* Left Column */}
+                    <div className="space-y-0.5">
+                        <div className="grid grid-cols-[60px_10px_1fr] items-center">
+                            <span className="font-semibold text-black">Bill No</span>
+                            <span>:</span>
+                            <span className="font-bold text-black">{invoiceNo}</span>
+                        </div>
+                        <div className="grid grid-cols-[60px_10px_1fr] items-center">
+                            <span className="font-semibold text-black">Name</span>
+                            <span>:</span>
+                            <span className="font-bold text-black uppercase">{patientName}</span>
+                        </div>
+                        <div className="grid grid-cols-[60px_10px_1fr] items-center">
+                            <span className="font-semibold text-black">Age/Sex</span>
+                            <span>:</span>
+                            <span className="font-medium text-black">{ageSex || "—"}</span>
+                        </div>
+                        <div className="grid grid-cols-[60px_10px_1fr] items-center">
+                            <span className="font-semibold text-black">Ref. by Dr</span>
+                            <span>:</span>
+                            <span className="font-bold text-black uppercase">{doctorName}</span>
+                        </div>
+                    </div>
+
+                    {/* Right Column */}
+                    <div className="space-y-0.5">
+                        <div className="grid grid-cols-[35px_10px_1fr] items-center">
+                            <span className="font-semibold text-black">Date</span>
+                            <span>:</span>
+                            <span className="font-medium text-black">{formatBillDate(billDate)}</span>
+                        </div>
+                        <div className="grid grid-cols-[35px_10px_1fr] items-center">
+                            <span className="font-semibold text-black">Time</span>
+                            <span>:</span>
+                            <span className="font-medium text-black">{formatBillTime(billDate)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 4. Test Items Table */}
+                <div className="w-full border border-black">
+                    <table className="w-full border-collapse text-[10px] table-fixed">
+                        <thead>
+                            <tr className="border-b border-black font-semibold text-black">
+                                <th style={{ width: "7%" }} className="py-0.5 px-1 text-center border-r border-black">S.No</th>
+                                <th style={{ width: "43%" }} className="py-0.5 px-1.5 text-left border-r border-black">Test Name</th>
+                                <th style={{ width: "13%" }} className="py-0.5 px-1 text-right border-r border-black">Rate</th>
+                                <th style={{ width: "8%" }} className="py-0.5 px-1 text-center border-r border-black">Qty</th>
+                                <th style={{ width: "9%" }} className="py-0.5 px-1 text-center border-r border-black">Disc %</th>
+                                <th style={{ width: "9%" }} className="py-0.5 px-1 text-right border-r border-black">Dis Amt</th>
+                                <th style={{ width: "11%" }} className="py-0.5 px-1 text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {items.map((item, idx) => (
+                                <tr key={idx} className="text-black">
+                                    <td className="py-0.5 px-1 text-center border-r border-black">{idx + 1}</td>
+                                    <td className="py-0.5 px-1.5 text-left font-medium border-r border-black uppercase truncate">{item.name}</td>
+                                    <td className="py-0.5 px-1 text-right border-r border-black">{formatRateOrQty(item.rate)}</td>
+                                    <td className="py-0.5 px-1 text-center border-r border-black">{item.qty}</td>
+                                    <td className="py-0.5 px-1 text-center border-r border-black">{item.discPercent}</td>
+                                    <td className="py-0.5 px-1 text-right border-r border-black">{formatRateOrQty(item.disAmt)}</td>
+                                    <td className="py-0.5 px-1 text-right font-medium">{formatRateOrQty(item.amount)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* 5. Financial Summary */}
+                <div className="pt-1 text-[10px] text-black">
+                    <div className="flex justify-between items-start">
+                        {/* Rate sum aligned under Rate column */}
+                        <div className="w-[50%] flex justify-end pr-1.5 pt-0.5">
+                            {/* <span className="font-bold text-black text-[10px]">{formatAmount(totalRate)}</span> */}
+                        </div>
+
+                        {/* Summary totals */}
+                        <div className="w-[50%] space-y-0.5">
+                            <div className="grid grid-cols-[80px_8px_1fr] items-center text-right">
+                                <span className="font-semibold text-black text-left">Total Amount</span>
+                                <span className="text-center">:</span>
+                                <span className="font-bold text-black">{formatAmount(totalAmount)}</span>
+                            </div>
+                            <div className="grid grid-cols-[80px_8px_1fr] items-center text-right">
+                                <span className="font-semibold text-black text-left">Discount</span>
+                                <span className="text-center">:</span>
+                                <span className="font-bold text-black">{formatAmount(billDiscount)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Divider Line */}
+                    <div className="border-t border-black my-1"></div>
+
+                    {/* Net Amount */}
+                    <div className="flex justify-end gap-8 items-center font-bold text-[12.5px] pr-0.5">
+                        <span>Net Amount :</span>
+                        <span className="min-w-[55px] text-right">{formatAmount(netAmount)}</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* RIGHT CONTAINER: Lab Counter Slip (Duplicate / Token) */}
+            <div className="w-[37%] border border-black p-2 flex flex-col bg-white box-border">
+                {/* 1. Header Layout */}
+                <div className="text-center pb-1">
+                    <h2 className="text-[14px] font-bold text-black uppercase tracking-wider leading-tight">
+                        {hospitalName.split(" ").length > 1 ? (
+                            <>
+                                <div>{hospitalName.split(" ").slice(0, -1).join(" ")}</div>
+                                <div>{hospitalName.split(" ").slice(-1).join(" ")}</div>
+                            </>
+                        ) : (
+                            <div>{hospitalName}</div>
+                        )}
+                    </h2>
+                </div>
+
+                {/* Divider Line */}
+                <div className="border-b border-black w-full mb-1"></div>
+
+                {/* 2. Metadata */}
+                <div className="space-y-0.5 text-[10px] text-black pb-1.5 px-0.5 leading-tight">
+                    <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                        <span className="font-semibold text-black">Bill No</span>
+                        <span>:</span>
+                        <span className="font-bold text-black">{invoiceNo}</span>
+                    </div>
+                    <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                        <span className="font-semibold text-black">Date</span>
+                        <span>:</span>
+                        <span className="font-medium text-black">{formatBillDate(billDate)}</span>
+                    </div>
+                    <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                        <span className="font-semibold text-black">Time</span>
+                        <span>:</span>
+                        <span className="font-medium text-black">{formatBillTime(billDate)}</span>
+                    </div>
+                    <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                        <span className="font-semibold text-black">Name</span>
+                        <span>:</span>
+                        <span className="font-bold text-black uppercase">{patientName}</span>
+                    </div>
+                    <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                        <span className="font-semibold text-black">Age/Sex</span>
+                        <span>:</span>
+                        <span className="font-medium text-black">{ageSex || ""}</span>
+                    </div>
+                </div>
+
+                {/* 3. Test List Table */}
+                <div className="w-full border border-black">
+                    <div className="py-0.5 px-1 font-semibold text-[10px] text-black border-b border-black">
+                        Test Name
+                    </div>
+                    <div className="py-1 px-1 text-[10px] space-y-0.5">
+                        {items.map((item, idx) => (
+                            <div key={idx} className="font-medium text-black uppercase truncate">
+                                {item.name}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* 4. Financial Summary */}
+                <div className="pt-1 text-[10px] text-black">
+                    <div className="space-y-0.5 px-0.5">
+                        <div className="grid grid-cols-[75px_8px_1fr] items-center">
+                            <span className="font-semibold text-black">Total Amount</span>
+                            <span>:</span>
+                            <span className="font-bold text-black text-right">{formatAmount(totalAmount)}</span>
+                        </div>
+                        <div className="grid grid-cols-[75px_8px_1fr] items-center">
+                            <span className="font-semibold text-black">Discount</span>
+                            <span>:</span>
+                            <span className="font-bold text-black text-right">{formatAmount(billDiscount)}</span>
+                        </div>
+                    </div>
+
+                    {/* Divider Line */}
+                    <div className="border-t border-black my-1"></div>
+
+                    {/* Net Amount */}
+                    <div className="flex justify-between items-center font-bold text-[12.5px] px-0.5">
+                        <span>Net Amount :</span>
+                        <span className="text-right">{formatAmount(netAmount)}</span>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 
