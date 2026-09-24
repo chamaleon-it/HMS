@@ -14,7 +14,6 @@ import {
   Hospital,
   Scan,
   CheckCircle2,
-  AlertTriangle,
   Search,
   ChevronDown,
   Check,
@@ -358,15 +357,6 @@ export default function LabResultsPage() {
           borderClass="hover:border-indigo-200"
           delay={0.3}
         />
-        <StatCard
-          icon={<AlertTriangle className="h-6 w-6" />}
-          label="Flagged"
-          value={REPORT.filter((r) => r.status === "Flagged").length}
-          colorClass="from-rose-500/10 to-rose-500/5"
-          iconBgClass="bg-rose-100 text-rose-600"
-          borderClass="hover:border-rose-200"
-          delay={0.4}
-        />
       </div>
 
       <div className="rounded-2xl bg-white border border-zinc-200 p-5 shadow-sm">
@@ -411,7 +401,6 @@ export default function LabResultsPage() {
                   "Pending",
                   "In Progress",
                   "Completed",
-                  "Flagged",
                 ] as const
               ).map((s) => ({
                 label: s === "All" ? "All statuses" : s,

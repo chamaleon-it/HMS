@@ -171,7 +171,7 @@ export default function List({
                         setIsNewTestOpen(true);
                       }}
                     >
-                      Book Now
+                      Add Test
                     </Button>
                   </TableCell>
                 </TableRow>

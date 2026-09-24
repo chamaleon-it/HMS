@@ -7,7 +7,7 @@ import NewTest from "./NewTest";
 import LabTable from "./LabTable";
 import DateFilter from "./DateFilter";
 import LabHeader from "../LabHeader";
-import { Clock, CheckCircle2, FlaskConical, AlertTriangle, UserRound } from "lucide-react";
+import { Clock, CheckCircle2, FlaskConical, UserRound } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -49,7 +49,7 @@ export default function LabResultsPage() {
   const { tests } = useGetTest();
 
   const [status, setStatus] = useState<
-    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft"
+    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Deleted" | "Draft"
   >("Upcoming");
 
   // NEW ONES FOR DATE FILTER
@@ -94,15 +94,14 @@ export default function LabResultsPage() {
   }>(status === "Draft" ? null : `/lab/report?${dateQuery}`);
 
 
-  const { data: statsResponse, mutate: statsMutate } = useSWR<{ message: string, data: { total: number, upcoming: number, sampleCollected: number, waitingForResult: number, completed: number, flagged: number } }>("/lab/report/statistics")
+  const { data: statsResponse, mutate: statsMutate } = useSWR<{ message: string, data: { total: number, upcoming: number, sampleCollected: number, waitingForResult: number, completed: number } }>("/lab/report/statistics")
 
   const statsData = statsResponse?.data ?? {
     total: 0,
     upcoming: 0,
     sampleCollected: 0,
     waitingForResult: 0,
-    completed: 0,
-    flagged: 0
+    completed: 0
   };
 
   const REPORT = status === "Draft"
@@ -179,7 +178,7 @@ export default function LabResultsPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 print:hidden">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 print:hidden">
         <StatCard
           delay={0.1}
           icon={<FlaskConical className="h-5 w-5" />}
@@ -211,14 +210,6 @@ export default function LabResultsPage() {
           value={statsData.completed}
           iconBgClass="bg-emerald-100 text-emerald-600"
           borderClass="hover:border-emerald-200"
-        />
-        <StatCard
-          delay={0.5}
-          icon={<AlertTriangle className="h-5 w-5" />}
-          label="Flagged"
-          value={statsData.flagged}
-          iconBgClass="bg-rose-100 text-rose-600"
-          borderClass="hover:border-rose-200"
         />
       </div>
 

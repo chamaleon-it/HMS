@@ -12,7 +12,6 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/auth/context/auth-context";
 import {
-    AlertTriangle,
     Repeat,
     Trash,
 } from "lucide-react";
@@ -211,18 +210,6 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
                     </div>
 
                     <div className="flex gap-2 items-center">
-                        <Button
-                            type="button"
-                            variant={payload.priority === "Urgent" ? "default" : "outline"}
-                            className={payload.priority === "Urgent" ? "bg-amber-500 hover:bg-amber-600 text-white" : "border-amber-200 text-amber-600 hover:bg-amber-50"}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                setPayload(prev => ({ ...prev, priority: prev.priority === "Urgent" ? "Normal" : "Urgent" }));
-                            }}
-                        >
-                            <AlertTriangle className="w-4 h-4 mr-2" />
-                            Urgent
-                        </Button>
                         <DateTimePicker
                             date={payload.date}
                             setDate={(date) => setPayload((prev) => ({ ...prev, date }))}

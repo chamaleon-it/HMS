@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
-import { Zap } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useLabDrafts } from "@/app/dashboard/lab/LabDraftContext";
 
 interface NewTestProps {
@@ -25,7 +25,7 @@ export default function NewTest({ mutate }: NewTestProps) {
         className="rounded-full px-4 py-2 h-auto font-medium text-white shadow-sm"
         style={{ background: "linear-gradient(90deg, #4f46e5, #ec4899)" }}
       >
-        <Zap size={16} className="mr-2" /> Book Now
+        <Plus size={16} className="mr-2" /> Add Test
       </Button>
     </div>
   );

@@ -12,8 +12,6 @@ import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/auth/context/auth-context";
 import {
     Trash,
-    Zap,
-    AlertTriangle,
     User,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -155,10 +153,6 @@ export default function BookNowModal({
                             <div className="text-xs text-slate-500 font-medium">{patient?.mrn} • {patient?.phoneNumber}</div>
                         </div>
                     </div>
-
-                    <div className="inline-flex items-center gap-2 text-sm font-medium text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full px-4 py-2">
-                        <Zap size={16} /> Book Now
-                    </div>
                 </div>
 
                 <div className="flex gap-4 justify-between w-full">
@@ -220,21 +214,6 @@ export default function BookNowModal({
                                     .map((t) => t.name),
                             ]}
                         />
-                    </div>
-
-                    <div className="flex gap-2 items-center">
-                        <Button
-                            type="button"
-                            variant={payload.priority === "Urgent" ? "default" : "outline"}
-                            className={payload.priority === "Urgent" ? "bg-amber-500 hover:bg-amber-600 text-white shadow-xs" : "border-amber-200 text-amber-600 hover:bg-amber-50"}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                setPayload(prev => ({ ...prev, priority: prev.priority === "Urgent" ? "Normal" : "Urgent" }));
-                            }}
-                        >
-                            <AlertTriangle className="w-4 h-4 mr-2" />
-                            Urgent
-                        </Button>
                     </div>
                 </div>
 

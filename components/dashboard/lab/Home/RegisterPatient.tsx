@@ -56,9 +56,6 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
       address: patient?.address || "",
       allergies: patient?.allergies || "",
       mrn: patient?.mrn || "",
-      guardian: patient?.guardian || "",
-      guardianPhoneNumber: patient?.guardianPhoneNumber || "",
-      guardianRelation: patient?.guardianRelation || "",
     },
   });
 
@@ -74,9 +71,6 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     age: useRef<HTMLInputElement>(null),
     month: useRef<HTMLInputElement>(null),
     allergies: useRef<HTMLInputElement>(null),
-    guardian: useRef<HTMLInputElement>(null),
-    guardianPhoneNumber: useRef<HTMLInputElement>(null),
-    guardianRelation: useRef<HTMLInputElement>(null),
     addressDetails: {
       line1: useRef<HTMLInputElement>(null),
       line2: useRef<HTMLInputElement>(null),
@@ -327,7 +321,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                 />
               </div>
               <div className="grid gap-2">
-                <Label>Months</Label>
+                <Label>Age (Months)</Label>
                 <Input
                   {...register("month")}
                   ref={mergeRefs(refs.month, register("month").ref)}
@@ -369,7 +363,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               placeholder="Allergies"
               {...register("allergies")}
               ref={mergeRefs(refs.allergies, register("allergies").ref)}
-              onKeyDown={(e) => handleKeyDown(e, refs.guardian)}
+              onKeyDown={(e) => handleKeyDown(e, refs.addressDetails.line1)}
               onChange={(e) => {
                 setValue("allergies", capitalizeFirstLetter(e.target.value), {
                   shouldValidate: true,
@@ -379,66 +373,6 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             {errors.allergies && (
               <p className="text-red-500 text-xs my-1">
                 {errors.allergies.message}
-              </p>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Guardian Name</Label>
-            <Input
-              placeholder="Guardian Name"
-              {...register("guardian")}
-              ref={mergeRefs(refs.guardian, register("guardian").ref)}
-              onKeyDown={(e) => handleKeyDown(e, refs.guardianPhoneNumber)}
-              onChange={(e) => {
-                setValue("guardian", capitalizeFirstLetter(e.target.value), {
-                  shouldValidate: true,
-                });
-              }}
-            />
-            {errors.guardian && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.guardian.message}
-              </p>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Guardian Phone Number</Label>
-            <Input
-              placeholder="Guardian Phone Number"
-              {...register("guardianPhoneNumber")}
-              ref={mergeRefs(refs.guardianPhoneNumber, register("guardianPhoneNumber").ref)}
-              onKeyDown={(e) => handleKeyDown(e, refs.guardianRelation)}
-              onChange={(e) => {
-                setValue("guardianPhoneNumber", e.target.value, {
-                  shouldValidate: true,
-                });
-              }}
-            />
-            {errors.guardianPhoneNumber && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.guardianPhoneNumber.message}
-              </p>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Guardian Relation</Label>
-            <Input
-              placeholder="Guardian Relation"
-              {...register("guardianRelation")}
-              ref={mergeRefs(refs.guardianRelation, register("guardianRelation").ref)}
-              onKeyDown={(e) => handleKeyDown(e, refs.addressDetails.line1)}
-              onChange={(e) => {
-                setValue("guardianRelation", capitalizeFirstLetter(e.target.value), {
-                  shouldValidate: true,
-                });
-              }}
-            />
-            {errors.guardianRelation && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.guardianRelation.message}
               </p>
             )}
           </div>

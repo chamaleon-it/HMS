@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
     Table,
@@ -11,7 +11,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import AppShell from "@/components/layout/app-shell";
-import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
+import { fDate, fAgeString } from "@/lib/fDateAndTime";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
@@ -29,15 +29,41 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { useState } from "react";
 import { RegisterPatient } from "../../pharmacy/RegisterPatient";
+import Filter, { LabPatientFilterType } from "./Filter";
+import { PaginationBar } from "../../pharmacy/components/PaginationBar";
 
 const Patients: React.FC = () => {
     const router = useRouter();
     const [editPatient, setEditPatient] = useState<any>(null);
 
+    const [filter, setFilter] = useState<LabPatientFilterType>({
+        query: undefined,
+        gender: undefined,
+        doctor: undefined,
+        age: [0, 100],
+        lastVisit: undefined,
+        page: 1,
+        limit: 20,
+        dateRange: { from: undefined, to: undefined },
+    });
+
+    const params = new URLSearchParams();
+    params.set("page", String(filter.page));
+    params.set("limit", String(filter.limit));
+    if (filter.query) params.set("q", filter.query);
+    if (filter.gender) params.set("gender", filter.gender);
+    if (filter.doctor) params.set("doctor", filter.doctor);
+    if (filter.dateRange.from) params.set("from", filter.dateRange.from);
+    if (filter.dateRange.to) params.set("to", filter.dateRange.to);
+    if (filter.age[0] !== 0 || filter.age[1] !== 100) {
+        params.set("age", `${filter.age[0]}-${filter.age[1]}`);
+    }
+    if (filter.lastVisit) params.set("lastVisit", String(filter.lastVisit));
+
     const { data: patientsData, mutate } = useSWR<{
         message: string;
+        total: number;
         data: {
             lastVisit: Date;
             visits: number;
@@ -49,9 +75,10 @@ const Patients: React.FC = () => {
             address: string;
             mrn: string;
         }[];
-    }>("/lab/report/patients");
+    }>(`/lab/report/patients?${params.toString()}`);
 
     const patients = patientsData?.data ?? [];
+    const total = patientsData?.total ?? patients.length;
 
     return (
         <AppShell>
@@ -66,10 +93,12 @@ const Patients: React.FC = () => {
                             </LabHeader>
                             <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
                                 Showing <span className="font-semibold">{patients.length}</span>{" "}
-                                of <span className="font-semibold">{patients.length}</span>{" "}
+                                of <span className="font-semibold">{total}</span>{" "}
                                 patients
                             </div>
                         </div>
+
+                        <Filter filter={filter} setFilter={setFilter} />
 
                         <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
                             <Table>
@@ -112,7 +141,7 @@ const Patients: React.FC = () => {
                                                 }
                                             >
                                                 <TableCell className="py-3 align-middle text-slate-500">
-                                                    {idx + 1}
+                                                    {(filter.page - 1) * filter.limit + idx + 1}
                                                 </TableCell>
                                                 <TableCell className="py-3 align-middle font-medium">
                                                     <div className="flex flex-col gap-0.5">
@@ -211,6 +240,13 @@ const Patients: React.FC = () => {
                                 </TableBody>
                             </Table>
                         </div>
+
+                        <PaginationBar
+                            page={filter.page}
+                            limit={filter.limit}
+                            total={total}
+                            setFilter={setFilter}
+                        />
                     </main>
                 </div>
             </TooltipProvider>

@@ -72,7 +72,7 @@ export default function General({
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
+    <div className="grid gap-6">
       <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between gap-4">
@@ -241,29 +241,6 @@ export default function General({
               {loading ? "Updating..!" : "Save Profile"}
             </Button>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Helper card */}
-      <Card className="border border-dashed border-slate-200 bg-white/80 shadow-sm rounded-2xl">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold text-slate-900">
-            Where this appears
-          </CardTitle>
-          <CardDescription className="text-xs text-slate-500">
-            These details are shown on printed bills, prescription headers and
-            pharmacy reports.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 text-xs text-slate-500">
-          <ul className="list-disc space-y-1 pl-4">
-            <li>Pharmacy name and address in bill header.</li>
-            <li>GSTIN included in tax summary section.</li>
-            <li>Contact number and email on patient copy.</li>
-          </ul>
-          <p className="mt-2 text-[11px] text-slate-500">
-            Keep this updated whenever license, GST or contact details change.
-          </p>
         </CardContent>
       </Card>
     </div>

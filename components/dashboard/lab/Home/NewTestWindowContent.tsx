@@ -2,7 +2,7 @@
 import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import PatientSelection from "./PatientSelection";
-import { Zap, AlertTriangle, Trash } from "lucide-react";
+import { Trash } from "lucide-react";
 import toast from "react-hot-toast";
 import {
   Table,
@@ -138,9 +138,6 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
             }));
           }}
         />
-        <div className="inline-flex items-center gap-2 text-sm font-medium text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full px-4 py-2">
-          <Zap size={16} /> Book Now
-        </div>
       </div>
 
       <div className="flex gap-2 justify-between w-full">
@@ -151,21 +148,6 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
           }}
           doctor={payload.doctor ?? undefined}
         />
-
-        <div className="flex items-end gap-2 ">
-          <Button
-            type="button"
-            variant={payload.priority === "Urgent" ? "default" : "outline"}
-            className={payload.priority === "Urgent" ? "bg-amber-500 hover:bg-amber-600 text-white" : "border-amber-200 text-amber-600 hover:bg-amber-50"}
-            onClick={(e) => {
-              e.preventDefault();
-              setPayload((prev: any) => ({ ...prev, priority: prev.priority === "Urgent" ? "Normal" : "Urgent" }));
-            }}
-          >
-            <AlertTriangle className="w-4 h-4 mr-2" />
-            Urgent
-          </Button>
-        </div>
       </div>
 
       <div className="flex gap-2 justify-between w-full">
