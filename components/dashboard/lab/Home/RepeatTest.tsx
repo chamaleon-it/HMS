@@ -62,8 +62,8 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
         date: undefined,
         priority: "Normal",
         sampleType: "Other",
-        status: "Upcoming",
-    });
+        status: "Waiting For Result",
+      });
 
     useEffect(() => {
         if (open) {
@@ -76,7 +76,7 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
                 date: new Date(),
                 priority: report.priority || "Normal",
                 sampleType: report.sampleType || "Other",
-                status: "Upcoming",
+                status: "Waiting For Result",
             });
         }
     }, [open, report, user]);

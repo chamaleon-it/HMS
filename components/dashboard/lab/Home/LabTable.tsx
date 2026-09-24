@@ -9,7 +9,6 @@ import api from "@/lib/axios";
 import { Clock, Play, Printer, RotateCcw } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 import ReportCard from "./ReportCard";
-import SampleCollectionModal from "./SampleCollectionModal";
 import ResetTimerModal from "./ResetTimerModal";
 import EditTest from "./EditTest";
 import {
@@ -290,8 +289,6 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
             {headerCell("Patient")}
             {headerCell("Test")}
             {headerCell("Amount")}
-            {status === "Upcoming" && headerCell("Scheduled Date")}
-            {status !== "Upcoming" && status !== "Draft" && headerCell("Sample Id")}
             {headerCell("Created At")}
             {status === "Completed" && headerCell("Collected At")}
             {status === "Completed" && headerCell("Started At")}
@@ -328,9 +325,9 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                 return getTargetTime(a) - getTargetTime(b);
               }
 
-              // Chronological order for others (oldest first as per 'chronological order')
-              const dateA = status === "Upcoming" ? new Date(a.date).getTime() : new Date(a.createdAt).getTime();
-              const dateB = status === "Upcoming" ? new Date(b.date).getTime() : new Date(b.createdAt).getTime();
+              // Chronological order for others (oldest first)
+              const dateA = new Date(a.createdAt).getTime();
+              const dateB = new Date(b.createdAt).getTime();
               return dateA - dateB;
             })
             .map((r, idx) => {
@@ -500,16 +497,6 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                     </div>
                   </td>
 
-                  {status === "Upcoming" && <td className="px-3 py-2 text-sm text-gray-500">
-                    {fDateandTime(r.date)}
-                  </td>}
-
-                  {status !== "Upcoming" && status !== "Draft" && (
-                    <td className="px-3 py-2 text-sm text-gray-500">
-                      {r.sampleId}
-                    </td>
-                  )}
-
                   <td className="px-3 py-2 text-sm text-gray-500">
                     {fDateandTime(r.createdAt)}
                   </td>
@@ -616,45 +603,6 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                           </Tooltip>
                         </div>
                       )}
-                      {status === "Upcoming" && (
-                        <SampleCollectionModal
-                          reportId={r._id}
-                          patientName={r.patient?.name}
-                          mutate={mutate}
-                          autoGenerateSampleId={autoGenerateSampleId}
-                          onStatusChange={onStatusChange}
-                        />
-                      )}
-
-                      {
-                        status === "Sample Collected" && <Button
-                          size="sm"
-                          className="h-8 bg-linear-to-br from-indigo-500 to-fuchsia-500 hover:from-indigo-600 hover:to-fuchsia-600 text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5 px-4 font-semibold rounded-lg"
-                          onClick={async () => {
-                            try {
-                              await toast.promise(
-                                api.post(
-                                  `lab/report/start_test/${r._id}`
-                                ),
-                                {
-                                  loading: "Processing...",
-                                  success: "Test Started",
-                                  error: "Failed to start test",
-                                }
-                              );
-                              mutate();
-                              onStatusChange?.("Waiting For Result");
-                            } catch (error) {
-                              toast.error(
-                                `Failed to start test : ${error}`
-                              );
-                            }
-                          }}
-                        >
-                          <Play className="h-3.5 w-3.5 fill-current" />
-                          Start Test
-                        </Button>
-                      }
 
                       {
                         status === "Waiting For Result" && (
@@ -694,7 +642,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
 
                       {status === "Completed" && <ViewResultModal r={r} />}
 
-                      {status === "Upcoming" && <EditTest report={r} mutate={mutate} />}
+                      {status === "Waiting For Result" && <EditTest report={r} mutate={mutate} />}
 
                       {status !== "Deleted" && status !== "Draft" && <AlertDialog>
                         <AlertDialogTrigger asChild>

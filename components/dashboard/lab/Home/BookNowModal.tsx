@@ -67,7 +67,7 @@ export default function BookNowModal({
         date: new Date(),
         priority: "Normal",
         sampleType: "Other",
-        status: "Upcoming",
+        status: "Waiting For Result",
     });
 
     useEffect(() => {

@@ -48,8 +48,8 @@ const StatCard: React.FC<{
 
 export default function Lab() {
   const [status, setStatus] = useState<
-    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Deleted" | "Draft"
-  >("Upcoming");
+    "Waiting For Result" | "Completed" | "Deleted" | "Draft" | "Sample Collected" | "Upcoming"
+  >("Waiting For Result");
 
   const [activeDate, setActiveDate] = useState<string>("Today");
   const [date, setDate] = useState<Date>();
@@ -111,7 +111,7 @@ export default function Lab() {
       />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           delay={0.1}
           icon={<FlaskConical className="h-6 w-6" />}
@@ -120,15 +120,6 @@ export default function Lab() {
           colorClass="from-zinc-500/10 to-zinc-500/5"
           iconBgClass="bg-zinc-100 text-zinc-600"
           borderClass="hover:border-zinc-200"
-        />
-        <StatCard
-          delay={0.2}
-          icon={<Clock className="h-6 w-6" />}
-          label="Upcoming"
-          value={statsData.upcoming}
-          colorClass="from-amber-500/10 to-amber-500/5"
-          iconBgClass="bg-amber-100 text-amber-600"
-          borderClass="hover:border-amber-200"
         />
         <StatCard
           delay={0.3}
@@ -174,7 +165,7 @@ export default function Lab() {
           <button
             onClick={() => {
               setSearch("");
-              setStatus("Upcoming");
+              setStatus("Waiting For Result");
               setActiveDate("Today");
               setDate(undefined);
             }}

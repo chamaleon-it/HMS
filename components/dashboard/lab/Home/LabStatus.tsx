@@ -1,27 +1,31 @@
 "use client";
 
 import React, { JSX, useMemo } from "react";
-import { CheckCircle, Clock, FlaskConical, Trash2, FileEdit } from "lucide-react";
+import { CheckCircle, FlaskConical, Trash2, FileEdit } from "lucide-react";
 import { motion } from "framer-motion";
+
+export type LabReportStatus =
+  | "Waiting For Result"
+  | "Completed"
+  | "Deleted"
+  | "Draft"
+  | "Sample Collected";
+
 export default function LabStatus({
   currenctStatus,
   setCurrenctStatus,
 }: {
-  currenctStatus: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Deleted" | "Draft";
+  currenctStatus: LabReportStatus | "Upcoming";
   setCurrenctStatus: React.Dispatch<
-    React.SetStateAction<
-      "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Deleted" | "Draft"
-    >
+    React.SetStateAction<LabReportStatus | "Upcoming">
   >;
 }): JSX.Element {
   const tabs = useMemo(
     () => [
-
-      { key: "Upcoming", label: "Upcoming", icon: Clock },
       { key: "Waiting For Result", label: "Waiting For Result", icon: FlaskConical },
       { key: "Completed", label: "Completed", icon: CheckCircle },
       { key: "Deleted", label: "Deleted", icon: Trash2 },
-      { key: "Draft", label: "Draft", icon: FileEdit},
+      { key: "Draft", label: "Draft", icon: FileEdit },
     ],
     []
   );
@@ -34,9 +38,7 @@ export default function LabStatus({
           <button
             key={key}
             onClick={() =>
-              setCurrenctStatus(
-                key as "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Deleted" | "Draft"
-              )
+              setCurrenctStatus(key as LabReportStatus)
             }
             className={
               "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer " +

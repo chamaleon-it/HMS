@@ -87,7 +87,7 @@ export const LabDraftProvider: React.FC<{ children: React.ReactNode; userId: str
         date: new Date(),
         priority: "Normal",
         sampleType: "Other",
-        status: "Upcoming",
+        status: "Waiting For Result",
         ...initialData
       },
       position: { x: 100 + drafts.length * 30, y: 100 + drafts.length * 30 },

@@ -7,8 +7,7 @@ import NewTest from "./NewTest";
 import LabTable from "./LabTable";
 import DateFilter from "./DateFilter";
 import LabHeader from "../LabHeader";
-import { Clock, CheckCircle2, FlaskConical, UserRound } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { CheckCircle2, FlaskConical, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -49,13 +48,13 @@ export default function LabResultsPage() {
   const { tests } = useGetTest();
 
   const [status, setStatus] = useState<
-    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Deleted" | "Draft"
-  >("Upcoming");
+    "Waiting For Result" | "Completed" | "Deleted" | "Draft" | "Sample Collected" | "Upcoming"
+  >("Waiting For Result");
 
   // NEW ONES FOR DATE FILTER
   const [activeDate, setActiveDate] = useState<string>("Today");
   const [date, setDate] = useState<Date>();
-  const [showSampleId, setShowSampleId] = useState<boolean>(true);
+  const showSampleId = false;
 
   const { data: labResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/technician");
   const inChargeTechnician = labResponse?.data?.find((p) => p.inCharge);
@@ -156,14 +155,6 @@ export default function LabResultsPage() {
               <span className="text-slate-400">Lab in-charge</span>
               <span className="font-semibold text-slate-700">{inChargeTechnician?.name ?? "—"}</span>
             </div>
-
-            <label className="flex items-center gap-2 text-sm text-slate-500">
-              <Switch
-                checked={showSampleId}
-                onCheckedChange={setShowSampleId}
-              />
-              Auto sample ID
-            </label>
           </div>
 
           <DateFilter
@@ -178,7 +169,7 @@ export default function LabResultsPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 print:hidden">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 print:hidden">
         <StatCard
           delay={0.1}
           icon={<FlaskConical className="h-5 w-5" />}
@@ -189,14 +180,6 @@ export default function LabResultsPage() {
         />
         <StatCard
           delay={0.2}
-          icon={<Clock className="h-5 w-5" />}
-          label="Upcoming"
-          value={statsData.upcoming}
-          iconBgClass="bg-amber-100 text-amber-600"
-          borderClass="hover:border-amber-200"
-        />
-        <StatCard
-          delay={0.3}
           icon={<FlaskConical className="h-5 w-5" />}
           label="Waiting For Result"
           value={statsData.waitingForResult}
@@ -204,7 +187,7 @@ export default function LabResultsPage() {
           borderClass="hover:border-indigo-200"
         />
         <StatCard
-          delay={0.4}
+          delay={0.3}
           icon={<CheckCircle2 className="h-5 w-5" />}
           label="Completed"
           value={statsData.completed}
