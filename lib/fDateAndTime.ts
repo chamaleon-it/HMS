@@ -104,6 +104,19 @@ export function combineToIST(date: Date, time: string) {
   return istDate;
 }
 
+/** Next wall-clock minute for walk-ins (no availability / booking checks). */
+export function nextMinuteSlot(from: Date = new Date()): {
+  date: Date;
+  time: string;
+} {
+  const next = new Date(from);
+  next.setSeconds(0, 0);
+  next.setMinutes(next.getMinutes() + 1);
+  const hh = next.getHours().toString().padStart(2, "0");
+  const mm = next.getMinutes().toString().padStart(2, "0");
+  return { date: next, time: `${hh}:${mm}` };
+}
+
 export const toMinutes = (t: string) => {
   const [h, m] = t.split(":").map(Number);
   return h * 60 + m;
