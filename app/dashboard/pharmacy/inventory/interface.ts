@@ -14,6 +14,12 @@ export interface IBatch {
   quantity: number;
   status: BatchStatus;
   supplier?: string;
+  /** Units per strip/bottle for this batch. */
+  packing?: number;
+  /** Number of strips/bottles for this batch. */
+  stripCount?: number;
+  /** GST % for this batch. */
+  gst?: number;
   createdAt: Date | string;
 }
 

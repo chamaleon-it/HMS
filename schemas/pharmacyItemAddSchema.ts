@@ -74,8 +74,7 @@ export const pharmacyItemAddSchema = z.object({
   packing: z.coerce
     .number({ error: "Packing must be a number" })
     .int({ error: "Packing must be an integer" })
-    .min(1, { error: "Packing must be at least 1" })
-    .default(1),
+    .optional(),
 
   noOfPacking: z.coerce
     .number({ error: "No. of Packing must be a number" })

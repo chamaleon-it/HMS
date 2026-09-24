@@ -13,7 +13,6 @@ import {
 import {
     Save,
     Trash2,
-    Check,
 } from "lucide-react";
 import React, { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
@@ -50,7 +49,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     const [isSaving, setIsSaving] = useState(false);
     const [selectedSupplierId, setSelectedSupplierId] = useState<string>(defaultSupplierId || "");
     const [gstType, setGstType] = useState<"inclusive" | "exclusive">("inclusive");
-    const [enableTCS, setEnableTCS] = useState(false);
     const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
     const focusNextElement = (currentElement: HTMLElement) => {
@@ -125,6 +123,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             unitPrice: 0,
             expiryDate: "",
             purchasePrice: 0,
+            gst_p: 0,
             sgst_p: 0,
             cgst_p: 0,
             dis_p: 0,
@@ -146,6 +145,15 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 if (item.id === id) {
                     const updated = { ...item, [field]: value };
 
+                    if (field === "gst_p") {
+                        const gp = Number(value) || 0;
+                        updated.gst_p = gp;
+                        updated.sgst_p = gp / 2;
+                        updated.cgst_p = gp / 2;
+                    } else if (field === "cgst_p" || field === "sgst_p") {
+                        updated.gst_p = (Number(updated.cgst_p) || 0) + (Number(updated.sgst_p) || 0);
+                    }
+
                     if (field === "pack" || field === "noOfPack" || field === "schema_free") {
                         const pack = Number(updated.pack);
                         const noOfPack = Number(updated.noOfPack);
@@ -157,14 +165,13 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     const q = Number(updated.noOfPack) || 0;
                     const r = Number(updated.purchasePrice) || 0;
                     const dp = Number(updated.dis_p) || 0;
-                    const sp = Number(updated.sgst_p) || 0;
-                    const cp = Number(updated.cgst_p) || 0;
+                    const gp = Number(updated.gst_p ?? ((Number(updated.sgst_p) || 0) + (Number(updated.cgst_p) || 0))) || 0;
                     const sf = Number(updated.schema_free) || 0;
 
                     const gross = q * r;
                     const discount = gross * (dp / 100);
                     const taxable = gross - discount;
-                    const tax = taxable * ((sp + cp) / 100);
+                    const tax = taxable * (gp / 100);
 
                     updated.schema_amt = r * sf;
 
@@ -183,24 +190,23 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             const q = Number(item.noOfPack) || 0;
             const r = Number(item.purchasePrice) || 0;
             const dp = Number(item.dis_p) || 0;
-            const sp = Number(item.sgst_p) || 0;
-            const cp = Number(item.cgst_p) || 0;
+            const gp = Number(item.gst_p ?? ((Number(item.sgst_p) || 0) + (Number(item.cgst_p) || 0))) || 0;
             const sam = Number(item.schema_amt) || 0;
 
             const gross = q * r;
             const discount = gross * (dp / 100);
             const taxable = gross - discount;
-            const sgst = taxable * (sp / 100);
-            const cgst = taxable * (cp / 100);
+            const gst = taxable * (gp / 100);
 
             acc.gross += gross;
             acc.discount += discount;
-            acc.sgst += sgst;
-            acc.cgst += cgst;
+            acc.gst += gst;
+            acc.sgst += gst / 2;
+            acc.cgst += gst / 2;
             acc.schema_amt += sam;
-            acc.total += (taxable + sgst + cgst);
+            acc.total += (taxable + gst);
             return acc;
-        }, { gross: 0, discount: 0, sgst: 0, cgst: 0, schema_amt: 0, total: 0 });
+        }, { gross: 0, discount: 0, gst: 0, sgst: 0, cgst: 0, schema_amt: 0, total: 0 });
     }, [newItems]);
 
     const handleSaveChanges = async () => {
@@ -269,17 +275,19 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     batch: item.batch,
                     quantity: item.qty,
                     pack: item.pack,
+                    noOfPack: item.noOfPack,
                     unitPrice: item.unitPrice,
                     expiryDate: item.expiryDate,
                     free: item.schema_free,
                     purchasePrice: item.purchasePrice,
-                    gst: (item.qty * item.purchasePrice - item.dis) * ((item.sgst_p + item.cgst_p) / 100),
+                    gst: (item.qty * item.purchasePrice - item.dis) * ((item.gst_p ?? (item.sgst_p + item.cgst_p)) / 100),
+                    gstPercent: item.gst_p ?? ((item.sgst_p || 0) + (item.cgst_p || 0)),
                     discount: item.dis,
                 })),
                 subTotal: totals.gross,
                 total: totals.total,
                 grossAmount: totals.gross,
-                gst: totals.sgst + totals.cgst,
+                gst: totals.gst,
                 discount: totals.discount
             };
 
@@ -310,7 +318,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 newItems,
                 selectedSupplierId,
                 gstType,
-                enableTCS,
                 billDetails
             };
             localStorage.setItem("purchase_entry_draft", JSON.stringify(draft));
@@ -335,6 +342,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 unitPrice: 0,
                 expiryDate: "",
                 purchasePrice: 0,
+                gst_p: 0,
                 sgst_p: 0,
                 cgst_p: 0,
                 dis_p: 0,
@@ -373,9 +381,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 if (parsed.gstType) {
                     setGstType(parsed.gstType);
                 }
-                if (parsed.enableTCS !== undefined) {
-                    setEnableTCS(parsed.enableTCS);
-                }
                 if (parsed.billDetails) {
                     setBillDetails(parsed.billDetails);
                 }
@@ -401,6 +406,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 unitPrice: 0,
                 expiryDate: "",
                 purchasePrice: 0,
+                gst_p: 0,
                 sgst_p: 0,
                 cgst_p: 0,
                 dis_p: 0,
@@ -421,14 +427,13 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 newItems,
                 selectedSupplierId,
                 gstType,
-                enableTCS,
                 billDetails
             };
             localStorage.setItem("purchase_entry_draft", JSON.stringify(draft));
         } catch (e) {
             console.error("Failed to save purchase entry draft", e);
         }
-    }, [isDraftLoaded, newItems, selectedSupplierId, gstType, enableTCS, billDetails]);
+    }, [isDraftLoaded, newItems, selectedSupplierId, gstType, billDetails]);
 
     const { data: suppliersData } = useSWR<{ message: string; data: { _id: string; name: string }[] }>("/suppliers/get_id_and_name");
     const suppliers = suppliersData?.data || [];
@@ -506,21 +511,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 </label>
                             </div>
                         </div>
-
-                        <label className="flex items-center gap-3 cursor-pointer group bg-slate-50/50 px-4 py-2 rounded-full">
-                            <div className="relative flex items-center justify-center ">
-                                <input
-                                    type="checkbox"
-                                    checked={enableTCS}
-                                    onChange={(e) => setEnableTCS(e.target.checked)}
-                                    className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
-                                />
-                                <div className="w-5 h-5 rounded border-2 border-slate-200 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-all flex items-center justify-center ">
-                                    <Check className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity " />
-                                </div>
-                            </div>
-                            <span className="text-xs  text-slate-500 uppercase tracking-wider transition-colors font-semibold">Enable TCS</span>
-                        </label>
                     </div>
                 </div>
             </motion.div>
@@ -547,14 +537,12 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">MRP</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">EXPIRY</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">Rate</TableHead>
-                                {gstType === "inclusive" && <>
-                                    <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SGST(%)</TableHead>
-                                    <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">CGST(%)</TableHead>
-                                </>}
+                                {gstType === "inclusive" && (
+                                    <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">GST(%)</TableHead>
+                                )}
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">DIS(%)</TableHead>
                                 {/* <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">DIS AMT</TableHead> */}
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA (FREE)</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA AMT</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">QTY</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-right pr-8 tracking-wider">TOTAL</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-right pr-8 tracking-wider">Action</TableHead>
@@ -587,8 +575,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                     updateNewItem(item.id, "unitPrice", it.unitPrice || 0);
                                                     updateNewItem(item.id, "purchasePrice", it.purchasePrice || 0);
                                                     updateNewItem(item.id, "pack", it.packing && it.packing >= 1 ? it.packing : 1);
-                                                    updateNewItem(item.id, "cgst_p", gst / 2);
-                                                    updateNewItem(item.id, "sgst_p", gst / 2);
+                                                    updateNewItem(item.id, "gst_p", gst);
 
                                                     setTimeout(() => {
                                                         const currentRow = document.querySelector(`[data-row-id="${item.id}"]`);
@@ -649,62 +636,35 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "purchasePrice")}
                                             />
                                         </TableCell>
-                                        {gstType === "inclusive" && <>
+                                        {gstType === "inclusive" && (
                                             <TableCell className="p-2">
                                                 <Select
-                                                    value={String(item.sgst_p)}
+                                                    value={String(item.gst_p ?? ((item.sgst_p || 0) + (item.cgst_p || 0)))}
                                                     onValueChange={(v) => {
-                                                        updateNewItem(item.id, "sgst_p", Number(v));
+                                                        updateNewItem(item.id, "gst_p", Number(v));
                                                         setTimeout(() => {
-                                                            const trigger = document.querySelector(`[data-row-id="${item.id}"] [data-field="sgst_p"]`) as HTMLElement;
+                                                            const trigger = document.querySelector(`[data-row-id="${item.id}"] [data-field="gst_p"]`) as HTMLElement;
                                                             if (trigger) focusNextElement(trigger);
                                                         }, 50);
                                                     }}
                                                 >
                                                     <SelectTrigger
-                                                        data-field="sgst_p"
+                                                        data-field="gst_p"
                                                         className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all px-3"
                                                     >
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent className="rounded-lg shadow-xl">
                                                         <SelectItem value="0" className="">0%</SelectItem>
-                                                        <SelectItem value="2.5" className="">2.5%</SelectItem>
-                                                        <SelectItem value="6" className="">6%</SelectItem>
-                                                        <SelectItem value="9" className="">9%</SelectItem>
+                                                        <SelectItem value="5" className="">5%</SelectItem>
                                                         <SelectItem value="12" className="">12%</SelectItem>
-                                                        <SelectItem value="14" className="">14%</SelectItem>
+                                                        <SelectItem value="18" className="">18%</SelectItem>
+                                                        <SelectItem value="24" className="">24%</SelectItem>
+                                                        <SelectItem value="28" className="">28%</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                             </TableCell>
-                                            <TableCell className="p-2">
-                                                <Select
-                                                    value={String(item.cgst_p)}
-                                                    onValueChange={(v) => {
-                                                        updateNewItem(item.id, "cgst_p", Number(v));
-                                                        setTimeout(() => {
-                                                            const trigger = document.querySelector(`[data-row-id="${item.id}"] [data-field="cgst_p"]`) as HTMLElement;
-                                                            if (trigger) focusNextElement(trigger);
-                                                        }, 50);
-                                                    }}
-                                                >
-                                                    <SelectTrigger
-                                                        data-field="cgst_p"
-                                                        className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all px-3"
-                                                    >
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="rounded-lg shadow-xl">
-                                                        <SelectItem value="0" className="">0%</SelectItem>
-                                                        <SelectItem value="2.5" className="">2.5%</SelectItem>
-                                                        <SelectItem value="6" className="">6%</SelectItem>
-                                                        <SelectItem value="9" className="">9%</SelectItem>
-                                                        <SelectItem value="12" className="">12%</SelectItem>
-                                                        <SelectItem value="14" className="">14%</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </TableCell>
-                                        </>}
+                                        )}
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
@@ -725,11 +685,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 onChange={(e) => updateNewItem(item.id, "schema_free", Number(e.target.value))}
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "schema_free", true, true)}
                                             />
-                                        </TableCell>
-                                        <TableCell className="p-2 text-center">
-                                            <div className="text-xs font-semibold text-indigo-700 bg-indigo-50/50 h-11 flex items-center justify-center rounded-lg border border-indigo-200/50 shadow-sm border-dashed">
-                                                ₹{(item.schema_amt || 0).toFixed(2)}
-                                            </div>
                                         </TableCell>
                                          <TableCell className="p-2">
                                             <Input
@@ -794,15 +749,14 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className={`grid grid-cols-2 ${gstType === "exclusive" ? "md:grid-cols-4" : "md:grid-cols-6"} gap-6`}
+                className={`grid grid-cols-2 ${gstType === "exclusive" ? "md:grid-cols-4" : "md:grid-cols-5"} gap-6`}
             >
                 {[
                     { label: "GROSS AMOUNT", value: totals.gross, color: "text-slate-600" },
                     { label: "TOTAL DISCOUNT", value: totals.discount, color: "text-red-500", prefix: "-" },
-                    { label: "SGST PAYABLE", value: totals.sgst, color: "text-slate-600" },
-                    { label: "CGST PAYABLE", value: totals.cgst, color: "text-slate-600" },
+                    { label: "GST PAYABLE", value: totals.gst, color: "text-slate-600" },
                     { label: "SCHEMA TOTAL", value: totals.schema_amt, color: "text-indigo-600" },
-                ].filter((stat) => gstType === "exclusive" ? stat.label !== "SGST PAYABLE" && stat.label !== "CGST PAYABLE" : true).map((stat, i) => (
+                ].filter((stat) => gstType === "exclusive" ? stat.label !== "GST PAYABLE" : true).map((stat, i) => (
                     <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-indigo-200 transition-all">
                         <div className="absolute top-0 right-0 w-16 h-16 bg-slate-50 -mr-8 -mt-8 rounded-full group-hover:bg-indigo-50 transition-colors" />
                         <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest relative">{stat.label}</span>
@@ -845,7 +799,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         <div className="space-y-4">
                             {(() => {
                                 const taxableAmt = totals.gross - totals.discount;
-                                const taxAmt = totals.sgst + totals.cgst;
+                                const taxAmt = totals.gst;
                                 const netAmt = taxableAmt + taxAmt;
                                 const netPayable = totals.total;
 

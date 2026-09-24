@@ -49,6 +49,9 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
     quantity: 0,
     startingQuantity: 0,
     supplier: "",
+    packing: 0,
+    stripCount: 0,
+    gst: 0,
   });
   const [isSavingBatch, setIsSavingBatch] = useState(false);
   const [togglingBatch, setTogglingBatch] = useState<string | null>(null);
@@ -65,6 +68,9 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
       quantity: Number(batch.quantity) || 0,
       startingQuantity: Number(batch.startingQuantity) || Number(batch.quantity) || 0,
       supplier: batch.supplier || "",
+      packing: Number(batch.packing) || 0,
+      stripCount: Number(batch.stripCount) || 0,
+      gst: Number(batch.gst) || 0,
     });
   };
 
@@ -80,6 +86,9 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
         purchaseRate: editForm.purchaseRate,
         saleRate: editForm.saleRate,
         supplier: editForm.supplier || undefined,
+        packing: editForm.packing,
+        stripCount: editForm.stripCount,
+        gst: editForm.gst,
       };
       if (canEditBatchStock) {
         payload.quantity = editForm.quantity;
@@ -250,11 +259,29 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
     return sortedData.slice((pagination.page - 1) * pagination.limit, pagination.page * pagination.limit);
   }, [sortedData, pagination]);
 
+  const latestBatch = useMemo(() => {
+    if (!item?.batches || item.batches.length === 0) return undefined;
+    return [...item.batches].sort(
+      (a, b) =>
+        new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+    )[0];
+  }, [item?.batches]);
 
-
+  const heroSaleRate = latestBatch
+    ? batchSaleRate(latestBatch, item.unitPrice)
+    : Number(item.unitPrice) || 0;
+  const heroMrp =
+    latestBatch?.mrp !== undefined && latestBatch?.mrp !== null
+      ? Number(latestBatch.mrp)
+      : Number(item.mrp) || 0;
+  const heroSupplier = latestBatch?.supplier || item.supplier || "-";
+  const heroExpiry = latestBatch?.expiryDate || item.expiryDate;
+  const heroPacking = latestBatch?.packing ?? item.packing;
+  const heroStripCount = latestBatch?.stripCount;
+  const heroGst = latestBatch?.gst ?? item.gst;
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-xl p-2 space-y-4 text-sm max-h-[calc(100vh-200px)] overflow-y-auto">
+    <div className="w-full bg-white rounded-2xl shadow-xl p-4 space-y-5 text-sm">
       {/* Header */}
       <div className="flex items-start justify-between border-b pb-4">
         <div>
@@ -323,7 +350,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               </div>
               Supplier
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{item.supplier}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{heroSupplier}</div>
           </div>
 
           <div className="space-y-2">
@@ -331,9 +358,9 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
                 <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
               </div>
-              Unit Price
+              Sale Rate
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">₹ {item.unitPrice.toFixed(2)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">₹ {heroSaleRate.toFixed(2)}</div>
           </div>
 
           <div className="space-y-2">
@@ -343,7 +370,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               </div>
               MRP
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">₹ {item.mrp.toFixed(2)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">₹ {heroMrp.toFixed(2)}</div>
           </div>
 
           <div className="space-y-2">
@@ -353,7 +380,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               </div>
               Expiry
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{fDate(item.expiryDate)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{heroExpiry ? fDate(heroExpiry) : "-"}</div>
           </div>
 
           {/* Row 2 */}
@@ -384,7 +411,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               </div>
               Total Value
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(item.quantity * item.unitPrice)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(item.quantity * heroSaleRate)}</div>
           </div>
 
           <div className="space-y-2">
@@ -415,7 +442,23 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               </div>
               Packing
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{item.packing || 1}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">
+              {heroPacking
+                ? `${heroPacking}${heroStripCount ? ` / ${heroStripCount}` : ""}`
+                : "-"}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center">
+                <Percent className="w-3.5 h-3.5 text-violet-600" />
+              </div>
+              GST
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">
+              {heroGst !== undefined && heroGst !== null ? `${heroGst}%` : "-"}
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -566,22 +609,24 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
           </div>
         )}
 
-        <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
-
-          <Table>
+        <div className="bg-white/90 border rounded-2xl shadow-md shadow-slate-200">
+          <div className="overflow-x-auto rounded-2xl">
+          <Table className="min-w-[980px]">
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
                 {activeTab === "Batch History" ? (
                   <>
-                    <TableHead className="w-[120px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date Added</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch No</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Status</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">MRP</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Purchase</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Sale</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Qty</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4 w-[120px]">Action</TableHead>
+                    <TableHead className="w-[110px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4 whitespace-nowrap">Date Added</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Batch No</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Expiry</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Status</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Pack/Strip</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">MRP</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Purchase</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Sale</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">GST(%)</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Qty</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4 w-[120px] whitespace-nowrap">Action</TableHead>
                   </>
                 ) : (
                   <>
@@ -596,7 +641,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
             <TableBody>
               {paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={activeTab === "Batch History" ? 9 : 4} className="text-center py-20 text-slate-400">
+                  <TableCell colSpan={activeTab === "Batch History" ? 11 : 4} className="text-center py-20 text-slate-400">
                     <div className="flex flex-col items-center gap-2">
                       {activeTab === "Batch History" ? <Barcode className="h-8 w-8 opacity-20" /> : <History className="h-8 w-8 opacity-20" />}
                       <p className="font-bold uppercase tracking-widest text-[11px]">No {activeTab.toLowerCase()} found</p>
@@ -615,13 +660,13 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                   >
                     {activeTab === "Batch History" ? (
                       <>
-                        <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(data.createdAt)}</TableCell>
+                        <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700 whitespace-nowrap">{fDate(data.createdAt)}</TableCell>
                         <TableCell className="py-3">
                           <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-sm">
                             {data.batchNumber}
                           </span>
                         </TableCell>
-                        <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(data.expiryDate)}</TableCell>
+                        <TableCell className="text-xs py-3 text-slate-600 font-medium whitespace-nowrap">{fDate(data.expiryDate)}</TableCell>
                         <TableCell className="text-xs py-3">
                           <Badge
                             variant="secondary"
@@ -634,10 +679,17 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                             {String(data.status || "active")}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right text-xs py-3 tabular-nums">{formatINR(Number(data.mrp) || 0)}</TableCell>
-                        <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(batchPurchaseRate(data))}</TableCell>
-                        <TableCell className="text-right text-xs py-3 tabular-nums">{formatINR(batchSaleRate(data))}</TableCell>
-                        <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums">{data.quantity}</TableCell>
+                        <TableCell className="text-right text-xs py-3 text-slate-700 tabular-nums whitespace-nowrap">
+                          {data.packing ? `${data.packing}` : "-"}
+                          {data.stripCount ? ` / ${data.stripCount}` : ""}
+                        </TableCell>
+                        <TableCell className="text-right text-xs py-3 tabular-nums whitespace-nowrap">{formatINR(Number(data.mrp) || 0)}</TableCell>
+                        <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums whitespace-nowrap">{formatINR(batchPurchaseRate(data))}</TableCell>
+                        <TableCell className="text-right text-xs py-3 tabular-nums whitespace-nowrap">{formatINR(batchSaleRate(data))}</TableCell>
+                        <TableCell className="text-right text-xs py-3 text-slate-700 tabular-nums whitespace-nowrap">
+                          {data.gst != null ? `${data.gst}%` : "0%"}
+                        </TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums whitespace-nowrap">{data.quantity}</TableCell>
                         <TableCell className="text-center py-3 pr-4">
                           <div className="flex items-center justify-center gap-0.5">
                             <Tooltip>
@@ -712,6 +764,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               )}
             </TableBody>
           </Table>
+          </div>
         </div>
         <div className="px-4">
           <PaginationBar
@@ -726,7 +779,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
 
       {/* Edit Batch Dialog */}
       <Dialog open={!!editingBatch} onOpenChange={(o) => !o && setEditingBatch(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               Edit batch {editingBatch?.batchNumber}
@@ -789,6 +842,43 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               />
             </div>
             <div>
+              <label className="text-xs text-slate-500">GST (%)</label>
+              <Input
+                type="number"
+                step="0.01"
+                value={editForm.gst}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, gst: Number(e.target.value) || 0 }))
+                }
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500">Packing</label>
+              <Input
+                type="number"
+                value={editForm.packing}
+                onChange={(e) =>
+                  setEditForm((f) => ({
+                    ...f,
+                    packing: Number(e.target.value) || 0,
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500">Strip count</label>
+              <Input
+                type="number"
+                value={editForm.stripCount}
+                onChange={(e) =>
+                  setEditForm((f) => ({
+                    ...f,
+                    stripCount: Number(e.target.value) || 0,
+                  }))
+                }
+              />
+            </div>
+            <div>
               <label className="text-xs text-slate-500">Quantity</label>
               <Input
                 type="number"
@@ -846,13 +936,13 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
       </Dialog>
 
       {/* Actions */}
-      < div className="flex gap-3 pt-4 border-t mt-2" >
+      <div className="flex gap-3 pt-4 border-t mt-2">
         <Button className="flex-1 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
           <Edit className="w-4 h-4" />
           Edit Item
         </Button>
 
-        <AlertDialog >
+        <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive" className="flex-1 bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:border-red-300 shadow-sm gap-2">
               <Trash2 className="w-4 h-4" />
@@ -885,7 +975,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div >
+      </div>
 
       {/* Delete Batch Confirmation Dialog */}
       <AlertDialog

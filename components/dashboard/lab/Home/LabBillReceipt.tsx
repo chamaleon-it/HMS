@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { fDateandTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime } from "@/lib/fDateAndTime";
 import useGetTest from "@/data/useGetTest";
-import { formatINR } from "@/lib/fNumber";
 import configuration from "@/config/configuration";
 import usePrintBranding from "@/hooks/usePrintBranding";
 import BrandingFooter from "@/components/print/BrandingFooter";
@@ -11,9 +10,47 @@ interface LabBillReceiptProps {
     report?: any | null;
     bill?: any | null;
     panels?: { name: string; price: number; tests?: any[] }[];
-    /** Distinct header per copy; "both" prints a patient and a lab page. */
+    /** Distinct header per copy; "both" prints patient + lab columns (slit). */
     copy?: "patient" | "lab" | "both";
 }
+
+interface BillItemRow {
+    name: string;
+    rate: number;
+    qty: number;
+    discPercent: number;
+    disAmt: number;
+    amount: number;
+}
+
+const formatBillDate = (d: Date) => {
+    if (!d || isNaN(d.getTime())) return "";
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+};
+
+const formatBillTime = (d: Date) => {
+    if (!d || isNaN(d.getTime())) return "";
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    const seconds = String(d.getSeconds()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const strHours = String(hours).padStart(2, "0");
+    return `${strHours}:${minutes}:${seconds} ${ampm}`;
+};
+
+const formatAmount = (num: number) => {
+    return (Number(num) || 0).toFixed(2);
+};
+
+const formatRateOrQty = (num: number) => {
+    const val = Number(num) || 0;
+    return Number.isInteger(val) ? String(val) : val.toFixed(2);
+};
 
 export default function LabBillReceipt({ report, bill, panels, copy }: LabBillReceiptProps) {
     const [mounted, setMounted] = useState(false);
@@ -37,268 +74,375 @@ export default function LabBillReceipt({ report, bill, panels, copy }: LabBillRe
 
     if ((!report && !bill) || !mounted) return null;
 
-    // Determine values
     const patient = bill?.patient || report?.patient;
+    const patientName = patient?.name || "—";
+
+    let ageStr = "";
+    if (patient?.dateOfBirth) {
+        const { years } = fAge(new Date(patient.dateOfBirth));
+        if (years !== undefined && !isNaN(years)) {
+            ageStr = `${years} Years`;
+        }
+    } else if (patient?.age) {
+        ageStr = `${patient.age} Years`;
+    }
+    const genderStr = patient?.gender ? String(patient.gender) : "";
+    const ageSex = [ageStr, genderStr].filter(Boolean).join(" / ");
+
     const doctorVal = bill?.doctor || report?.doctor;
-    const doctorName = typeof doctorVal === 'object' ? doctorVal?.name : doctorVal;
-    const invoiceNo = bill?.mrn || `LAB-${report?.sampleId || report?.mrn || report?._id.substring(0, 6).toUpperCase()}`;
-    const billDate = bill?.createdAt ? new Date(bill.createdAt) : new Date();
+    let doctorName = typeof doctorVal === "object" ? doctorVal?.name : doctorVal;
+    if (typeof doctorVal === "object" && doctorVal?.qualification) {
+        doctorName = `${doctorName} ,${doctorVal.qualification}`;
+    }
+    if (!doctorName || doctorName.toLowerCase() === "null") {
+        doctorName = "Self";
+    }
 
-    // Calculate items
-    let items: { name: string; total: number; gst?: number }[] = [];
-    let subtotal = 0;
-    let totalGst = 0;
-    let grandTotal = 0;
+    const invoiceNo =
+        bill?.mrn ||
+        (report?.mrn !== undefined
+            ? String(report.mrn)
+            : report?.sampleId
+                ? `LAB-${report.sampleId}`
+                : `LAB-${report?._id?.substring(0, 6)?.toUpperCase()}`);
 
-    if (bill) {
-        items = bill.items.map((it: any) => ({
-            name: it.name,
-            total: it.total,
-            gst: it.gst
-        }));
-        subtotal = bill.items.reduce((sum: number, item: any) => sum + (item.quantity * item.unitPrice - item.discount), 0);
-        totalGst = bill.items.reduce((sum: number, item: any) => sum + ((item.quantity * item.unitPrice - item.discount) * item.gst) / 100, 0);
-        grandTotal = Math.max(0, bill.items.reduce((sum: number, item: any) => sum + item.total, 0) - (bill.discount || 0));
-    } else {
-        // Group tests by panels if they belong to a panel
-        const selectedPanels = panels?.filter(p => report.panels?.includes(p.name)) || [];
-        selectedPanels.forEach(p => {
-            items.push({ name: p.name, total: p.price || 0, gst: 0 });
+    const billDate = bill?.createdAt
+        ? new Date(bill.createdAt)
+        : report?.date
+            ? new Date(report.date)
+            : new Date();
+
+    const config = configuration();
+    const hospitalName = config.hospitalName || "RAHMATH HOSPITAL";
+    const hospitalAddress = config.hospitalAddress || "NILAMBUR ROAD, MAMPAD";
+    const hospitalPhone = config.hospitalPhone
+        ? `PH: ${config.hospitalPhone.trim()}`
+        : "PH: 9279100700";
+
+    let items: BillItemRow[] = [];
+
+    if (bill && Array.isArray(bill.items)) {
+        items = bill.items.map((it: any) => {
+            const qty = it.quantity ?? 1;
+            const rate = it.unitPrice ?? (it.total ? it.total / qty : 0);
+            const disAmt = it.discount ?? 0;
+            const baseTotal = rate * qty;
+            const discPercent =
+                baseTotal > 0 && disAmt > 0 ? Math.round((disAmt / baseTotal) * 100) : 0;
+            const amount = it.total !== undefined ? it.total : baseTotal - disAmt;
+            return {
+                name: it.name || "Test",
+                rate,
+                qty,
+                discPercent,
+                disAmt,
+                amount,
+            };
+        });
+    } else if (report) {
+        const selectedPanels = panels?.filter((p) => report.panels?.includes(p.name)) || [];
+        selectedPanels.forEach((p) => {
+            items.push({
+                name: p.name,
+                rate: p.price || 0,
+                qty: 1,
+                discPercent: 0,
+                disAmt: 0,
+                amount: p.price || 0,
+            });
         });
 
         const panelTests = selectedPanels.flatMap((e: any) => e.tests || []).map((e: any) => e._id);
 
-        // Standalone tests
-        report.test?.filter((t: any) => !panelTests.includes(t.name?._id)).forEach((t: any) => {
-            const testDetails = tests.find((test) => test._id === t.name?._id);
-            items.push({ name: t.name?.name || "Test", total: testDetails?.price || 0, gst: 0 });
-        });
-
-        subtotal = items.reduce((a, b) => a + b.total, 0);
-        totalGst = 0;
-        grandTotal = subtotal + totalGst;
+        report.test
+            ?.filter((t: any) => !panelTests.includes(t.name?._id))
+            .forEach((t: any) => {
+                const testDetails = tests.find((test) => test._id === t.name?._id);
+                const price = testDetails?.price || 0;
+                items.push({
+                    name: t.name?.name || "Test",
+                    rate: price,
+                    qty: 1,
+                    discPercent: 0,
+                    disAmt: 0,
+                    amount: price,
+                });
+            });
     }
 
-    const totalRowsNeeded = 21;
-    const itemsCount = items.length;
-    const emptyRowsCount = Math.max(0, totalRowsNeeded - itemsCount);
+    const totalAmount = items.reduce((sum, it) => sum + it.amount, 0);
+    const billDiscount = bill?.discount || 0;
+    const netAmount = Math.max(0, totalAmount - billDiscount);
 
-    const renderCopy = (copyLabel?: "patient" | "lab") => (
-        <div
-            key={copyLabel ?? "single"}
-            className="print-receipt-page bg-white text-black font-sans leading-tight overflow-visible relative flex-col"
-        >
-            <div className="w-full h-full relative flex flex-col">
-                {/* 1. Header Layout */}
-                <div className="flex justify-between items-start pb-3 py-2">
-                    {/* Left: Logo & Hospital Info */}
-                    <div className="flex gap-3 items-center">
-                        <div className="shrink-0 flex items-center justify-center">
-                            <img src="/print/image.png" alt="Logo" className="w-[90px] h-auto object-contain" />
-                        </div>
-                        <div className="flex flex-col gap-0 select-none">
-                            <h1 className="text-[26px] font-bold text-black leading-none tracking-tight uppercase font-cinzel">{configuration().hospitalName}</h1>
-                            {slogan && (
-                                <p className="text-[11px] font-semibold italic text-gray-600 mt-0.5">{slogan}</p>
-                            )}
-                            <p className="text-[12px] font-medium text-black mt-1">Kunduthode, Edavanna, Malappuram</p>
-                            <p className="text-[12px] font-medium text-black">Kerala, India - 676541</p>
-                        </div>
+    // Preserve prior dual-copy settings: "both"/undefined → slit dual columns;
+    // "patient" / "lab" → single column.
+    const showPatient = copy !== "lab";
+    const showLab = copy === "both" || copy === "lab" || copy == null;
+
+    const patientColumn = (
+        <div className={`${showLab ? "w-[63%]" : "w-full"} border border-black p-2 flex flex-col bg-white box-border min-w-0`}>
+            <div className="text-center pb-1">
+                <h1 className="text-[14px] font-bold text-black uppercase tracking-wider leading-snug">
+                    {hospitalName}
+                </h1>
+                {slogan && (
+                    <p className="text-[9px] font-medium italic text-black leading-snug">{slogan}</p>
+                )}
+                <p className="text-[9.5px] font-medium text-black uppercase tracking-wide leading-snug">
+                    {hospitalAddress}
+                </p>
+                <p className="text-[9.5px] font-medium text-black tracking-wide leading-snug">
+                    {hospitalPhone}
+                </p>
+            </div>
+
+            <div className="border-b border-black w-full my-0.5"></div>
+
+            <div className="text-center py-1">
+                <span className="text-[12.5px] font-bold text-black uppercase tracking-wider">
+                    CASH BILL
+                </span>
+            </div>
+
+            <div className="grid grid-cols-[1fr_auto] gap-2 pb-1.5 px-0.5 text-[10px] leading-tight text-black">
+                <div className="space-y-0.5">
+                    <div className="grid grid-cols-[60px_10px_1fr] items-center">
+                        <span className="font-semibold text-black">Bill No</span>
+                        <span>:</span>
+                        <span className="font-bold text-black">{invoiceNo}</span>
                     </div>
-
-                    {/* Right: Cash Receipt Title & Invoice Info */}
-                    <div className="text-right flex flex-col items-end gap-2 pt-1">
-                        <div className="border border-black rounded-[8px] px-6 py-1.5 text-center select-none">
-                            <span className="text-[16px] font-bold text-black uppercase tracking-wider">
-                                {copyLabel === "lab" ? "LAB COPY" : copyLabel === "patient" ? "PATIENT COPY" : "CASH RECEIPT"}
-                            </span>
-                        </div>
-                        <div className="text-[12px] text-gray-500 font-medium space-y-0.5 mt-2 italic">
-                            <p>Invoice No: <span className="font-bold text-black">{invoiceNo}</span></p>
-                            <p>Date : <span className="font-bold text-black">{fDateandTime(billDate)}</span></p>
-                        </div>
+                    <div className="grid grid-cols-[60px_10px_1fr] items-center">
+                        <span className="font-semibold text-black">Name</span>
+                        <span>:</span>
+                        <span className="font-bold text-black uppercase">{patientName}</span>
+                    </div>
+                    <div className="grid grid-cols-[60px_10px_1fr] items-center">
+                        <span className="font-semibold text-black">Age/Sex</span>
+                        <span>:</span>
+                        <span className="font-medium text-black">{ageSex || "—"}</span>
+                    </div>
+                    <div className="grid grid-cols-[60px_10px_1fr] items-center">
+                        <span className="font-semibold text-black">Ref. by Dr</span>
+                        <span>:</span>
+                        <span className="font-bold text-black uppercase">{doctorName}</span>
                     </div>
                 </div>
 
-                {/* 2. Patient Information Strip */}
-                <div className="grid grid-cols-4 bg-[#eaeaea] text-black select-none py-2 px-6">
-                    <div className="flex flex-col justify-center">
-                        <span className="text-[11px] text-gray-500 font-medium leading-none">Patient</span>
-                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient?.name || "—"}</span>
+                <div className="space-y-0.5">
+                    <div className="grid grid-cols-[35px_10px_1fr] items-center">
+                        <span className="font-semibold text-black">Date</span>
+                        <span>:</span>
+                        <span className="font-medium text-black">{formatBillDate(billDate)}</span>
                     </div>
-                    <div className="flex flex-col justify-center">
-                        <span className="text-[11px] text-gray-500 font-medium leading-none">PID</span>
-                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient?.mrn?.replace("MRN", "P-") || " "}</span>
-                    </div>
-                    <div className="flex flex-col justify-center">
-                        <span className="text-[11px] text-gray-500 font-medium leading-none">Phone</span>
-                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient?.phoneNumber || " "}</span>
-                    </div>
-                    <div className="flex flex-col justify-center">
-                        <span className="text-[11px] text-gray-500 font-medium leading-none">Doctor</span>
-                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{doctorName ? `Dr. ${doctorName}` : "Self"}</span>
+                    <div className="grid grid-cols-[35px_10px_1fr] items-center">
+                        <span className="font-semibold text-black">Time</span>
+                        <span>:</span>
+                        <span className="font-medium text-black">{formatBillTime(billDate)}</span>
                     </div>
                 </div>
+            </div>
 
-                {/* 3. Medicine Table with Watermark & Fixed Height */}
-                <div className="relative border border-[#c5c9cf] rounded-tr-2xl rounded-tl-2xl overflow-hidden w-full mt-3 mb-3 flex-1 flex flex-col">
-                    {/* Watermark */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 z-0 select-none">
-                        <img src="/print/image.png" alt="watermark" className="w-[70%] object-contain" />
-                    </div>
-
-                    <table className="w-full border-collapse relative z-10 table-layout-fixed">
-                        <thead className="bg-[#d9d9d9] border-b border-[#c5c9cf] text-[11px] font-semibold text-black">
-                            <tr>
-                                <th style={{ width: "10%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">SL</th>
-                                <th style={{ width: "65%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Test</th>
-                                <th style={{ width: "25%" }} className="px-3 py-2 text-right">Amount</th>
+            <div className="w-full border border-black">
+                <table className="w-full border-collapse text-[10px] table-fixed">
+                    <thead>
+                        <tr className="border-b border-black font-semibold text-black">
+                            <th style={{ width: "7%" }} className="py-0.5 px-1 text-center border-r border-black">S.No</th>
+                            <th style={{ width: "43%" }} className="py-0.5 px-1.5 text-left border-r border-black">Test Name</th>
+                            <th style={{ width: "13%" }} className="py-0.5 px-1 text-right border-r border-black">Rate</th>
+                            <th style={{ width: "8%" }} className="py-0.5 px-1 text-center border-r border-black">Qty</th>
+                            <th style={{ width: "9%" }} className="py-0.5 px-1 text-center border-r border-black">Disc %</th>
+                            <th style={{ width: "9%" }} className="py-0.5 px-1 text-right border-r border-black">Dis Amt</th>
+                            <th style={{ width: "11%" }} className="py-0.5 px-1 text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {items.map((item, idx) => (
+                            <tr key={idx} className="text-black">
+                                <td className="py-0.5 px-1 text-center border-r border-black">{idx + 1}</td>
+                                <td className="py-0.5 px-1.5 text-left font-medium border-r border-black uppercase truncate">{item.name}</td>
+                                <td className="py-0.5 px-1 text-right border-r border-black">{formatRateOrQty(item.rate)}</td>
+                                <td className="py-0.5 px-1 text-center border-r border-black">{item.qty}</td>
+                                <td className="py-0.5 px-1 text-center border-r border-black">{item.discPercent}</td>
+                                <td className="py-0.5 px-1 text-right border-r border-black">{formatRateOrQty(item.disAmt)}</td>
+                                <td className="py-0.5 px-1 text-right font-medium">{formatRateOrQty(item.amount)}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {items.map((item, index) => {
-                                return (
-                                    <tr key={index} className="h-[38px] bg-transparent">
-                                        <td className="px-2 py-0.5 text-center text-black text-[12px] font-medium border-r border-[#c5c9cf]">{index + 1}</td>
-                                        <td className="px-3 py-0.5 border-r border-[#c5c9cf] leading-snug">
-                                            <p className="font-bold text-black text-[12px]">{item.name}</p>
-                                        </td>
-                                        <td className="px-3 py-0.5 text-right font-bold text-black text-[12px]">{formatINR(item.total)}</td>
-                                    </tr>
-                                );
-                            })}
-                            {Array.from({ length: emptyRowsCount }).map((_, idx) => (
-                                <tr key={`empty-${idx}`} className="h-[38px] bg-transparent select-none">
-                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
-                                    <td className="border-r border-[#c5c9cf] px-3 py-0.5">&nbsp;</td>
-                                    <td className="px-3 py-0.5">&nbsp;</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
 
-                {/* 4. Bottom Section */}
-                <div className="flex justify-between items-stretch gap-1 select-none mt-auto mb-6">
-                    {/* Left: Appointments & Legal validation */}
-                    <div className="w-[64%] flex flex-col gap-1.5">
-                        <div className="bg-[#c6c8cc] border border-[#8f949c] rounded-none px-2 py-1 flex items-center font-bold text-[13px] italic uppercase text-black">
-                            FOR APPOINTMENTS / BOOKING :
+            <div className="pt-1 text-[10px] text-black">
+                <div className="flex justify-end">
+                    <div className="w-[50%] space-y-0.5">
+                        <div className="grid grid-cols-[80px_8px_1fr] items-center text-right">
+                            <span className="font-semibold text-black text-left">Total Amount</span>
+                            <span className="text-center">:</span>
+                            <span className="font-bold text-black">{formatAmount(totalAmount)}</span>
                         </div>
-                        <div className="flex-1 border border-[#9ca3af] rounded-bl-2xl rounded-br-2xl px-4 py-2 flex text-[12px] text-black font-bold justify-between items-center bg-white">
-                            <div className="flex items-center gap-2">
-                                <div className="w-[22px] h-[22px] rounded-full border border-black flex items-center justify-center shrink-0">
-                                    <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                    </svg>
-                                </div>
-                                <span>+91 8075016480</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right: Consolidated Billing Summary Box */}
-                    <div className="w-[36%] border border-[#9ca3af] rounded-br-2xl rounded-bl-2xl overflow-hidden bg-white flex flex-col justify-between">
-                        {/* Top: Gross Amount & Discount */}
-                        <div className="px-4 py-1.5 flex flex-col justify-center text-[12px] bg-white gap-0.5 flex-1">
-                            <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
-                                <span className="font-semibold text-gray-700">Gross Amount</span>
-                                <span className="font-bold">:</span>
-                                <span className="font-bold text-right">{formatINR(subtotal)}</span>
-                            </div>
-                            {Boolean(bill?.discount) && (
-                                <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
-                                    <span className="font-semibold text-gray-700">Discount</span>
-                                    <span className="font-bold">:</span>
-                                    <span className="font-bold text-right">- {formatINR(bill.discount)}</span>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Divider Line */}
-                        <div className="border-t border-[#9ca3af]"></div>
-
-                        {/* Bottom: Net Payable */}
-                        <div className="bg-[#eaeaea] px-4 py-2 flex items-center">
-                            <div className="grid grid-cols-[115px_10px_1fr] items-center w-full">
-                                <span className="font-extrabold text-black text-[13px] uppercase">NET PAYABLE</span>
-                                <span className="font-black text-black text-[14px]">:</span>
-                                <span className="font-black text-black text-[14px] text-right">{formatINR(grandTotal)}</span>
-                            </div>
+                        <div className="grid grid-cols-[80px_8px_1fr] items-center text-right">
+                            <span className="font-semibold text-black text-left">Discount</span>
+                            <span className="text-center">:</span>
+                            <span className="font-bold text-black">{formatAmount(billDiscount)}</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Branding footer */}
-                <div className="w-[64%] select-none mt-1">
-                    <BrandingFooter services={services} advertisement={advertisement} />
+                <div className="border-t border-black my-1"></div>
+
+                <div className="flex justify-end gap-8 items-center font-bold text-[12.5px] pr-0.5">
+                    <span>Net Amount :</span>
+                    <span className="min-w-[55px] text-right">{formatAmount(netAmount)}</span>
                 </div>
 
-                {/* 5. Powered by Footer */}
-                <div className="absolute bottom-0 right-0 text-right select-none leading-tight">
-                    <p className="text-[9px] text-gray-500 font-medium">Powered by</p>
-                    <p className="text-[10px] text-gray-800 font-bold tracking-tight uppercase">CARESOFT INNOVATIONS LLP</p>
+                {(services || advertisement) && (
+                    <div className="mt-1">
+                        <BrandingFooter services={services} advertisement={advertisement} />
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+
+    const labColumn = (
+        <div className={`${showPatient ? "w-[37%]" : "w-full"} border border-black p-2 flex flex-col bg-white box-border min-w-0`}>
+            <div className="text-center pb-1">
+                <h2 className="text-[14px] font-bold text-black uppercase tracking-wider leading-tight">
+                    {hospitalName.split(" ").length > 1 ? (
+                        <>
+                            <div>{hospitalName.split(" ").slice(0, -1).join(" ")}</div>
+                            <div>{hospitalName.split(" ").slice(-1).join(" ")}</div>
+                        </>
+                    ) : (
+                        <div>{hospitalName}</div>
+                    )}
+                </h2>
+            </div>
+
+            <div className="border-b border-black w-full mb-1"></div>
+
+            <div className="space-y-0.5 text-[10px] text-black pb-1.5 px-0.5 leading-tight">
+                <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                    <span className="font-semibold text-black">Bill No</span>
+                    <span>:</span>
+                    <span className="font-bold text-black">{invoiceNo}</span>
+                </div>
+                <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                    <span className="font-semibold text-black">Date</span>
+                    <span>:</span>
+                    <span className="font-medium text-black">{formatBillDate(billDate)}</span>
+                </div>
+                <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                    <span className="font-semibold text-black">Time</span>
+                    <span>:</span>
+                    <span className="font-medium text-black">{formatBillTime(billDate)}</span>
+                </div>
+                <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                    <span className="font-semibold text-black">Name</span>
+                    <span>:</span>
+                    <span className="font-bold text-black uppercase">{patientName}</span>
+                </div>
+                <div className="grid grid-cols-[50px_8px_1fr] items-center">
+                    <span className="font-semibold text-black">Age/Sex</span>
+                    <span>:</span>
+                    <span className="font-medium text-black">{ageSex || ""}</span>
+                </div>
+            </div>
+
+            <div className="w-full border border-black">
+                <div className="py-0.5 px-1 font-semibold text-[10px] text-black border-b border-black">
+                    Test Name
+                </div>
+                <div className="py-1 px-1 text-[10px] space-y-0.5">
+                    {items.map((item, idx) => (
+                        <div key={idx} className="font-medium text-black uppercase truncate">
+                            {item.name}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="pt-1 text-[10px] text-black">
+                <div className="space-y-0.5 px-0.5">
+                    <div className="grid grid-cols-[75px_8px_1fr] items-center">
+                        <span className="font-semibold text-black">Total Amount</span>
+                        <span>:</span>
+                        <span className="font-bold text-black text-right">{formatAmount(totalAmount)}</span>
+                    </div>
+                    <div className="grid grid-cols-[75px_8px_1fr] items-center">
+                        <span className="font-semibold text-black">Discount</span>
+                        <span>:</span>
+                        <span className="font-bold text-black text-right">{formatAmount(billDiscount)}</span>
+                    </div>
+                </div>
+
+                <div className="border-t border-black my-1"></div>
+
+                <div className="flex justify-between items-center font-bold text-[12.5px] px-0.5">
+                    <span>Net Amount :</span>
+                    <span className="text-right">{formatAmount(netAmount)}</span>
                 </div>
             </div>
         </div>
     );
 
-    const copies: ("patient" | "lab" | undefined)[] =
-        copy === "both" ? ["patient", "lab"] : [copy];
-
     const content = (
-        <div className="print-receipt hidden print:block bg-white">
-            <style dangerouslySetInnerHTML={{
-                __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+        <div className="print-receipt hidden print:flex bg-white text-black font-sans leading-tight overflow-hidden relative flex-row gap-2">
+            <style
+                dangerouslySetInnerHTML={{
+                    __html: `
         @media print {
           @page {
-            size: A4;
+            size: A5 landscape;
             margin: 4mm;
           }
-          body {
-            visibility: hidden !important;
+          html, body {
             margin: 0 !important;
             padding: 0 !important;
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            overflow: hidden !important;
+            height: auto !important;
           }
-          .font-cinzel {
-            font-family: 'Cinzel Decorative', serif !important;
+          body > *:not(.print-receipt) {
+            display: none !important;
+          }
+          #__next, #root, [data-radix-portal] {
+            display: none !important;
           }
           .print-receipt {
             visibility: visible !important;
-            position: absolute !important;
+            position: relative !important;
             left: 0 !important;
             top: 0 !important;
             width: 202mm !important;
+            max-height: 140mm !important;
             padding: 0 !important;
-            margin: 0 !important;
+            margin: 0 auto !important;
             background: white !important;
             box-sizing: border-box !important;
-            display: block !important;
-            z-index: 999999999 !important;
-          }
-          .print-receipt-page {
-            width: 202mm !important;
-            height: 289mm !important;
             display: flex !important;
-            flex-direction: column !important;
-            box-sizing: border-box !important;
-            break-after: page;
-            page-break-after: always;
-          }
-          .print-receipt-page:last-child {
-            break-after: auto;
-            page-break-after: auto;
+            flex-direction: row !important;
+            align-items: stretch !important;
+            gap: 4mm !important;
+            z-index: 999999999 !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+            page-break-before: avoid !important;
+            break-before: avoid !important;
+            font-family: Arial, Helvetica, sans-serif !important;
           }
           .no-print, aside, header, footer, nav, button {
             display: none !important;
           }
         }
-      `}} />
-            {copies.map((c) => renderCopy(c))}
+      `,
+                }}
+            />
+            {showPatient && patientColumn}
+            {showLab && labColumn}
         </div>
     );
 
