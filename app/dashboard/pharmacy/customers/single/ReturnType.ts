@@ -8,9 +8,6 @@ export interface Datum {
     _id: string;
     patient: string;
     order: null;
-    refundMode: string;
-    returnedBy: string;
-    remarks: string;
     items: Item[];
     __v?: number;
     createdAt?: Date;

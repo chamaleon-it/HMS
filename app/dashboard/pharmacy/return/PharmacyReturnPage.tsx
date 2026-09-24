@@ -86,7 +86,6 @@ export default function PharmacyReturnPage() {
 
       const { data }: { data: { data: OrderType } } = await api.get(`/pharmacy/orders/single?${params}`);
       setOrder({ ...data.data, items: data.data.items.map((it) => ({ ...it, unitPrice: it.unitPrice || it.name.unitPrice })) });
-      setState({ refundMode: "Cash", returnedBy: "Patient", remarks: "" });
     } catch (error: any) {
       if (error?.response?.data?.message === "Order not found.") {
         toast.error("No returnable products were found in this order.");
@@ -106,12 +105,6 @@ export default function PharmacyReturnPage() {
     }
   }, [mrn])
 
-
-  const [state, setState] = useState({
-    refundMode: "Cash",
-    returnedBy: "Patient",
-    remarks: "",
-  });
 
   const returnOrder = async () => {
     if (!order) {
@@ -143,9 +136,6 @@ export default function PharmacyReturnPage() {
       const payload: {
         patient: string;
         order: string;
-        refundMode: string;
-        returnedBy: string;
-        remarks: string;
         items: {
           name: string;
           quantity: number;
@@ -156,9 +146,6 @@ export default function PharmacyReturnPage() {
       } = {
         patient: order?.patient._id,
         order: order?._id,
-        refundMode: state.refundMode,
-        returnedBy: state.returnedBy,
-        remarks: state.remarks,
         items: order?.items.map((it) => ({
           name: it.name._id,
           quantity: it.return || 0,
