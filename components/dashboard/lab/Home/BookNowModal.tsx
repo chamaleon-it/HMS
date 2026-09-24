@@ -11,13 +11,11 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/auth/context/auth-context";
 import {
-    Calendar as CalendarIcon,
     Trash,
     Zap,
     AlertTriangle,
     User,
 } from "lucide-react";
-import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import {
     Table,
@@ -31,9 +29,7 @@ import api from "@/lib/axios";
 import useGetTest from "@/data/useGetTest";
 import useGetPanels from "@/data/useGetPanels";
 import LabeledCombobox from "./LabeledCombobox";
-import DateTimePicker from "./DateTimePicker";
 import { formatINR } from "@/lib/fNumber";
-import TechnicianSelection from "./TechnicianSelection";
 
 interface BookNowModalProps {
     patient: any;
@@ -42,11 +38,6 @@ interface BookNowModalProps {
     mutate?: () => void;
     doctor?: string | null
 }
-
-const theme = {
-    from: "#4f46e5",
-    to: "#ec4899",
-};
 
 export default function BookNowModal({
     patient,
@@ -58,10 +49,6 @@ export default function BookNowModal({
     const { user } = useAuth();
     const { panels } = useGetPanels();
     const { tests } = useGetTest();
-
-    const [bookingType, setBookingType] = useState<"Book Now" | "Schedule">(
-        "Book Now"
-    );
 
     const [payload, setPayload] = useState<{
         patient: string;
@@ -101,27 +88,15 @@ export default function BookNowModal({
                 technician: "",
             }));
         }
-    }, [patient, open, user]);
-
-    const tabs = [
-        { key: "Book Now", label: "Book Now", icon: Zap },
-        { key: "Schedule", label: "Schedule", icon: CalendarIcon },
-    ] as const;
+    }, [patient, open, user, doctor]);
 
     const handleSubmit = async () => {
         if (!payload.patient) {
             toast.error("Patient details missing");
             return;
         }
-        let submitDate = payload.date;
-        if (bookingType === "Book Now") {
-            submitDate = new Date();
-        }
+        const submitDate = new Date();
 
-        if (!submitDate) {
-            toast.error("Please select a date");
-            return;
-        }
         if (payload.test.length === 0 && payload.panels.length === 0) {
             toast.error("Please select at least one test or panel");
             return;
@@ -184,51 +159,10 @@ export default function BookNowModal({
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-3">
-                        <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 shadow-xs">
-                            {tabs.map(({ key, label, icon: Icon }) => {
-                                const active = bookingType === key;
-                                return (
-                                    <button
-                                        key={key}
-                                        onClick={() => setBookingType(key)}
-                                        className={
-                                            "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer font-medium " +
-                                            (active ? "text-white" : "text-gray-600 hover:bg-slate-50")
-                                        }
-                                        type="button"
-                                    >
-                                        {active && (
-                                            <motion.span
-                                                layoutId="tab-indicator-book-now"
-                                                className="absolute inset-0 rounded-full"
-                                                style={{
-                                                    background: "linear-gradient(90deg,#4f46e5,#d946ef)",
-                                                }}
-                                                transition={{
-                                                    type: "spring",
-                                                    stiffness: 500,
-                                                    damping: 40,
-                                                }}
-                                            />
-                                        )}
-                                        <span className="relative z-10 flex items-center gap-2">
-                                            <Icon size={16} /> {label}
-                                        </span>
-                                    </button>
-                                );
-                            })}
-                        </div>
+                    <div className="inline-flex items-center gap-2 text-sm font-medium text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full px-4 py-2">
+                        <Zap size={16} /> Book Now
                     </div>
                 </div>
-
-                <TechnicianSelection
-                    className="max-w-72"
-                    setValue={(id: string) => {
-                        setPayload((prev) => ({ ...prev, technician: id }));
-                    }}
-                    technicianName={payload.technician}
-                />
 
                 <div className="flex gap-4 justify-between w-full">
                     <div className="flex-1 max-w-[400px]">
@@ -304,12 +238,6 @@ export default function BookNowModal({
                             <AlertTriangle className="w-4 h-4 mr-2" />
                             Urgent
                         </Button>
-                        {bookingType === "Schedule" && (
-                            <DateTimePicker
-                                date={payload.date}
-                                setDate={(date) => setPayload((prev) => ({ ...prev, date }))}
-                            />
-                        )}
                     </div>
                 </div>
 

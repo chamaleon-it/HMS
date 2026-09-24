@@ -2,9 +2,7 @@
 import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import PatientSelection from "./PatientSelection";
-import { useAuth } from "@/auth/context/auth-context";
-import { Zap, Calendar as CalendarIcon, AlertTriangle, Trash } from "lucide-react";
-import { motion } from "framer-motion";
+import { Zap, AlertTriangle, Trash } from "lucide-react";
 import toast from "react-hot-toast";
 import {
   Table,
@@ -18,32 +16,18 @@ import api from "@/lib/axios";
 import useGetTest from "@/data/useGetTest";
 import useGetPanels from "@/data/useGetPanels";
 import useGetGroups from "@/data/useGetGroups";
-import DateTimePicker from "./DateTimePicker";
 import { formatINR } from "@/lib/fNumber";
-import TechnicianSelection from "./TechnicianSelection";
 import DoctorSelection from "./DoctorSelection";
 import TestSelection from "./TestSelection";
 import { LabDraft, useLabDrafts } from "@/app/dashboard/lab/LabDraftContext";
 
-const theme = {
-  from: "#4f46e5",
-  to: "#ec4899",
-};
-
-const tabs = [
-  { key: "Book Now", label: "Book Now", icon: Zap },
-  { key: "Schedule", label: "Schedule", icon: CalendarIcon },
-] as const;
-
 export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
-  const { user } = useAuth();
   const { updateDraft, removeDraft, setDraftToDelete } = useLabDrafts();
   const { panels } = useGetPanels();
   const { tests } = useGetTest();
   const { groups } = useGetGroups();
 
   const payload = draft.payload;
-  const bookingType = draft.bookingType;
 
   const setPayload = (updater: any) => {
     updateDraft(draft.id, (prev) => ({
@@ -51,24 +35,14 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
     }));
   };
 
-  const setBookingType = (type: "Book Now" | "Schedule") => {
-    updateDraft(draft.id, { bookingType: type });
-  };
-
   const handleSubmit = async () => {
     if (!payload.patient) {
       toast.error("Please select patient");
       return;
     }
-    let submitDate = payload.date;
-    if (bookingType === "Book Now") {
-      submitDate = new Date();
-    }
+    // Book Now only — always submit with current time
+    const submitDate = new Date();
 
-    if (!submitDate) {
-      toast.error("Please select a date");
-      return;
-    }
     if (payload.test.length === 0) {
       toast.error("Please select at least one test");
       return;
@@ -164,50 +138,8 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
             }));
           }}
         />
-        {/* <Button 
-          variant={"outline"} 
-          onClick={() => window.dispatchEvent(new CustomEvent('open-lab-register-patient', { 
-            detail: { name: draft.patientName, draftId: draft.id } 
-          }))} 
-          className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white"
-        >
-          New Customer
-        </Button> */}
-        <div className="flex flex-col gap-3">
-          <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
-            {tabs.map(({ key, label, icon: Icon }) => {
-              const active = bookingType === key;
-              return (
-                <button
-                  key={key}
-                  onClick={() => setBookingType(key)}
-                  className={
-                    "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer " +
-                    (active ? "text-white" : "text-gray-700")
-                  }
-                  type="button"
-                >
-                  {active && (
-                    <motion.span
-                      layoutId={`tab-indicator-${draft.id}`}
-                      className="absolute inset-0 rounded-full"
-                      style={{
-                        background: "linear-gradient(90deg,#4f46e5,#d946ef)",
-                      }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 500,
-                        damping: 40,
-                      }}
-                    />
-                  )}
-                  <span className="relative z-10 flex items-center gap-2">
-                    <Icon size={16} /> {label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+        <div className="inline-flex items-center gap-2 text-sm font-medium text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-full px-4 py-2">
+          <Zap size={16} /> Book Now
         </div>
       </div>
 
@@ -218,14 +150,6 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
             setPayload((prev: any) => ({ ...prev, doctor: id }));
           }}
           doctor={payload.doctor ?? undefined}
-        />
-
-        <TechnicianSelection
-          className="max-w-72"
-          setValue={(id: string) => {
-            setPayload((prev: any) => ({ ...prev, technician: id }));
-          }}
-          technicianName={payload.technician}
         />
 
         <div className="flex items-end gap-2 ">
@@ -334,14 +258,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
           />
         </div>
 
-        <div className="flex gap-2 items-center">
-          {bookingType === "Schedule" && (
-            <DateTimePicker
-              date={payload.date}
-              setDate={(date) => setPayload((prev: any) => ({ ...prev, date }))}
-            />
-          )}
-        </div>
+        <div className="flex gap-2 items-center" />
       </div>
 
       <Table>

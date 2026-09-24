@@ -25,7 +25,6 @@ import { Button } from "@/components/ui/button";
 
 export interface FilterType {
   q: null | string;
-  qEnd: null | string;
   activeDate: "Today" | "7 days" | "30 days" | "Custom";
   date: Date;
   page: number;
@@ -35,7 +34,6 @@ export interface FilterType {
 export default function LabRegisterPage() {
   const [filter, setFilter] = useState<FilterType>({
     q: null,
-    qEnd: null,
     activeDate: "Today",
     date: new Date(),
     page: 1,
@@ -46,10 +44,6 @@ export default function LabRegisterPage() {
 
   if (filter.q) {
     params.set("q", filter.q);
-  }
-
-  if (filter.qEnd && filter.qEnd.length >= 7) {
-    params.set("qEnd", filter.qEnd);
   }
 
   let sd: Date = startOfDay(new Date());
@@ -109,34 +103,21 @@ export default function LabRegisterPage() {
               subtitle="View all registers, customer details, and total amounts"
             />
             <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-end gap-6">
-              {/* Search Invoice Range */}
+              {/* Search */}
               <div className="space-y-2 flex-1 min-w-[280px]">
                 <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
-                  Search Invoice Range
+                  Search
                 </label>
-                <div className="flex gap-2">
-                  <div className="relative group flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                    <Input
-                      value={filter.q ?? ""}
-                      onChange={(e) =>
-                        setFilter((prev) => ({ ...prev, q: e.target.value, page: 1 }))
-                      }
-                      placeholder="From..."
-                      className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
-                    />
-                  </div>
-                  <div className="relative group flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                    <Input
-                      value={filter.qEnd ?? ""}
-                      onChange={(e) =>
-                        setFilter((prev) => ({ ...prev, qEnd: e.target.value, page: 1 }))
-                      }
-                      placeholder="To..."
-                      className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
-                    />
-                  </div>
+                <div className="relative group">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                  <Input
+                    value={filter.q ?? ""}
+                    onChange={(e) =>
+                      setFilter((prev) => ({ ...prev, q: e.target.value, page: 1 }))
+                    }
+                    placeholder="PID, patient name, phone, or invoice..."
+                    className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+                  />
                 </div>
               </div>
 
@@ -160,7 +141,7 @@ export default function LabRegisterPage() {
                 <Button
                   variant="outline"
                   className="h-10 px-7 border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-semibold rounded-lg flex items-center gap-2 transition-all active:scale-95 shadow-sm"
-                  onClick={() => setFilter({ q: null, qEnd: null, activeDate: "Today", date: new Date(), page: 1, limit: 10 })}
+                  onClick={() => setFilter({ q: null, activeDate: "Today", date: new Date(), page: 1, limit: 10 })}
                 >
                   <RefreshCcw className="h-4 w-4" />
                   Reset
