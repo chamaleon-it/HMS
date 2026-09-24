@@ -19,11 +19,21 @@ import { formatINR } from "@/lib/fNumber";
 import Search from "./Search";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { fDate, fTime } from "@/lib/fDateAndTime";
-import { useAuth } from "@/auth/context/auth-context";
+import { fDate } from "@/lib/fDateAndTime";
 import { TableSkeleton } from "../components/PharmacySkeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useSearchParams } from "next/navigation";
-import { Trash, CreditCard, User, MessageSquareText } from "lucide-react";
+import { Trash } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -36,8 +46,6 @@ export default function PharmacyReturnPage() {
 
   const searchParams = useSearchParams();
   const mrn = searchParams?.get('mrn') ?? '';
-
-  const { user } = useAuth();
 
   const [filter, setFilter] = useState<{ q: null | string }>({
     q: null,
@@ -388,114 +396,37 @@ export default function PharmacyReturnPage() {
           </div>
         </section>
 
-        {/* REFUND ACTIONS CARD */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* LEFT: REFUND OPTIONS */}
-          <Card className="shadow-md border-slate-200">
-            <CardHeader className="">
-              <CardTitle className="text-sm font-medium text-slate-700">
-                Refund Options
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 gap-5 text-sm">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <span className="text-[12px] uppercase tracking-wide text-slate-500 flex items-center gap-1.5 font-semibold">
-                    <CreditCard className="w-3.5 h-3.5 text-slate-400" />
-                    Refund Mode
-                  </span>
-                  <Select
-                    value={state.refundMode}
-                    onValueChange={(val) =>
-                      setState((prev) => ({
-                        ...prev,
-                        refundMode: val,
-                      }))
-                    }
-                  >
-                    <SelectTrigger className="h-9 text-xs rounded-lg border-slate-200">
-                      <SelectValue placeholder="Select Mode" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Cash">Cash</SelectItem>
-                      <SelectItem value="UPI">UPI</SelectItem>
-                      <SelectItem value="Adjust in Next Bill">Adjust in Next Bill</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <span className="text-[12px] uppercase tracking-wide text-slate-500 flex items-center gap-1.5 font-semibold">
-                    <User className="w-3.5 h-3.5 text-slate-400" />
-                    Returned By
-                  </span>
-                  <Select
-                    value={state.returnedBy}
-                    onValueChange={(val) =>
-                      setState((prev) => ({
-                        ...prev,
-                        returnedBy: val,
-                      }))
-                    }
-                  >
-                    <SelectTrigger className="h-9 text-xs rounded-lg border-slate-200">
-                      <SelectValue placeholder="Select Staff" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Patient">Patient</SelectItem>
-                      <SelectItem value="Staff">Staff</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <span className="text-[11px] uppercase tracking-wide text-slate-500 flex items-center gap-1.5 font-semibold">
-                  <MessageSquareText className="w-3.5 h-3.5 text-slate-400" />
-                  Remarks
-                </span>
-                <Input
-                  value={state.remarks}
-                  onChange={(e) =>
-                    setState((prev) => ({ ...prev, remarks: e.target.value }))
-                  }
-                  placeholder="e.g. Returned sealed strip, verified by pharmacist"
-                  className="h-9 rounded-lg border-slate-200 text-xs focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* RIGHT: STATUS + ACTIONS */}
-          <Card className="shadow-md border-slate-200 flex flex-col">
-            <CardContent className="p-4 flex flex-col justify-between flex-1">
-              <div className="flex items-start justify-between">
-                <div className=""></div>
-                <div className="text-right text-xs text-slate-500 leading-tight">
-                  <div>
-                    Handled by{" "}
-                    <span className="text-slate-900 font-medium">
-                      {user?.name}
-                    </span>
-                  </div>
-                  <div className="text-[10px]">{fTime(new Date())}</div>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2 mt-6 text-right">
-                <div className="flex justify-end">
-                  <Button
-                    disabled={returning}
-                    onClick={returnOrder}
-                    className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(16,185,129,0.3)]"
-                  >
-                    {returning ? "Returning..." : "Confirm & Refund"}
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
+        {/* CONFIRM & REFUND */}
+        <div className="flex justify-end">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                disabled={returning}
+                className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(16,185,129,0.3)]"
+              >
+                {returning ? "Returning..." : "Confirm & Refund"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirm Refund</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to confirm this return and process the
+                  refund? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                  onClick={returnOrder}
+                >
+                  Yes, Confirm
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
     </AppShell>
   );
