@@ -103,7 +103,7 @@ const Customers: React.FC = () => {
             <Filter filter={filter} setFilter={setFilter} />
 
             {isLoading ? (
-              <TableSkeleton rows={10} columns={8} />
+              <TableSkeleton rows={10} columns={7} />
             ) : (
               <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
                 <Table className="min-w-[1000px]">
@@ -111,7 +111,6 @@ const Customers: React.FC = () => {
                     <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
                       <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 px-4 pl-4">Sl No</TableHead>
                       <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Customers</TableHead>
-                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">PID</TableHead>
                       <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
                         Age / Gender
                       </TableHead>
