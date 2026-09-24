@@ -110,7 +110,7 @@ export default function List({
         <TableBody>
           {filteredData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="h-64 text-center">
+              <TableCell colSpan={7} className="h-64 text-center">
                 <div className="flex flex-col items-center justify-center gap-3">
                   <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center ring-1 ring-gray-100">
                     <Search className="h-8 w-8 text-gray-300" />
@@ -176,11 +176,6 @@ export default function List({
                         </div>
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell className="py-2.5">
-                    <span className="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
-                      {row.type}
-                    </span>
                   </TableCell>
                   <TableCell className="py-2.5">
                     <Chip label={row.status} />
