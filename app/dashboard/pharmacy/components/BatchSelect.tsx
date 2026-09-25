@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import useSWR from "swr";
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
@@ -37,6 +37,8 @@ type BatchesApi = {
 type Props = {
   itemId: string | null | undefined;
   value?: string | null;
+  /** Optional: help resolve stale ObjectIds after B0 re-import by batch number. */
+  batchNumber?: string | null;
   onSelect: (batch: BatchOption | null) => void;
   /** Cap selected qty helper — parent should use this as max qty. */
   onStockCap?: (maxQty: number) => void;
@@ -52,6 +54,7 @@ type Props = {
 export default function BatchSelect({
   itemId,
   value,
+  batchNumber,
   onSelect,
   onStockCap,
   sort = "fefo",
@@ -61,6 +64,7 @@ export default function BatchSelect({
     ? `/pharmacy/items/${itemId}/batches?sort=${sort}`
     : null;
   const { data, isLoading } = useSWR<BatchesApi>(key);
+  const lastApplied = useRef<string | null>(null);
 
   const batches = useMemo(() => {
     return (data?.data?.batches || []).filter((b) => {
@@ -71,22 +75,67 @@ export default function BatchSelect({
     });
   }, [data]);
 
-  const selected = batches.find((b) => b.batchId === value) || null;
+  const selected =
+    batches.find((b) => b.batchId === value) ||
+    (batchNumber
+      ? batches.find(
+          (b) =>
+            String(b.batchNumber).toLowerCase() ===
+            String(batchNumber).toLowerCase()
+        )
+      : null) ||
+    (value
+      ? batches.find(
+          (b) =>
+            String(b.batchNumber).toLowerCase() === String(value).toLowerCase()
+        )
+      : null) ||
+    null;
 
   useEffect(() => {
     if (!itemId) {
-      onSelect(null);
+      if (lastApplied.current !== null) {
+        lastApplied.current = null;
+        onSelect(null);
+      }
       return;
     }
-    if (!value && batches.length > 0) {
-      const pick = batches.find((b) => b.available !== false) || batches[0];
-      if (pick) {
+    if (batches.length === 0) return;
+
+    // Stale batchId after B0 re-import: value not in list → rebind by number or FEFO
+    if (!selected) {
+      const byNum = batchNumber
+        ? batches.find(
+            (b) =>
+              String(b.batchNumber).toLowerCase() ===
+              String(batchNumber).toLowerCase()
+          )
+        : null;
+      const pick =
+        byNum || batches.find((b) => b.available !== false) || batches[0];
+      if (pick && lastApplied.current !== pick.batchId) {
+        lastApplied.current = pick.batchId;
         onSelect(pick);
         onStockCap?.(Number(pick.stock) || 0);
       }
+      return;
+    }
+
+    // Keep parent snapshot in sync when we resolved via batchNumber or auto-pick
+    if (selected.batchId !== value && lastApplied.current !== selected.batchId) {
+      lastApplied.current = selected.batchId;
+      onSelect(selected);
+      onStockCap?.(Number(selected.stock) || 0);
+      return;
+    }
+
+    if (!value && lastApplied.current !== selected.batchId) {
+      lastApplied.current = selected.batchId;
+      onSelect(selected);
+      onStockCap?.(Number(selected.stock) || 0);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemId, batches.length]);
+  }, [itemId, batches, value, batchNumber, selected?.batchId]);
 
   useEffect(() => {
     if (selected) {
@@ -110,10 +159,11 @@ export default function BatchSelect({
         "h-8 max-w-md w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-700",
         className,
       )}
-      value={value || ""}
+      value={selected?.batchId || value || ""}
       disabled={isLoading || batches.length === 0}
       onChange={(e) => {
         const b = batches.find((x) => x.batchId === e.target.value) || null;
+        lastApplied.current = b?.batchId || null;
         onSelect(b);
         if (b) onStockCap?.(Number(b.stock) || 0);
       }}
