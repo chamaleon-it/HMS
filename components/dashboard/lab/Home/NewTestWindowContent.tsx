@@ -1,6 +1,7 @@
 "use client";
 import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import PatientSelection from "./PatientSelection";
 import { Trash } from "lucide-react";
 import toast from "react-hot-toast";
@@ -18,6 +19,7 @@ import useGetPanels from "@/data/useGetPanels";
 import useGetGroups from "@/data/useGetGroups";
 import { formatINR } from "@/lib/fNumber";
 import DoctorSelection from "./DoctorSelection";
+import TechnicianSelection from "./TechnicianSelection";
 import TestSelection from "./TestSelection";
 import { LabDraft, useLabDrafts } from "@/app/dashboard/lab/LabDraftContext";
 
@@ -53,7 +55,8 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
         api.post("/lab/report", {
           ...payload,
           date: submitDate.toISOString(),
-          doctor: payload.doctor === "self" ? null : payload.doctor
+          doctor: !payload.doctor || payload.doctor === "self" ? null : payload.doctor,
+          technician: payload.technician || undefined,
         }),
         {
           loading: "Creating lab test order...",
@@ -124,7 +127,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-2">
         <PatientSelection
           patientName={draft.patientName}
           autoFocus
@@ -138,16 +141,44 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
             }));
           }}
         />
-      </div>
 
-      <div className="flex gap-2 justify-between w-full">
-        <DoctorSelection
-          className="max-w-72"
-          setValue={(id: string | undefined) => {
-            setPayload((prev: any) => ({ ...prev, doctor: id }));
-          }}
-          doctor={payload.doctor ?? undefined}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-0.5 items-stretch">
+          <div className="flex flex-col gap-1.5 p-2.5 border border-slate-200 bg-slate-50/40 rounded-lg">
+            <div className="flex items-center gap-1.5">
+              <div className="p-1 rounded-md bg-slate-200/60 text-slate-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-stethoscope"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+              </div>
+              <Label className="text-xs font-semibold text-slate-700">Doctor</Label>
+            </div>
+            <DoctorSelection
+              hideLabel
+              doctor={payload.doctor ?? undefined}
+              doctorName={payload.doctorName}
+              setValue={(id: string | undefined) => {
+                setPayload((prev: any) => ({ ...prev, doctor: id ?? null }));
+              }}
+              onNameChange={(name: string) => {
+                setPayload((prev: any) => ({ ...prev, doctorName: name }));
+              }}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5 p-2.5 border border-slate-200 bg-slate-50/40 rounded-lg">
+            <div className="flex items-center gap-1.5">
+              <div className="p-1 rounded-md bg-slate-200/60 text-slate-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user-cog"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /><circle cx="19" cy="11" r="2" /><path d="m19 13.5 0 .5" /><path d="m19 8.5 0 .5" /></svg>
+              </div>
+              <Label className="text-xs font-semibold text-slate-700">Technician In-charge</Label>
+            </div>
+            <TechnicianSelection
+              hideLabel
+              technicianName={payload.technician}
+              setValue={(name: string) => {
+                setPayload((prev: any) => ({ ...prev, technician: name }));
+              }}
+            />
+          </div>
+        </div>
       </div>
 
       <div className="flex gap-2 justify-between w-full">

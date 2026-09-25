@@ -6,6 +6,8 @@ export interface LabDraft {
   payload: {
     patient: string;
     doctor?: string | null;
+    doctorName?: string;
+    technician?: string;
     lab: string;
     test: { name: string }[];
     panels: string[];
@@ -80,6 +82,8 @@ export const LabDraftProvider: React.FC<{ children: React.ReactNode; userId: str
       payload: {
         patient: "",
         doctor: userId,
+        doctorName: "",
+        technician: "",
         lab: userId,
         test: [],
         panels: [],
