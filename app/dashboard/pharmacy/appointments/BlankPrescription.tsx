@@ -102,12 +102,7 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                         <div className="shrink-0">
                             <Info label="Doctor" value={doctorPrintLines(doctor).name} />
                         </div>
-                        <div className="shrink-0">
-                            <Info label="Designation" value={doctorPrintLines(doctor).designation} />
-                        </div>
-                        <div className="shrink-0">
-                            <Info label="Qualification" value={doctorPrintLines(doctor).qualification} />
-                        </div>
+
                         <div className="shrink-0">
                             <Info label="Specialization" value={doctorPrintLines(doctor).specialization} />
                         </div>
@@ -147,7 +142,7 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                             </div>
                         </div>
 
-                       
+
                     </div>
                 </div>
 
