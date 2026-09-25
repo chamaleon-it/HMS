@@ -178,16 +178,16 @@ export default function UpdateMedicine({
                     </div>
 
                     <div className="flex flex-col items-end gap-0.5">
-                      <span className={`text-[10px] font-bold uppercase tracking-tight px-1.5 py-0.5 rounded-sm ${it.quantity <= 0
+                      <span className={`text-[10px] font-bold uppercase tracking-tight px-1.5 py-0.5 rounded-sm ${(it.quantity ?? 0) <= 0
                         ? "bg-red-50 text-red-600"
-                        : it.quantity < 15
+                        : (it.quantity ?? 0) < 15
                           ? "bg-amber-50 text-amber-600"
                           : "bg-emerald-50 text-emerald-600"
                         }`}>
-                        {it.quantity <= 0 ? "Out of Stock" : it.quantity < 15 ? "Low Stock" : "In Stock"}
+                        {(it.quantity ?? 0) <= 0 ? "Out of Stock" : (it.quantity ?? 0) < 15 ? "Low Stock" : "In Stock"}
                       </span>
                       <span className="text-[11px] font-bold text-slate-500">
-                        {it.quantity} {it.quantity === 1 ? 'unit' : 'units'} available
+                        {it.quantity ?? 0} {(it.quantity ?? 0) === 1 ? 'unit' : 'units'} available
                       </span>
                     </div>
                   </div>

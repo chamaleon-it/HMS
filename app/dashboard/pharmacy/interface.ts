@@ -2,7 +2,7 @@ export interface OrderType {
     _id: string;
     mrn: string;
     patient: Patient;
-    doctor: Doctor;
+    doctor: Doctor | null;
     items: Item[];
     priority: string;
     status: string;
@@ -50,17 +50,19 @@ export interface Item {
 
 export interface Name {
     _id: string;
-    quantity: number;
+    /** Computed from active batches (not stored on Item master). */
+    quantity?: number;
     name: string;
-    pharmacy: string;
-    generic: string;
-    hsnCode: string;
-    category: string;
-    manufacturer: string;
-    unitPrice: number;
+    pharmacy?: string;
+    generic?: string;
+    hsnCode?: string;
+    category?: string;
+    manufacturer?: string;
+    /** Computed from latest active batch. */
+    unitPrice?: number;
     purchasePrice?: number;
     expiryDate?: Date;
-    status: string;
+    status?: string;
     createdAt?: Date;
     updatedAt?: Date;
     rackLocation?: string;
@@ -84,6 +86,24 @@ export interface Patient {
     mrn: string;
     createdAt: Date;
     updatedAt: Date;
+}
+
+/** Line selling price: frozen batch snapshot, else enriched item unitPrice. */
+export function orderLineUnitPrice(it: {
+  batchSellingPrice?: number | null;
+  name?: { unitPrice?: number | null } | null;
+}): number {
+  const snap = it.batchSellingPrice;
+  if (snap != null && Number.isFinite(Number(snap))) return Number(snap);
+  const up = it.name?.unitPrice;
+  if (up != null && Number.isFinite(Number(up))) return Number(up);
+  return 0;
+}
+
+export function orderItemStock(it: {
+  name?: { quantity?: number | null } | null;
+}): number {
+  return Number(it.name?.quantity) || 0;
 }
 
 

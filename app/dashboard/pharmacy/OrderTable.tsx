@@ -119,6 +119,91 @@ export default function OrderTable({
   const handlePrintBill = async (order: OrderType) => {
     setPrintingOrderId(order._id);
     try {
+      // Prefer the saved bill (has frozen line prices). Fall back to order snapshot.
+      if (order.billNo && order.billNo !== "-") {
+        const billParams = new URLSearchParams();
+        billParams.set("q", order.billNo);
+        billParams.set("limit", "1");
+        billParams.set("page", "1");
+        const { data: billRes } = await api.get<{
+          data: {
+            _id: string;
+            mrn: string;
+            cash: number;
+            online: number;
+            discount: number;
+            doctor?: string | { name?: string };
+            patient: {
+              _id: string;
+              name: string;
+              mrn?: string;
+              phoneNumber?: string;
+              gender?: string;
+              dateOfBirth?: string | Date;
+              address?: string;
+            };
+            items: {
+              name: string;
+              quantity: number;
+              unitPrice: number;
+              gst?: number;
+              total: number;
+            }[];
+          }[];
+        }>(`/billing?${billParams}`);
+
+        const bill =
+          billRes.data?.find((b) => b.mrn === order.billNo) ??
+          billRes.data?.[0];
+
+        if (bill) {
+          const items = (bill.items || []).map((e) => ({
+            gst: e.gst || 0,
+            name: e.name,
+            quantity: e.quantity || 0,
+            unitPrice: e.unitPrice || 0,
+            total: e.total ?? (e.unitPrice || 0) * (e.quantity || 0),
+          }));
+          const subtotal = items.reduce(
+            (a, b) => a + b.unitPrice * b.quantity,
+            0
+          );
+          const discount = bill.discount || 0;
+          const doctorName =
+            typeof bill.doctor === "object"
+              ? bill.doctor?.name || ""
+              : bill.doctor === "Self"
+                ? ""
+                : bill.doctor || "";
+
+          setPrintBill({
+            patient: bill.patient,
+            payload: {
+              items,
+              cash: bill.cash || 0,
+              discount,
+              online: bill.online || 0,
+              patient: bill.patient._id,
+              department: "Pharmacy",
+              doctor: doctorName,
+              note: "",
+            },
+            invoiceDetails: {
+              totalGst: 0,
+              prefix,
+              roundOffAmount: 0,
+              subtotal,
+              grandTotal: Math.max(0, subtotal - discount),
+            },
+          });
+          setTimeout(() => {
+            window.print();
+            setPrintBill(null);
+          }, 800);
+          return;
+        }
+      }
+
       const params = new URLSearchParams();
       params.set("q", order.mrn);
       const { data } = await api.get<{
@@ -131,7 +216,8 @@ export default function OrderTable({
             phoneNumber: string;
             specialization: string;
             _id: string;
-          };
+          } | null;
+          doctorName?: string;
           items: {
             dosage: string;
             duration: string;
@@ -139,17 +225,20 @@ export default function OrderTable({
             frequency: string;
             isPacked: string;
             quantity: number;
+            batchSellingPrice?: number | null;
+            batchNumber?: string | null;
+            batchExpiryDate?: string | Date | null;
             name: {
               name: string;
-              unitPrice: number;
+              unitPrice?: number;
               _id: string;
+              generic?: string;
               genericName?: string;
               manufacturer?: string;
               hsnCode?: string;
               batchNumber?: string;
               expiryDate?: string | Date;
             };
-            batchNumber?: string;
             expiryDate?: string | Date;
           }[];
           mrn: string;
@@ -170,17 +259,24 @@ export default function OrderTable({
         message: string;
       }>(`/pharmacy/orders/single?${params}`);
 
-      const items = data.data.items.map((e) => {
-        const unitPrice = e.name.unitPrice || 0;
+      const orderData = data.data;
+      if (!orderData?.patient?._id) {
+        throw new Error("Order patient missing");
+      }
+
+      const items = (orderData.items || []).map((e) => {
+        // Item master no longer stores unitPrice — use line snapshot / enriched batch price
+        const unitPrice =
+          e.batchSellingPrice ?? e.name?.unitPrice ?? 0;
         const quantity = e.quantity || 0;
         const basePrice = unitPrice * quantity;
         return {
           gst: 0,
-          name: e.name.name,
-          generic: e.name.genericName,
-          manufacturer: e.name.manufacturer,
-          batchNumber: e.batchNumber || e.name.batchNumber,
-          expiryDate: e.expiryDate || e.name.expiryDate,
+          name: e.name?.name || "Item",
+          generic: e.name?.genericName || e.name?.generic,
+          manufacturer: e.name?.manufacturer,
+          batchNumber: e.batchNumber || e.name?.batchNumber,
+          expiryDate: e.batchExpiryDate || e.expiryDate || e.name?.expiryDate,
           quantity,
           unitPrice,
           total: basePrice,
@@ -191,26 +287,27 @@ export default function OrderTable({
         (a, b) => a + b.unitPrice * b.quantity,
         0
       );
-      const totalGst = 0;
-      const discount = data.data.discount || 0;
-      const grandTotal = subtotal - discount;
+      const discount = orderData.discount || 0;
+      const grandTotal = Math.max(0, subtotal - discount);
+      const doctorName =
+        orderData.doctor?.name || orderData.doctorName || order.doctorName || "";
 
       setPrintBill({
-        patient: data.data.patient,
+        patient: orderData.patient,
         payload: {
           items,
           cash: 0,
           discount,
           online: 0,
-          patient: data.data.patient._id,
-          department: data.data.doctor.specialization,
-          doctor: data.data.doctor.name,
+          patient: orderData.patient._id,
+          department: orderData.doctor?.specialization || "Pharmacy",
+          doctor: doctorName === "Self" ? "" : doctorName,
           note: "",
         },
         invoiceDetails: {
           totalGst: 0,
           prefix,
-          roundOffAmount: 0, // Simplified for now
+          roundOffAmount: 0,
           subtotal,
           grandTotal,
         },
