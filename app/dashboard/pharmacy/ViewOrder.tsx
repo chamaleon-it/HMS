@@ -186,8 +186,8 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         return false;
     };
 
-    const handleUpdate = async () => {
-        if (!updatePayload || !localOrder) return;
+    const handleUpdate = async (): Promise<boolean> => {
+        if (!updatePayload || !localOrder) return false;
 
         let hasZeroQuantity = false;
         for (const [index, m] of updatePayload.items.entries()) {
@@ -198,13 +198,13 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                 toast.error(
                     `Item ${index + 1} (${m.name?.name || "medicine"}): Select a batch before updating`
                 );
-                return;
+                return false;
             }
         }
 
         if (hasZeroQuantity) {
             toast.error("Quantity cannot be 0");
-            return;
+            return false;
         }
 
         const payload = {
@@ -233,15 +233,17 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         };
         try {
             setUpdatingOrder(true);
-            const res = await toast.promise(api.patch(`pharmacy/orders/update`, payload), {
+            await toast.promise(api.patch(`pharmacy/orders/update`, payload), {
                 loading: "Updating...",
                 success: "Updated successfully",
                 error: "Failed to update",
             });
             setLocalOrder(updatePayload);
             OrderMutate();
+            return true;
         } catch (error) {
             toast.error("Failed to update: " + error);
+            return false;
         } finally {
             setUpdatingOrder(false);
         }
@@ -249,9 +251,8 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
     const handleTogglePacked = async (it: any) => {
         if (checkIsDirty()) {
-            // toast.error("Please update the order to save changes before packing.");
-            // return;
-            await handleUpdate()
+            const saved = await handleUpdate();
+            if (!saved) return;
         }
         try {
             if (it.isPacked) {
@@ -305,23 +306,29 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     };
 
     const handleCompleteOrder = async (orderToComplete = localOrder) => {
-        if (!orderToComplete) return;
+        if (!orderToComplete || !updatePayload) return;
         try {
-            await toast.promise(api.patch(`/pharmacy/orders/complete/${orderToComplete._id}`), {
-                loading: "Completing...",
-                success: (data) => {
-                    OrderMutate();
-                    return data.data.message;
-                },
-                error: ({ response: { data } }) => {
-                    return data.message;
+            // Complete reads batches from DB — persist BatchSelect state first
+            if (orderToComplete.status !== "Completed") {
+                const saved = await handleUpdate();
+                if (!saved) return;
+            }
+
+            await toast.promise(
+                api.patch(`/pharmacy/orders/complete/${updatePayload._id || orderToComplete._id}`),
+                {
+                    loading: "Completing...",
+                    success: (data) => {
+                        OrderMutate();
+                        return data.data.message;
+                    },
+                    error: ({ response: { data } }) => {
+                        return data.message;
+                    },
                 }
-            })
-            // Fetch latest order state for printing, or just use current if sufficient
-            // Ideally we should print the completed order.
-            // But handlePrintBill mostly uses ID/mrn.
-            handlePrintBill(orderToComplete);
-            setOpen(false); // Close the modal after completing/printing
+            );
+            handlePrintBill(updatePayload);
+            setOpen(false);
         } catch (error) {
             console.log(error);
         }
