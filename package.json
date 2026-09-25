@@ -13,7 +13,8 @@
     "build": "next build",
     "start": "next start",
     "pack": "next build && electron-builder",
-    "lint": "next lint",
+    "lint": "eslint . --max-warnings 9999",
+    "typecheck": "tsc --noEmit",
     "electron:dev": "concurrently \"next dev\" \"wait-on tcp:3000 && electron .\"",
     "dist": "npm run electron:build",
     "electron": "electron-builder --win"
@@ -101,6 +102,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.10.2",
     "@types/pouchdb": "^6.4.2",
@@ -122,6 +124,7 @@
   },
   "resolutions": {
     "@types/react": "19.2.7",
-    "@types/react-dom": "19.2.3"
+    "@types/react-dom": "19.2.3",
+    "@xmldom/xmldom": "^0.8.15"
   }
 }

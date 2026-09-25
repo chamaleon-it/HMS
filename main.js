@@ -23,8 +23,10 @@ async function createWindow() {
         width: 800,
         height: 600,
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false
+            // Harden desktop shell — renderer must not get Node APIs.
+            nodeIntegration: false,
+            contextIsolation: true,
+            sandbox: true,
         },
     });
 
