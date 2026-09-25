@@ -5,6 +5,7 @@ import useSWR from "swr";
 import configuration from "@/config/configuration";
 import usePrintBranding from "@/hooks/usePrintBranding";
 import BrandingFooter from "@/components/print/BrandingFooter";
+import { doctorPrintLines } from "@/lib/doctorPrintLines";
 
 interface PrintReceiptProps {
     payload?: {
@@ -94,6 +95,13 @@ export default function PrintReceipt({
 
     const invoiceNo = `${invoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;
 
+    // Display-only Dr. prefix (matches prescription print; skip Self/-/empty and avoid double prefix)
+    const rawDoctor = payload.doctor?.trim();
+    const displayDoctor =
+        !rawDoctor || rawDoctor === "-" || rawDoctor.toLowerCase() === "self"
+            ? "-"
+            : doctorPrintLines(null, rawDoctor).name;
+
     // Total rows for fixed height table padding
     const totalRowsNeeded = 21;
     const itemsCount = payload.items.length;
@@ -150,7 +158,7 @@ export default function PrintReceipt({
                     </div>
                     <div className="flex flex-col justify-center">
                         <span className="text-[11px] text-gray-500 font-medium leading-none">Doctor</span>
-                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{payload.doctor || "-"}</span>
+                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{displayDoctor}</span>
                     </div>
                 </div>
 
@@ -310,7 +318,7 @@ export default function PrintReceipt({
                     <Field label="Patient" value={patient.name} />
                     <Field label="PID" value={patient.mrn?.replace("MRN", "P-") || " "} />
                     <Field label="Phone" value={patient.phoneNumber || " "} />
-                    <Field label="Doctor" value={payload.doctor || "-"} />
+                    <Field label="Doctor" value={displayDoctor} />
                 </div>
 
                 <div className="relative border border-[#c5c9cf] rounded-tr-2xl rounded-tl-2xl overflow-hidden w-full mt-3 mb-3 flex-1">
@@ -364,7 +372,7 @@ export default function PrintReceipt({
                     </div>
                     <div className="w-[30%] text-center">
                         <div className="border-b border-black mb-1" />
-                        <p className="text-[11px] font-bold uppercase text-black">{payload.doctor || "Doctor"}</p>
+                        <p className="text-[11px] font-bold uppercase text-black">{displayDoctor !== "-" ? displayDoctor : "Doctor"}</p>
                         <p className="text-[9px] uppercase tracking-wide text-gray-600">{payload.department || "Signature"}</p>
                     </div>
                 </div>
