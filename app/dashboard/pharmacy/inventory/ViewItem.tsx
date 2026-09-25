@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History, ArrowLeftRight, Loader2, Power } from "lucide-react";
-import { BatchType, ItemType, batchPurchaseRate, batchUnitPrice, IBatch } from "./interface";
+import { BatchType, ItemType, batchPurchaseRate, batchUnitPrice, itemActiveQuantity, IBatch } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -148,8 +148,8 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
         setItem((prev) => ({
           ...prev,
           quantity: deductBatchStock
-            ? Math.max(0, prev.quantity - (Number(selectedBatchToDelete.quantity) || 0))
-            : prev.quantity,
+            ? Math.max(0, itemActiveQuantity(prev) - (Number(selectedBatchToDelete.quantity) || 0))
+            : itemActiveQuantity(prev),
           batches: (prev.batches || []).filter(
             (b) => (b._id || b.batchNumber) !== batchIdentifier
           ),
@@ -280,6 +280,8 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
   const heroStripCount = latestBatch?.stripCount;
   const heroGst = latestBatch?.gst ?? item.gst;
 
+  const stockQty = itemActiveQuantity(item);
+
   return (
     <div className="w-full bg-white rounded-2xl shadow-xl p-4 space-y-5 text-sm">
       {/* Header */}
@@ -298,31 +300,21 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
             <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded text-xs font-medium">HSN: {item.hsnCode}</span>
           </div>
         </div>
-
-        <div className="flex flex-col items-end gap-1">
-          <div className="h-10 bg-white border border-slate-200 rounded-md p-1 flex items-center justify-center shadow-sm">
-            <div className="w-32 h-full bg-[repeating-linear-gradient(90deg,black_0px,black_1px,transparent_1px,transparent_3px)] opacity-80" />
-          </div>
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-medium">
-            <span className="font-mono tracking-wider">{item.sku}</span>
-          </div>
-        </div>
       </div>
 
-      {/* Stock / Status - REPLACED BY NEW SALES CARDS SECTION BELOW, REMOVING OLD STOCK CARDS IF REDUNDANT, BUT USER ASKED FOR ALL UI IMPROVEMENT. LET'S KEEP STOCK BUT MODERNIZE IT OR MERGE WITH DETAILS. Let's make it a compact stat row below header */}
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-xl border bg-slate-50/50 p-4">
           <div className="text-xs font-medium text-slate-500 mb-1">Current Stock</div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-slate-900">{item.quantity}</span>
+            <span className="text-2xl font-bold text-slate-900">{stockQty}</span>
             <span className="text-sm font-medium text-slate-500">units</span>
           </div>
         </div>
         <div className="rounded-xl border bg-slate-50/50 p-4 flex flex-col justify-center">
           <div className="text-xs font-medium text-slate-500 mb-2">Availability</div>
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${item.quantity > 0 ? "bg-green-500" : "bg-red-500"}`}></div>
-            <span className="text-sm font-semibold text-slate-700">{item.quantity > 0 ? "In Stock" : "Out of Stock"}</span>
+            <div className={`w-2 h-2 rounded-full ${stockQty > 0 ? "bg-green-500" : "bg-red-500"}`}></div>
+            <span className="text-sm font-semibold text-slate-700">{stockQty > 0 ? "In Stock" : "Out of Stock"}</span>
           </div>
         </div>
       </div>
@@ -338,9 +330,9 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
                 <Tag className="w-3.5 h-3.5 text-blue-600" />
               </div>
-              SKU
+              Category
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{item.sku}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{item.category || "—"}</div>
           </div>
 
           <div className="space-y-2">
@@ -411,7 +403,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               </div>
               Total Value
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(item.quantity * heroUnitPrice)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(stockQty * heroUnitPrice)}</div>
           </div>
 
           <div className="space-y-2">
@@ -1013,7 +1005,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Current Item Stock:</span>
-              <span className="font-bold text-slate-800">{item.quantity} units</span>
+              <span className="font-bold text-slate-800">{stockQty} units</span>
             </div>
           </div>
 
@@ -1031,7 +1023,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                 </span>
                 <span className="text-slate-500 text-[11px] block mt-0.5">
                   {deductBatchStock
-                    ? `New stock will become ${Math.max(0, item.quantity - (selectedBatchToDelete?.quantity || 0))} units.`
+                    ? `New stock will become ${Math.max(0, stockQty - (selectedBatchToDelete?.quantity || 0))} units.`
                     : "Leave unchecked to only remove this batch record without altering current stock."}
                 </span>
               </div>

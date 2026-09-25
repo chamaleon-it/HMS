@@ -14,8 +14,6 @@ export type BatchOption = {
   purchaseRate?: number;
   sellingPrice?: number;
   unitPrice?: number;
-  /** Legacy dual-read — prefer unitPrice. */
-  saleRate?: number;
   mrp?: number;
   gst?: number;
   stock: number;
@@ -96,8 +94,7 @@ export default function BatchSelect({
     }
   }, [selected?.batchId, selected?.stock]);
 
-  const rateOf = (b: BatchOption) =>
-    Number(b.unitPrice ?? b.saleRate ?? b.sellingPrice ?? 0) || 0;
+  const rateOf = (b: BatchOption) => Number(b.unitPrice ?? b.sellingPrice ?? 0) || 0;
 
   if (!itemId) {
     return (

@@ -29,15 +29,13 @@ export interface Item {
 export interface Name {
     _id: string;
     quantity: number;
-    openingStockQuantity: number;
     name: string;
     pharmacy: string;
     generic: string;
-    hsnCode: number;
-    sku: string;
+    hsnCode: number | string;
     category: string;
-    supplier: string;
     manufacturer: string;
     unitPrice: number;
     status: string;
+    supplier?: string;
 }

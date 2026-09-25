@@ -82,8 +82,7 @@ export default function PrescriptionCard({
             batchPacking: null,
           };
         }
-        const unitPrice =
-          batch.unitPrice ?? batch.saleRate ?? batch.sellingPrice ?? m.unitPrice;
+        const unitPrice = batch.unitPrice ?? batch.sellingPrice ?? m.unitPrice;
         const stock = Number(batch.stock) || 0;
         return {
           ...m,

@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import React, { Dispatch, SetStateAction, useCallback } from "react";
-import { FilterType, ItemType, itemDisplayUnitPrice, batchPurchaseRate } from "./interface";
+import { FilterType, ItemType, itemDisplayUnitPrice, itemActiveQuantity, batchPurchaseRate } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { PaginationBar } from "../components/PaginationBar";
 import toast from "react-hot-toast";
@@ -86,9 +86,7 @@ export default function ItemTable({
     }));
   };
 
-  const getItemStock = (item: ItemType) => {
-    return typeof item.quantity === "number" ? item.quantity : (Number(item.quantity) || 0);
-  };
+  const getItemStock = (item: ItemType) => itemActiveQuantity(item);
 
   const getItemTotalValue = (item: ItemType) => {
     const itemStock = getItemStock(item);

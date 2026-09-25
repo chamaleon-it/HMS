@@ -51,22 +51,20 @@ export interface Item {
 export interface Name {
     _id: string;
     quantity: number;
-    openingStockQuantity: number;
     name: string;
     pharmacy: string;
     generic: string;
     hsnCode: string;
-    sku: string;
     category: string;
-    supplier: string;
     manufacturer: string;
     unitPrice: number;
-    purchasePrice: number;
-    expiryDate: Date;
+    purchasePrice?: number;
+    expiryDate?: Date;
     status: string;
     createdAt?: Date;
     updatedAt?: Date;
     rackLocation?: string;
+    supplier?: string;
 }
 
 export interface Patient {

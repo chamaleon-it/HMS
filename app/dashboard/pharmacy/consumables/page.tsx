@@ -35,7 +35,6 @@ interface Consumable {
   _id: string;
   name: string;
   generic?: string;
-  sku?: string;
   category?: string;
   quantity?: number;
   unitPrice?: number;
@@ -52,7 +51,7 @@ interface ConsumableIssue {
   unitPurchasePrice?: number;
   totalCost?: number;
   createdAt: string;
-  item?: { name?: string; sku?: string } | null;
+  item?: { name?: string } | null;
   issuedBy?: { name?: string; role?: string } | null;
 }
 
@@ -80,7 +79,7 @@ function ConsumablesPage() {
     const q = query.trim().toLowerCase();
     if (!q) return consumables;
     return consumables.filter((c) =>
-      [c.name, c.generic, c.sku].some((v) => v?.toLowerCase().includes(q))
+      [c.name, c.generic, c.category].some((v) => v?.toLowerCase().includes(q))
     );
   }, [consumables, query]);
 
@@ -158,7 +157,7 @@ function ConsumablesPage() {
                     Item
                   </TableHead>
                   <TableHead className="py-2.5 text-[11px] font-bold uppercase tracking-wider text-white">
-                    SKU
+                    Category
                   </TableHead>
                   <TableHead className="py-2.5 text-[11px] font-bold uppercase tracking-wider text-white">
                     In Stock
@@ -189,7 +188,7 @@ function ConsumablesPage() {
                       )}
                     </TableCell>
                     <TableCell className="text-slate-600">
-                      {item.sku || "-"}
+                      {item.category || "-"}
                     </TableCell>
                     <TableCell className="tabular-nums">
                       {(item.quantity ?? 0) <= 0 ? (
