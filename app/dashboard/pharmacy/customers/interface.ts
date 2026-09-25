@@ -30,22 +30,21 @@ export interface Item {
     isPacked: boolean
 }
 
+/** Item master + optional batch-enriched fields (no sku / openingStock on Item). */
 export interface Name {
     _id: string;
-    quantity: number;
-    openingStockQuantity: number;
     name: string;
     pharmacy: string;
     generic: string;
     hsnCode: string;
-    sku: string;
     category: string;
-    supplier: string;
     manufacturer: string;
-    unitPrice: number;
-    purchasePrice: number;
-    expiryDate: Date;
     status: string;
+    quantity?: number;
+    unitPrice?: number;
+    purchasePrice?: number;
+    expiryDate?: Date;
+    supplier?: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -71,11 +70,6 @@ export interface Patient {
 
 
 
-
-
-
-
-
 export interface DataType {
     patient: string;
     doctor: string;
@@ -89,5 +83,4 @@ export interface DataType {
         availableQuantity: number;
     }[];
     priority: string;
-    status: string;
 }

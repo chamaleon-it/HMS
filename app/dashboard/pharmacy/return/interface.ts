@@ -39,25 +39,24 @@ export interface Batch {
     quantity: number;
 }
 
+/** Item master + optional batch-enriched fields (no sku / openingStock on Item). */
 export interface Name {
     _id: string;
-    quantity: number;
-    openingStockQuantity: number;
     name: string;
     pharmacy: string;
     generic: string;
     hsnCode: string;
-    sku: string;
     category: string;
-    supplier: string;
     manufacturer: string;
-    unitPrice: number;
-    purchasePrice: number;
-    expiryDate: Date;
     status: string;
-    createdAt: Date;
-    updatedAt: Date;
-    batches?: Batch[]
+    quantity?: number;
+    unitPrice?: number;
+    purchasePrice?: number;
+    expiryDate?: Date;
+    supplier?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+    batches?: Batch[];
 }
 
 export interface Patient {

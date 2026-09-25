@@ -10,6 +10,16 @@ interface ReportCardProps {
     panelPerPage?: boolean;
 }
 
+/** Allow only safe lab-unit markup (sub/sup); strip everything else to prevent stored XSS. */
+function sanitizeLabUnitHtml(raw: unknown): string {
+    const html = String(raw ?? "");
+    if (!html) return "";
+    return html
+        .replace(/<(?!\/?(?:sub|sup)\b)[^>]*>/gi, "")
+        .replace(/\son\w+\s*=\s*(['"]).*?\1/gi, "")
+        .replace(/javascript:/gi, "");
+}
+
 export default function ReportCard({ report, panels, panelPerPage = false }: ReportCardProps) {
     const [mounted, setMounted] = useState(false);
 
@@ -637,7 +647,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                                 <td className="py-1.5 px-2 text-[14px] text-slate-800 align-top text-left">
                                                                                     <div className="flex justify-start gap-1">
                                                                                         <span className={isAbnormal ? "font-bold text-black" : "font-bold"}>{row.value || " "}</span>
-                                                                                        {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? <span className="text-black font-bold" dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
+                                                                                        {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? <span className="text-black font-bold" dangerouslySetInnerHTML={{ __html: sanitizeLabUnitHtml(row.name.unit) }} /> : ""}
                                                                                     </div>
                                                                                 </td>
                                                                                 <td className="py-1.5 px-2 pl-8 text-[14px] text-slate-800 align-top font-normal">
@@ -662,7 +672,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                                             return (
                                                                                                 <div key={idx}>
                                                                                                     {r.name && r.name.toLowerCase() !== "normal" ? <span className="pr-1">{r.name}:</span> : ""}
-                                                                                                    {rangeDisplay} <span className="text-[12px]" dangerouslySetInnerHTML={{ __html: row.name?.unit || "" }} />
+                                                                                                    {rangeDisplay} <span className="text-[12px]" dangerouslySetInnerHTML={{ __html: sanitizeLabUnitHtml(row.name?.unit || "") }} />
                                                                                                 </div>
                                                                                             );
                                                                                         })

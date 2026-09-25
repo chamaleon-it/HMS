@@ -220,7 +220,7 @@ export default function Search({
           </span>
           <span className="text-emerald-700 font-bold text-lg leading-tight mt-1">
             {formatINR(
-              order?.items.reduce((a, b) => a + b.name.unitPrice * b.quantity, 0) ?? 0
+              order?.items.reduce((a, b) => a + (b.name.unitPrice ?? 0) * b.quantity, 0) ?? 0
             )}
           </span>
           <span className="text-[10px] font-semibold text-slate-400">incl. GST</span>

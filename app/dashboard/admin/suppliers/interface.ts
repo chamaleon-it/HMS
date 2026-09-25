@@ -33,7 +33,6 @@ export interface SupplierOrderItem {
         name: string;
         generic?: string;
         hsnCode?: string;
-        sku?: string;
         unitPrice: number;
     };
     batch: string;
