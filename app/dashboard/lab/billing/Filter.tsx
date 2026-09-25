@@ -38,7 +38,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
               onChange={(e) =>
                 setFilter((prev) => ({ ...prev, q: e.target.value }))
               }
-              placeholder="Search invoice no."
+              placeholder="PID, patient name, phone, or invoice..."
               className={
                 "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
               }

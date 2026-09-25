@@ -24,7 +24,7 @@ interface Props {
     patientName: string;
     mutate: () => void;
     autoGenerateSampleId?: boolean;
-    onStatusChange?: (status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft") => void;
+    onStatusChange?: (status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Deleted" | "Draft") => void;
 }
 
 const generateAutoNumber = () => {

@@ -190,7 +190,6 @@ export default function FollowUpTimePro({
       api.post("/appointments", {
         patient: patient,
         doctor: doctor,
-        method: "In clinic",
         date: combineToIST(
           selectedDate || new Date(),
           selectedTime

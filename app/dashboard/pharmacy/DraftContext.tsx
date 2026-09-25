@@ -9,7 +9,6 @@ export interface Draft {
   zIndex: number;
   isOpen: boolean;
   minimized: boolean;
-  hasAllergy: boolean;
   showAllFields: boolean;
   patientName: string;
 }
@@ -36,14 +35,18 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       try {
         const parsed: Draft[] = JSON.parse(saved);
         // Sanitize: reset any doctor that was stored as an ObjectId string from old code
-        const sanitized = parsed.map(d => ({
-          ...d,
-          payload: {
-            ...d.payload,
-            doctor: null,
-            doctorName: d.payload.doctorName === "-" ? "" : (d.payload.doctorName || ""),
-          }
-        }));
+        const sanitized = parsed.map(d => {
+          const { allergies: _a, ...payloadRest } = d.payload || {} as any;
+          const { hasAllergy: _h, ...draftRest } = d as any;
+          return {
+            ...draftRest,
+            payload: {
+              ...payloadRest,
+              doctor: null,
+              doctorName: payloadRest.doctorName === "-" ? "" : (payloadRest.doctorName || ""),
+            }
+          };
+        });
         setDrafts(sanitized);
       } catch (e) {
         console.error("Failed to parse drafts", e);
@@ -60,11 +63,12 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [drafts]);
 
-  const isNoAllergy = (a?: string) => !a || ["none", "n/a", "no", "nil"].includes(a.trim().toLowerCase());
-
   const addDraft = (initialData?: Partial<DataType>, patientName?: string) => {
     const id = Date.now().toString();
     const maxZ = Math.max(40, ...drafts.map(d => d.zIndex));
+    const { allergies: _allergies, ...safeInitial } = (initialData || {}) as Partial<DataType> & {
+      allergies?: string;
+    };
     const newDraft: Draft = {
       id,
       payload: {
@@ -89,14 +93,12 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         priority: "Normal",
         status: "Pending",
         pharmacist: "",
-        allergies: "",
-        ...initialData
+        ...safeInitial
       },
       position: { x: 100 + drafts.length * 30, y: 100 + drafts.length * 30 },
       zIndex: maxZ + 1,
       isOpen: true,
       minimized: false,
-      hasAllergy: !isNoAllergy(initialData?.allergies),
       showAllFields: false,
       patientName: patientName || ""
     };

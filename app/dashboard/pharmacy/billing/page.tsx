@@ -14,9 +14,9 @@ import { endOfDay, startOfDay, subDays } from "date-fns";
 
 export interface FilterType {
   q: null | string;
-  qEnd: null | string;
   status: string;
   method: string;
+  billingType: string;
   activeDate: "Today" | "7 days" | "30 days" | "Custom";
   date: Date;
   page: number;
@@ -28,9 +28,9 @@ export default function BillingPage() {
   const [tab, setTab] = useState<"all" | "new">("all");
   const [filter, setFilter] = useState<FilterType>({
     q: null,
-    qEnd: null,
     status: "",
     method: "",
+    billingType: "all",
     activeDate: "Today",
     date: new Date(),
     page: 1,
@@ -44,16 +44,16 @@ export default function BillingPage() {
     params.set("q", filter.q);
   }
 
-  if (filter.qEnd && filter.qEnd.length >= 7) {
-    params.set("qEnd", filter.qEnd);
-  }
-
   if (filter.status !== "all") {
     params.set("status", filter.status);
   }
 
   if (filter.method !== "all") {
     params.set("method", filter.method);
+  }
+
+  if (filter.billingType && filter.billingType !== "all") {
+    params.set("billingType", filter.billingType);
   }
 
 
@@ -118,6 +118,7 @@ export default function BillingPage() {
       pharmacy: {
         billing: {
           autoPrintAfterSave: boolean,
+          printDualCopies?: boolean,
           prefix: string
         }
       }
@@ -126,6 +127,7 @@ export default function BillingPage() {
 
   const pharmacyBilling = data?.data?.pharmacy?.billing ?? {
     autoPrintAfterSave: false,
+    printDualCopies: false,
     prefix: "INV"
   }
 

@@ -71,7 +71,7 @@ export default function Payments() {
             createdAt: string;
             cash: number;
             online: number;
-            insurance: number;
+            discount: number;
             items: {
                 total: number;
             }[];
@@ -86,8 +86,15 @@ export default function Payments() {
 
     const totalCash = bills.reduce((acc, bill) => acc + (bill.cash || 0), 0);
     const totalOnline = bills.reduce((acc, bill) => acc + (bill.online || 0), 0);
-    const totalInsurance = bills.reduce((acc, bill) => acc + (bill.insurance || 0), 0);
-    const totalCollection = totalCash + totalOnline + totalInsurance;
+    const totalCollection = totalCash + totalOnline;
+    const totalBilled = bills.reduce(
+        (acc, bill) => acc + bill.items.reduce((sum, item) => sum + (item.total || 0), 0),
+        0
+    );
+    const totalDue = bills.reduce((acc, bill) => {
+        const billed = bill.items.reduce((sum, item) => sum + (item.total || 0), 0);
+        return acc + Math.max(0, billed - (bill.cash || 0) - (bill.online || 0) - (bill.discount || 0));
+    }, 0);
 
     return (
         <div className="min-h-[calc(100vh-67px)] w-full bg-linear-to-b from-white to-zinc-50/50 p-6 space-y-8">
@@ -140,9 +147,9 @@ export default function Payments() {
                 <StatCard
                     delay={0.4}
                     icon={<TrendingUp className="h-7 w-7" />}
-                    label="Insurance / Due"
-                    value={formatINR(totalInsurance)}
-                    subtext={`${((totalInsurance / (totalCollection || 1)) * 100).toFixed(1)}% of total`}
+                    label="Outstanding Due"
+                    value={formatINR(totalDue)}
+                    subtext={`${((totalDue / (totalBilled || 1)) * 100).toFixed(1)}% of billed`}
                     colorClass="from-amber-500/10 to-amber-500/5"
                     iconBgClass="bg-amber-100 text-amber-600"
                     borderClass="hover:border-amber-200"
@@ -184,7 +191,6 @@ export default function Payments() {
                                             <div className="flex gap-1">
                                                 {bill.cash > 0 && <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">Cash</span>}
                                                 {bill.online > 0 && <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">Online</span>}
-                                                {bill.insurance > 0 && <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">Ins</span>}
                                             </div>
                                         </TableCell>
                                         <TableCell>
@@ -193,7 +199,7 @@ export default function Payments() {
                                             </span>
                                         </TableCell>
                                         <TableCell className="text-right font-bold text-zinc-700">
-                                            ${(bill.cash + bill.online + bill.insurance).toFixed(2)}
+                                            {formatINR(bill.cash + bill.online)}
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -241,15 +247,6 @@ export default function Payments() {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span className="font-medium text-zinc-700">Insurance</span>
-                                <span className="text-zinc-500">{((totalInsurance / (totalCollection || 1)) * 100).toFixed(0)}%</span>
-                            </div>
-                            <div className="h-2 w-full bg-zinc-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-amber-500 rounded-full" style={{ width: `${(totalInsurance / (totalCollection || 1)) * 100}%` }} />
-                            </div>
-                        </div>
                     </div>
 
                     <div className="mt-auto pt-6 border-t border-zinc-100">

@@ -10,8 +10,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import PrescriptionCard from "./PrescriptionCard";
-import { DataType } from "./interface";
+import PrescriptionCard from "../PrescriptionCard";
+import { DataType } from "../interface";
 import PatientSelection from "./PatientSelection";
 import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
@@ -27,18 +27,25 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
 
   const [payload, setPayload] = useState<DataType>({
     patient: "",
-    doctor: user?._id ?? "",
+    doctor: user?._id ?? null,
+    doctorName: "",
     items: [
       {
+        rowId: "1",
         dosage: "1 tab",
         name: "",
+        medicineName: "",
         duration: "",
         food: "",
         frequency: "",
         quantity: 0,
         availableQuantity: 0,
+        unitPrice: 0,
+        batchId: null,
+        batchNumber: null,
       },
     ],
+    discount: 0,
     priority: "Normal",
     status: "Pending",
   });
@@ -66,6 +73,10 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
           toast.error(`Item ${index + 1}: Quantity must be greater than 0`);
           return;
         }
+        if (!(item as any).batchId) {
+          toast.error(`Item ${index + 1}: Select a batch before saving`);
+          return;
+        }
       }
       await toast.promise(api.post("/pharmacy/orders", payload), {
         loading: "Order is creating...",
@@ -82,18 +93,25 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
     if (open === false) {
       setPayload({
         patient: "",
-        doctor: user?._id ?? "",
+        doctor: user?._id ?? null,
+        doctorName: "",
         items: [
           {
-            dosage: "",
+            rowId: "1",
+            dosage: "1 tab",
             name: "",
+            medicineName: "",
             duration: "",
             food: "",
             frequency: "",
             quantity: 0,
             availableQuantity: 0,
+            unitPrice: 0,
+            batchId: null,
+            batchNumber: null,
           },
         ],
+        discount: 0,
         priority: "Normal",
         status: "Pending",
       });
@@ -161,13 +179,13 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
           <DialogHeader>
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
-          <RegisterPatient patient={{ name: nameToRegister }} onClose={(id?: string, name?: string, allergies?: string, mrn?: string) => {
+          <RegisterPatient patient={{ name: nameToRegister }} onClose={(id?: string, name?: string, mrn?: string) => {
             setOpenCreate(false);
             mutate();
             setNameToRegister("");
             if (id && name) {
               router.push(
-                `/dashboard/pharmacy?id=${id}&mrn=${mrn || ""}&name=${encodeURIComponent(name)}&allergies=${encodeURIComponent(allergies || "")}#newOrder`
+                `/dashboard/pharmacy?id=${id}&mrn=${mrn || ""}&name=${encodeURIComponent(name)}#newOrder`
               );
             }
           }} />

@@ -54,6 +54,8 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
     upcoming: 0,
   };
 
+  const isAdmin = user?.role === "Admin" || user?.role === "Super Admin";
+
   const items: {
     key: string;
     label: string;
@@ -84,6 +86,12 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
     ]) ||
     (user?.role === "Pharmacy" && [
       {
+        key: "dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        link: "/dashboard/pharmacy/",
+      },
+      {
         key: "appointments",
         label: "Appointments",
         icon: CalendarClock,
@@ -91,37 +99,34 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         link: "/dashboard/pharmacy/appointments/",
       },
       {
-        key: "dashboard",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        link: "/dashboard/pharmacy/",
+        key: "customers",
+        label: "Customers",
+        icon: Users,
+        link: "/dashboard/pharmacy/customers/",
       },
-
       {
         key: "inventory",
         label: "Inventory",
         icon: Warehouse,
         link: "/dashboard/pharmacy/inventory/",
       },
-
       {
-        key: "purchase-entry",
-        label: "Purchase Entry",
-        icon: ReceiptText,
-        link: "/dashboard/pharmacy/purchase-entry/",
+        key: "consumables",
+        label: "Consumables",
+        icon: ClipboardList,
+        link: "/dashboard/pharmacy/consumables/",
       },
-      {
-        key: "customers",
-        label: "Customers",
-        icon: Users,
-        link: "/dashboard/pharmacy/customers/",
-      },
-
       {
         key: "return",
         label: "Return",
         icon: Undo2,
         link: "/dashboard/pharmacy/return/",
+      },
+      {
+        key: "purchase-entry",
+        label: "Purchase Entry",
+        icon: ReceiptText,
+        link: "/dashboard/pharmacy/purchase-entry/",
       },
       {
         key: "billing",
@@ -156,14 +161,9 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         icon: Users2,
         link: "/dashboard/lab/patients/",
       },
-      {
-        key: "billing",
-        label: "Billing",
-        icon: CreditCard,
-        link: "/dashboard/lab/billing/",
-      },
+      // Billing is centralised in the pharmacy counter — see /dashboard/pharmacy/billing
     ]) ||
-    (user?.role === "Admin" && [
+    (isAdmin && [
       {
         key: "dashboard",
         label: "Dashboard",
@@ -217,6 +217,24 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         label: "Lab Register",
         icon: ClipboardList,
         link: "/dashboard/admin/lab-register/",
+      },
+      {
+        key: "consumables",
+        label: "Consumables",
+        icon: ClipboardList,
+        link: "/dashboard/pharmacy/consumables/",
+      },
+      {
+        key: "pnl",
+        label: "Profit & Loss",
+        icon: FileBarChart,
+        link: "/dashboard/admin/pnl/",
+      },
+      {
+        key: "reports",
+        label: "Reports",
+        icon: FileBarChart,
+        link: "/dashboard/admin/reports/",
       },
     ]) ||
     [];
@@ -320,6 +338,7 @@ const settingsLinks: Record<string, string> = {
   Doctor: "/dashboard/doctor/settings/",
   Lab: "/dashboard/lab/settings/",
   Admin: "/dashboard/admin/settings/",
+  "Super Admin": "/dashboard/admin/settings/",
 };
 
 function NavItem({

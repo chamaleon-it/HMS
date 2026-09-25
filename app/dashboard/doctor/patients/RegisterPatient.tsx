@@ -21,11 +21,9 @@ import {
   combineToIST,
   fAge,
   fDate,
-  generateTimeSlots,
-  isSameDay,
-  startOfDay,
-  toMinutes,
-fAgeString} from "@/lib/fDateAndTime";
+  fAgeString,
+  nextMinuteSlot,
+} from "@/lib/fDateAndTime";
 import registerPatientSchema from "@/schemas/registerPatientSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -42,18 +40,6 @@ import { useSearchParams } from "next/navigation";
 import { BLOOD_GROUPS, CONDITIONS } from "./data";
 import InsuranceSelection from "./InsuranceSelection";
 import { Data } from "./PatientTable";
-
-const getRoundForTime = (
-  time: string,
-  rounds?: { label: string; start: string; end: string }[]
-) => {
-  if (!rounds?.length) return null;
-  const tm = toMinutes(time);
-  return (
-    rounds.find((r) => tm >= toMinutes(r.start) && tm <= toMinutes(r.end)) ||
-    null
-  );
-};
 
 export function RegisterPatient({
   onClose,
@@ -114,30 +100,6 @@ export function RegisterPatient({
   const values = watch();
   const { conditions, dateOfBirth } = values;
 
-  const { data: walkInData } = useSWR<{
-    message: string;
-    data: {
-      alreadyBooked: Date[];
-      nextAvailableDate: Date;
-    };
-  }>(
-    values.doctor ? `/appointments/walk-in/${values.doctor}` : null
-  );
-
-  const { data: availabilityData } = useSWR<{
-    message: string;
-    data: {
-      startDate: Date;
-      endDate: Date;
-      startTime: string;
-      endTime: string;
-      days: string[];
-      rounds: { label: string; start: string; end: string }[];
-    };
-  }>(values.doctor ? `/users/doctor_availability/${values.doctor}` : null);
-
-  const availability = availabilityData?.data;
-
   const createEditPatient = handleSubmit(async (data) => {
     try {
       if (patient?._id) {
@@ -161,63 +123,20 @@ export function RegisterPatient({
         success: ({ data }) => data.message,
       });
 
-      if (!walkInData?.data || !availability) return;
-      const { alreadyBooked, nextAvailableDate } = walkInData.data;
-
-      const nextDate = new Date(nextAvailableDate);
-      const today = startOfDay(new Date());
-      const isNextDayToday = isSameDay(nextDate, today);
-
-      const now = new Date();
-      const cutoffMins = isNextDayToday
-        ? now.getHours() * 60 + now.getMinutes()
-        : -1;
-
-      const bookedSet = new Set(
-        (alreadyBooked ?? []).map((d) => new Date(d).getTime())
-      );
-
-      const times = generateTimeSlots(
-        availability.startTime ?? "09:00",
-        availability.endTime ?? "18:00",
-        15
-      );
-
-
-
-      const firstFree = times.find((time) => {
-        const round = getRoundForTime(time, availability.rounds);
-
-        if (round) return false;
-
-        const tm = toMinutes(time);
-        if (isNextDayToday && tm < cutoffMins) return false;
-
-        const slotDate = combineToIST(nextDate, time);
-        if (bookedSet.has(slotDate.getTime())) return false;
-
-        return true;
-      });
-
-
-      if (!nextAvailableDate || !firstFree) {
-        return null;
-      }
-
-
-      const istDate = combineToIST(nextDate, firstFree);
+      // Walk-in: next minute only — skip routing / availability / booked checks
+      if (!data.doctor) return;
+      const { date, time } = nextMinuteSlot();
+      const istDate = combineToIST(date, time);
 
       const appointmentPayload: {
         patient: string;
         doctor: string;
-        method: string;
         date: string;
         isPaid: boolean;
         type: string;
       } = {
         patient: res.data.data._id,
         doctor: data.doctor,
-        method: "In clinic",
         isPaid: false,
         type: "New",
         date: istDate.toISOString(),

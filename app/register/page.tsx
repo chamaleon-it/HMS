@@ -16,6 +16,10 @@ export default function RegisterPage() {
         router.push("/dashboard/doctor");
       } else if (user.role === "Pharmacy") {
         router.push("/dashboard/pharmacy");
+      } else if (user.role === "Lab") {
+        router.push("/dashboard/lab");
+      } else if (user.role === "Admin" || user.role === "Super Admin") {
+        router.push("/dashboard/admin");
       }
     }
   }, [user?.role,router]);

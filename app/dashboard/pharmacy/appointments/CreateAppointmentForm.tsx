@@ -15,12 +15,11 @@ import Select from "./AppointmentSelect";
 import BlankPrescription from "./BlankPrescription";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RegisterPatient } from "../RegisterPatient";
-const METHODS = ["In clinic", "Video", "Phone"] as const;
 
 export function CreateAppointmentForm({
   onClose,
   mutate,
-  walkIn = false,
+  walkIn = true,
   appointment,
 }: {
   onClose: () => void;
@@ -50,7 +49,6 @@ export function CreateAppointmentForm({
       profilePic: string | null;
     };
     createdBy: string;
-    method: "In clinic" | "Video" | "Phone";
     date: Date;
     notes: string | null;
     internalNotes: string | null;
@@ -86,7 +84,6 @@ export function CreateAppointmentForm({
   } = useForm({
     resolver: zodResolver(createAppointmentSchema),
     defaultValues: {
-      method: "In clinic",
       type: "New",
       isPaid: "false",
     },
@@ -95,14 +92,12 @@ export function CreateAppointmentForm({
   const { mutate: globalMutate } = useSWRConfig();
 
   const refreshCalendars = async () => {
-    // Invalidate monthly calendar
     await globalMutate(
       (key) => typeof key === 'string' && key.startsWith('/appointments/calender-monthly'),
       undefined,
       { revalidate: true }
     );
 
-    // Invalidate weekly calendar (which has query params)
     await globalMutate(
       (key) => typeof key === 'string' && key.startsWith('/appointments/calender/weekly'),
       undefined,
@@ -112,7 +107,6 @@ export function CreateAppointmentForm({
 
   useEffect(() => {
     if (appointment) {
-      // Safely access properties, as appointment might be a partial object when coming from "Book Follow-up"
       const doctorId = typeof appointment.doctor === 'object' ? appointment.doctor?._id : appointment.doctor;
       const patientId = typeof appointment.patient === 'object' ? appointment.patient?._id : appointment.patient;
 
@@ -121,7 +115,6 @@ export function CreateAppointmentForm({
         doctor: doctorId || "",
         internalNotes: appointment.internalNotes || "",
         isPaid: appointment.isPaid ? "true" : "false",
-        method: appointment.method || "In clinic",
         notes: appointment.notes || "",
         patient: patientId || "",
         type: appointment.type || "New",
@@ -152,7 +145,6 @@ export function CreateAppointmentForm({
 
   const [printData, setPrintData] = React.useState<any>(null);
 
-
   const createAppointment = handleSubmit(async (data) => {
     try {
       if (appointment?._id) {
@@ -166,7 +158,6 @@ export function CreateAppointmentForm({
         );
         reset({
           doctor: doctorsData?.data[0]?._id,
-          method: "In clinic",
           type: "New",
           isPaid: "false",
         });
@@ -201,7 +192,6 @@ export function CreateAppointmentForm({
             if (mutate) mutate();
             reset({
               doctor: doctorsData?.data[0]?._id,
-              method: "In clinic",
               type: "New",
               isPaid: "false",
             });
@@ -215,13 +205,11 @@ export function CreateAppointmentForm({
           }
         } catch (err) {
           console.error("Failed to prepare prescription print", err);
-          // Fallback simple close if print prep fails
         }
       }
 
       reset({
         doctor: doctorsData?.data[0]?._id,
-        method: "In clinic",
         type: "New",
         isPaid: "false",
       });
@@ -236,15 +224,10 @@ export function CreateAppointmentForm({
     }
   });
 
-  // Refs for keyboard navigation
   const refs = {
     patient: useRef<HTMLInputElement>(null),
     doctor: useRef<HTMLButtonElement>(null),
-    method: useRef<HTMLButtonElement>(null),
     notes: useRef<HTMLTextAreaElement>(null),
-    type: useRef<HTMLButtonElement>(null),
-    isPaid: useRef<HTMLButtonElement>(null),
-    internalNotes: useRef<HTMLTextAreaElement>(null),
     submitButton: useRef<HTMLButtonElement>(null),
   };
 
@@ -270,9 +253,11 @@ export function CreateAppointmentForm({
     [setValue]
   );
 
+  // Create flow is walk-in only (auto date/time). Edit keeps calendar if not walk-in.
+  const useWalkIn = appointment?._id ? walkIn : true;
+
   return (
     <>
-
       <form className="space-y-5" onSubmit={createAppointment}>
         <section className="space-y-3 print:hidden">
           <div className="flex items-center justify-between">
@@ -322,7 +307,7 @@ export function CreateAppointmentForm({
             <h3 className="font-medium">Appointment</h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
+            <div className="sm:col-span-2">
               <Label>Doctor</Label>
               <Select
                 value={values.doctor}
@@ -332,7 +317,7 @@ export function CreateAppointmentForm({
                   doctorsData?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
                 }
                 ref={refs.doctor}
-                onKeyDown={(e) => handleKeyDown(e, refs.method)}
+                onKeyDown={(e) => handleKeyDown(e, refs.notes)}
               />
               {errors.doctor && (
                 <p className="text-red-500 text-xs mt-1.5">
@@ -340,27 +325,11 @@ export function CreateAppointmentForm({
                 </p>
               )}
             </div>
-            <div>
-              <Label>Method</Label>
-              <Select
-                value={values.method}
-                onChange={(v) => setValue("method", v)}
-                placeholder="In-clinic / Video / Phone"
-                options={METHODS.map((s) => ({ label: s, value: s })) ?? []}
-                ref={refs.method}
-                onKeyDown={(e) => handleKeyDown(e, refs.notes)}
-              />
-              {errors.method && (
-                <p className="text-red-500 text-xs mt-1.5">
-                  {errors.method.message}
-                </p>
-              )}
-            </div>
             <div className="w-full col-span-full">
               <DateTimePicker
                 setValue={setValue}
                 doctor={values.doctor}
-                walkIn={walkIn}
+                walkIn={useWalkIn}
               />
               {errors.date && (
                 <p className="text-red-500 text-xs mt-1.5">
@@ -380,7 +349,7 @@ export function CreateAppointmentForm({
                   register("notes").ref(e);
                   refs.notes.current = e;
                 }}
-                onKeyDown={(e) => handleKeyDown(e, refs.type)}
+                onKeyDown={(e) => handleKeyDown(e, refs.submitButton)}
               />
               {errors.notes && (
                 <p className="text-red-500 text-xs mt-1.5">
@@ -388,58 +357,6 @@ export function CreateAppointmentForm({
                 </p>
               )}
             </div>
-          </div>
-        </section>
-
-        <section className="space-y-3 print:hidden">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Advanced</h3>
-          </div>
-
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <Label>Appointment Type</Label>
-
-                <Select
-                  value={values.type || "New"}
-                  onChange={(v) => setValue("type", v)}
-                  placeholder="Appointment Type"
-                  options={
-                    ["New", "Follow up"].map((s) => ({ label: s, value: s })) ??
-                    []
-                  }
-                  ref={refs.type}
-                  onKeyDown={(e) => handleKeyDown(e, refs.isPaid)}
-                />
-                {errors.type && (
-                  <p className="text-red-500 text-xs mt-1.5">
-                    {errors.type.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <Label>Payment Status</Label>
-
-                <Select
-                  value={values.isPaid}
-                  onChange={(v) => setValue("isPaid", v)}
-                  placeholder="Payment Status"
-                  options={[
-                    { value: "false", label: "Unpaid" },
-                    { value: "true", label: "Paid" },
-                  ]}
-                  ref={refs.isPaid}
-                  onKeyDown={(e) => handleKeyDown(e, refs.internalNotes)}
-                />
-                {errors.isPaid && (
-                  <p className="text-red-500 text-xs mt-1.5">
-                    {errors.isPaid.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
           </div>
         </section>
 
@@ -478,7 +395,6 @@ export function CreateAppointmentForm({
           />
         </DialogContent>
       </Dialog>
-
     </>
   );
 }

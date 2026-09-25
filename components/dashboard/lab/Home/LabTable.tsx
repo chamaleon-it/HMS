@@ -6,13 +6,11 @@ import ViewResultModal from "./ViewResultModal";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { Clock, Flag, FlagOff, Play, Printer, RotateCcw, X } from "lucide-react";
+import { Clock, Play, Printer, RotateCcw } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 import ReportCard from "./ReportCard";
-import SampleCollectionModal from "./SampleCollectionModal";
 import ResetTimerModal from "./ResetTimerModal";
 import EditTest from "./EditTest";
-import RepeatTest from "./RepeatTest";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -58,17 +56,16 @@ const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
 };
 
 interface PropsTypes {
-  status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft";
+  status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Deleted" | "Draft";
   mutate: () => void;
   autoGenerateSampleId?: boolean;
-  onStatusChange?: (status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft") => void;
+  onStatusChange?: (status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Deleted" | "Draft") => void;
   REPORT: {
     _id: string;
     mrn: number;
     sampleId: string;
     extraTime: number;
     testStartedAt: Date | null;
-    isFlagged: boolean;
     patient: {
       _id: string;
       name: string;
@@ -290,8 +287,6 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
             {headerCell("Patient")}
             {headerCell("Test")}
             {headerCell("Amount")}
-            {status === "Upcoming" && headerCell("Scheduled Date")}
-            {status !== "Upcoming" && status !== "Draft" && headerCell("Sample Id")}
             {headerCell("Created At")}
             {status === "Completed" && headerCell("Collected At")}
             {status === "Completed" && headerCell("Started At")}
@@ -328,9 +323,9 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                 return getTargetTime(a) - getTargetTime(b);
               }
 
-              // Chronological order for others (oldest first as per 'chronological order')
-              const dateA = status === "Upcoming" ? new Date(a.date).getTime() : new Date(a.createdAt).getTime();
-              const dateB = status === "Upcoming" ? new Date(b.date).getTime() : new Date(b.createdAt).getTime();
+              // Chronological order for others (oldest first)
+              const dateA = new Date(a.createdAt).getTime();
+              const dateB = new Date(b.createdAt).getTime();
               return dateA - dateB;
             })
             .map((r, idx) => {
@@ -500,16 +495,6 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                     </div>
                   </td>
 
-                  {status === "Upcoming" && <td className="px-3 py-2 text-sm text-gray-500">
-                    {fDateandTime(r.date)}
-                  </td>}
-
-                  {status !== "Upcoming" && status !== "Draft" && (
-                    <td className="px-3 py-2 text-sm text-gray-500">
-                      {r.sampleId}
-                    </td>
-                  )}
-
                   <td className="px-3 py-2 text-sm text-gray-500">
                     {fDateandTime(r.createdAt)}
                   </td>
@@ -616,45 +601,6 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                           </Tooltip>
                         </div>
                       )}
-                      {status === "Upcoming" && (
-                        <SampleCollectionModal
-                          reportId={r._id}
-                          patientName={r.patient?.name}
-                          mutate={mutate}
-                          autoGenerateSampleId={autoGenerateSampleId}
-                          onStatusChange={onStatusChange}
-                        />
-                      )}
-
-                      {
-                        status === "Sample Collected" && <Button
-                          size="sm"
-                          className="h-8 bg-linear-to-br from-indigo-500 to-fuchsia-500 hover:from-indigo-600 hover:to-fuchsia-600 text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5 px-4 font-semibold rounded-lg"
-                          onClick={async () => {
-                            try {
-                              await toast.promise(
-                                api.post(
-                                  `lab/report/start_test/${r._id}`
-                                ),
-                                {
-                                  loading: "Processing...",
-                                  success: "Test Started",
-                                  error: "Failed to start test",
-                                }
-                              );
-                              mutate();
-                              onStatusChange?.("Waiting For Result");
-                            } catch (error) {
-                              toast.error(
-                                `Failed to start test : ${error}`
-                              );
-                            }
-                          }}
-                        >
-                          <Play className="h-3.5 w-3.5 fill-current" />
-                          Start Test
-                        </Button>
-                      }
 
                       {
                         status === "Waiting For Result" && (
@@ -670,56 +616,6 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                       {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Completed"} handlePrint={handlePrint} onStatusChange={onStatusChange} />}
                       {status === "Completed" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} handlePrint={handlePrint} />}
 
-                      {
-                        (status === "Completed" || status === "Sample Collected" || status === "Waiting For Result") && r.isFlagged === false && <Button
-                          variant={"outline"}
-                          size="sm"
-                          className="h-8 bg-white text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700 gap-1.5 text-xs font-medium"
-                          onClick={async () => {
-                            try {
-                              await toast.promise(
-                                api.post(`lab/report/mark_as_flagged/${r._id}`),
-                                {
-                                  loading: "Processing...",
-                                  success: "Marked As Flagged",
-                                  error: "Failed to mark as flagged",
-                                }
-                              );
-                              mutate();
-                            } catch (error) {
-                              toast.error(`Failed to mark as flagged : ${error}`);
-                            }
-                          }}
-                        >
-                          Flag <Flag className="h-3.5 w-3.5" />
-                        </Button>
-                      }
-
-                      {
-                        r.isFlagged && <Button
-                          variant={"outline"}
-                          size="sm"
-                          className="bg-white text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 gap-1.5 h-8 text-xs font-medium"
-                          onClick={async () => {
-                            try {
-                              await toast.promise(
-                                api.post(`lab/report/mark_as_unflagged/${r._id}`),
-                                {
-                                  loading: "Processing...",
-                                  success: "Marked As Unflagged",
-                                  error: "Failed to mark as unflagged",
-                                }
-                              );
-                              mutate();
-                            } catch (error) {
-                              toast.error(`Failed to mark as unflagged : ${error}`);
-                            }
-                          }}
-                        >
-                          Unflag <FlagOff className="h-3.5 w-3.5" />
-                        </Button>
-                      }
-
 
 
                       {status === "Completed" && <Button
@@ -732,7 +628,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                         Report
                       </Button>}
 
-                      {status === "Completed" && <Button
+                      {(status === "Completed" || status === "Waiting For Result") && <Button
                         variant={"outline"}
                         size="sm"
                         className="gap-2 h-8 text-xs text-teal-700 border-teal-200 hover:bg-teal-50 hover:text-teal-800 bg-white"
@@ -742,23 +638,9 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                         Bill
                       </Button>}
 
-                      {(status === "Completed" || status === "Flagged") && <ViewResultModal r={r} />}
+                      {status === "Completed" && <ViewResultModal r={r} />}
 
-                      {status === "Flagged" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} handlePrint={handlePrint} />}
-                      {status === "Flagged" && <RepeatTest report={r} mutate={mutate} />}
-                      {status === "Flagged" && <Button
-                        variant={"outline"}
-                        size="sm"
-                        className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 bg-white"
-                        onClick={() => {
-
-                        }}
-                      >
-                        <X className="h-3.5 w-3.5" />
-                        Cancel
-                      </Button>}
-
-                      {status === "Upcoming" && <EditTest report={r} mutate={mutate} />}
+                      {status === "Waiting For Result" && <EditTest report={r} mutate={mutate} />}
 
                       {status !== "Deleted" && status !== "Draft" && <AlertDialog>
                         <AlertDialogTrigger asChild>
@@ -868,7 +750,12 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
         </tbody>
       </table>
       {printReport && <ReportCard report={printReport} panels={panels} panelPerPage={panelPerPage} />}
-      <LabBillReceipt report={printBillReport} bill={printBill} panels={panels} />
+      <LabBillReceipt
+        report={printBillReport}
+        bill={printBill}
+        panels={panels}
+        copy="both"
+      />
     </div>
   );
 }

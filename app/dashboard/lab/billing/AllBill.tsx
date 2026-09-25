@@ -38,7 +38,6 @@ interface PropsType {
     createdAt: Date;
     cash: number;
     online: number;
-    insurance?: number;
     discount: number;
     items: {
       total: number;
@@ -332,7 +331,7 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
         bill={selectedBill}
         billingMutate={billingMutate}
       />
-      <LabBillReceipt bill={printBill} />
+      <LabBillReceipt bill={printBill} copy="both" />
     </div>
   );
 }

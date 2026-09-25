@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History, ArrowLeftRight, Loader2 } from "lucide-react";
-import { BatchType, ItemType } from "./interface";
+import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History, ArrowLeftRight, Loader2, Power } from "lucide-react";
+import { BatchType, ItemType, batchPurchaseRate, batchUnitPrice, itemActiveQuantity, IBatch } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -18,10 +18,19 @@ import { addDays, format, isAfter, isBefore, startOfDay, endOfDay } from "date-f
 import { Calendar as CalendarIcon, FilterX, History as HistoryIcon, Barcode as BarcodeIcon } from "lucide-react";
 import { PaginationBar } from "../components/PaginationBar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import TypableExpiryInput from "../purchase-entry/components/TypableExpiryInput";
+import { useAuth } from "@/auth/context/auth-context";
 
 
 
 export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { item: ItemType, editItem: () => void, mutate: () => void, onClose: () => void }) {
+  const { user } = useAuth();
+  // Align with Admin-only item stock edits: Pharmacy may edit rates/expiry but not batch qty.
+  const canEditBatchStock =
+    user?.role === "Admin" || user?.role === "Super Admin";
+
   const [item, setItem] = useState<ItemType>(initialItem);
 
   useEffect(() => {
@@ -31,6 +40,98 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
   const [selectedBatchToDelete, setSelectedBatchToDelete] = useState<BatchType | null>(null);
   const [deductBatchStock, setDeductBatchStock] = useState(false);
   const [isDeletingBatch, setIsDeletingBatch] = useState(false);
+  const [editingBatch, setEditingBatch] = useState<IBatch | null>(null);
+  const [editForm, setEditForm] = useState({
+    expiryDate: "",
+    mrp: 0,
+    purchaseRate: 0,
+    unitPrice: 0,
+    quantity: 0,
+    startingQuantity: 0,
+    supplier: "",
+    packing: 0,
+    stripCount: 0,
+    gst: 0,
+  });
+  const [isSavingBatch, setIsSavingBatch] = useState(false);
+  const [togglingBatch, setTogglingBatch] = useState<string | null>(null);
+
+  const openEditBatch = (batch: IBatch) => {
+    setEditingBatch(batch);
+    setEditForm({
+      expiryDate: batch.expiryDate
+        ? new Date(batch.expiryDate).toISOString()
+        : "",
+      mrp: Number(batch.mrp) || 0,
+      purchaseRate: batchPurchaseRate(batch),
+      unitPrice: batchUnitPrice(batch),
+      quantity: Number(batch.quantity) || 0,
+      startingQuantity: Number(batch.startingQuantity) || Number(batch.quantity) || 0,
+      supplier: batch.supplier || "",
+      packing: Number(batch.packing) || 0,
+      stripCount: Number(batch.stripCount) || 0,
+      gst: Number(batch.gst) || 0,
+    });
+  };
+
+  const handleSaveBatch = async () => {
+    if (!editingBatch) return;
+    setIsSavingBatch(true);
+    try {
+      const payload: Record<string, unknown> = {
+        expiryDate: editForm.expiryDate
+          ? new Date(editForm.expiryDate).toISOString()
+          : undefined,
+        mrp: editForm.mrp,
+        purchaseRate: editForm.purchaseRate,
+        unitPrice: editForm.unitPrice,
+        supplier: editForm.supplier || undefined,
+        packing: editForm.packing,
+        stripCount: editForm.stripCount,
+        gst: editForm.gst,
+      };
+      if (canEditBatchStock) {
+        payload.quantity = editForm.quantity;
+        payload.startingQuantity = editForm.startingQuantity;
+      }
+      const res = await api.put(
+        `/pharmacy/items/${item._id}/batches/${encodeURIComponent(editingBatch.batchNumber)}`,
+        payload,
+      );
+      toast.success(res.data?.message || "Batch updated");
+      if (res.data?.data) setItem(res.data.data);
+      setEditingBatch(null);
+      mutate?.();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update batch");
+    } finally {
+      setIsSavingBatch(false);
+    }
+  };
+
+  const handleToggleBatchStatus = async (batch: IBatch) => {
+    const next =
+      String(batch.status || "active").toLowerCase() === "inactive"
+        ? "active"
+        : "inactive";
+    setTogglingBatch(batch.batchNumber);
+    try {
+      const res = await api.patch(
+        `/pharmacy/items/${item._id}/batches/${encodeURIComponent(batch.batchNumber)}/status`,
+        { status: next },
+      );
+      toast.success(
+        res.data?.message ||
+          (next === "active" ? "Batch activated" : "Batch deactivated"),
+      );
+      if (res.data?.data) setItem(res.data.data);
+      mutate?.();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update status");
+    } finally {
+      setTogglingBatch(null);
+    }
+  };
 
   const handleDeleteBatch = async () => {
     if (!selectedBatchToDelete) return;
@@ -47,8 +148,8 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
         setItem((prev) => ({
           ...prev,
           quantity: deductBatchStock
-            ? Math.max(0, prev.quantity - (Number(selectedBatchToDelete.quantity) || 0))
-            : prev.quantity,
+            ? Math.max(0, itemActiveQuantity(prev) - (Number(selectedBatchToDelete.quantity) || 0))
+            : itemActiveQuantity(prev),
           batches: (prev.batches || []).filter(
             (b) => (b._id || b.batchNumber) !== batchIdentifier
           ),
@@ -158,11 +259,31 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
     return sortedData.slice((pagination.page - 1) * pagination.limit, pagination.page * pagination.limit);
   }, [sortedData, pagination]);
 
+  const latestBatch = useMemo(() => {
+    if (!item?.batches || item.batches.length === 0) return undefined;
+    return [...item.batches].sort(
+      (a, b) =>
+        new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+    )[0];
+  }, [item?.batches]);
 
+  const heroUnitPrice = latestBatch
+    ? batchUnitPrice(latestBatch, Number(item.unitPrice) || 0)
+    : Number(item.unitPrice) || 0;
+  const heroMrp =
+    latestBatch?.mrp !== undefined && latestBatch?.mrp !== null
+      ? Number(latestBatch.mrp)
+      : Number(item.mrp) || 0;
+  const heroSupplier = latestBatch?.supplier || item.supplier || "-";
+  const heroExpiry = latestBatch?.expiryDate || item.expiryDate;
+  const heroPacking = latestBatch?.packing ?? item.packing;
+  const heroStripCount = latestBatch?.stripCount;
+  const heroGst = latestBatch?.gst ?? item.gst;
 
+  const stockQty = itemActiveQuantity(item);
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-xl p-2 space-y-4 text-sm max-h-[calc(100vh-200px)] overflow-y-auto">
+    <div className="w-full bg-white rounded-2xl shadow-xl p-4 space-y-5 text-sm">
       {/* Header */}
       <div className="flex items-start justify-between border-b pb-4">
         <div>
@@ -179,31 +300,21 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
             <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded text-xs font-medium">HSN: {item.hsnCode}</span>
           </div>
         </div>
-
-        <div className="flex flex-col items-end gap-1">
-          <div className="h-10 bg-white border border-slate-200 rounded-md p-1 flex items-center justify-center shadow-sm">
-            <div className="w-32 h-full bg-[repeating-linear-gradient(90deg,black_0px,black_1px,transparent_1px,transparent_3px)] opacity-80" />
-          </div>
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-medium">
-            <span className="font-mono tracking-wider">{item.sku}</span>
-          </div>
-        </div>
       </div>
 
-      {/* Stock / Status - REPLACED BY NEW SALES CARDS SECTION BELOW, REMOVING OLD STOCK CARDS IF REDUNDANT, BUT USER ASKED FOR ALL UI IMPROVEMENT. LET'S KEEP STOCK BUT MODERNIZE IT OR MERGE WITH DETAILS. Let's make it a compact stat row below header */}
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-xl border bg-slate-50/50 p-4">
           <div className="text-xs font-medium text-slate-500 mb-1">Current Stock</div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-slate-900">{item.quantity}</span>
+            <span className="text-2xl font-bold text-slate-900">{stockQty}</span>
             <span className="text-sm font-medium text-slate-500">units</span>
           </div>
         </div>
         <div className="rounded-xl border bg-slate-50/50 p-4 flex flex-col justify-center">
           <div className="text-xs font-medium text-slate-500 mb-2">Availability</div>
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${item.quantity > 0 ? "bg-green-500" : "bg-red-500"}`}></div>
-            <span className="text-sm font-semibold text-slate-700">{item.quantity > 0 ? "In Stock" : "Out of Stock"}</span>
+            <div className={`w-2 h-2 rounded-full ${stockQty > 0 ? "bg-green-500" : "bg-red-500"}`}></div>
+            <span className="text-sm font-semibold text-slate-700">{stockQty > 0 ? "In Stock" : "Out of Stock"}</span>
           </div>
         </div>
       </div>
@@ -219,9 +330,9 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
                 <Tag className="w-3.5 h-3.5 text-blue-600" />
               </div>
-              SKU
+              Category
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{item.sku}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{item.category || "—"}</div>
           </div>
 
           <div className="space-y-2">
@@ -231,7 +342,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               </div>
               Supplier
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{item.supplier}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{heroSupplier}</div>
           </div>
 
           <div className="space-y-2">
@@ -241,7 +352,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               </div>
               Unit Price
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">₹ {item.unitPrice.toFixed(2)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">₹ {heroUnitPrice.toFixed(2)}</div>
           </div>
 
           <div className="space-y-2">
@@ -251,7 +362,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               </div>
               MRP
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">₹ {item.mrp.toFixed(2)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">₹ {heroMrp.toFixed(2)}</div>
           </div>
 
           <div className="space-y-2">
@@ -261,7 +372,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               </div>
               Expiry
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{fDate(item.expiryDate)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{heroExpiry ? fDate(heroExpiry) : "-"}</div>
           </div>
 
           {/* Row 2 */}
@@ -292,7 +403,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               </div>
               Total Value
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(item.quantity * item.unitPrice)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(stockQty * heroUnitPrice)}</div>
           </div>
 
           <div className="space-y-2">
@@ -323,7 +434,23 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               </div>
               Packing
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{item.packing || 1}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">
+              {heroPacking
+                ? `${heroPacking}${heroStripCount ? ` / ${heroStripCount}` : ""}`
+                : "-"}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center">
+                <Percent className="w-3.5 h-3.5 text-violet-600" />
+              </div>
+              GST
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">
+              {heroGst !== undefined && heroGst !== null ? `${heroGst}%` : "-"}
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -474,20 +601,24 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
           </div>
         )}
 
-        <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
-
-          <Table>
+        <div className="bg-white/90 border rounded-2xl shadow-md shadow-slate-200">
+          <div className="overflow-x-auto rounded-2xl">
+          <Table className="min-w-[980px]">
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
                 {activeTab === "Batch History" ? (
                   <>
-                    <TableHead className="w-[120px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date Added</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch No</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Purchase Rate</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Qty</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4 w-[70px]">Action</TableHead>
+                    <TableHead className="w-[110px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4 whitespace-nowrap">Date Added</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Batch No</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Expiry</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Status</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Pack/Strip</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">MRP</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Purchase</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Unit Price</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">GST(%)</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Qty</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4 w-[120px] whitespace-nowrap">Action</TableHead>
                   </>
                 ) : (
                   <>
@@ -502,7 +633,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
             <TableBody>
               {paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={activeTab === "Batch History" ? 7 : 4} className="text-center py-20 text-slate-400">
+                  <TableCell colSpan={activeTab === "Batch History" ? 11 : 4} className="text-center py-20 text-slate-400">
                     <div className="flex flex-col items-center gap-2">
                       {activeTab === "Batch History" ? <Barcode className="h-8 w-8 opacity-20" /> : <History className="h-8 w-8 opacity-20" />}
                       <p className="font-bold uppercase tracking-widest text-[11px]">No {activeTab.toLowerCase()} found</p>
@@ -521,33 +652,95 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                   >
                     {activeTab === "Batch History" ? (
                       <>
-                        <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(data.createdAt)}</TableCell>
+                        <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700 whitespace-nowrap">{fDate(data.createdAt)}</TableCell>
                         <TableCell className="py-3">
                           <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-sm">
                             {data.batchNumber}
                           </span>
                         </TableCell>
-                        <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(data.expiryDate)}</TableCell>
-                        <TableCell className="text-xs py-3 text-slate-600">{data.supplier || "-"}</TableCell>
-                        <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(data.purchasePrice)}</TableCell>
-                        <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums">{data.quantity}</TableCell>
+                        <TableCell className="text-xs py-3 text-slate-600 font-medium whitespace-nowrap">{fDate(data.expiryDate)}</TableCell>
+                        <TableCell className="text-xs py-3">
+                          <Badge
+                            variant="secondary"
+                            className={
+                              String(data.status || "active").toLowerCase() === "inactive"
+                                ? "bg-slate-200 text-slate-600 border-none"
+                                : "bg-emerald-100 text-emerald-700 border-none"
+                            }
+                          >
+                            {String(data.status || "active")}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right text-xs py-3 text-slate-700 tabular-nums whitespace-nowrap">
+                          {data.packing ? `${data.packing}` : "-"}
+                          {data.stripCount ? ` / ${data.stripCount}` : ""}
+                        </TableCell>
+                        <TableCell className="text-right text-xs py-3 tabular-nums whitespace-nowrap">{formatINR(Number(data.mrp) || 0)}</TableCell>
+                        <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums whitespace-nowrap">{formatINR(batchPurchaseRate(data))}</TableCell>
+                        <TableCell className="text-right text-xs py-3 tabular-nums whitespace-nowrap">{formatINR(batchUnitPrice(data))}</TableCell>
+                        <TableCell className="text-right text-xs py-3 text-slate-700 tabular-nums whitespace-nowrap">
+                          {data.gst != null ? `${data.gst}%` : "0%"}
+                        </TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums whitespace-nowrap">{data.quantity}</TableCell>
                         <TableCell className="text-center py-3 pr-4">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                                onClick={() => {
-                                  setSelectedBatchToDelete(data);
-                                  setDeductBatchStock(false);
-                                }}
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Delete Batch</TooltipContent>
-                          </Tooltip>
+                          <div className="flex items-center justify-center gap-0.5">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-7 w-7 text-slate-600 hover:bg-slate-100 rounded-lg"
+                                  onClick={() => openEditBatch(data)}
+                                >
+                                  <Edit className="h-3.5 w-3.5" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Edit batch</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className={cn(
+                                    "h-7 w-7 rounded-lg",
+                                    String(data.status || "active").toLowerCase() === "inactive"
+                                      ? "text-emerald-600 hover:bg-emerald-50"
+                                      : "text-amber-600 hover:bg-amber-50",
+                                  )}
+                                  disabled={togglingBatch === data.batchNumber}
+                                  onClick={() => handleToggleBatchStatus(data)}
+                                >
+                                  {togglingBatch === data.batchNumber ? (
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                  ) : (
+                                    <Power className="h-3.5 w-3.5" />
+                                  )}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {String(data.status || "active").toLowerCase() === "inactive"
+                                  ? "Activate"
+                                  : "Deactivate"}
+                              </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                  onClick={() => {
+                                    setSelectedBatchToDelete(data);
+                                    setDeductBatchStock(false);
+                                  }}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Delete Batch</TooltipContent>
+                            </Tooltip>
+                          </div>
                         </TableCell>
                       </>
                     ) : (
@@ -563,6 +756,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               )}
             </TableBody>
           </Table>
+          </div>
         </div>
         <div className="px-4">
           <PaginationBar
@@ -575,14 +769,172 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
 
       </div>
 
+      {/* Edit Batch Dialog */}
+      <Dialog open={!!editingBatch} onOpenChange={(o) => !o && setEditingBatch(null)}>
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Edit batch {editingBatch?.batchNumber}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-3 py-2">
+            <div className="col-span-2">
+              <label className="text-xs text-slate-500">Expiry</label>
+              <TypableExpiryInput
+                value={
+                  editForm.expiryDate
+                    ? format(new Date(editForm.expiryDate), "yyyy-MM-dd")
+                    : ""
+                }
+                onChange={(dateStr) =>
+                  setEditForm((f) => ({
+                    ...f,
+                    expiryDate: dateStr || "",
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500">MRP</label>
+              <Input
+                type="number"
+                step="0.01"
+                value={editForm.mrp}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, mrp: Number(e.target.value) || 0 }))
+                }
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500">Purchase rate</label>
+              <Input
+                type="number"
+                step="0.01"
+                value={editForm.purchaseRate}
+                onChange={(e) =>
+                  setEditForm((f) => ({
+                    ...f,
+                    purchaseRate: Number(e.target.value) || 0,
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500">Unit price</label>
+              <Input
+                type="number"
+                step="0.01"
+                value={editForm.unitPrice}
+                onChange={(e) =>
+                  setEditForm((f) => ({
+                    ...f,
+                    unitPrice: Number(e.target.value) || 0,
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500">GST (%)</label>
+              <Input
+                type="number"
+                step="0.01"
+                value={editForm.gst}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, gst: Number(e.target.value) || 0 }))
+                }
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500">Packing</label>
+              <Input
+                type="number"
+                value={editForm.packing}
+                onChange={(e) =>
+                  setEditForm((f) => ({
+                    ...f,
+                    packing: Number(e.target.value) || 0,
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500">Strip count</label>
+              <Input
+                type="number"
+                value={editForm.stripCount}
+                onChange={(e) =>
+                  setEditForm((f) => ({
+                    ...f,
+                    stripCount: Number(e.target.value) || 0,
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500">Quantity</label>
+              <Input
+                type="number"
+                value={editForm.quantity}
+                disabled={!canEditBatchStock}
+                onChange={(e) =>
+                  setEditForm((f) => ({
+                    ...f,
+                    quantity: Number(e.target.value) || 0,
+                  }))
+                }
+              />
+              {!canEditBatchStock && (
+                <p className="text-[10px] text-amber-700 mt-1">
+                  Stock quantity is Admin-only. Use Purchase Entry to add stock.
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="text-xs text-slate-500">Starting qty</label>
+              <Input
+                type="number"
+                value={editForm.startingQuantity}
+                disabled={!canEditBatchStock}
+                onChange={(e) =>
+                  setEditForm((f) => ({
+                    ...f,
+                    startingQuantity: Number(e.target.value) || 0,
+                  }))
+                }
+              />
+            </div>
+            <div className="col-span-2">
+              <label className="text-xs text-slate-500">Supplier</label>
+              <Input
+                value={editForm.supplier}
+                onChange={(e) =>
+                  setEditForm((f) => ({ ...f, supplier: e.target.value }))
+                }
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingBatch(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveBatch} disabled={isSavingBatch}>
+              {isSavingBatch ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Actions */}
-      < div className="flex gap-3 pt-4 border-t mt-2" >
+      <div className="flex gap-3 pt-4 border-t mt-2">
         <Button className="flex-1 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
           <Edit className="w-4 h-4" />
           Edit Item
         </Button>
 
-        <AlertDialog >
+        <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive" className="flex-1 bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:border-red-300 shadow-sm gap-2">
               <Trash2 className="w-4 h-4" />
@@ -615,7 +967,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div >
+      </div>
 
       {/* Delete Batch Confirmation Dialog */}
       <AlertDialog
@@ -653,7 +1005,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Current Item Stock:</span>
-              <span className="font-bold text-slate-800">{item.quantity} units</span>
+              <span className="font-bold text-slate-800">{stockQty} units</span>
             </div>
           </div>
 
@@ -671,7 +1023,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                 </span>
                 <span className="text-slate-500 text-[11px] block mt-0.5">
                   {deductBatchStock
-                    ? `New stock will become ${Math.max(0, item.quantity - (selectedBatchToDelete?.quantity || 0))} units.`
+                    ? `New stock will become ${Math.max(0, stockQty - (selectedBatchToDelete?.quantity || 0))} units.`
                     : "Leave unchecked to only remove this batch record without altering current stock."}
                 </span>
               </div>

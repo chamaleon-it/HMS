@@ -1,22 +1,18 @@
 "use client";
 import React, { useState } from "react";
 
-import { Shield, User, Receipt, Boxes, Bell, ReceiptIndianRupee } from "lucide-react";
+import { Shield, User, Boxes, ReceiptIndianRupee } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
 import General from "./General";
 import Billing from "./Billing";
 import Inventory from "./Inventory";
-import Notifications from "./Notifications";
 import Security from "./Security";
 import { motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
 import TopSummary from "./TopSummary";
 import useSWR from "swr";
 import { ProfileType } from "./interface";
 import { TableSkeleton } from "../components/PharmacySkeleton";
-import { Skeleton } from "@/components/ui/skeleton";
 import PharmacyHeader from "../components/PharmacyHeader";
-import Pharmacist from "./Pharmacist";
 
 const PharmacySettingsPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState("general");
@@ -42,8 +38,6 @@ const PharmacySettingsPage: React.FC = () => {
             { key: "general", label: "General", icon: User },
             { key: "billing", label: "Billing", icon: ReceiptIndianRupee },
             { key: "inventory", label: "Inventory", icon: Boxes },
-            { key: "pharmacist", label: "Pharmacist", icon: User },
-            { key: "notifications", label: "Notifications", icon: Bell },
             { key: "security", label: "Security", icon: Shield },
           ].map(({ key, label, icon: Icon }) => {
             const active = activeSection === key;
@@ -85,17 +79,11 @@ const PharmacySettingsPage: React.FC = () => {
             {activeSection === "general" && (
               <General profile={profile} profileMutate={profileMutate} />
             )}
-            {activeSection === "pharmacist" && (
-              <Pharmacist />
-            )}
             {activeSection === "billing" && (
               <Billing profileMutate={profileMutate} profile={profile} />
             )}
             {activeSection === "inventory" && (
               <Inventory profileMutate={profileMutate} profile={profile} />
-            )}
-            {activeSection === "notifications" && (
-              <Notifications profileMutate={profileMutate} profile={profile} />
             )}
             {activeSection === "security" && <Security />}
           </>

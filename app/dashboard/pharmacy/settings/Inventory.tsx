@@ -57,8 +57,7 @@ export default function Inventory({
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
-      {/* Inventory & alerts */}
+    <div className="grid gap-6">
       <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between gap-4">
@@ -156,25 +155,6 @@ export default function Inventory({
               {loading ? "Updating..!" : "Save Inventory"}
             </Button>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Helper card */}
-      <Card className="border border-dashed border-slate-200 bg-white/80 shadow-sm rounded-2xl">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold text-slate-900">
-            Inventory best practices
-          </CardTitle>
-          <CardDescription className="text-xs text-slate-500">
-            Suggested thresholds for pharmacy stock and expiry.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 text-xs text-slate-500">
-          <ul className="list-disc space-y-1 pl-4">
-            <li>Use higher thresholds for fast-moving medicines.</li>
-            <li>Set expiry alerts 60–120 days before expiry date.</li>
-            <li>Avoid negative stock unless you reconcile daily.</li>
-          </ul>
         </CardContent>
       </Card>
     </div>

@@ -76,8 +76,7 @@ export default function TopSummary({ profile }: { profile?: ProfileType }) {
           {profile?.pharmacy?.inventory?.allowNegativeStock
             ? "allowed"
             : "blocked"}
-          . WhatsApp alerts{" "}
-          {profile?.pharmacy?.notifications?.whatsapp ? "ON" : "OFF"}.
+          .
         </CardContent>
       </Card>
     </div>

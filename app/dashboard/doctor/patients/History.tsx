@@ -21,7 +21,6 @@ const History = ({
         name: string;
         specialization: string;
       };
-      method: string;
       date: Date;
     }[];
   }>(history?._id ? `/appointments/patient/${history._id}` : null);
@@ -70,13 +69,6 @@ const History = ({
                       </div>
                     </div>
                   </div>
-                  {e?.method ? (
-                    <div className="">
-                      <span className="rounded-full border px-2 py-0.5 text-xs text-gray-700">
-                        {e?.method}
-                      </span>
-                    </div>
-                  ) : null}
                 </div>
               </li>
             );

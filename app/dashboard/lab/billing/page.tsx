@@ -3,27 +3,24 @@
 import React, { useState } from "react";
 import AppShell from "@/components/layout/app-shell";
 import AllBill from "./AllBill";
-import CreateBill from "./CreateBill";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
 import useSWR from "swr";
-import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
-import { FilePlus2 } from "lucide-react";
+import { Info } from "lucide-react";
+import Link from "next/link";
 
 export interface FilterType {
   q: null | string;
   status: string;
   method: string;
-  date: undefined | Date
+  date: undefined | Date;
 }
 
 export default function BillingPage() {
-  const [tab, setTab] = useState<"all" | "new">("all");
   const [filter, setFilter] = useState<FilterType>({
     q: null,
     status: "",
     method: "",
-    date: undefined
+    date: undefined,
   });
 
   const params = new URLSearchParams();
@@ -40,7 +37,7 @@ export default function BillingPage() {
     params.set("method", filter.method);
   }
   if (filter.date) {
-    params.set("date", filter.date.toISOString())
+    params.set("date", filter.date.toISOString());
   }
 
   const { data: billingData, mutate: billingMutate } = useSWR<{
@@ -51,7 +48,6 @@ export default function BillingPage() {
       createdAt: Date;
       cash: number;
       online: number;
-      insurance?: number;
       discount: number;
       items: {
         total: number;
@@ -67,53 +63,37 @@ export default function BillingPage() {
 
   return (
     <AppShell>
-      <div
-        className="min-h-[calc(100vh-67px)] w-full p-5 text-slate-900 dark:text-slate-100"
-
-      >
+      <div className="min-h-[calc(100vh-67px)] w-full p-5 text-slate-900 dark:text-slate-100">
         <div className="">
+          <div className="mb-4 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <Info className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>
+              Billing is centralised at the pharmacy counter. New invoices and
+              payments must be raised from{" "}
+              <Link
+                href="/dashboard/pharmacy/billing/"
+                className="font-semibold underline"
+              >
+                Pharmacy Billing
+              </Link>
+              . This view is history and reprints only — create-bill is disabled
+              here.
+            </p>
+          </div>
+
           <div className="mb-4">
             <LabHeader
               title="Billing"
-              subtitle="Search, filter & review billing history"
-            >
-              <button
-                onClick={() => setTab("new")}
-                className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-indigo-700 hover:shadow-md active:scale-95"
-              >
-                <FilePlus2 className="h-4 w-4" /> New Invoice
-              </button>
-            </LabHeader>
+              subtitle="Search, filter & reprint lab bill history"
+            />
           </div>
 
-          <Tabs
-            defaultValue="all"
-            className="flex-1 overflow-hidden"
-            onValueChange={(e) => setTab(e as "all" | "new")}
-            value={tab}
-          >
-            <AnimatedTabs
-              options={[
-                { label: "All Bills", value: "all" },
-                { label: "Create Bill", value: "new" },
-              ]}
-              value={tab}
-              onChange={(v) => setTab(v as "all" | "new")}
-              layoutId="billing-tabs"
-              className="mb-4"
-            />
-            <TabsContent value="all">
-              <AllBill
-                billing={billing}
-                filter={filter}
-                setFilter={setFilter}
-                billingMutate={billingMutate}
-              />
-            </TabsContent>
-            <TabsContent value="new">
-              <CreateBill billingMutate={billingMutate} />
-            </TabsContent>
-          </Tabs>
+          <AllBill
+            billing={billing}
+            filter={filter}
+            setFilter={setFilter}
+            billingMutate={billingMutate}
+          />
         </div>
       </div>
     </AppShell>

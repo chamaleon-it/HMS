@@ -4,7 +4,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import useSWR from "swr";
 import LabTable from "./LabTable";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
-import { Camera, Search, RefreshCcw, CheckCircle2, AlertCircle, Layout, Clock, TestTube2, AlertTriangle, FlaskConical } from "lucide-react";
+import { Camera, Search, RefreshCcw, CheckCircle2, AlertCircle, Layout, Clock, TestTube2, FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -48,8 +48,8 @@ const StatCard: React.FC<{
 
 export default function Imagine() {
   const [status, setStatus] = useState<
-    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft"
-  >("Upcoming");
+    "Waiting For Result" | "Completed" | "Deleted" | "Draft" | "Sample Collected" | "Upcoming"
+  >("Waiting For Result");
 
   const [activeDate, setActiveDate] = useState<string>("Today");
   const [date, setDate] = useState<Date>();
@@ -91,15 +91,14 @@ export default function Imagine() {
     data: any[];
   }>(`/lab/report?${queryParams.toString()}`);
 
-  const { data: statsResponse, mutate: statsMutate } = useSWR<{ message: string, data: { total: number, upcoming: number, sampleCollected: number, waitingForResult: number, completed: number, flagged: number } }>("/lab/report/statistics")
+  const { data: statsResponse, mutate: statsMutate } = useSWR<{ message: string, data: { total: number, upcoming: number, sampleCollected: number, waitingForResult: number, completed: number } }>("/lab/report/statistics")
 
   const statsData = statsResponse?.data ?? {
     total: 0,
     upcoming: 0,
     sampleCollected: 0,
     waitingForResult: 0,
-    completed: 0,
-    flagged: 0
+    completed: 0
   };
 
   const REPORT = data?.data ?? [];
@@ -111,7 +110,7 @@ export default function Imagine() {
         subtitle="Track and review all medical imaging results and scans"
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard
           delay={0.1}
           icon={<Layout className="h-6 w-6" />}
@@ -120,15 +119,6 @@ export default function Imagine() {
           colorClass="from-zinc-500/10 to-zinc-500/5"
           iconBgClass="bg-zinc-100 text-zinc-600"
           borderClass="hover:border-zinc-200"
-        />
-        <StatCard
-          delay={0.2}
-          icon={<Clock className="h-6 w-6" />}
-          label="Upcoming"
-          value={statsData.upcoming}
-          colorClass="from-amber-500/10 to-amber-500/5"
-          iconBgClass="bg-amber-100 text-amber-600"
-          borderClass="hover:border-amber-200"
         />
         <StatCard
           delay={0.3}
@@ -147,15 +137,6 @@ export default function Imagine() {
           colorClass="from-emerald-500/10 to-emerald-500/5"
           iconBgClass="bg-emerald-100 text-emerald-600"
           borderClass="hover:border-emerald-200"
-        />
-        <StatCard
-          delay={0.5}
-          icon={<AlertTriangle className="h-6 w-6" />}
-          label="Flagged"
-          value={statsData.flagged}
-          colorClass="from-rose-500/10 to-rose-500/5"
-          iconBgClass="bg-rose-100 text-rose-600"
-          borderClass="hover:border-rose-200"
         />
       </div>
 
@@ -182,7 +163,7 @@ export default function Imagine() {
           <button
             onClick={() => {
               setSearch("");
-              setStatus("Upcoming");
+              setStatus("Waiting For Result");
               setActiveDate("Today");
               setDate(undefined);
             }}

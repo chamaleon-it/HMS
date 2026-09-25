@@ -62,6 +62,7 @@ export default function LoginPage() {
         router.replace("/dashboard/lab");
         break;
       case "Admin":
+      case "Super Admin":
         router.replace("/dashboard/admin");
         break;
     }

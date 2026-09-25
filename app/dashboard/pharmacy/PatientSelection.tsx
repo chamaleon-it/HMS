@@ -32,7 +32,7 @@ type Patient = {
 };
 
 interface Props {
-  setValue: (id: string, allergies?: string, name?: string) => void;
+  setValue: (id: string, name?: string) => void;
   register: (name?: string) => void;
   patientName: string;
   autoFocus?: boolean;
@@ -110,7 +110,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
   const handleSelect = useCallback(
     (p: Patient) => {
       setSelected(p);
-      setValue(p._id, p.allergies, p.name);
+      setValue(p._id, p.name);
       setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
       setOpen(false);
     },
@@ -283,11 +283,11 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
           </DialogHeader>
           <RegisterPatient
             patient={{ name: input }}
-            onClose={async (id?: string, name?: string, allergies?: string, mrn?: string) => {
+            onClose={async (id?: string, name?: string, mrn?: string) => {
               setOpenCreate(false);
               if (id && name) {
                 // To display instantly:
-                handleSelect({ _id: id, name, allergies: allergies || "", mrn: mrn || "" });
+                handleSelect({ _id: id, name, allergies: "", mrn: mrn || "" });
                 // Attempt to fetch full data (with mrn, age, etc.)
                 try {
                   const { data } = await api.get(`/patients/${id}`);

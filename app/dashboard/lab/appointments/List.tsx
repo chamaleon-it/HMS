@@ -1,5 +1,5 @@
-import { fDateandTime, fTime } from "@/lib/fDateAndTime";
-import { MapPin, Phone, Video, Search, Clock } from "lucide-react";
+import { fDateandTime } from "@/lib/fDateAndTime";
+import { Search, Clock } from "lucide-react";
 import React from "react";
 import {
   Table,
@@ -45,8 +45,9 @@ export default function List({
     const q = query.toLowerCase();
     const name = a?.patient?.name?.toLowerCase() || "";
     const mrn = a?.patient?.mrn?.toLowerCase() || "";
+    const aptNo = String(a?.mrn ?? "").toLowerCase();
 
-    return name.includes(q) || mrn.includes(q);
+    return name.includes(q) || mrn.includes(q) || aptNo.includes(q);
   }) || [];
 
 
@@ -58,10 +59,10 @@ export default function List({
       <Table>
         <TableHeader className="bg-gray-50/50">
           <TableRow className="hover:bg-gray-50/50 border-gray-100">
-            <TableHead className="py-3 pl-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-25">Time</TableHead>
+            <TableHead className="py-3 pl-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-16">Apt #</TableHead>
+            <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-25">Time</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Doctor</TableHead>
-            <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type/Method</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Reason / Notes</TableHead>
             <TableHead className="py-3 pr-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</TableHead>
@@ -99,7 +100,10 @@ export default function List({
                   key={row._id}
                   className="group hover:bg-gray-50/50 transition-colors border-gray-100"
                 >
-                  <TableCell className="py-2.5 pl-4 font-medium text-gray-700 whitespace-nowrap">
+                  <TableCell className="py-2.5 pl-4 font-semibold text-gray-900 whitespace-nowrap tabular-nums">
+                    {row.mrn ?? "—"}
+                  </TableCell>
+                  <TableCell className="py-2.5 font-medium text-gray-700 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <Clock className="w-3.5 h-3.5 text-gray-400" />
                       {fDateandTime(row.date)}
@@ -144,19 +148,6 @@ export default function List({
                     </div>
                   </TableCell>
                   <TableCell className="py-2.5">
-                    <div className="flex flex-col items-start gap-1">
-                      <span className="inline-flex items-center gap-1.5 text-xs text-gray-700 font-medium">
-                        {row?.method === "In clinic" && <MapPin className="h-3 w-3 text-gray-400" />}
-                        {row?.method === "Video" && <Video className="h-3 w-3 text-gray-400" />}
-                        {row?.method === "Phone" && <Phone className="h-3 w-3 text-gray-400" />}
-                        {row?.method}
-                      </span>
-                      <span className="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
-                        {row?.type}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="py-2.5">
                     <Chip label={row?.status} />
                   </TableCell>
                   <TableCell className="py-2.5">
@@ -171,7 +162,7 @@ export default function List({
                         setIsNewTestOpen(true);
                       }}
                     >
-                      Book Now
+                      Add Test
                     </Button>
                   </TableCell>
                 </TableRow>

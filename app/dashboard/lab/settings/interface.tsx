@@ -7,10 +7,13 @@ export interface ProfileType {
     general?: {
       owner?: string;
       gstin?: string;
+      slogan?: string | null;
+      advertisement?: string | null;
+      services?: string[];
     };
-    catalogue: {
-      showProfilesOnPatientBill: boolean;
-      allowEditingPanelComposition: boolean;
+    catalogue?: {
+      showProfilesOnPatientBill?: boolean;
+      allowEditingPanelComposition?: boolean;
     }
     tests: {
       _id: string;
@@ -26,12 +29,7 @@ export interface ProfileType {
     billing?: {
       prefix: string;
       autoPrintAfterSave: boolean;
-    };
-    notifications?: {
-      whatsapp: boolean;
-      sms: boolean;
-      inApp: boolean;
-      note: string;
+      printDualCopies?: boolean;
     };
     reportLayout?: "Classic" | "Modern";
     panelPerPage?: boolean;

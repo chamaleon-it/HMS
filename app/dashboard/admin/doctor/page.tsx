@@ -71,6 +71,7 @@ interface Doctor {
   hospital?: string;
   qualification?: string;
   specialization?: string;
+  designation?: string;
   signature?: string;
   profilePic?: string;
   status: string;
@@ -81,6 +82,7 @@ interface Doctor {
     endTime?: string;
     days?: string[];
     rounds?: Round[];
+    slotIntervalMinutes?: number;
   };
   createdAt?: string;
 }
@@ -110,6 +112,8 @@ export default function AdminDoctorPage() {
   const [formHospital, setFormHospital] = useState("");
   const [formQualification, setFormQualification] = useState("");
   const [formSpecialization, setFormSpecialization] = useState("");
+  const [formDesignation, setFormDesignation] = useState("");
+  const [formSlotInterval, setFormSlotInterval] = useState(15);
   const [formStatus, setFormStatus] = useState("Active");
   const [formProfilePic, setFormProfilePic] = useState("");
   const [formSignature, setFormSignature] = useState("");
@@ -142,6 +146,8 @@ export default function AdminDoctorPage() {
     setFormHospital("");
     setFormQualification("");
     setFormSpecialization("");
+    setFormDesignation("");
+    setFormSlotInterval(15);
     setFormStatus("Active"); // Default active on creation
     setFormProfilePic("");
     setFormSignature("");
@@ -167,6 +173,8 @@ export default function AdminDoctorPage() {
     setFormHospital(doc.hospital || "");
     setFormQualification(doc.qualification || "");
     setFormSpecialization(doc.specialization || "");
+    setFormDesignation(doc.designation || "");
+    setFormSlotInterval(doc.availability?.slotIntervalMinutes || 15);
     setFormStatus(doc.status || "Active");
     setFormProfilePic(doc.profilePic || "");
     setFormSignature(doc.signature || "");
@@ -224,7 +232,33 @@ export default function AdminDoctorPage() {
   };
 
   const removeRound = (index: number) => {
+    if (!confirm("Remove this round/session from the consultation schedule?")) return;
     setFormRounds(formRounds.filter((_, i) => i !== index));
+  };
+
+  const clearSchedule = async () => {
+    if (!editingDoctor) {
+      if (!confirm("Clear consultation hours and rounds on this form?")) return;
+      setFormStartDate("");
+      setFormEndDate("");
+      setFormStartTime("09:00");
+      setFormEndTime("17:00");
+      setFormDays([]);
+      setFormRounds([]);
+      return;
+    }
+    if (!confirm("Delete this doctor's consultation schedule? Existing appointments are not removed.")) return;
+    try {
+      await api.delete(`/admin/doctors/${editingDoctor._id}/availability`);
+      toast.success("Consultation schedule cleared");
+      setFormStartDate("");
+      setFormEndDate("");
+      setFormDays([]);
+      setFormRounds([]);
+      mutate();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to clear schedule");
+    }
   };
 
   const updateRound = (index: number, field: keyof Round, value: string) => {
@@ -254,6 +288,7 @@ export default function AdminDoctorPage() {
         hospital: formHospital.trim() || undefined,
         qualification: formQualification.trim() || undefined,
         specialization: formSpecialization.trim() || undefined,
+        designation: formDesignation.trim() || undefined,
         status: formStatus,
         profilePic: formProfilePic || undefined,
         signature: formSignature || undefined,
@@ -264,6 +299,7 @@ export default function AdminDoctorPage() {
           endTime: formEndTime,
           days: formDays,
           rounds: formRounds,
+          slotIntervalMinutes: formSlotInterval,
         },
       };
 
@@ -671,7 +707,7 @@ export default function AdminDoctorPage() {
                 <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-1.5 border-b pb-1.5">
                   <GraduationCap className="w-4 h-4 text-indigo-500" /> 2. Professional Qualifications
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="docQual">Qualifications *</Label>
                     <Input
@@ -689,6 +725,16 @@ export default function AdminDoctorPage() {
                       placeholder="e.g. Cardiology, Orthopedics, Pediatrics"
                       value={formSpecialization}
                       onChange={(e) => setFormSpecialization(e.target.value)}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="docDesig">Designation</Label>
+                    <Input
+                      id="docDesig"
+                      placeholder="e.g. Consultant, Senior Resident"
+                      value={formDesignation}
+                      onChange={(e) => setFormDesignation(e.target.value)}
                       className="mt-1"
                     />
                   </div>
@@ -755,11 +801,34 @@ export default function AdminDoctorPage() {
 
               {/* Availability & Scheduling */}
               <div>
-                <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-1.5 border-b pb-1.5">
-                  <Calendar className="w-4 h-4 text-indigo-500" /> 4. Availability & Working Hours
-                </h4>
+                <div className="flex items-center justify-between border-b pb-1.5 mb-3">
+                  <h4 className="font-semibold text-slate-900 flex items-center gap-1.5">
+                    <Calendar className="w-4 h-4 text-indigo-500" /> 4. Availability & Working Hours
+                  </h4>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={clearSchedule}
+                    className="text-xs h-7 text-red-600"
+                  >
+                    Clear Schedule
+                  </Button>
+                </div>
 
                 <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="slotInterval">Slot Duration (minutes)</Label>
+                    <Input
+                      id="slotInterval"
+                      type="number"
+                      min={5}
+                      max={120}
+                      value={formSlotInterval}
+                      onChange={(e) => setFormSlotInterval(Number(e.target.value) || 15)}
+                      className="mt-1 max-w-[160px]"
+                    />
+                  </div>
                   {/* Date Range */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>

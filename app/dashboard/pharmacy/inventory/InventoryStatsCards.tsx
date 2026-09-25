@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Wallet,
@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { formatINR } from "@/lib/fNumber";
 import { FilterType } from "./interface";
+import InventoryValueBreakdown from "./InventoryValueBreakdown";
 
 export interface InventoryStats {
   totalValue: number;
@@ -49,6 +50,8 @@ export default function InventoryStatsCards({
   filter,
   setFilter,
 }: Props) {
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -82,7 +85,8 @@ export default function InventoryStatsCards({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.05 }}
         whileHover={{ y: -3, transition: { duration: 0.2 } }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-white border border-emerald-200/80 p-4 shadow-sm hover:shadow-md transition-all group"
+        onClick={() => setBreakdownOpen(true)}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-white border border-emerald-200/80 p-4 shadow-sm hover:shadow-md hover:border-emerald-400 transition-all cursor-pointer group"
       >
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
@@ -97,10 +101,13 @@ export default function InventoryStatsCards({
           <div className="text-2xl font-black text-slate-900 tracking-tight tabular-nums">
             {formatINR(stats?.totalValue || 0)}
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 font-medium">
-            <Package className="w-3 h-3" />
-            <span>
+          <div className="flex items-center justify-between gap-1.5 text-[11px] text-emerald-700 font-medium">
+            <span className="flex items-center gap-1.5">
+              <Package className="w-3 h-3" />
               {stats?.totalQuantity ?? 0} units across {stats?.totalItems ?? 0} items
+            </span>
+            <span className="text-[10px] uppercase font-bold text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded">
+              Breakdown
             </span>
           </div>
         </div>
@@ -263,6 +270,11 @@ export default function InventoryStatsCards({
           </div>
         </div>
       </motion.div>
+
+      <InventoryValueBreakdown
+        open={breakdownOpen}
+        onOpenChange={setBreakdownOpen}
+      />
     </div>
   );
 }

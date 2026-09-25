@@ -30,6 +30,7 @@ export default function CreateBill({
   billingMutate: () => void;
   pharmacyBilling: {
     autoPrintAfterSave: boolean;
+    printDualCopies?: boolean;
     prefix: string;
   }
 }) {
@@ -68,6 +69,58 @@ export default function CreateBill({
   }>(defaultPayload);
 
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [doctorId, setDoctorId] = useState<string | null>(null);
+  const [reconsult, setReconsult] = useState<{
+    eligible: boolean;
+    freeDays: number;
+    daysSinceLastConsult: number | null;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!payload.patient) {
+      setReconsult(null);
+      return;
+    }
+
+    let cancelled = false;
+    const query = `patientId=${payload.patient}${doctorId ? `&doctorId=${doctorId}` : ""}`;
+
+    api
+      .get<{
+        data: {
+          eligible: boolean;
+          freeDays: number;
+          daysSinceLastConsult: number | null;
+        };
+      }>(`/billing/reconsult_eligibility?${query}`)
+      .then(({ data }) => {
+        if (!cancelled) setReconsult(data.data);
+      })
+      .catch(() => {
+        if (!cancelled) setReconsult(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [payload.patient, doctorId]);
+
+  // A patient returning inside the free window should not be charged again for
+  // the consultation line, whichever consultation fee tier was picked.
+  useEffect(() => {
+    if (!reconsult?.eligible) return;
+
+    setPayload((prev) => {
+      let changed = false;
+      const items = prev.items.map((it) => {
+        if (!it.name.toLowerCase().includes("consultation")) return it;
+        if (it.unitPrice === 0 && it.total === 0) return it;
+        changed = true;
+        return { ...it, unitPrice: 0, total: 0 };
+      });
+      return changed ? { ...prev, items } : prev;
+    });
+  }, [reconsult, payload.items]);
 
 
 
@@ -206,13 +259,18 @@ export default function CreateBill({
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
-      setPayload(defaultPayload);
       billingMutate();
-      router.push("/dashboard/pharmacy");
+      if (pharmacyBilling.autoPrintAfterSave) {
+        // usePrint's afterprint handler navigates back to the pharmacy queue.
+        onClick();
+      } else {
+        setPayload(defaultPayload);
+        router.push("/dashboard/pharmacy");
+      }
     } catch (error) {
       // Handle error
     }
-  }, [payload, billingMutate, defaultPayload, router]);
+  }, [payload, billingMutate, defaultPayload, router, pharmacyBilling.autoPrintAfterSave]);
 
 
   const [orderPatient, setOrderPatient] = useState<{ _id: string, mrn: string, name: string } | undefined>(undefined)
@@ -249,13 +307,29 @@ export default function CreateBill({
           discount: number;
           gst: number;
           total: number;
+          itemId?: string;
+          batchId?: string | null;
+          batchNumber?: string | null;
+          expiryDate?: string | Date | null;
+          mrp?: number | null;
+          purchasePrice?: number | null;
+          supplier?: string | null;
+          packing?: number | null;
         }[] = order.items.map((item: any) => ({
           name: item.name.name,
           quantity: item.quantity,
-          unitPrice: item.name.unitPrice,
+          unitPrice: item.batchSellingPrice ?? item.name.unitPrice,
           discount: 0,
-          gst: 0,
-          total: item.quantity * item.name.unitPrice,
+          gst: item.batchGst ?? 0,
+          total: item.quantity * (item.batchSellingPrice ?? item.name.unitPrice),
+          itemId: item.name._id,
+          batchId: item.batchId || null,
+          batchNumber: item.batchNumber || null,
+          expiryDate: item.batchExpiryDate || null,
+          mrp: item.batchMrp ?? item.name.mrp,
+          purchasePrice: item.batchPurchasePrice ?? item.name.purchasePrice,
+          supplier: item.batchSupplier || item.name.supplier || null,
+          packing: item.batchPacking ?? item.name.packing ?? 1,
         }));
 
         // 🔹 Remove duplicates by `name`
@@ -277,7 +351,6 @@ export default function CreateBill({
           items: uniqueItems,
           discount: (order.discount ?? 0),
           cash: 0,
-          insurance: 0,
           online: 0,
           patient: order.patient._id || "",
           // Use stored doctorName first; fall back to populated doctor name; null/empty → "-"
@@ -324,6 +397,7 @@ export default function CreateBill({
         setSelectedPatient={setSelectedPatient}
         openCreate={openCreate}
         setOpenCreate={setOpenCreate}
+        setDoctorId={setDoctorId}
       />
 
 
@@ -340,6 +414,7 @@ export default function CreateBill({
             setItem={setItem}
             itemRef={itemRef}
             PrimaryButton={PrimaryButton}
+            reconsult={reconsult}
           />
 
           <PaymentSection payload={payload} setPayload={setPayload} />
@@ -369,10 +444,11 @@ export default function CreateBill({
         </div>
       </div>
 
-      {/* Printable Receipt Component */}
+      {/* Printable Receipt Component — Rx page only when dual-copy setting is on */}
       <PrintReceipt
         payload={payload}
         patient={selectedPatient}
+        withPrescription={!!pharmacyBilling.printDualCopies}
         invoiceDetails={{
           prefix: pharmacyBilling.prefix,
           roundOffAmount: 0,

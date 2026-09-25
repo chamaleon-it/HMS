@@ -42,7 +42,6 @@ interface Props {
   setValue: UseFormSetValue<{
     patient: string;
     doctor: string;
-    method: string;
     date: string;
     isPaid: string;
     notes?: string | undefined;
@@ -52,7 +51,6 @@ interface Props {
   values: {
     patient: string;
     doctor: string;
-    method: string;
     date: string;
     isPaid: string;
     notes?: string;

@@ -1,5 +1,5 @@
-import { fDateandTime, fTime } from "@/lib/fDateAndTime";
-import { MapPin, Phone, Video, Search } from "lucide-react";
+import { fDateandTime } from "@/lib/fDateAndTime";
+import { Search } from "lucide-react";
 import React, { useState } from "react";
 import useAppointmentList from "./data/useAppointmentList";
 import Drawer from "@/components/ui/drawer";
@@ -50,7 +50,6 @@ export default function List({
       profilePic: string | null;
     };
     createdBy: string;
-    method: "In clinic" | "Video" | "Phone";
     date: Date;
     notes: string | null;
     internalNotes: string | null;
@@ -70,8 +69,9 @@ export default function List({
     const q = query.toLowerCase();
     const name = a?.patient?.name?.toLowerCase() || "";
     const mrn = a?.patient?.mrn?.toLowerCase() || "";
+    const aptNo = String(a?.mrn ?? "").toLowerCase();
 
-    return name.includes(q) || mrn.includes(q);
+    return name.includes(q) || mrn.includes(q) || aptNo.includes(q);
   }) || [];
 
   return (
@@ -79,10 +79,10 @@ export default function List({
       <Table className="text-sm">
         <TableHeader className="bg-slate-700 hover:bg-slate-700">
           <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-            <TableHead className="py-2.5 text-left pl-4 text-white font-bold text-[11px] uppercase tracking-wider">Time</TableHead>
+            <TableHead className="py-2.5 text-left pl-4 text-white font-bold text-[11px] uppercase tracking-wider">Apt #</TableHead>
+            <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Time</TableHead>
             <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Patient</TableHead>
             <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Doctor</TableHead>
-            <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Method</TableHead>
             <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Status</TableHead>
             <TableHead className="py-2.5 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider">Actions</TableHead>
           </TableRow>
@@ -108,7 +108,10 @@ export default function List({
                   : "bg-slate-100 hover:bg-slate-100/60"
                 }
               >
-                <TableCell className="py-3 pl-4 font-medium text-slate-900">
+                <TableCell className="py-3 pl-4 font-semibold text-slate-900 tabular-nums">
+                  {row.mrn ?? "—"}
+                </TableCell>
+                <TableCell className="py-3 font-medium text-slate-900">
                   {fDateandTime(row.date)}
                 </TableCell>
                 <TableCell className="py-3">
@@ -139,14 +142,6 @@ export default function List({
                       </div>
                     </div>
                   </div>
-                </TableCell>
-                <TableCell className="py-3">
-                  <span className="inline-flex items-center gap-2 text-xs text-slate-600">
-                    {row?.method === "In clinic" && <MapPin className="h-3.5 w-3.5 text-slate-400" />}
-                    {row?.method === "Video" && <Video className="h-3.5 w-3.5 text-slate-400" />}
-                    {row?.method === "Phone" && <Phone className="h-3.5 w-3.5 text-slate-400" />}
-                    {row?.method}
-                  </span>
                 </TableCell>
                 <TableCell className="py-3">
                   <Chip label={row?.status} tone={row?.status || "gray"} />

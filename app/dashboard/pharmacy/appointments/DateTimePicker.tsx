@@ -18,6 +18,7 @@ import {
   toMinutes,
   endOfDay,
   startOfToday,
+  nextMinuteSlot,
 } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
 import WaklInAppoinmentUI from "./WaklInAppoinmentUI";
@@ -38,7 +39,6 @@ interface Props {
   setValue: UseFormSetValue<{
     patient: string;
     doctor: string;
-    method: string;
     date: string;
     isPaid: string;
     notes?: string;
@@ -59,13 +59,20 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
     setSelectedTime(time);
   }, []);
 
-
   useEffect(() => {
     if (selectedDate && selectedTime) {
       const istDate = combineToIST(selectedDate, selectedTime);
       setValue("date", istDate.toISOString());
     }
   }, [selectedDate, selectedTime, setValue]);
+
+  // Walk-in: always next minute — no routing / availability / booked checks
+  useEffect(() => {
+    if (!walkIn || !doctor) return;
+    const { date, time } = nextMinuteSlot();
+    setSelectedDate(date);
+    setSelectedTime(time);
+  }, [walkIn, doctor]);
 
   const { data: availabilityData } = useSWR<{
     message: string;
@@ -77,7 +84,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
       days: string[];
       rounds: { label: string; start: string; end: string }[];
     };
-  }>(doctor ? `/users/doctor_availability/${doctor}` : null);
+  }>(!walkIn && doctor ? `/users/doctor_availability/${doctor}` : null);
 
   const availability = availabilityData?.data;
 
@@ -89,7 +96,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
   );
 
   const { data: bookedSlotData } = useSWR<{ message: string; data: Date[] }>(
-    doctor ? `/appointments/booked_slot?${bookedSlotParam}` : null
+    !walkIn && doctor ? `/appointments/booked_slot?${bookedSlotParam}` : null
   );
 
   const bookedSlot: Date[] = bookedSlotData?.data ?? [];
@@ -111,100 +118,6 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
     }
     return matchers;
   }, [availability?.startDate, availability?.endDate, availability?.days]);
-
-  const { data: walkInData } = useSWR<{
-    message: string;
-    data: {
-      alreadyBooked: Date[];
-      nextAvailableDate: Date;
-    };
-  }>(walkIn && doctor ? `/appointments/walk-in/${doctor}` : null);
-
-
-
-  useEffect(() => {
-    if (!walkIn || !doctor || !availability || !walkInData?.data) return;
-
-    const now = new Date();
-    const today = startOfDay(now);
-    const { alreadyBooked, nextAvailableDate } = walkInData.data;
-
-    const bookedSet = new Set(
-      (alreadyBooked ?? []).map((d) => new Date(d).getTime())
-    );
-
-    // Initial search date should be the server's nextAvailableDate, but we must ensure it's not in the past
-    let searchDate = new Date(nextAvailableDate);
-    if (searchDate < today) {
-      searchDate = new Date(today);
-    }
-
-    let foundTime = "";
-    let finalSearchDate = new Date(searchDate);
-
-    // Search up to 14 days ahead for the first available future slot
-    for (let i = 0; i < 14; i++) {
-      const isSearchDayToday = isSameDay(finalSearchDate, today);
-
-      // Calculate cutoff: if today, cutoff is 'now'. If future, cutoff is start of day (-1).
-      let currentMinutes = -1;
-      if (isSearchDayToday) {
-        currentMinutes = now.getHours() * 60 + now.getMinutes();
-      }
-
-      const dayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][finalSearchDate.getDay()];
-
-      if (availability.days.includes(dayName)) {
-        // For today's walk-ins, search until nearly midnight to find "Now" slots.
-        // For other days, respect the doctor's standard endTime.
-        const dayEndTime = isSearchDayToday ? "23:59" : (availability.endTime ?? "18:00");
-
-        const times = generateTimeSlots(
-          availability.startTime ?? "09:00",
-          dayEndTime,
-          1
-        );
-
-        // Filter and find the first available slot
-        const firstFree = times.find((time) => {
-          const tm = toMinutes(time);
-
-          // Must be strictly in the future if today
-          if (isSearchDayToday && tm <= currentMinutes) return false;
-
-          // Check if it's within a break/round
-          const round = getRoundForTime(time, availability.rounds);
-          if (round) return false;
-
-          // Check booking status (only for days the server knows about or all days to be safe)
-          const slotDateStr = combineToIST(finalSearchDate, time).getTime();
-          if (bookedSet.has(slotDateStr)) return false;
-
-          return true;
-        });
-
-        if (firstFree) {
-          foundTime = firstFree;
-          break;
-        }
-      }
-
-      // Move to next day
-      finalSearchDate.setDate(finalSearchDate.getDate() + 1);
-      finalSearchDate = startOfDay(finalSearchDate);
-    }
-
-    if (foundTime) {
-      const foundDateTime = startOfDay(finalSearchDate).getTime();
-      setSelectedDate((prev) =>
-        prev?.getTime() === foundDateTime ? prev : new Date(foundDateTime)
-      );
-      setSelectedTime((prev) => (prev === foundTime ? prev : foundTime));
-    } else {
-      // Fallback if no slot found in 14 days (unlikely)
-      setSelectedTime("");
-    }
-  }, [walkIn, doctor, availability, walkInData]);
 
   if (walkIn && !doctor) {
     return null;

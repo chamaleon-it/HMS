@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,22 +19,59 @@ import api from "@/lib/axios";
 import registerPatientSchema from "@/schemas/registerPatientSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { ChevronDownIcon, UserRound, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { UserRound, X } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { FieldErrors, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/auth/context/auth-context";
-import Address from "./Address";
 import { RegisterPatientSchema } from "@/schemas/registerPatientSchema";
 
-export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string, allergies?: string, mrn?: string) => void, patient?: any, mutate?: () => void }) {
+function ageFromDob(dob?: string | Date | null) {
+  if (!dob) return { age: "", month: "" };
+  const date = new Date(dob);
+  if (Number.isNaN(date.getTime())) return { age: "", month: "" };
+  const today = new Date();
+  let years = today.getFullYear() - date.getFullYear();
+  let months = today.getMonth() - date.getMonth();
+  if (today.getDate() < date.getDate()) months--;
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+  return { age: String(Math.max(0, years)), month: String(Math.max(0, months)) };
+}
+
+function dobFromAge(ageValue: string | number | undefined, monthValue: string | number | undefined) {
+  const years = Number(ageValue || 0);
+  const months = Number(monthValue || 0);
+  if (!(years > 0 || months > 0)) return "";
+  const today = new Date();
+  const estimatedDob = new Date(
+    today.getFullYear() - years,
+    today.getMonth() - months,
+    today.getDate()
+  );
+  return estimatedDob.toISOString();
+}
+
+/** Pharmacy-scoped registration — allergy and address are collected by doctor/lab only. */
+export function RegisterPatient({
+  onClose,
+  patient,
+  mutate,
+}: {
+  onClose: (id?: string, name?: string, mrn?: string) => void;
+  patient?: any;
+  mutate?: () => void;
+}) {
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
   const { user } = useAuth();
+  const initialAge = ageFromDob(patient?.dateOfBirth);
   const {
     register,
     handleSubmit,
@@ -50,45 +86,32 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
       phoneNumber: patient?.phoneNumber || "",
       doctor: patient?.doctor || user?._id,
       gender: patient?.gender,
-      dateOfBirth: patient?.dateOfBirth || "",
-      age: patient?.age || "",
-      month: patient?.month || "",
-      address: patient?.address || "",
-      allergies: patient?.allergies || "",
       weight: patient?.weight || "",
       mrn: patient?.mrn || "",
-      guardian: patient?.guardian || "",
-      guardianPhoneNumber: patient?.guardianPhoneNumber || "",
-      guardianRelation: patient?.guardianRelation || "",
+      dateOfBirth: patient?.dateOfBirth
+        ? new Date(patient.dateOfBirth).toISOString()
+        : "",
+      age: initialAge.age,
+      month: initialAge.month,
     },
   });
 
   const values = watch();
-  const { dateOfBirth } = values;
 
   const refs = {
     name: useRef<HTMLInputElement>(null),
     mrn: useRef<HTMLInputElement>(null),
     phoneNumber: useRef<HTMLInputElement>(null),
     gender: useRef<HTMLButtonElement>(null),
-    dob: useRef<HTMLButtonElement>(null),
+    weight: useRef<HTMLInputElement>(null),
     age: useRef<HTMLInputElement>(null),
     month: useRef<HTMLInputElement>(null),
-    weight: useRef<HTMLInputElement>(null),
-    allergies: useRef<HTMLInputElement>(null),
-    guardian: useRef<HTMLInputElement>(null),
-    guardianPhoneNumber: useRef<HTMLInputElement>(null),
-    guardianRelation: useRef<HTMLInputElement>(null),
-    addressDetails: {
-      line1: useRef<HTMLInputElement>(null),
-      line2: useRef<HTMLInputElement>(null),
-      city: useRef<HTMLInputElement>(null),
-      state: useRef<HTMLInputElement>(null),
-      pin: useRef<HTMLInputElement>(null),
-    }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent, nextRef: React.RefObject<any>) => {
+  const handleKeyDown = (
+    e: React.KeyboardEvent,
+    nextRef: React.RefObject<any>
+  ) => {
     if (e.key === "Enter") {
       e.preventDefault();
       nextRef.current?.focus();
@@ -109,46 +132,88 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
 
   useEffect(() => {
     if (patient) {
+      const ages = ageFromDob(patient?.dateOfBirth);
       reset({
         name: patient?.name || "",
         phoneNumber: patient?.phoneNumber || "",
         doctor: patient?.doctor || user?._id,
         gender: patient?.gender,
-        dateOfBirth: patient?.dateOfBirth || "",
-        age: patient?.age || "",
         weight: patient?.weight || "",
-        address: patient?.address || "",
-        mrn: patient?.mrn || ""
+        mrn: patient?.mrn || "",
+        dateOfBirth: patient?.dateOfBirth
+          ? new Date(patient.dateOfBirth).toISOString()
+          : "",
+        age: ages.age,
+        month: ages.month,
       });
+      return;
     }
-  }, [patient]);
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await api.get<{ data: { pid: string } }>(
+          "/patients/next-pid"
+        );
+        if (!cancelled && data?.data?.pid) {
+          setValue("mrn", data.data.pid);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [patient, setValue, reset, user?._id]);
 
   const createEditPatient = handleSubmit(async (data) => {
+    // Omit clinical fields pharmacy no longer collects (kept for doctor/lab).
+    const {
+      age: _age,
+      month: _month,
+      allergies: _allergies,
+      address: _address,
+      address_line1: _line1,
+      city: _city,
+      ...pharmacyPayload
+    } = data as RegisterPatientSchema & {
+      address_line1?: string;
+      city?: string;
+    };
+
     try {
       if (patient?._id) {
-        await toast.promise(api.patch(`/patients/${patient._id}`, data), {
-          loading: "Updating customer...!",
-          error: ({ response }) => response.data.message,
-          success: `Customer updated successfully.`,
-        });
+        await toast.promise(
+          api.patch(`/patients/${patient._id}`, pharmacyPayload),
+          {
+            loading: "Updating customer...!",
+            error: ({ response }) => response.data.message,
+            success: `Customer updated successfully.`,
+          }
+        );
         if (mutate) mutate();
         onClose();
       } else {
-        const { data: responseData } = await toast.promise(api.post("/patients", data), {
-          loading: "Customer is registering...!",
-          error: ({ response }) => response.data.message,
-          success: `Customer register successfully.`,
-        });
+        const { data: responseData } = await toast.promise(
+          api.post("/patients", pharmacyPayload),
+          {
+            loading: "Customer is registering...!",
+            error: ({ response }) => response.data.message,
+            success: `Customer register successfully.`,
+          }
+        );
         reset();
-        onClose(responseData.data._id, responseData.data.name, responseData.data.allergies, responseData.data.mrn);
+        onClose(
+          responseData.data._id,
+          responseData.data.name,
+          responseData.data.mrn
+        );
       }
     } catch (error) {
       console.log(error);
     }
   });
-
-  const [openCalander, setOpenCalander] = useState(false);
-  const [dobSetFromAge, setDobSetFromAge] = useState(false);
 
   const searchParams = useSearchParams();
   const name = searchParams.get("name");
@@ -156,8 +221,6 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
   useEffect(() => {
     if (name) setValue("name", name);
   }, [name, setValue]);
-
-
 
   return (
     <form className="space-y-5" onSubmit={createEditPatient}>
@@ -175,8 +238,9 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               ref={mergeRefs(refs.name, register("name").ref)}
               onKeyDown={(e) => handleKeyDown(e, refs.mrn)}
               onChange={(e) => {
-                const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
-                  char.toUpperCase()
+                const capitalizedValue = e.target.value.replace(
+                  /\b\w/g,
+                  (char) => char.toUpperCase()
                 );
                 setValue("name", capitalizedValue, { shouldValidate: true });
               }}
@@ -193,13 +257,13 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               {...register("mrn")}
               ref={mergeRefs(refs.mrn, register("mrn").ref)}
               value={values.mrn ?? ""}
-              disabled={patient?._id}
+              readOnly
+              disabled={!!patient?._id}
+              className="bg-zinc-50"
               onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
             />
             {errors.mrn && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.mrn.message}
-              </p>
+              <p className="text-red-500 text-xs my-1">{errors.mrn.message}</p>
             )}
           </div>
 
@@ -222,14 +286,14 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           <div className="grid gap-2">
             <Label>Gender *</Label>
             <Select
-              onValueChange={(
-                value: "Male" | "Female"
-              ) => setValue("gender", value)}
+              onValueChange={(value: "Male" | "Female") =>
+                setValue("gender", value)
+              }
               value={values.gender}
             >
               <SelectTrigger
                 ref={refs.gender}
-                onKeyDown={(e) => handleKeyDown(e, refs.dob)}
+                onKeyDown={(e) => handleKeyDown(e, refs.weight)}
                 className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
               >
                 <SelectValue placeholder="Choose gender" />
@@ -250,146 +314,11 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           </div>
 
           <div className="grid gap-2">
-            <Label>Date of Birth</Label>
-
-            <Popover open={openCalander} onOpenChange={setOpenCalander}>
-              <PopoverTrigger asChild>
-                <Button
-                  ref={refs.dob}
-                  variant="outline"
-                  id="date"
-                  className="w-full justify-between font-normal"
-                  onKeyDown={(e) => handleKeyDown(e, refs.age)}
-                >
-                  {dateOfBirth && dateOfBirth !== ""
-                    ? dobSetFromAge
-                      ? `${new Date(dateOfBirth).getFullYear()}`
-                      : `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}`
-                    : "Select date of birth"}
-                  <ChevronDownIcon />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-auto overflow-hidden p-0"
-                align="start"
-              >
-                <Calendar
-                  disabled={{ after: new Date() }}
-                  mode="single"
-                  selected={dateOfBirth ? new Date(dateOfBirth) : undefined}
-                  captionLayout="dropdown"
-                  onSelect={(date) => {
-                    if (date) {
-                      setValue("dateOfBirth", date.toISOString());
-
-                      const today = new Date();
-                      let years = today.getFullYear() - date.getFullYear();
-                      let months = today.getMonth() - date.getMonth();
-                      if (today.getDate() < date.getDate()) {
-                        months--;
-                      }
-                      if (months < 0) {
-                        years--;
-                        months += 12;
-                      }
-
-                      setValue("age", years.toString());
-                      setValue("month", months.toString());
-                      setDobSetFromAge(false);
-                    } else {
-                      setValue("dateOfBirth", "");
-                    }
-                    setOpenCalander(false);
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
-
-            {errors.dateOfBirth && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.dateOfBirth.message}
-              </p>
-            )}
-          </div>
-
-          <div className="">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label>Age (Years) </Label>
-                <Input
-                  {...register("age")}
-                  ref={mergeRefs(refs.age, register("age").ref)}
-                  type="number"
-                  placeholder="0"
-                  onKeyDown={(e) => handleKeyDown(e, refs.month)}
-                  onChange={(e) => {
-                    const ageValue = e.target.value;
-                    const monthValue = values.month || "0";
-                    setValue("age", ageValue);
-
-                    if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
-                      const today = new Date();
-                      const estimatedDob = new Date(
-                        today.getFullYear() - Number(ageValue || 0),
-                        today.getMonth() - Number(monthValue || 0),
-                        today.getDate()
-                      );
-                      setValue("dateOfBirth", estimatedDob.toISOString());
-                      setDobSetFromAge(true);
-                    } else {
-                      setValue("dateOfBirth", "");
-                      setDobSetFromAge(false);
-                    }
-                  }}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label>Months</Label>
-                <Input
-                  {...register("month")}
-                  ref={mergeRefs(refs.month, register("month").ref)}
-                  type="number"
-                  placeholder="0"
-                  onKeyDown={(e) => handleKeyDown(e, refs.weight)}
-                  onChange={(e) => {
-                    const monthValue = e.target.value;
-                    const ageValue = values.age || "0";
-                    setValue("month", monthValue);
-
-                    if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
-                      const today = new Date();
-                      const estimatedDob = new Date(
-                        today.getFullYear() - Number(ageValue || 0),
-                        today.getMonth() - Number(monthValue || 0),
-                        today.getDate()
-                      );
-                      setValue("dateOfBirth", estimatedDob.toISOString());
-                      setDobSetFromAge(true);
-                    } else {
-                      setValue("dateOfBirth", "");
-                      setDobSetFromAge(false);
-                    }
-                  }}
-                />
-              </div>
-            </div>
-            {errors.age && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.age.message}
-              </p>
-            )}
-          </div>
-
-          <div className="grid gap-2">
             <Label>Weight</Label>
             <Input
               {...register("weight")}
               ref={mergeRefs(refs.weight, register("weight").ref)}
-              onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
+              onKeyDown={(e) => handleKeyDown(e, refs.age)}
               placeholder="e.g. 10 or 12.5"
               type="number"
               step="any"
@@ -401,87 +330,44 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             )}
           </div>
 
-          <div className="grid gap-2">
-            <Label>Allergies</Label>
-            <Input
-              placeholder="Allergies"
-              {...register("allergies")}
-              ref={mergeRefs(refs.allergies, register("allergies").ref)}
-              onKeyDown={(e) => handleKeyDown(e, refs.guardian)}
-              onChange={(e) => {
-                setValue("allergies", capitalizeFirstLetter(e.target.value), {
-                  shouldValidate: true,
-                });
-              }}
-            />
-            {errors.allergies && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.allergies.message}
-              </p>
+          <div className="grid gap-2 sm:col-span-1">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label>Age (Years)</Label>
+                <Input
+                  {...register("age")}
+                  ref={mergeRefs(refs.age, register("age").ref)}
+                  type="number"
+                  placeholder="0"
+                  onKeyDown={(e) => handleKeyDown(e, refs.month)}
+                  onChange={(e) => {
+                    const ageValue = e.target.value;
+                    const monthValue = values.month || "0";
+                    setValue("age", ageValue);
+                    setValue("dateOfBirth", dobFromAge(ageValue, monthValue));
+                  }}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Age (Months)</Label>
+                <Input
+                  {...register("month")}
+                  ref={mergeRefs(refs.month, register("month").ref)}
+                  type="number"
+                  placeholder="0"
+                  onChange={(e) => {
+                    const monthValue = e.target.value;
+                    const ageValue = values.age || "0";
+                    setValue("month", monthValue);
+                    setValue("dateOfBirth", dobFromAge(ageValue, monthValue));
+                  }}
+                />
+              </div>
+            </div>
+            {errors.age && (
+              <p className="text-red-500 text-xs my-1">{errors.age.message}</p>
             )}
           </div>
-
-          <div className="grid gap-2">
-            <Label>Guardian Name</Label>
-            <Input
-              placeholder="Guardian Name"
-              {...register("guardian")}
-              ref={mergeRefs(refs.guardian, register("guardian").ref)}
-              onKeyDown={(e) => handleKeyDown(e, refs.guardianPhoneNumber)}
-              onChange={(e) => {
-                setValue("guardian", capitalizeFirstLetter(e.target.value), {
-                  shouldValidate: true,
-                });
-              }}
-            />
-            {errors.guardian && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.guardian.message}
-              </p>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Guardian Phone Number</Label>
-            <Input
-              placeholder="Guardian Phone Number"
-              {...register("guardianPhoneNumber")}
-              ref={mergeRefs(refs.guardianPhoneNumber, register("guardianPhoneNumber").ref)}
-              onKeyDown={(e) => handleKeyDown(e, refs.guardianRelation)}
-              onChange={(e) => {
-                setValue("guardianPhoneNumber", e.target.value, {
-                  shouldValidate: true,
-                });
-              }}
-            />
-            {errors.guardianPhoneNumber && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.guardianPhoneNumber.message}
-              </p>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Guardian Relation</Label>
-            <Input
-              placeholder="Guardian Relation"
-              {...register("guardianRelation")}
-              ref={mergeRefs(refs.guardianRelation, register("guardianRelation").ref)}
-              onKeyDown={(e) => handleKeyDown(e, refs.addressDetails.line1)}
-              onChange={(e) => {
-                setValue("guardianRelation", capitalizeFirstLetter(e.target.value), {
-                  shouldValidate: true,
-                });
-              }}
-            />
-            {errors.guardianRelation && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.guardianRelation.message}
-              </p>
-            )}
-          </div>
-
-          <Address setValue={setValue} refs={refs.addressDetails} errors={errors} />
         </div>
       </section>
 
@@ -489,15 +375,20 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         <Button variant="ghost" onClick={() => onClose()} type="button">
           Close
         </Button>
-        <Button type="submit" className="bg-black hover:bg-gray-900 text-white hover:text-white transition-colors shadow-sm">{patient?._id ? "Update Customer" : "Register Customer"}</Button>
+        <Button
+          type="submit"
+          className="bg-black hover:bg-gray-900 text-white hover:text-white transition-colors shadow-sm"
+        >
+          {patient?._id ? "Update Customer" : "Register Customer"}
+        </Button>
       </div>
     </form>
   );
 }
 
 type Props = {
-  values: string[]; // CONDITIONS array
-  selected: string[]; // current selected array from react-hook-form watch
+  values: string[];
+  selected: string[];
   setValue: (v: string[]) => void;
   errors: FieldErrors<{
     name: string;

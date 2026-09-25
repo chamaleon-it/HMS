@@ -18,6 +18,7 @@ import {
   toMinutes,
   endOfDay,
   startOfToday,
+  nextMinuteSlot,
 } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
 import WaklInAppoinmentUI from "./WaklInAppoinmentUI";
@@ -38,7 +39,6 @@ interface Props {
   setValue: UseFormSetValue<{
     patient: string;
     doctor: string;
-    method: string;
     date: string;
     isPaid: string;
     notes?: string;
@@ -56,9 +56,8 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
   const [selectedTime, setSelectedTime] = useState<string>("09:00");
 
   const handleTimeClick = useCallback((time: string) => {
-  setSelectedTime(time);
-}, []);
-
+    setSelectedTime(time);
+  }, []);
 
   useEffect(() => {
     if (selectedDate && selectedTime) {
@@ -66,6 +65,14 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
       setValue("date", istDate.toISOString());
     }
   }, [selectedDate, selectedTime, setValue]);
+
+  // Walk-in: always next minute — no routing / availability / booked checks
+  useEffect(() => {
+    if (!walkIn || !doctor) return;
+    const { date, time } = nextMinuteSlot();
+    setSelectedDate(date);
+    setSelectedTime(time);
+  }, [walkIn, doctor]);
 
   const { data: availabilityData } = useSWR<{
     message: string;
@@ -76,8 +83,9 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
       endTime: string;
       days: string[];
       rounds: { label: string; start: string; end: string }[];
+      slotIntervalMinutes?: number;
     };
-  }>(doctor ? `/users/doctor_availability/${doctor}` : null);
+  }>(!walkIn && doctor ? `/users/doctor_availability/${doctor}` : null);
 
   const availability = availabilityData?.data;
 
@@ -89,7 +97,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
   );
 
   const { data: bookedSlotData } = useSWR<{ message: string; data: Date[] }>(
-    doctor ? `/appointments/booked_slot?${bookedSlotParam}` : null
+    !walkIn && doctor ? `/appointments/booked_slot?${bookedSlotParam}` : null
   );
 
   const bookedSlot: Date[] = bookedSlotData?.data ?? [];
@@ -111,63 +119,6 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
     }
     return matchers;
   }, [availability?.startDate, availability?.endDate, availability?.days]);
-
-  const { data: walkInData } = useSWR<{
-    message: string;
-    data: {
-      alreadyBooked: Date[];
-      nextAvailableDate: Date;
-    };
-  }>(walkIn && doctor ? `/appointments/walk-in/${doctor}` : null);
-
-  
-
-  useEffect(() => {
-    if (!walkIn || !doctor || !availability || !walkInData?.data) return;
-
-    const { alreadyBooked, nextAvailableDate } = walkInData.data;
-
-    const nextDate = new Date(nextAvailableDate);
-    const today = startOfDay(new Date());
-    const isNextDayToday = isSameDay(nextDate, today);
-
-    const now = new Date();
-    const cutoffMins = isNextDayToday
-      ? now.getHours() * 60 + now.getMinutes()
-      : -1;
-
-    const bookedSet = new Set(
-      (alreadyBooked ?? []).map((d) => new Date(d).getTime())
-    );
-
-    const nextDateTime = nextDate.getTime();
-    setSelectedDate((prev) =>
-      prev?.getTime() === nextDateTime ? prev : nextDate
-    );
-
-    const times = generateTimeSlots(
-      availability.startTime ?? "09:00",
-      availability.endTime ?? "18:00",
-      15
-    );
-
-    const firstFree = times.find((time) => {
-      const round = getRoundForTime(time, availability.rounds);
-      if (round) return false;
-
-      const tm = toMinutes(time);
-      if (isNextDayToday && tm < cutoffMins) return false;
-
-      const slotDate = combineToIST(nextDate, time);
-      if (bookedSet.has(slotDate.getTime())) return false;
-
-      return true;
-    });
-
-    setSelectedTime((prev) =>
-      prev === (firstFree ?? "09:00") ? prev : firstFree ?? "09:00"
-    );
-  }, [walkIn, doctor, availability, walkInData]);
 
   if (walkIn && !doctor) {
     return null;
@@ -200,7 +151,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
           {generateTimeSlots(
             availability?.startTime ?? "09:00",
             availability?.endTime ?? "18:00",
-            15
+            availability?.slotIntervalMinutes || 15
           ).map((time) => {
             const round = getRoundForTime(time, availability?.rounds);
             const isDisabledByRound = !!round;
@@ -252,7 +203,6 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
                   type="button"
                   size="sm"
                   variant={selectedTime === time ? "default" : "outline"}
-                  // disabled={isDisabled}
                   title={reason}
                   className={cn("w-full cursor-pointer", disabledClasses)}
                 >
