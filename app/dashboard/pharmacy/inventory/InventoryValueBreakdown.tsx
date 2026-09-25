@@ -27,14 +27,12 @@ interface CategoryRow {
   quantity: number;
   sellingValue: number;
   purchaseValue: number;
-  mrpValue: number;
 }
 
 interface Breakdown {
   totals: {
     sellingValue: number;
     purchaseValue: number;
-    mrpValue: number;
     totalQuantity: number;
     totalItems: number;
   };
@@ -42,12 +40,10 @@ interface Breakdown {
   topItems: {
     id: string;
     name: string;
-    sku?: string;
     category?: string;
     quantity: number;
     sellingValue: number;
     purchaseValue: number;
-    mrpValue: number;
   }[];
 }
 
@@ -75,7 +71,7 @@ export default function InventoryValueBreakdown({
             Inventory Value Breakdown
           </DialogTitle>
           <DialogDescription>
-            Stock on hand valued at purchase rate, selling price and MRP.
+            Stock on hand valued at purchase rate and selling price.
           </DialogDescription>
         </DialogHeader>
 
@@ -89,7 +85,7 @@ export default function InventoryValueBreakdown({
 
         {breakdown && (
           <div className="space-y-5">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <SummaryTile
                 label="Purchase Value"
                 value={formatINR(breakdown.totals.purchaseValue)}
@@ -99,11 +95,6 @@ export default function InventoryValueBreakdown({
                 label="Selling Value"
                 value={formatINR(breakdown.totals.sellingValue)}
                 tone="bg-emerald-50 text-emerald-800 border-emerald-200"
-              />
-              <SummaryTile
-                label="MRP Value"
-                value={formatINR(breakdown.totals.mrpValue)}
-                tone="bg-indigo-50 text-indigo-800 border-indigo-200"
               />
             </div>
 
@@ -131,9 +122,6 @@ export default function InventoryValueBreakdown({
                     <TableHead className="text-right text-[11px] font-bold uppercase tracking-wider text-slate-600">
                       Selling
                     </TableHead>
-                    <TableHead className="text-right text-[11px] font-bold uppercase tracking-wider text-slate-600">
-                      MRP
-                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -154,15 +142,12 @@ export default function InventoryValueBreakdown({
                       <TableCell className="text-right font-semibold tabular-nums">
                         {formatINR(row.sellingValue)}
                       </TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {formatINR(row.mrpValue)}
-                      </TableCell>
                     </TableRow>
                   ))}
                   {breakdown.byCategory.length === 0 && (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
+                        colSpan={5}
                         className="py-8 text-center text-muted-foreground"
                       >
                         No stock to value.
@@ -187,9 +172,6 @@ export default function InventoryValueBreakdown({
                       </TableCell>
                       <TableCell className="text-right font-bold tabular-nums">
                         {formatINR(breakdown.totals.sellingValue)}
-                      </TableCell>
-                      <TableCell className="text-right font-bold tabular-nums">
-                        {formatINR(breakdown.totals.mrpValue)}
                       </TableCell>
                     </TableRow>
                   </TableFooter>
