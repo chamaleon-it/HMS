@@ -40,7 +40,7 @@ import {
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
 import { z } from "zod"
-import { ItemType, batchPurchaseRate, batchSaleRate } from './interface'
+import { ItemType, batchPurchaseRate, batchUnitPrice } from './interface'
 import TypableExpiryInput from '../purchase-entry/components/TypableExpiryInput';
 
 const addBatchSchema = z.object({
@@ -48,7 +48,7 @@ const addBatchSchema = z.object({
     expiryDate: z.coerce.date(),
     quantity: z.coerce.number().min(0, "Quantity must be 0 or more"),
     purchaseRate: z.coerce.number().min(0, "Purchase rate must be positive").default(0),
-    saleRate: z.coerce.number().min(0).default(0),
+    unitPrice: z.coerce.number().min(0).default(0),
     mrp: z.coerce.number().min(0).default(0),
     packing: z.coerce.number().min(0).default(0),
     stripCount: z.coerce.number().min(0).default(0),
@@ -78,10 +78,10 @@ export default function UpdateBatch({ item, mutate }: Props) {
         // @ts-expect-error zodResolver
         resolver: zodResolver(addBatchSchema),
         defaultValues: {
-            supplier: item.supplier || "",
+            supplier: "",
             quantity: 0,
             purchaseRate: 0,
-            saleRate: 0,
+            unitPrice: 0,
             mrp: 0,
             packing: 0,
             stripCount: 0,
@@ -101,7 +101,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
         stripCount: useRef<HTMLInputElement>(null),
         quantity: useRef<HTMLInputElement>(null),
         mrp: useRef<HTMLInputElement>(null),
-        saleRate: useRef<HTMLInputElement>(null),
+        unitPrice: useRef<HTMLInputElement>(null),
         purchaseRate: useRef<HTMLInputElement>(null),
         gst: useRef<HTMLButtonElement>(null),
         supplier: useRef<HTMLButtonElement>(null),
@@ -124,8 +124,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                 startingQuantity: data.quantity,
                 purchaseRate: data.purchaseRate,
                 purchasePrice: data.purchaseRate,
-                saleRate: data.saleRate,
-                unitPrice: data.saleRate,
+                unitPrice: data.unitPrice,
                 mrp: data.mrp,
                 packing: data.packing,
                 stripCount: data.stripCount,
@@ -134,10 +133,10 @@ export default function UpdateBatch({ item, mutate }: Props) {
             });
             toast.success("Batch added successfully");
             reset({
-                supplier: item.supplier || "",
+                supplier: "",
                 quantity: 0,
                 purchaseRate: 0,
-                saleRate: 0,
+                unitPrice: 0,
                 mrp: 0,
                 packing: 0,
                 stripCount: 0,
@@ -254,7 +253,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                         }
                                         const currentMrp = Number(values.mrp) || 0;
                                         if (p > 0 && currentMrp > 0) {
-                                            setValue("saleRate", Number((currentMrp / p).toFixed(2)), { shouldValidate: true });
+                                            setValue("unitPrice", Number((currentMrp / p).toFixed(2)), { shouldValidate: true });
                                         }
                                     }}
                                     onKeyDown={(e) => handleKeyDown(e, refs.stripCount)}
@@ -322,25 +321,25 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                         setValue("mrp", m);
                                         const p = Number(values.packing) || 1;
                                         if (p > 0) {
-                                            setValue("saleRate", Number((m / p).toFixed(2)), { shouldValidate: true });
+                                            setValue("unitPrice", Number((m / p).toFixed(2)), { shouldValidate: true });
                                         }
                                     }}
-                                    onKeyDown={(e) => handleKeyDown(e, refs.saleRate)}
+                                    onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
                                 />
                             </div>
 
                             <div>
-                                <label className="text-[11px] font-medium text-slate-600">Sale Rate (₹)</label>
+                                <label className="text-[11px] font-medium text-slate-600">Unit Price (₹)</label>
                                 <Input
                                     type="number"
                                     step="0.01"
                                     min={0}
-                                    {...register("saleRate")}
+                                    {...register("unitPrice")}
                                     placeholder="e.g. 5.00"
                                     className="mt-1 h-8 text-xs bg-white"
                                     ref={(e) => {
-                                        register("saleRate").ref(e);
-                                        refs.saleRate.current = e;
+                                        register("unitPrice").ref(e);
+                                        refs.unitPrice.current = e;
                                     }}
                                     onKeyDown={(e) => handleKeyDown(e, refs.purchaseRate)}
                                 />
@@ -437,7 +436,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                         <TableHead className="text-right whitespace-nowrap">Pack / Strip</TableHead>
                                         <TableHead className="text-right whitespace-nowrap">Qty</TableHead>
                                         <TableHead className="text-right whitespace-nowrap">MRP</TableHead>
-                                        <TableHead className="text-right whitespace-nowrap">Sale</TableHead>
+                                        <TableHead className="text-right whitespace-nowrap">Unit Price</TableHead>
                                         <TableHead className="text-right whitespace-nowrap">P. Rate</TableHead>
                                         <TableHead className="text-right whitespace-nowrap">GST</TableHead>
                                         <TableHead className="whitespace-nowrap">Supplier</TableHead>
@@ -462,7 +461,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                                 </TableCell>
                                                 <TableCell className="text-right font-bold text-emerald-700">{batch.quantity ?? 0}</TableCell>
                                                 <TableCell className="text-right text-slate-600">{batch.mrp ? formatINR(batch.mrp) : "-"}</TableCell>
-                                                <TableCell className="text-right font-medium text-slate-800">{formatINR(batchSaleRate(batch))}</TableCell>
+                                                <TableCell className="text-right font-medium text-slate-800">{formatINR(batchUnitPrice(batch))}</TableCell>
                                                 <TableCell className="text-right text-slate-600">{formatINR(batchPurchaseRate(batch))}</TableCell>
                                                 <TableCell className="text-right text-slate-600">{batch.gst != null ? `${batch.gst}%` : "0%"}</TableCell>
                                                 <TableCell className="text-slate-600 truncate max-w-[120px]">{batch.supplier || "-"}</TableCell>

@@ -9,7 +9,10 @@ export interface IBatch {
   purchaseRate: number;
   /** Legacy dual-read alias — prefer purchaseRate. */
   purchasePrice?: number;
-  saleRate: number;
+  /** Canonical sale / unit rate (replaces saleRate). */
+  unitPrice: number;
+  /** Legacy Atlas dual-read — prefer unitPrice. */
+  saleRate?: number;
   startingQuantity: number;
   quantity: number;
   status: BatchStatus;
@@ -23,7 +26,11 @@ export interface IBatch {
   createdAt: Date | string;
 }
 
-/** Pharmacy item master — stock/pricing prefer active batches. */
+/**
+ * Pharmacy item master — pricing/supplier/packing live on batches.
+ * quantity / expiryDate are denormalized aggregates for list filters.
+ * sku is system identity (auto-generated).
+ */
 export interface IPharmacyItem {
   _id: string;
   name: string;
@@ -32,27 +39,16 @@ export interface IPharmacyItem {
   hsnCode: string;
   sku?: string;
   category: string;
-  supplier: string;
   manufacturer: string;
-  /** Denormalized — prefer batch.saleRate at order time. */
-  unitPrice: number;
-  /** Denormalized — prefer batch.mrp. */
-  mrp: number;
-  /** Denormalized — prefer batch.purchaseRate. */
-  purchasePrice: number;
-  openingStockQuantity: number;
   /** Aggregate of active batch quantities. */
   quantity: number;
-  expiryDate: Date | string;
+  expiryDate?: Date | string;
   status: string;
   createdAt: Date | string;
   updatedAt: Date | string;
   batches: IBatch[];
   batchNumber?: string;
   rackLocation?: string;
-  packing?: number;
-  noOfPacking?: number;
-  gst?: number;
   soldQuantity?: number;
   soldHistory?: Array<{
     date: Date | string;
@@ -60,6 +56,18 @@ export interface IPharmacyItem {
     unitPrice: number;
     total: number;
   }>;
+  /**
+   * Legacy Atlas dual-read only — not written on new saves.
+   * Prefer batchUnitPrice(latestBatch).
+   */
+  unitPrice?: number;
+  mrp?: number;
+  purchasePrice?: number;
+  supplier?: string;
+  packing?: number;
+  noOfPacking?: number;
+  openingStockQuantity?: number;
+  gst?: number;
 }
 
 /** @deprecated Prefer IBatch — kept for gradual migration. */
@@ -92,13 +100,38 @@ export function batchPurchaseRate(b: Partial<IBatch> | null | undefined): number
   return Number.isFinite(Number(n)) ? Number(n) : 0;
 }
 
-export function batchSaleRate(
+/** Canonical: unitPrice ?? saleRate ?? sellingPrice. */
+export function batchUnitPrice(
   b: Partial<IBatch> & { sellingPrice?: number } | null | undefined,
   fallback = 0,
 ): number {
   if (!b) return fallback;
-  const n = b.saleRate ?? (b as any).sellingPrice ?? fallback;
+  const n = b.unitPrice ?? b.saleRate ?? (b as any).sellingPrice ?? fallback;
   return Number.isFinite(Number(n)) ? Number(n) : fallback;
+}
+
+/** @deprecated Prefer batchUnitPrice */
+export function batchSaleRate(
+  b: Partial<IBatch> & { sellingPrice?: number } | null | undefined,
+  fallback = 0,
+): number {
+  return batchUnitPrice(b, fallback);
+}
+
+/** Derive display unit price from latest active batch (or legacy Item.unitPrice). */
+export function itemDisplayUnitPrice(item: Partial<IPharmacyItem> | null | undefined): number {
+  if (!item) return 0;
+  const batches = (item.batches || []).filter(
+    (b) => String(b.status || "active").toLowerCase() !== "inactive",
+  );
+  if (batches.length) {
+    const latest = [...batches].sort(
+      (a, b) =>
+        new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
+    )[0];
+    return batchUnitPrice(latest, Number(item.unitPrice) || 0);
+  }
+  return Number(item.unitPrice) || 0;
 }
 
 export function isBatchSellable(

@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+/** Item master — pricing/supplier/packing belong on batches. */
 export const pharmacyItemAddSchema = z.object({
   name: z
     .string({ error: "Name is required" })
@@ -10,11 +11,11 @@ export const pharmacyItemAddSchema = z.object({
   generic: z
     .string({ error: "Generic name is required" })
     .max(120, { error: "Generic name must be at most 120 characters" })
-    .transform((s) => s.trim()).optional(),
+    .transform((s) => s.trim())
+    .optional(),
 
   hsnCode: z
     .string({ error: "HSN code is required" })
-    // .regex(/^\d{4,8}$/, { error: "HSN code must be 4–8 digits" })
     .transform((s) => s.trim()),
 
   category: z
@@ -22,31 +23,12 @@ export const pharmacyItemAddSchema = z.object({
     .min(2, { error: "Category must be at least 2 characters" })
     .transform((s) => s.trim()),
 
-  supplier: z
-    .string({ error: "Supplier is required" })
-    .transform((s) => s.trim())
-    .optional(),
-
   manufacturer: z
-    .string({ error: "Supplier is required" })
+    .string({ error: "Manufacturer is required" })
     .transform((s) => s.trim())
     .optional(),
 
-  purchasePrice: z.coerce
-    .number({ error: "Purchase price must be a number" })
-    .transform((n) => Number(n.toFixed(2)))
-    .optional(),
-
-  mrp: z.coerce
-    .number({ error: "MRP must be a number" })
-    .transform((n) => Number(n.toFixed(2)))
-    .optional(),
-
-  unitPrice: z.coerce
-    .number({ error: "Unit price must be a number" })
-    .transform((n) => Number(n.toFixed(2)))
-    .optional(),
-
+  /** Opening-batch qty when batchNumber is supplied (not Item.openingStockQuantity). */
   openingStockQuantity: z.coerce
     .number({ error: "Current stock must be a number" })
     .int({ error: "Current stock must be an integer" })
@@ -57,29 +39,11 @@ export const pharmacyItemAddSchema = z.object({
     .int({ error: "Quantity must be an integer" })
     .optional(),
 
-  // Batch details are optional on the master record: they can be supplied later
-  // through purchase entry or Update Batch.
   expiryDate: z.string().optional(),
 
   batchNumber: z.string({ error: "Batch number is required" }).optional(),
 
   rackLocation: z.string({ error: "Rack location is required" }).optional(),
-
-  packing: z.coerce
-    .number({ error: "Packing must be a number" })
-    .int({ error: "Packing must be an integer" })
-    .optional(),
-
-  noOfPacking: z.coerce
-    .number({ error: "No. of Packing must be a number" })
-    .int({ error: "No. of Packing must be an integer" })
-    .optional(),
-
-  gst: z.coerce
-    .number({ error: "GST must be a number" })
-    .max(100, { error: "GST cannot be above 100" })
-    .transform((n) => Number(n.toFixed(2)))
-    .optional(),
 
   status: z.enum(["Active", "Inactive"], {
     error: "Status must be 'Active' or 'Inactive'",

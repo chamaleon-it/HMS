@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import React, { Dispatch, SetStateAction, useCallback } from "react";
-import { FilterType, ItemType } from "./interface";
+import { FilterType, ItemType, itemDisplayUnitPrice, batchPurchaseRate } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { PaginationBar } from "../components/PaginationBar";
 import toast from "react-hot-toast";
@@ -92,7 +92,33 @@ export default function ItemTable({
 
   const getItemTotalValue = (item: ItemType) => {
     const itemStock = getItemStock(item);
-    return (itemStock > 0 ? itemStock : 0) * (Number(item.unitPrice) || 0);
+    return (itemStock > 0 ? itemStock : 0) * itemDisplayUnitPrice(item);
+  };
+
+  const latestActiveBatch = (item: ItemType) => {
+    const batches = (item.batches || []).filter(
+      (b) => String(b.status || "active").toLowerCase() !== "inactive",
+    );
+    if (!batches.length) return undefined;
+    return [...batches].sort(
+      (a, b) =>
+        new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
+    )[0];
+  };
+
+  const getItemPurchase = (item: ItemType) => {
+    const b = latestActiveBatch(item);
+    return b ? batchPurchaseRate(b) : Number(item.purchasePrice) || 0;
+  };
+
+  const getItemMrp = (item: ItemType) => {
+    const b = latestActiveBatch(item);
+    return b ? Number(b.mrp) || 0 : Number(item.mrp) || 0;
+  };
+
+  const getItemSupplier = (item: ItemType) => {
+    const b = latestActiveBatch(item);
+    return b?.supplier || item.supplier || "-";
   };
 
   const totalPageStock = items.reduce((sum, item) => sum + getItemStock(item), 0);
@@ -195,28 +221,28 @@ export default function ItemTable({
                         );
                       })()}
                     </TableCell>
-                    <TableCell className="py-3">{formatINR(item.purchasePrice)}</TableCell>
-                    <TableCell className="py-3">{formatINR(item.unitPrice)}</TableCell>
-                    <TableCell className="py-3">{formatINR(item.mrp)}</TableCell>
+                    <TableCell className="py-3">{formatINR(getItemPurchase(item))}</TableCell>
+                    <TableCell className="py-3">{formatINR(itemDisplayUnitPrice(item))}</TableCell>
+                    <TableCell className="py-3">{formatINR(getItemMrp(item))}</TableCell>
                     <TableCell className="py-3 font-semibold text-slate-800 tabular-nums">
                       {formatINR(itemTotalValue)}
                     </TableCell>
                     <TableCell className="py-3">
-                      {new Date(item.expiryDate) < new Date() ? (
+                      {item.expiryDate && new Date(item.expiryDate) < new Date() ? (
                         <div className="flex items-center gap-1.5 text-red-600 font-medium">
                           <AlertCircle className="w-4 h-4" />
                           <span>{fDate(item.expiryDate)}</span>
                         </div>
-                      ) : new Date(item.expiryDate) < new Date(Date.now() + pharmacyInventory.expiryAlert * 24 * 60 * 60 * 1000) ? (
+                      ) : item.expiryDate && new Date(item.expiryDate) < new Date(Date.now() + pharmacyInventory.expiryAlert * 24 * 60 * 60 * 1000) ? (
                         <div className="flex items-center gap-1.5 text-amber-600 font-medium">
                           <AlertTriangle className="w-4 h-4" />
                           <span>{fDate(item.expiryDate)}</span>
                         </div>
                       ) : (
-                        <span className="text-slate-700">{fDate(item.expiryDate)}</span>
+                        <span className="text-slate-700">{item.expiryDate ? fDate(item.expiryDate) : "—"}</span>
                       )}
                     </TableCell>
-                    <TableCell className="py-3">{item.supplier}</TableCell>
+                    <TableCell className="py-3">{getItemSupplier(item)}</TableCell>
                     <TableCell className="py-3">
                       <Chip
                         label={item.status}

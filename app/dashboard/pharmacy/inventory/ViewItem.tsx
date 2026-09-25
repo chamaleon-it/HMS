@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History, ArrowLeftRight, Loader2, Power } from "lucide-react";
-import { BatchType, ItemType, batchPurchaseRate, batchSaleRate, IBatch } from "./interface";
+import { BatchType, ItemType, batchPurchaseRate, batchUnitPrice, IBatch } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -45,7 +45,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
     expiryDate: "",
     mrp: 0,
     purchaseRate: 0,
-    saleRate: 0,
+    unitPrice: 0,
     quantity: 0,
     startingQuantity: 0,
     supplier: "",
@@ -64,7 +64,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
         : "",
       mrp: Number(batch.mrp) || 0,
       purchaseRate: batchPurchaseRate(batch),
-      saleRate: batchSaleRate(batch),
+      unitPrice: batchUnitPrice(batch),
       quantity: Number(batch.quantity) || 0,
       startingQuantity: Number(batch.startingQuantity) || Number(batch.quantity) || 0,
       supplier: batch.supplier || "",
@@ -84,7 +84,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
           : undefined,
         mrp: editForm.mrp,
         purchaseRate: editForm.purchaseRate,
-        saleRate: editForm.saleRate,
+        unitPrice: editForm.unitPrice,
         supplier: editForm.supplier || undefined,
         packing: editForm.packing,
         stripCount: editForm.stripCount,
@@ -267,8 +267,8 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
     )[0];
   }, [item?.batches]);
 
-  const heroSaleRate = latestBatch
-    ? batchSaleRate(latestBatch, item.unitPrice)
+  const heroUnitPrice = latestBatch
+    ? batchUnitPrice(latestBatch, Number(item.unitPrice) || 0)
     : Number(item.unitPrice) || 0;
   const heroMrp =
     latestBatch?.mrp !== undefined && latestBatch?.mrp !== null
@@ -358,9 +358,9 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
                 <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
               </div>
-              Sale Rate
+              Unit Price
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">₹ {heroSaleRate.toFixed(2)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">₹ {heroUnitPrice.toFixed(2)}</div>
           </div>
 
           <div className="space-y-2">
@@ -411,7 +411,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               </div>
               Total Value
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(item.quantity * heroSaleRate)}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(item.quantity * heroUnitPrice)}</div>
           </div>
 
           <div className="space-y-2">
@@ -623,7 +623,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Pack/Strip</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">MRP</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Purchase</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Sale</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Unit Price</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">GST(%)</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Qty</TableHead>
                     <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4 w-[120px] whitespace-nowrap">Action</TableHead>
@@ -685,7 +685,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                         </TableCell>
                         <TableCell className="text-right text-xs py-3 tabular-nums whitespace-nowrap">{formatINR(Number(data.mrp) || 0)}</TableCell>
                         <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums whitespace-nowrap">{formatINR(batchPurchaseRate(data))}</TableCell>
-                        <TableCell className="text-right text-xs py-3 tabular-nums whitespace-nowrap">{formatINR(batchSaleRate(data))}</TableCell>
+                        <TableCell className="text-right text-xs py-3 tabular-nums whitespace-nowrap">{formatINR(batchUnitPrice(data))}</TableCell>
                         <TableCell className="text-right text-xs py-3 text-slate-700 tabular-nums whitespace-nowrap">
                           {data.gst != null ? `${data.gst}%` : "0%"}
                         </TableCell>
@@ -828,15 +828,15 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               />
             </div>
             <div>
-              <label className="text-xs text-slate-500">Sale rate</label>
+              <label className="text-xs text-slate-500">Unit price</label>
               <Input
                 type="number"
                 step="0.01"
-                value={editForm.saleRate}
+                value={editForm.unitPrice}
                 onChange={(e) =>
                   setEditForm((f) => ({
                     ...f,
-                    saleRate: Number(e.target.value) || 0,
+                    unitPrice: Number(e.target.value) || 0,
                   }))
                 }
               />

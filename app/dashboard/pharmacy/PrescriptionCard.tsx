@@ -82,7 +82,8 @@ export default function PrescriptionCard({
             batchPacking: null,
           };
         }
-        const saleRate = batch.saleRate ?? batch.sellingPrice ?? m.unitPrice;
+        const unitPrice =
+          batch.unitPrice ?? batch.saleRate ?? batch.sellingPrice ?? m.unitPrice;
         const stock = Number(batch.stock) || 0;
         return {
           ...m,
@@ -91,13 +92,13 @@ export default function PrescriptionCard({
           batchExpiryDate: batch.expiryDate || null,
           batchMrp: batch.mrp ?? null,
           batchPurchasePrice: batch.purchaseRate ?? batch.purchasePrice ?? null,
-          batchSellingPrice: saleRate ?? null,
+          batchSellingPrice: unitPrice ?? null,
           batchGst: batch.gst ?? 0,
           batchStock: stock,
           batchSupplier: batch.supplier || null,
           batchPacking: batch.packing ?? 1,
           availableQuantity: stock,
-          unitPrice: saleRate ?? m.unitPrice,
+          unitPrice: unitPrice ?? m.unitPrice,
           quantity: Math.min(Number(m.quantity) || 0, stock),
         };
       }),
