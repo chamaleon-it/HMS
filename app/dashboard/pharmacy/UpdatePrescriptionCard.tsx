@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 
 import { Item, OrderType, orderLineUnitPrice, orderItemStock } from "./interface";
-import Medicine from "./Medicine";
+import BatchSelect, { BatchOption } from "./components/BatchSelect";
 import { Button } from "@/components/ui/button";
 import { Trash, AlertTriangle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -67,6 +67,47 @@ export default function UpdatePrescriptionCard({
     }));
   };
 
+  const applyBatch = (idx: number, batch: BatchOption | null) => {
+    setData((prev) => ({
+      ...prev,
+      items: prev.items.map((m, i) => {
+        if (i !== idx) return m;
+        if (!batch) {
+          return {
+            ...m,
+            batchId: null,
+            batchNumber: null,
+            batchExpiryDate: null,
+            batchMrp: null,
+            batchPurchasePrice: null,
+            batchSellingPrice: null,
+            batchGst: null,
+            batchStock: null,
+            batchSupplier: null,
+            batchPacking: null,
+          };
+        }
+        const unitPrice =
+          batch.unitPrice ?? batch.sellingPrice ?? orderLineUnitPrice(m);
+        const stock = Number(batch.stock) || 0;
+        return {
+          ...m,
+          batchId: batch.batchId,
+          batchNumber: batch.batchNumber,
+          batchExpiryDate: batch.expiryDate || null,
+          batchMrp: batch.mrp ?? null,
+          batchPurchasePrice: batch.purchaseRate ?? batch.purchasePrice ?? null,
+          batchSellingPrice: unitPrice ?? null,
+          batchGst: batch.gst ?? 0,
+          batchStock: stock,
+          batchSupplier: batch.supplier || null,
+          batchPacking: batch.packing ?? 1,
+          quantity: Math.min(Number(m.quantity) || 0, stock),
+        };
+      }),
+    }));
+  };
+
   const addMedicineRow = (m: Item) => {
     setData((prev) => ({
       ...prev,
@@ -86,6 +127,7 @@ export default function UpdatePrescriptionCard({
   };
 
   const subTotal = data.items.reduce((a, b) => a + (b.quantity || 0) * orderLineUnitPrice(b), 0);
+  const isCompleted = data.status === "Completed";
 
   useEffect(() => {
     if (data.items.length > 0) {
@@ -103,20 +145,21 @@ export default function UpdatePrescriptionCard({
 
   return (
     <div className="rounded-lg border overflow-x-auto">
-      <div className="rounded-t-lg min-w-[1000px]">
+      <div className="rounded-t-lg min-w-[1100px]">
         <table className="w-full text-[15px]">
           <thead className="bg-slate-700 hover:bg-slate-700 text-white">
             <tr className="w-full">
-              <th className="w-[5%] p-2 text-left">Sl</th>
-              <th className="w-[25%] p-2 text-left">Drug</th>
-              <th className="w-[25%] p-2 text-left">Rack</th>
-              <th className="w-[10%] p-2 text-left">Exp</th>
-              <th className="w-[10%] p-2 text-center">Available</th>
-              <th className="w-[10%] p-2 text-right">Qty</th>
-              <th className="w-[10%] p-2 text-right">MRP</th>
-              <th className="w-[10%] p-2 text-right">Amount</th>
-              <th className="w-[10%] p-2 text-center">Packed</th>
-              <th className="w-[10%] p-2 text-right">Actions</th>
+              <th className="w-[4%] p-2 text-left">Sl</th>
+              <th className="w-[18%] p-2 text-left">Drug</th>
+              <th className="w-[16%] p-2 text-left">Batch</th>
+              <th className="w-[10%] p-2 text-left">Rack</th>
+              <th className="w-[8%] p-2 text-left">Exp</th>
+              <th className="w-[8%] p-2 text-center">Available</th>
+              <th className="w-[8%] p-2 text-right">Qty</th>
+              <th className="w-[8%] p-2 text-right">MRP</th>
+              <th className="w-[8%] p-2 text-right">Amount</th>
+              <th className="w-[6%] p-2 text-center">Packed</th>
+              <th className="w-[6%] p-2 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -157,11 +200,37 @@ export default function UpdatePrescriptionCard({
                     )}
                   </div>
                 </td>
+                <td className="p-4 align-middle">
+                  {isCompleted ? (
+                    <div className="text-xs text-slate-600 font-medium">
+                      {m.batchNumber || "—"}
+                    </div>
+                  ) : (
+                    <BatchSelect
+                      itemId={m.name?._id}
+                      value={m.batchId}
+                      onSelect={(batch) => applyBatch(i, batch)}
+                      onStockCap={(maxQty) => {
+                        setData((prev) => {
+                          const cur = prev.items[i];
+                          if (!cur || Number(cur.batchStock) === maxQty) return prev;
+                          return {
+                            ...prev,
+                            items: prev.items.map((row, idx) =>
+                              idx === i ? { ...row, batchStock: maxQty } : row
+                            ),
+                          };
+                        });
+                      }}
+                      className="max-w-none"
+                    />
+                  )}
+                </td>
                 <td className="p-4 align-middle text-sm text-slate-600">
                   {m?.name?.rackLocation || "-"}
                 </td>
                 <td className="p-4 align-middle text-sm text-slate-600">
-                  {fDate(m.name.expiryDate)}
+                  {fDate(m.batchExpiryDate || m.name.expiryDate)}
                 </td>
                 <td className="p-4 align-middle text-center font-medium text-slate-700">
                   {orderItemStock(m)}
@@ -185,7 +254,7 @@ export default function UpdatePrescriptionCard({
                 </td>
                 <td className="p-4 align-middle text-right">
                   <Button
-                    disabled={data.status === "Completed"}
+                    disabled={isCompleted}
                     size="icon"
                     variant="ghost"
                     className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
@@ -201,7 +270,7 @@ export default function UpdatePrescriptionCard({
         </table>
       </div>
       <div className="p-4 border-t bg-slate-50 flex flex-col gap-3 rounded-b-lg">
-        {data.status !== "Completed" && <UpdateMedicine addMedicineRow={addMedicineRow} />}
+        {!isCompleted && <UpdateMedicine addMedicineRow={addMedicineRow} />}
 
         <div className="flex flex-col gap-2 mt-2 w-full max-w-xs ml-auto border-t pt-2">
           <div className="flex justify-between text-sm text-slate-600">
@@ -211,7 +280,7 @@ export default function UpdatePrescriptionCard({
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Discount %</span>
             <input
-              disabled={data.status === "Completed"}
+              disabled={isCompleted}
               type="number"
               min="0"
               className="w-24 text-right bg-white border border-slate-200 rounded px-2 py-1 text-sm outline-none focus:border-emerald-500"
@@ -231,7 +300,7 @@ export default function UpdatePrescriptionCard({
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Discount ₹</span>
             <input
-              disabled={data.status === "Completed"}
+              disabled={isCompleted}
               type="number"
               min="0"
               value={data.discount ? parseFloat(data.discount.toFixed(2)) : ""}
@@ -273,6 +342,7 @@ const QuantityInput = ({
   status: string;
 }) => {
   const [openWarning, setOpenWarning] = useState(false);
+  const available = orderItemStock(m);
 
   return (
     <>
@@ -287,7 +357,7 @@ const QuantityInput = ({
           }
           onBlur={(e) => {
             const value = parseInt(e.target.value) || 0;
-            if (value > orderItemStock(m)) {
+            if (available > 0 && value > available) {
               setOpenWarning(true);
             }
           }}
@@ -312,12 +382,12 @@ const QuantityInput = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              Available quantity: {orderItemStock(m)} <br />
+              Available quantity: {available} <br />
               Entered quantity: {m.quantity}
               <br />
               <br />
               <span className="text-destructive">
-                The quantity you entered exceeds the available stock.
+                The quantity you entered exceeds the selected batch stock.
               </span>{" "}
               Do you want to continue anyway?
             </AlertDialogDescription>

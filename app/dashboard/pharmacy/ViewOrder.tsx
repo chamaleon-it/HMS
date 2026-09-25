@@ -181,6 +181,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             const u = updatePayload.items[i];
             if (l.name._id !== u.name._id) return true;
             if (l.quantity !== u.quantity) return true;
+            if ((l.batchId || null) !== (u.batchId || null)) return true;
         }
         return false;
     };
@@ -189,11 +190,17 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         if (!updatePayload || !localOrder) return;
 
         let hasZeroQuantity = false;
-        updatePayload.items.forEach((m) => {
+        for (const [index, m] of updatePayload.items.entries()) {
             if (m.quantity === 0) {
                 hasZeroQuantity = true;
             }
-        });
+            if (!m.batchId) {
+                toast.error(
+                    `Item ${index + 1} (${m.name?.name || "medicine"}): Select a batch before updating`
+                );
+                return;
+            }
+        }
 
         if (hasZeroQuantity) {
             toast.error("Quantity cannot be 0");
@@ -204,6 +211,25 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             ...updatePayload,
             patient: localOrder.patient._id,
             doctor: localOrder.doctor?._id ?? null,
+            items: updatePayload.items.map((m) => ({
+                name: m.name,
+                dosage: m.dosage,
+                frequency: m.frequency,
+                food: m.food,
+                duration: m.duration,
+                quantity: m.quantity,
+                isPacked: m.isPacked,
+                batchId: m.batchId || null,
+                batchNumber: m.batchNumber || null,
+                batchExpiryDate: m.batchExpiryDate || null,
+                batchMrp: m.batchMrp ?? null,
+                batchPurchasePrice: m.batchPurchasePrice ?? null,
+                batchSellingPrice: m.batchSellingPrice ?? null,
+                batchGst: m.batchGst ?? null,
+                batchStock: m.batchStock ?? null,
+                batchSupplier: m.batchSupplier || null,
+                batchPacking: m.batchPacking ?? null,
+            })),
         };
         try {
             setUpdatingOrder(true);
@@ -233,9 +259,13 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                 return;
             }
             if (!allowNegativeStock) {
-                if (it.quantity > it.name.quantity) {
+                const available =
+                    it.batchStock != null && Number.isFinite(Number(it.batchStock))
+                        ? Number(it.batchStock)
+                        : Number(it.name?.quantity) || 0;
+                if (it.quantity > available) {
                     toast.error(
-                        `Requested quantity ${it.quantity} for ${it.name.name} is not available. Only ${it.name.quantity} are in stock.`
+                        `Requested quantity ${it.quantity} for ${it.name.name} is not available. Only ${available} are in the selected batch.`
                     );
                     return;
                 }
