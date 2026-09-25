@@ -101,8 +101,12 @@ export function orderLineUnitPrice(it: {
 }
 
 export function orderItemStock(it: {
+  batchStock?: number | null;
   name?: { quantity?: number | null } | null;
 }): number {
+  if (it.batchStock != null && Number.isFinite(Number(it.batchStock))) {
+    return Number(it.batchStock);
+  }
   return Number(it.name?.quantity) || 0;
 }
 

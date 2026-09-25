@@ -85,7 +85,17 @@ export default function UpdateMedicine({
       quantity: 0,
       frequency: "",
       food: "",
-      isPacked: false
+      isPacked: false,
+      batchId: null,
+      batchNumber: null,
+      batchExpiryDate: null,
+      batchMrp: null,
+      batchPurchasePrice: null,
+      batchSellingPrice: null,
+      batchGst: null,
+      batchStock: null,
+      batchSupplier: null,
+      batchPacking: null,
     });
 
 
