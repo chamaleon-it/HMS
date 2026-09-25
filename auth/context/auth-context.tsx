@@ -55,7 +55,8 @@ export function AuthProvider({
   const logout = useCallback(() => {
     setState({ user: null });
     tokenStore.clear();
-  }, []);
+    router.replace("/");
+  }, [router]);
 
   const getUser = useCallback(async () => {
     try {

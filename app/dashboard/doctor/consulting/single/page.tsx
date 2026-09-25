@@ -9,7 +9,6 @@ import { Suspense } from "react";
 import FollowUpTime from "./FollowUpTime";
 import History from "./History";
 import AllergyAlert from "./AllergyAlert";
-// import { ConfettiBurst } from "./ConfettiBurst";
 import Header from "./Header";
 import Advice from "./Advice";
 import ActionButton from "./ActionButton";

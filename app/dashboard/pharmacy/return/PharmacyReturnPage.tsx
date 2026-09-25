@@ -150,7 +150,7 @@ export default function PharmacyReturnPage() {
           name: it.name._id,
           quantity: it.return || 0,
           reason: it.reason,
-          unitPrice: it.unitPrice ?? it.name.unitPrice,
+          unitPrice: it.unitPrice ?? it.name.unitPrice ?? 0,
         })),
         billNo: order?.billNo,
       };
@@ -296,7 +296,7 @@ export default function PharmacyReturnPage() {
                       </TableCell>
 
                       <TableCell className="text-right tabular-nums font-semibold text-slate-900">
-                        {formatINR(((it.unitPrice ?? it.name.unitPrice) * (it.return ?? 0)))}
+                        {formatINR(((it.unitPrice ?? it.name.unitPrice ?? 0) * (it.return ?? 0)))}
                       </TableCell>
 
                       <TableCell className="text-right">
@@ -372,7 +372,7 @@ export default function PharmacyReturnPage() {
                 <span>
                   {formatINR(
                     order?.items.reduce(
-                      (a, b) => a + (b.unitPrice ?? b.name.unitPrice) * (b.return ?? 0),
+                      (a, b) => a + (b.unitPrice ?? b.name.unitPrice ?? 0) * (b.return ?? 0),
                       0
                     ) ?? 0
                   )}
