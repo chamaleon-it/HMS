@@ -356,6 +356,7 @@ export default function PrescriptionCard({
               <BatchSelect
                 itemId={m.name}
                 value={m.batchId}
+                batchNumber={m.batchNumber}
                 onSelect={(batch) => applyBatch(i, batch)}
               />
             </div>

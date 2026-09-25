@@ -209,6 +209,7 @@ export default function UpdatePrescriptionCard({
                     <BatchSelect
                       itemId={m.name?._id}
                       value={m.batchId}
+                      batchNumber={m.batchNumber}
                       onSelect={(batch) => applyBatch(i, batch)}
                       onStockCap={(maxQty) => {
                         setData((prev) => {
