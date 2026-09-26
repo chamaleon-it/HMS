@@ -28,8 +28,8 @@ import { useAuth } from "@/auth/context/auth-context";
 export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { item: ItemType, editItem: () => void, mutate: () => void, onClose: () => void }) {
   const { user } = useAuth();
   // Align with Admin-only item stock edits: Pharmacy may edit rates/expiry but not batch qty.
-  const canEditBatchStock =
-    user?.role === "Admin" || user?.role === "Super Admin";
+  // const canEditBatchStock =
+  //   user?.role === "Admin" || user?.role === "Super Admin";
 
   const [item, setItem] = useState<ItemType>(initialItem);
 
@@ -90,10 +90,10 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
         stripCount: editForm.stripCount,
         gst: editForm.gst,
       };
-      if (canEditBatchStock) {
-        payload.quantity = editForm.quantity;
-        payload.startingQuantity = editForm.startingQuantity;
-      }
+      // if (canEditBatchStock) {
+      payload.quantity = editForm.quantity;
+      payload.startingQuantity = editForm.startingQuantity;
+      // }
       const res = await api.put(
         `/pharmacy/items/${item._id}/batches/${encodeURIComponent(editingBatch.batchNumber)}`,
         payload,
@@ -122,7 +122,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
       );
       toast.success(
         res.data?.message ||
-          (next === "active" ? "Batch activated" : "Batch deactivated"),
+        (next === "active" ? "Batch activated" : "Batch deactivated"),
       );
       if (res.data?.data) setItem(res.data.data);
       mutate?.();
@@ -235,7 +235,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
 
   const salesStats = useMemo(() => {
     if (activeTab !== "Medicine History") return null;
-    
+
     let filtered = item?.soldHistory ? [...item.soldHistory] : [];
     if (dateRange?.from) {
       filtered = filtered.filter(h => {
@@ -603,159 +603,159 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
 
         <div className="bg-white/90 border rounded-2xl shadow-md shadow-slate-200">
           <div className="overflow-x-auto rounded-2xl">
-          <Table className="min-w-[980px]">
-            <TableHeader className="bg-slate-700 hover:bg-slate-700">
-              <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                {activeTab === "Batch History" ? (
-                  <>
-                    <TableHead className="w-[110px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4 whitespace-nowrap">Date Added</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Batch No</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Expiry</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Status</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Pack/Strip</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">MRP</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Purchase</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Unit Price</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">GST(%)</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Qty</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4 w-[120px] whitespace-nowrap">Action</TableHead>
-                  </>
-                ) : (
-                  <>
-                    <TableHead className="w-[200px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Sale Date</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Quantity Sold</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Unit Price</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Total</TableHead>
-                  </>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedData.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={activeTab === "Batch History" ? 11 : 4} className="text-center py-20 text-slate-400">
-                    <div className="flex flex-col items-center gap-2">
-                      {activeTab === "Batch History" ? <Barcode className="h-8 w-8 opacity-20" /> : <History className="h-8 w-8 opacity-20" />}
-                      <p className="font-bold uppercase tracking-widest text-[11px]">No {activeTab.toLowerCase()} found</p>
-                    </div>
-                  </TableCell>
+            <Table className="min-w-[980px]">
+              <TableHeader className="bg-slate-700 hover:bg-slate-700">
+                <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+                  {activeTab === "Batch History" ? (
+                    <>
+                      <TableHead className="w-[110px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4 whitespace-nowrap">Date Added</TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Batch No</TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Expiry</TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Status</TableHead>
+                      <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Pack/Strip</TableHead>
+                      <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">MRP</TableHead>
+                      <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Purchase</TableHead>
+                      <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Unit Price</TableHead>
+                      <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">GST(%)</TableHead>
+                      <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Qty</TableHead>
+                      <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4 w-[120px] whitespace-nowrap">Action</TableHead>
+                    </>
+                  ) : (
+                    <>
+                      <TableHead className="w-[200px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Sale Date</TableHead>
+                      <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Quantity Sold</TableHead>
+                      <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Unit Price</TableHead>
+                      <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Total</TableHead>
+                    </>
+                  )}
                 </TableRow>
-              ) : (
-                paginatedData.map((data: any, idx: number) => (
-                  <TableRow
-                    key={data._id || idx}
-                    className={
-                      idx % 2 === 0
-                        ? "bg-white hover:bg-white/60"
-                        : "bg-slate-100 hover:bg-slate-100/60"
-                    }
-                  >
-                    {activeTab === "Batch History" ? (
-                      <>
-                        <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700 whitespace-nowrap">{fDate(data.createdAt)}</TableCell>
-                        <TableCell className="py-3">
-                          <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-sm">
-                            {data.batchNumber}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-xs py-3 text-slate-600 font-medium whitespace-nowrap">{fDate(data.expiryDate)}</TableCell>
-                        <TableCell className="text-xs py-3">
-                          <Badge
-                            variant="secondary"
-                            className={
-                              String(data.status || "active").toLowerCase() === "inactive"
-                                ? "bg-slate-200 text-slate-600 border-none"
-                                : "bg-emerald-100 text-emerald-700 border-none"
-                            }
-                          >
-                            {String(data.status || "active")}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right text-xs py-3 text-slate-700 tabular-nums whitespace-nowrap">
-                          {data.packing ? `${data.packing}` : "-"}
-                          {data.stripCount ? ` / ${data.stripCount}` : ""}
-                        </TableCell>
-                        <TableCell className="text-right text-xs py-3 tabular-nums whitespace-nowrap">{formatINR(Number(data.mrp) || 0)}</TableCell>
-                        <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums whitespace-nowrap">{formatINR(batchPurchaseRate(data))}</TableCell>
-                        <TableCell className="text-right text-xs py-3 tabular-nums whitespace-nowrap">{formatINR(batchUnitPrice(data))}</TableCell>
-                        <TableCell className="text-right text-xs py-3 text-slate-700 tabular-nums whitespace-nowrap">
-                          {data.gst != null ? `${data.gst}%` : "0%"}
-                        </TableCell>
-                        <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums whitespace-nowrap">{data.quantity}</TableCell>
-                        <TableCell className="text-center py-3 pr-4">
-                          <div className="flex items-center justify-center gap-0.5">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-7 w-7 text-slate-600 hover:bg-slate-100 rounded-lg"
-                                  onClick={() => openEditBatch(data)}
-                                >
-                                  <Edit className="h-3.5 w-3.5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Edit batch</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className={cn(
-                                    "h-7 w-7 rounded-lg",
-                                    String(data.status || "active").toLowerCase() === "inactive"
-                                      ? "text-emerald-600 hover:bg-emerald-50"
-                                      : "text-amber-600 hover:bg-amber-50",
-                                  )}
-                                  disabled={togglingBatch === data.batchNumber}
-                                  onClick={() => handleToggleBatchStatus(data)}
-                                >
-                                  {togglingBatch === data.batchNumber ? (
-                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                  ) : (
-                                    <Power className="h-3.5 w-3.5" />
-                                  )}
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                {String(data.status || "active").toLowerCase() === "inactive"
-                                  ? "Activate"
-                                  : "Deactivate"}
-                              </TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                                  onClick={() => {
-                                    setSelectedBatchToDelete(data);
-                                    setDeductBatchStock(false);
-                                  }}
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Delete Batch</TooltipContent>
-                            </Tooltip>
-                          </div>
-                        </TableCell>
-                      </>
-                    ) : (
-                      <>
-                        <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(data.date)}</TableCell>
-                        <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{data.quantity}</TableCell>
-                        <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.unitPrice)}</TableCell>
-                        <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.total)}</TableCell>
-                      </>
-                    )}
+              </TableHeader>
+              <TableBody>
+                {paginatedData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={activeTab === "Batch History" ? 11 : 4} className="text-center py-20 text-slate-400">
+                      <div className="flex flex-col items-center gap-2">
+                        {activeTab === "Batch History" ? <Barcode className="h-8 w-8 opacity-20" /> : <History className="h-8 w-8 opacity-20" />}
+                        <p className="font-bold uppercase tracking-widest text-[11px]">No {activeTab.toLowerCase()} found</p>
+                      </div>
+                    </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  paginatedData.map((data: any, idx: number) => (
+                    <TableRow
+                      key={data._id || idx}
+                      className={
+                        idx % 2 === 0
+                          ? "bg-white hover:bg-white/60"
+                          : "bg-slate-100 hover:bg-slate-100/60"
+                      }
+                    >
+                      {activeTab === "Batch History" ? (
+                        <>
+                          <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700 whitespace-nowrap">{fDate(data.createdAt)}</TableCell>
+                          <TableCell className="py-3">
+                            <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-sm">
+                              {data.batchNumber}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-xs py-3 text-slate-600 font-medium whitespace-nowrap">{fDate(data.expiryDate)}</TableCell>
+                          <TableCell className="text-xs py-3">
+                            <Badge
+                              variant="secondary"
+                              className={
+                                String(data.status || "active").toLowerCase() === "inactive"
+                                  ? "bg-slate-200 text-slate-600 border-none"
+                                  : "bg-emerald-100 text-emerald-700 border-none"
+                              }
+                            >
+                              {String(data.status || "active")}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right text-xs py-3 text-slate-700 tabular-nums whitespace-nowrap">
+                            {data.packing ? `${data.packing}` : "-"}
+                            {data.stripCount ? ` / ${data.stripCount}` : ""}
+                          </TableCell>
+                          <TableCell className="text-right text-xs py-3 tabular-nums whitespace-nowrap">{formatINR(Number(data.mrp) || 0)}</TableCell>
+                          <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums whitespace-nowrap">{formatINR(batchPurchaseRate(data))}</TableCell>
+                          <TableCell className="text-right text-xs py-3 tabular-nums whitespace-nowrap">{formatINR(batchUnitPrice(data))}</TableCell>
+                          <TableCell className="text-right text-xs py-3 text-slate-700 tabular-nums whitespace-nowrap">
+                            {data.gst != null ? `${data.gst}%` : "0%"}
+                          </TableCell>
+                          <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums whitespace-nowrap">{data.quantity}</TableCell>
+                          <TableCell className="text-center py-3 pr-4">
+                            <div className="flex items-center justify-center gap-0.5">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-7 w-7 text-slate-600 hover:bg-slate-100 rounded-lg"
+                                    onClick={() => openEditBatch(data)}
+                                  >
+                                    <Edit className="h-3.5 w-3.5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Edit batch</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className={cn(
+                                      "h-7 w-7 rounded-lg",
+                                      String(data.status || "active").toLowerCase() === "inactive"
+                                        ? "text-emerald-600 hover:bg-emerald-50"
+                                        : "text-amber-600 hover:bg-amber-50",
+                                    )}
+                                    disabled={togglingBatch === data.batchNumber}
+                                    onClick={() => handleToggleBatchStatus(data)}
+                                  >
+                                    {togglingBatch === data.batchNumber ? (
+                                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                    ) : (
+                                      <Power className="h-3.5 w-3.5" />
+                                    )}
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {String(data.status || "active").toLowerCase() === "inactive"
+                                    ? "Activate"
+                                    : "Deactivate"}
+                                </TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                    onClick={() => {
+                                      setSelectedBatchToDelete(data);
+                                      setDeductBatchStock(false);
+                                    }}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Delete Batch</TooltipContent>
+                              </Tooltip>
+                            </div>
+                          </TableCell>
+                        </>
+                      ) : (
+                        <>
+                          <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(data.date)}</TableCell>
+                          <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{data.quantity}</TableCell>
+                          <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.unitPrice)}</TableCell>
+                          <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.total)}</TableCell>
+                        </>
+                      )}
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           </div>
         </div>
         <div className="px-4">
@@ -799,9 +799,13 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               <Input
                 type="number"
                 step="0.01"
-                value={editForm.mrp}
+                value={editForm.mrp || ""}
                 onChange={(e) =>
-                  setEditForm((f) => ({ ...f, mrp: Number(e.target.value) || 0 }))
+                  setEditForm((f) => ({
+                    ...f,
+                    mrp: Number(e.target.value) || 0,
+                    unitPrice: Number(((Number(e.target.value) || 0) / (Number(f.packing) || 1)).toFixed(2)),
+                  }))
                 }
               />
             </div>
@@ -810,7 +814,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               <Input
                 type="number"
                 step="0.01"
-                value={editForm.purchaseRate}
+                value={editForm.purchaseRate || ""}
                 onChange={(e) =>
                   setEditForm((f) => ({
                     ...f,
@@ -824,7 +828,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               <Input
                 type="number"
                 step="0.01"
-                value={editForm.unitPrice}
+                value={editForm.unitPrice || ""}
                 onChange={(e) =>
                   setEditForm((f) => ({
                     ...f,
@@ -848,11 +852,13 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               <label className="text-xs text-slate-500">Packing</label>
               <Input
                 type="number"
-                value={editForm.packing}
+                value={editForm.packing || ""}
                 onChange={(e) =>
                   setEditForm((f) => ({
                     ...f,
                     packing: Number(e.target.value) || 0,
+                    quantity: Number(e.target.value) * Number(f.stripCount),
+                    unitPrice: Number(((Number(f.mrp) || 0) / (Number(e.target.value) || 1)).toFixed(2)),
                   }))
                 }
               />
@@ -861,11 +867,12 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               <label className="text-xs text-slate-500">Strip count</label>
               <Input
                 type="number"
-                value={editForm.stripCount}
+                value={editForm.stripCount || ""}
                 onChange={(e) =>
                   setEditForm((f) => ({
                     ...f,
                     stripCount: Number(e.target.value) || 0,
+                    quantity: Number(f.packing) * Number(e.target.value),
                   }))
                 }
               />
@@ -874,8 +881,8 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               <label className="text-xs text-slate-500">Quantity</label>
               <Input
                 type="number"
-                value={editForm.quantity}
-                disabled={!canEditBatchStock}
+                value={editForm.quantity || ""}
+                // disabled={!canEditBatchStock}
                 onChange={(e) =>
                   setEditForm((f) => ({
                     ...f,
@@ -883,18 +890,18 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                   }))
                 }
               />
-              {!canEditBatchStock && (
+              {/* {!canEditBatchStock && (
                 <p className="text-[10px] text-amber-700 mt-1">
                   Stock quantity is Admin-only. Use Purchase Entry to add stock.
                 </p>
-              )}
+              )} */}
             </div>
             <div>
               <label className="text-xs text-slate-500">Starting qty</label>
               <Input
                 type="number"
-                value={editForm.startingQuantity}
-                disabled={!canEditBatchStock}
+                value={editForm.startingQuantity || ""}
+                // disabled={!canEditBatchStock}
                 onChange={(e) =>
                   setEditForm((f) => ({
                     ...f,
