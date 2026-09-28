@@ -1,6 +1,7 @@
 import { useAuth } from "@/auth/context/auth-context";
 import { fAge, fAgeString } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
+import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import { ChevronRight, MapPin, Phone, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -261,10 +262,10 @@ export const PatientCard: React.FC<{
           </div>
 
           {/* Address */}
-          {p.address ? (
+          {formatPatientAddress(p) ? (
             <div className="mt-2 flex items-start gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
               <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <p className="line-clamp-1"><HighlightText text={p.address} highlight={searchQuery} /></p>
+              <p className="line-clamp-1"><HighlightText text={formatPatientAddress(p)} highlight={searchQuery} /></p>
             </div>
           ) : null}
         </div>

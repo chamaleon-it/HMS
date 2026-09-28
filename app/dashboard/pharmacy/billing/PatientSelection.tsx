@@ -11,6 +11,7 @@ import useSWR from "swr";
 import { Input } from "@/components/ui/input";
 import { fAge, fAgeString } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
+import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import { ChevronRight, MapPin, Phone, X } from "lucide-react";
 
 type Patient = {
@@ -420,10 +421,10 @@ const PatientCard: React.FC<{
             </div>
           </div>
 
-          {p.address ? (
+          {formatPatientAddress(p) ? (
             <div className="mt-2 flex items-start gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
               <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <p className="line-clamp-1">{p.address}</p>
+              <p className="line-clamp-1">{formatPatientAddress(p)}</p>
             </div>
           ) : null}
         </div>

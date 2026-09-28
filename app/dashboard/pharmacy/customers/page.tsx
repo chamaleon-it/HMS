@@ -13,6 +13,7 @@ import {
 import AppShell from "@/components/layout/app-shell";
 import { fAge, fDate, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
+import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import Filter, { FilterType } from "./Filter";
@@ -198,7 +199,7 @@ const Customers: React.FC = () => {
                                 )}
                                 <span className="text-[12px] text-slate-500 truncate max-w-55">
                                   <HighlightText
-                                    text={p.patient.address}
+                                    text={formatPatientAddress(p.patient)}
                                     highlight={filter.query || ""}
                                   />
                                 </span>

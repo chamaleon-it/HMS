@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import { fDate, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
+import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import {
   ArrowLeft, User, Stethoscope, FlaskConical, Pill, Receipt,
   Calendar, Phone, MapPin, Droplets, AlertTriangle, Clock,
@@ -179,7 +180,7 @@ export default function AdminIPSingleClient() {
                 {patient?.dateOfBirth && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Age {fAgeString(patient.dateOfBirth)}</span>}
                 {patient?.phoneNumber && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" />{patient.phoneNumber}</span>}
                 {patient?.blood && <span className="flex items-center gap-1"><Droplets className="w-3.5 h-3.5 text-rose-500" />{patient.blood}</span>}
-                {patient?.address && <span className="flex items-center gap-1 max-w-xs truncate"><MapPin className="w-3.5 h-3.5 shrink-0" />{patient.address}</span>}
+                {formatPatientAddress(patient) && <span className="flex items-center gap-1 max-w-xs truncate"><MapPin className="w-3.5 h-3.5 shrink-0" />{formatPatientAddress(patient)}</span>}
               </div>
               {patient?.conditions?.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-3">

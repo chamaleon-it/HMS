@@ -1,4 +1,5 @@
 import { fAge, fAgeString } from "@/lib/fDateAndTime";
+import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import { MapPin, MousePointerClick, Phone, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -10,7 +11,14 @@ interface ExistingPatientCardProps {
         email: string;
         gender: "Male" | "Female" | "Other";
         dateOfBirth: Date;
-        address: string;
+        address?: string;
+        addressLine1?: string;
+        addressLine2?: string;
+        city?: string;
+        district?: string;
+        state?: string;
+        pinCode?: string;
+        country?: string;
         mrn: string;
         blood: string;
     };
@@ -86,7 +94,7 @@ export default function ExistingPatientCard({
                 <div className="flex items-center gap-1.5 text-slate-500">
                     <MapPin className="h-3 w-3" />
                     <span className="text-xs truncate max-w-50">
-                        {patient.address || "No address provided"}
+                        {formatPatientAddress(patient) || "No address provided"}
                     </span>
                 </div>
                 <MousePointerClick className="h-4 w-4 text-slate-400 group-hover:text-(--color-synapse-light) transition-colors" />

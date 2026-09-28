@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { numberToWords } from "@/lib/fNumber";
+import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import configuration from "@/config/configuration";
 import { format, addDays } from "date-fns";
 
@@ -15,6 +16,13 @@ interface Props {
       dateOfBirth?: string | Date;
       gender?: string;
       address?: string;
+      addressLine1?: string;
+      addressLine2?: string;
+      city?: string;
+      district?: string;
+      state?: string;
+      pinCode?: string;
+      country?: string;
     };
     doctor: any;
     date: string | Date;
@@ -55,7 +63,7 @@ export default function PatientRegistrationBillPrint({ data, preview = false }: 
   }
 
   const patientName = (data.patient?.name || "PATIENT").toUpperCase();
-  const patientAddress = (data.patient?.address || "").toUpperCase();
+  const patientAddress = formatPatientAddress(data.patient).toUpperCase();
   const patientPhone = data.patient?.phoneNumber || "";
 
   let ageStr = "—";
