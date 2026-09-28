@@ -1,107 +1,105 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
-  AlertTriangle,
-  Bed,
   CalendarDays,
-  CheckCircle2,
-  Clock,
-  FlaskConical,
+  CalendarRange,
+  UserPlus,
+  Users,
+  UserRound,
+  CalendarCheck,
 } from "lucide-react";
 import React from "react";
 import useSWR from "swr";
 import { motion } from "framer-motion";
 
 const STAT_CONFIG = {
-  today: {
-    label: "Today",
-    icon: CalendarDays,
+  todayNewPatient: {
+    label: "Today new patient",
+    icon: UserPlus,
     color: "from-(--color-synapse-light)/10 to-blue-500/5",
     iconColor: "text-(--color-synapse-light)",
     iconBg: "bg-blue-100",
     border: "hover:border-blue-200",
   },
-  upcoming: {
-    label: "Upcoming",
-    icon: Clock,
+  todayAppointment: {
+    label: "Today appointment",
+    icon: CalendarDays,
     color: "from-(--color-synapse-light)/10 to-(--color-synapse-purple)/5",
     iconColor: "text-(--color-synapse-light)",
     iconBg: "bg-synapse-light/20",
     border: "hover:border-synapse-light/30",
   },
-  consulted: {
-    label: "Consulted",
-    icon: CheckCircle2,
+  weekNewPatient: {
+    label: "This week new patient",
+    icon: UserRound,
     color: "from-emerald-500/10 to-emerald-500/5",
     iconColor: "text-emerald-600",
     iconBg: "bg-emerald-100",
     border: "hover:border-emerald-200",
   },
-  observation: {
-    label: "Observation",
-    icon: Clock,
+  weekAppointment: {
+    label: "This week appointment",
+    icon: CalendarRange,
     color: "from-amber-500/10 to-amber-500/5",
     iconColor: "text-amber-600",
     iconBg: "bg-amber-100",
     border: "hover:border-amber-200",
   },
-  test: {
-    label: "Send to test",
-    icon: FlaskConical,
-    color: "from-(--color-synapse-light)/10 to-(--color-synapse-purple)/5",
-    iconColor: "text-(--color-synapse-light)",
-    iconBg: "bg-[#FDF6ED]",
-    border: "hover:border-synapse-light/30",
-  },
-  admit: {
-    label: "Admit",
-    icon: Bed,
+  totalPatient: {
+    label: "Total patient",
+    icon: Users,
     color: "from-cyan-500/10 to-cyan-500/5",
     iconColor: "text-cyan-600",
     iconBg: "bg-cyan-100",
     border: "hover:border-cyan-200",
   },
-  notShow: {
-    label: "No Show",
-    icon: AlertTriangle,
-    color: "from-rose-500/10 to-rose-500/5",
-    iconColor: "text-rose-600",
-    iconBg: "bg-rose-100",
-    border: "hover:border-rose-200",
+  totalAppointment: {
+    label: "Total appointment",
+    icon: CalendarCheck,
+    color: "from-(--color-synapse-light)/10 to-(--color-synapse-purple)/5",
+    iconColor: "text-(--color-synapse-light)",
+    iconBg: "bg-[#FDF6ED]",
+    border: "hover:border-synapse-light/30",
   },
-};
+} as const;
+
+type StatKey = keyof typeof STAT_CONFIG;
 
 export default function Statistics() {
-  const { data: response } = useSWR<{
+  const { data: appointmentResponse } = useSWR<{
     message: string;
     data: {
       today: number;
-      upcoming: number;
-      consulted: number;
-      observation: number;
-      completed: number;
-      test: number;
-      admit: number;
-      notShow: number;
+      thisWeek: number;
+      total: number;
     };
   }>("/appointments/statistics");
 
-  const stats = response?.data;
+  const { data: patientsResponse } = useSWR<{
+    message: string;
+    data: {
+      today: number;
+      thisWeek: number;
+      total: number;
+    };
+  }>("/patients/statistics");
 
-  const statItems = [
-    { key: "today", value: stats?.today },
-    { key: "upcoming", value: stats?.upcoming },
-    { key: "consulted", value: stats?.consulted },
-    { key: "observation", value: stats?.observation },
-    { key: "test", value: stats?.test },
-    { key: "admit", value: stats?.admit },
-    { key: "notShow", value: stats?.notShow },
+  const appointments = appointmentResponse?.data;
+  const patients = patientsResponse?.data;
+
+  const statItems: { key: StatKey; value: number | undefined }[] = [
+    { key: "todayNewPatient", value: patients?.today },
+    { key: "todayAppointment", value: appointments?.today },
+    { key: "weekNewPatient", value: patients?.thisWeek },
+    { key: "weekAppointment", value: appointments?.thisWeek },
+    { key: "totalPatient", value: patients?.total },
+    { key: "totalAppointment", value: appointments?.total },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 mb-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
       {statItems.map((item, idx) => {
-        const config = STAT_CONFIG[item.key as keyof typeof STAT_CONFIG];
+        const config = STAT_CONFIG[item.key];
         return (
           <StatTile
             key={item.key}
@@ -118,9 +116,6 @@ export default function Statistics() {
     </div>
   );
 }
-
-
-
 
 function StatTile({
   title,
