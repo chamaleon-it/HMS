@@ -24,6 +24,7 @@ import { UseFormSetValue } from "react-hook-form";
 import useSWR from "swr";
 
 import api from "@/lib/axios";
+import { formatPatientAddress } from "@/lib/formatPatientAddress";
 
 type Patient = {
   _id: string;
@@ -444,11 +445,11 @@ const PatientCard: React.FC<{
           </div>
 
           {/* Address */}
-          {p.address ? (
+          {formatPatientAddress(p) ? (
             <div className="mt-2 flex items-start gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
               <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               <p className="line-clamp-1">
-                <HighlightText text={p.address} highlight={searchQuery} />
+                <HighlightText text={formatPatientAddress(p)} highlight={searchQuery} />
               </p>
             </div>
           ) : null}

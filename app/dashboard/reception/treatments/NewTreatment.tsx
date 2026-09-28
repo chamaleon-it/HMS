@@ -59,6 +59,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { formatPatientAddress } from "@/lib/formatPatientAddress";
 
 interface Props {
   open: boolean;
@@ -407,18 +408,12 @@ export default function NewTreatment({
                       </CommandEmpty>
                       <CommandGroup>
                         {(patientsData?.data || []).map((p) => {
-                          const addressSnippet = [
-                            p.addressLine1 || p.address,
-                            p.city,
-                            p.district,
-                          ]
-                            .filter(Boolean)
-                            .join(", ");
+                          const addressSnippet = formatPatientAddress(p);
 
                           return (
                             <CommandItem
                               key={p._id}
-                              value={`${p.name} ${p.mrn} ${p.phoneNumber || ""} ${p.address || ""} ${p.city || ""}`}
+                              value={`${p.name} ${p.mrn} ${p.phoneNumber || ""} ${formatPatientAddress(p)}`}
                               onSelect={() => {
                                 setPatientId(p._id);
                                 setPatientOpen(false);

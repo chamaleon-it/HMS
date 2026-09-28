@@ -4,6 +4,7 @@ import { formatINR } from "@/lib/fNumber";
 import React from "react";
 import { OrderType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
+import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import { User, Stethoscope, CreditCard, ReceiptIndianRupee, Download } from "lucide-react";
 import useSWR from "swr";
 
@@ -149,7 +150,7 @@ export default function Search({
                       </div>
                       {item.patient?.address && (
                         <div className="text-[10px] text-slate-500 truncate italic max-w-50">
-                          {item.patient.address}
+                          {formatPatientAddress(item.patient)}
                         </div>
                       )}
                     </div>

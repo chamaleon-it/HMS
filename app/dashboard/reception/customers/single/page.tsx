@@ -34,6 +34,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Printer, Wallet2, CheckCircle2 } from "lucide-react";
 import { fDateandTime } from "@/lib/fDateAndTime";
+import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -459,7 +460,7 @@ const CustomerPageContent: React.FC = () => {
                                                 {customer?.patient?.phoneNumber}
                                             </p>
                                             <p className="text-sm text-slate-500 mt-0.5">
-                                                {customer?.patient?.address}
+                                                {formatPatientAddress(customer?.patient)}
                                             </p>
                                             {customer?.patient?.allergies && (
                                                 <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 shadow-sm max-w-fit">

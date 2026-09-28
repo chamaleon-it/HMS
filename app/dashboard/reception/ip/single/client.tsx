@@ -6,6 +6,7 @@ import useSWR from "swr";
 import { fDate, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import api from "@/lib/axios";
+import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import toast from "react-hot-toast";
 import {
   ArrowLeft, User, Stethoscope, FlaskConical, Pill,
@@ -373,9 +374,9 @@ export default function IPDetailsClient() {
                     <Droplets className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />{patient.blood}
                   </span>
                 )}
-                {patient?.address && (
+                {formatPatientAddress(patient) && (
                   <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-100 font-medium max-w-xs truncate">
-                    <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0" />{patient.address}
+                    <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0" />{formatPatientAddress(patient)}
                   </span>
                 )}
               </div>

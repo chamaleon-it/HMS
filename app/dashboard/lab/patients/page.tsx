@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import AppShell from "@/components/layout/app-shell";
 import { fAge, fDate, fAgeString } from "@/lib/fDateAndTime";
+import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
@@ -170,7 +171,7 @@ const Patients: React.FC = () => {
                                                                 <HighlightText text={p.name} highlight={filter.query || ""} />
                                                             </span>
                                                             <span className="text-[12px] text-slate-500 truncate max-w-65">
-                                                                <HighlightText text={p.address} highlight={filter.query || ""} />
+                                                                <HighlightText text={formatPatientAddress(p)} highlight={filter.query || ""} />
                                                             </span>
                                                             <div className="flex flex-wrap gap-1 mt-0.5">
                                                                 {!hasHistory && (

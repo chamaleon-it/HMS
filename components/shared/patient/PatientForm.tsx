@@ -118,9 +118,6 @@ export function PatientForm({
 
   const createEditPatient = handleSubmit(async (data) => {
     try {
-      const addressParts = [data.addressLine1, data.addressLine2, data.city, data.district, data.state, data.pinCode, data.country].filter(Boolean);
-      data.address = addressParts.join(', ');
-
       if (!data.doctor || data.doctor === "none") {
         delete data.doctor;
       }
