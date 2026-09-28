@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Bell, Plus, Menu, CloudUpload, Link2 } from "lucide-react";
+import { Bell, Plus, Menu, CloudUpload, Link2, CheckCircle2 } from "lucide-react";
 import DoctorProfile from "./Profile";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -25,6 +25,13 @@ export default function Header() {
 
   const { user } = useAuth();
   const pathname = usePathname();
+  const { data: tallyStatus, mutate: refreshTallyStatus } = useSWR<{
+    data: { connected?: boolean; host?: string; port?: number };
+  }>(user?.role === "Pharmacy" || user?.role === "Admin" ? "/tally/status" : null, {
+    refreshInterval: 60_000,
+    revalidateOnFocus: true,
+  });
+  const tallyConnected = !!tallyStatus?.data?.connected;
 
 
 
@@ -232,11 +239,27 @@ export default function Header() {
             )}
             {user?.role === "Pharmacy" && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-(--color-synapse-light) px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
+                className={`hidden sm:inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105 ${
+                  tallyConnected
+                    ? "bg-emerald-600 hover:bg-emerald-700"
+                    : "bg-(--color-synapse-light)"
+                }`}
                 onClick={() => setOpenTally(true)}
-                title="Connect Tally"
+                title={
+                  tallyConnected
+                    ? `Tally connected (${tallyStatus?.data?.host}:${tallyStatus?.data?.port})`
+                    : "Connect Tally"
+                }
               >
-                <Link2 className="h-4 w-4" /> Connect Tally
+                {tallyConnected ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" /> Tally Connected
+                  </>
+                ) : (
+                  <>
+                    <Link2 className="h-4 w-4" /> Connect Tally
+                  </>
+                )}
               </button>
             )}
             {user?.role === "Lab" && (
@@ -280,6 +303,9 @@ export default function Header() {
       <TallyDialog
         open={openTally}
         onOpenChange={(v) => !v && setOpenTally(false)}
+        onStatusChange={() => {
+          void refreshTallyStatus();
+        }}
       />
       {(user?.role === "Doctor" || user?.role === "Lab" || user?.role === "Pharmacy" || user?.role === "Reception") && (
         <div className="w-full overflow-hidden">
