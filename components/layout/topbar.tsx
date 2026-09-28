@@ -36,6 +36,8 @@ export default function Header() {
       { key: "patients", label: "Patients", link: "/dashboard/doctor/patients/" },
       { key: "ip", label: "IP (In Patient)", link: "/dashboard/doctor/ip/" },
       { key: "lab-results", label: "Investigations", link: "/dashboard/doctor/lab-report/" },
+      { key: "therapy", label: "Therapy", link: "/dashboard/doctor/therapy/" },
+      { key: "procedure", label: "Procedure", link: "/dashboard/doctor/procedure/" },
       {
         key: "employees",
         label: "Employees",
@@ -65,8 +67,6 @@ export default function Header() {
       { key: "doctors", label: "Doctors", link: "/dashboard/reception/doctors/" },
       { key: "treatments", label: "Treatments", link: "/dashboard/reception/treatments/" },
       { key: "leaves", label: "Leaves", link: "/dashboard/reception/leaves/" },
-      { key: "therapy", label: "Therapy", link: "/dashboard/reception/therapy/" },
-      { key: "procedure", label: "Procedure", link: "/dashboard/reception/procedure/" },
       { key: "customers", label: "Customer", link: "/dashboard/reception/customers/" },
       { key: "ip", label: "IP", link: "/dashboard/reception/ip/" },
       { key: "billing", label: "Billing", link: "/dashboard/reception/billing/" },
