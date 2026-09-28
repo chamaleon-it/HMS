@@ -19,7 +19,10 @@ export const signupSchema = z
       .trim()
       .toLowerCase()
       .email("Enter a valid email address"),
-      role:z.string().min(1,"Select you role."),
+    role: z.enum(
+      ["Doctor", "Pharmacy", "Pharmacy Wholesaler", "Lab", "Reception"],
+      { message: "Select a valid account type." },
+    ),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")

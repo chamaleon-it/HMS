@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { sanitizeLabHtml } from "@/lib/sanitize-lab-html";
 import {
   FlaskConical,
   Pill,
@@ -288,14 +289,14 @@ export const LabReportDetailModal: React.FC<LabReportDetailModalProps> = ({
                         </td>
                         <td className="p-3 text-gray-500">
                           {t.unit ? (
-                            <span dangerouslySetInnerHTML={{ __html: t.unit }} />
+                            <span dangerouslySetInnerHTML={{ __html: sanitizeLabHtml(t.unit) }} />
                           ) : (
                             "-"
                           )}
                         </td>
                         <td className="p-3 text-gray-500">
                           {t.referenceRange ? (
-                            <span dangerouslySetInnerHTML={{ __html: t.referenceRange }} />
+                            <span dangerouslySetInnerHTML={{ __html: sanitizeLabHtml(t.referenceRange) }} />
                           ) : (
                             "-"
                           )}

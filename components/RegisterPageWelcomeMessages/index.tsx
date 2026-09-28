@@ -26,7 +26,7 @@ export default function RegisterPageWelcomeMessages() {
                   className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-slate-100 text-sm"
                 >
                   <Icon className="h-5 w-5 text-white" />
-                  <span dangerouslySetInnerHTML={{ __html: label }} />
+                  <span>{label}</span>
                 </div>
               ))}
             </div>
@@ -82,7 +82,7 @@ const quotes = [
 const USPs = [
   { label: "256-bit SSL", icon: Lock },
   { label: "HIPAA-ready", icon: Shield },
-  { label: "HL7&reg; FHIR", icon: Shield },
+  { label: "HL7® FHIR", icon: Shield },
   { label: "ISO 27001", icon: Shield },
   { label: "ABDM-ready", icon: Shield },
   { label: "Proudly made in India", icon: IndiaFlagIcon },

@@ -4,6 +4,7 @@ import { fDateOnly, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import configuration from "@/config/configuration";
 import useSWR from "swr";
 import { PrintHeader, PrintFooter, PrintPatientStrip, PrintWatermark } from "@/components/print/PrintHeader";
+import { sanitizeLabHtml } from "@/lib/sanitize-lab-html";
 
 interface ReportCardProps {
     report: any | null;
@@ -572,7 +573,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                                 <td className="py-1.5 px-2 text-[14px] text-slate-800 align-top text-left">
                                                                                     <div className="flex justify-start gap-1">
                                                                                         <span className={isAbnormal ? "font-bold text-black" : "font-bold"}>{row.value || " "}</span>
-                                                                                        {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? <span className="text-black font-bold" dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
+                                                                                        {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? <span className="text-black font-bold" dangerouslySetInnerHTML={{ __html: sanitizeLabHtml(row.name.unit) }} /> : ""}
                                                                                     </div>
                                                                                 </td>
                                                                                 <td className="py-1.5 px-2 pl-8 text-[14px] text-slate-800 align-top font-normal">
@@ -597,7 +598,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                                             return (
                                                                                                 <div key={idx}>
                                                                                                     {r.name && r.name.toLowerCase() !== "normal" ? <span className="pr-1">{r.name}:</span> : ""}
-                                                                                                    {rangeDisplay} <span className="text-[12px]" dangerouslySetInnerHTML={{ __html: row.name?.unit || "" }} />
+                                                                                                    {rangeDisplay} <span className="text-[12px]" dangerouslySetInnerHTML={{ __html: sanitizeLabHtml(row.name?.unit || "") }} />
                                                                                                 </div>
                                                                                             );
                                                                                         })
