@@ -290,19 +290,28 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 transportCharge: Number(billDetails.transportCharges) || 0,
                 paidAmount: Number(billDetails.paidAmount) || 0,
                 description: billDetails.description,
-                items: validItems.map(item => ({
-                    item: item._id,
-                    batch: item.batch,
-                    quantity: item.qty,
-                    pack: item.pack,
-                    noOfPack: item.noOfPack,
-                    unitPrice: item.unitPrice,
-                    expiryDate: item.expiryDate,
-                    free: item.schema_free,
-                    purchasePrice: item.purchasePrice,
-                    gst: (item.qty * item.purchasePrice - item.dis) * ((item.gst_p ?? (item.sgst_p + item.cgst_p)) / 100),
-                    discount: item.dis,
-                })),
+                items: validItems.map(item => {
+                    const gstPct =
+                        Number(
+                            item.gst_p ??
+                                (Number(item.sgst_p) || 0) + (Number(item.cgst_p) || 0)
+                        ) || 0;
+                    return {
+                        item: item._id,
+                        batch: item.batch,
+                        // Paid pack count (form "Qty") — not total units
+                        quantity: Number(item.noOfPack) || 0,
+                        pack: item.pack,
+                        noOfPack: item.noOfPack,
+                        unitPrice: item.unitPrice,
+                        expiryDate: item.expiryDate,
+                        free: item.schema_free,
+                        purchasePrice: item.purchasePrice,
+                        // GST rate %, matching item master / form gst_p
+                        gst: gstPct,
+                        discount: item.dis,
+                    };
+                }),
                 subTotal: totals.gross,
                 total: totals.total,
                 grossAmount: totals.gross,

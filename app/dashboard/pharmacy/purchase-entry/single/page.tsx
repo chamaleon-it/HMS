@@ -497,11 +497,17 @@ export default function SinglePurchaseEntryPage() {
                                 </TableHeader>
                                 <TableBody>
                                     {entry.items?.map((row, idx) => {
-                                        const qty = row.quantity || 0;
-                                        const pPrice = row.purchasePrice || 0;
-                                        const disc = row.discount || 0;
-                                        const gstVal = row.gst || 0;
-                                        const rowTotal = Math.max(0, qty * pPrice - disc + gstVal);
+                                        // quantity = paid packs (form Qty); gst = rate %
+                                        const qty =
+                                            row.noOfPack != null && row.noOfPack !== undefined
+                                                ? Number(row.noOfPack) || 0
+                                                : Number(row.quantity) || 0;
+                                        const pPrice = Number(row.purchasePrice) || 0;
+                                        const disc = Number(row.discount) || 0;
+                                        const gstPct = Number(row.gst) || 0;
+                                        const taxable = Math.max(0, qty * pPrice - disc);
+                                        const gstAmt = taxable * (gstPct / 100);
+                                        const rowTotal = taxable + gstAmt;
 
                                         return (
                                             <TableRow key={row._id || idx} className="hover:bg-slate-50/50">
@@ -530,7 +536,7 @@ export default function SinglePurchaseEntryPage() {
                                                     {row.pack || 1}
                                                 </TableCell>
                                                 <TableCell className="text-center text-xs font-bold text-slate-800">
-                                                    {row.quantity}
+                                                    {qty}
                                                 </TableCell>
                                                 <TableCell className="text-center text-xs text-slate-500">
                                                     {row.free || 0}
@@ -542,10 +548,10 @@ export default function SinglePurchaseEntryPage() {
                                                     {formatINR(row.purchasePrice || 0)}
                                                 </TableCell>
                                                 <TableCell className="text-center text-xs font-medium text-slate-600">
-                                                    {row.gst ? `${row.gst}%` : "0%"}
+                                                    {gstPct ? `${gstPct}%` : "0%"}
                                                 </TableCell>
                                                 <TableCell className="text-right text-xs text-slate-600 tabular-nums">
-                                                    {row.discount > 0 ? formatINR(row.discount) : "—"}
+                                                    {disc > 0 ? formatINR(disc) : "—"}
                                                 </TableCell>
                                                 <TableCell className="text-right font-bold text-slate-900 text-sm tabular-nums pr-4">
                                                     {formatINR(rowTotal)}

@@ -38,11 +38,14 @@ export interface SupplierOrderItem {
     };
     batch: string;
     expiryDate: string;
+    /** Paid pack count (form Qty). */
     quantity: number;
     pack: number;
+    noOfPack?: number;
     free: number;
     unitPrice: number;
     purchasePrice: number;
+    /** GST rate percent. */
     gst: number;
     discount: number;
 }
