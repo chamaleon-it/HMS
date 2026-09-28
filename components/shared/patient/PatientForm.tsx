@@ -24,7 +24,7 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import Address from "./Address";
 import { useAuth } from "@/auth/context/auth-context";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 
 export function PatientForm({
   onClose,
@@ -39,6 +39,7 @@ export function PatientForm({
     data: { _id: string; name: string }[];
     message: string;
   }>("/users/doctors");
+  const { mutate: globalMutate } = useSWRConfig();
 
   const { user } = useAuth();
   const {
@@ -153,6 +154,8 @@ export function PatientForm({
       reset();
       const docId = res.data.data.doctor?._id || res.data.data.doctor;
       onClose(res.data.data._id, res.data.data.name, undefined, res.data.data.mrn, docId);
+      // Refresh reception/doctor volume cards without a full page reload
+      await globalMutate("/patients/statistics", undefined, { revalidate: true });
       if (mutate) {
         mutate();
       }
