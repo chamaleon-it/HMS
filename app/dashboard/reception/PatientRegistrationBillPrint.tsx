@@ -101,29 +101,28 @@ export default function PatientRegistrationBillPrint({ data, preview = false }: 
       <style
         dangerouslySetInnerHTML={{
           __html: `
-            /* Thermal receipt (58–80mm): system fonts print darker than web variable fonts */
+            /* Thermal receipt (58–80mm): full roll width, equal side margins */
             .registration-bill-print {
               --rb-ink: #000000;
               --rb-paper: #ffffff;
-              --rb-width: 70mm;
-              --rb-pad-x: 3mm;
-              --rb-pad-y: 3mm;
-              --rb-base: 11px;
-              --rb-small: 10px;
-              --rb-title: 13px;
-              --rb-name: 12px;
-              --rb-amount: 13px;
-              --rb-label-w: 22mm;
+              --rb-pad-x: 3.5mm;
+              --rb-pad-y: 2.5mm;
+              --rb-base: 11.5px;
+              --rb-small: 10.5px;
+              --rb-title: 13.5px;
+              --rb-name: 12.5px;
+              --rb-amount: 13.5px;
+              --rb-label-w: 20mm;
               box-sizing: border-box;
-              width: var(--rb-width);
-              max-width: 100%;
+              width: 100%;
+              max-width: 80mm;
               margin: 0 auto;
               padding: var(--rb-pad-y) var(--rb-pad-x);
               background: var(--rb-paper);
               color: var(--rb-ink);
               font-family: Arial, Helvetica, "DejaVu Sans", sans-serif;
               font-size: var(--rb-base);
-              font-weight: 600;
+              font-weight: 700;
               line-height: 1.35;
               letter-spacing: 0;
               overflow-wrap: anywhere;
@@ -152,7 +151,7 @@ export default function PatientRegistrationBillPrint({ data, preview = false }: 
             .registration-bill-print .rb-meta {
               margin: 1px 0 0;
               font-size: var(--rb-small);
-              font-weight: 600;
+              font-weight: 700;
               line-height: 1.25;
               text-transform: uppercase;
             }
@@ -303,7 +302,7 @@ export default function PatientRegistrationBillPrint({ data, preview = false }: 
                 background: #ffffff !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                width: 80mm !important;
+                width: 100% !important;
                 max-width: 80mm !important;
                 height: auto !important;
                 min-height: 0 !important;
@@ -317,22 +316,23 @@ export default function PatientRegistrationBillPrint({ data, preview = false }: 
               body > *:not(.registration-bill-print) {
                 display: none !important;
               }
+              /* Center on the roll: full printable width + equal left/right padding */
               .registration-bill-print {
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
+                position: relative !important;
+                top: auto !important;
+                left: auto !important;
                 right: auto !important;
                 visibility: visible !important;
                 display: block !important;
-                width: 70mm !important;
-                max-width: 70mm !important;
-                margin: 0 0 0 2mm !important;
-                padding: 3mm 3mm !important;
+                width: 100% !important;
+                max-width: 80mm !important;
+                margin: 0 auto !important;
+                padding: 2.5mm 4mm !important;
                 background: #ffffff !important;
                 color: #000000 !important;
                 font-family: Arial, Helvetica, "DejaVu Sans", sans-serif !important;
-                font-size: 11px !important;
-                font-weight: 600 !important;
+                font-size: 11.5px !important;
+                font-weight: 700 !important;
                 line-height: 1.35 !important;
                 overflow: visible !important;
                 overflow-wrap: anywhere !important;
@@ -350,40 +350,47 @@ export default function PatientRegistrationBillPrint({ data, preview = false }: 
               }
               .registration-bill-print .rb-hospital,
               .registration-bill-print .rb-title,
+              .registration-bill-print .rb-meta,
               .registration-bill-print .rb-strong,
               .registration-bill-print .rb-name,
+              .registration-bill-print .rb-sub,
               .registration-bill-print .rb-amount-box,
               .registration-bill-print .rb-words-value,
-              .registration-bill-print .rb-charges-head {
+              .registration-bill-print .rb-charges-head,
+              .registration-bill-print .rb-detail-label,
+              .registration-bill-print .rb-footer {
                 font-weight: 700 !important;
+              }
+              .registration-bill-print .rb-row-right,
+              .registration-bill-print .rb-sign {
+                padding-right: 0 !important;
               }
               .no-print, header, footer, nav, button, [role="dialog"], aside {
                 display: none !important;
               }
             }
 
-            /* Narrow thermal (~58mm): tighten label column, keep readable sizes */
+            /* Narrow thermal (~58mm) */
             @media print and (max-width: 62mm) {
               @page {
                 size: 58mm auto;
                 margin: 0;
               }
               html, body {
-                width: 58mm !important;
+                width: 100% !important;
                 max-width: 58mm !important;
               }
               .registration-bill-print {
-                --rb-width: 52mm;
-                --rb-label-w: 18mm;
+                --rb-label-w: 17mm;
                 --rb-base: 10.5px;
-                --rb-small: 9.5px;
+                --rb-small: 10px;
                 --rb-title: 12px;
                 --rb-name: 11.5px;
                 --rb-amount: 12px;
-                width: 52mm !important;
-                max-width: 52mm !important;
-                margin: 0 0 0 1.5mm !important;
-                padding: 2.5mm 2.5mm !important;
+                width: 100% !important;
+                max-width: 58mm !important;
+                margin: 0 auto !important;
+                padding: 2mm 3mm !important;
               }
             }
           `,
