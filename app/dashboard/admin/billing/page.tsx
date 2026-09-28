@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AppShell from "@/components/layout/app-shell";
 
 import AdminHeader from "../components/AdminHeader";
@@ -12,6 +12,11 @@ import { endOfDay, startOfDay, subDays } from "date-fns";
 import Statistics from "./components/Statistics";
 import AllBill from "./components/AllBill";
 import { DateRange } from "react-day-picker";
+import type { PatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
+import {
+  getStoredPatientVisitorFilter,
+  PatientVisitorToggle,
+} from "@/components/dashboard/billing/PatientModeToggle";
 
 export interface FilterType {
   q: null | string;
@@ -23,6 +28,7 @@ export interface FilterType {
   page: number;
   limit: number;
   doctor: string[];
+  patientVisitor: PatientVisitorFilter;
 }
 
 export default function AdminBillingPage() {
@@ -36,7 +42,15 @@ export default function AdminBillingPage() {
     page: 1,
     limit: 10,
     doctor: [],
+    patientVisitor: "all",
   });
+
+  useEffect(() => {
+    setFilter((prev) => ({
+      ...prev,
+      patientVisitor: getStoredPatientVisitorFilter(),
+    }));
+  }, []);
 
   const params = new URLSearchParams();
 
@@ -50,6 +64,10 @@ export default function AdminBillingPage() {
 
   if (filter.method && filter.method !== "all") {
     params.set("method", filter.method);
+  }
+
+  if (filter.patientVisitor && filter.patientVisitor !== "all") {
+    params.set("patientVisitor", filter.patientVisitor);
   }
 
   let sd: Date = startOfDay(new Date());
@@ -125,7 +143,15 @@ export default function AdminBillingPage() {
             <AdminHeader
               title="Billing Management"
               subtitle="View and manage hospital-wide billing and collections."
-            />
+            >
+              <PatientVisitorToggle
+                value={filter.patientVisitor || "all"}
+                onChange={(patientVisitor) =>
+                  setFilter((prev) => ({ ...prev, patientVisitor, page: 1 }))
+                }
+                layoutId="admin-billing-patient-visitor"
+              />
+            </AdminHeader>
 
             <div className="flex-1 overflow-hidden mt-0">
               <Statistics billing={billing} />

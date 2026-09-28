@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AppShell from "@/components/layout/app-shell";
 import AllBill from "./AllBill";
 import CreateBill from "./CreateBill";
@@ -10,6 +10,11 @@ import { AnimatedTabs } from "@/components/ui/animated-tabs";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
 import { startOfDay, endOfDay, subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
+import {
+  PatientVisitorToggle,
+  getStoredPatientVisitorFilter,
+  type PatientVisitorFilter,
+} from "@/components/dashboard/billing/PatientModeToggle";
 
 export interface FilterType {
   q: null | string;
@@ -20,6 +25,7 @@ export interface FilterType {
   date?: Date;
   page?: number;
   limit?: number;
+  patientVisitor: PatientVisitorFilter;
 }
 
 export default function BillingPage() {
@@ -33,7 +39,15 @@ export default function BillingPage() {
     date: new Date(),
     page: 1,
     limit: 100,
+    patientVisitor: "all",
   });
+
+  useEffect(() => {
+    setFilter((prev) => ({
+      ...prev,
+      patientVisitor: getStoredPatientVisitorFilter(),
+    }));
+  }, []);
 
   const params = new URLSearchParams();
 
@@ -47,6 +61,10 @@ export default function BillingPage() {
 
   if (filter.method && filter.method !== "all") {
     params.set("method", filter.method);
+  }
+
+  if (filter.patientVisitor && filter.patientVisitor !== "all") {
+    params.set("patientVisitor", filter.patientVisitor);
   }
 
   let sd: Date = startOfDay(new Date());
@@ -112,16 +130,26 @@ export default function BillingPage() {
             onValueChange={(e) => setTab(e as "all" | "new")}
             value={tab}
           >
-            <AnimatedTabs
-              options={[
-                { label: "All Bills", value: "all" },
-                { label: "Create Bill", value: "new" },
-              ]}
-              value={tab}
-              onChange={(v) => setTab(v as "all" | "new")}
-              layoutId="billing-tabs"
-              className="mb-4"
-            />
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <AnimatedTabs
+                options={[
+                  { label: "All Bills", value: "all" },
+                  { label: "Create Bill", value: "new" },
+                ]}
+                value={tab}
+                onChange={(v) => setTab(v as "all" | "new")}
+                layoutId="billing-tabs"
+              />
+              {tab === "all" && (
+                <PatientVisitorToggle
+                  value={filter.patientVisitor || "all"}
+                  onChange={(patientVisitor) =>
+                    setFilter((prev) => ({ ...prev, patientVisitor, page: 1 }))
+                  }
+                  layoutId="lab-billing-patient-visitor"
+                />
+              )}
+            </div>
             <TabsContent value="all">
               <AllBill
                 billing={billing}

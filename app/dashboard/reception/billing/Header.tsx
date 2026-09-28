@@ -5,6 +5,7 @@ import BillingStatusFilter from './BillingStatusFilter';
 import PharmacyHeader from '@/app/dashboard/pharmacy/components/PharmacyHeader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { PatientVisitorToggle } from '@/components/dashboard/billing/PatientModeToggle';
 
 interface PropsType {
   tab: "all" | "new";
@@ -175,6 +176,16 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
         currentStatus={filter.status || "all"}
         setStatus={(status) => setFilter((prev) => ({ ...prev, status }))}
       />
+
+      {tab === "all" && (
+        <PatientVisitorToggle
+          value={filter.patientVisitor || "all"}
+          onChange={(patientVisitor) =>
+            setFilter((prev) => ({ ...prev, patientVisitor, page: 1 }))
+          }
+          layoutId="reception-billing-patient-visitor"
+        />
+      )}
 
       <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 print:hidden w-fit">
         {[

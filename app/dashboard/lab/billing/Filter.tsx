@@ -41,6 +41,7 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
       date: new Date(),
       page: 1,
       limit: 100,
+      patientVisitor: "all",
     });
   };
 
@@ -76,6 +77,9 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
     if (filter.q && filter.q.trim()) params.set("q", filter.q.trim());
     if (filter.status && filter.status !== "all") params.set("status", filter.status);
     if (filter.method && filter.method !== "all") params.set("method", filter.method);
+    if (filter.patientVisitor && filter.patientVisitor !== "all") {
+      params.set("patientVisitor", filter.patientVisitor);
+    }
 
     const { sd, ed } = getComputedDates();
     params.set("startDate", sd.toISOString());

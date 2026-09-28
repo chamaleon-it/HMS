@@ -15,6 +15,8 @@ import Statistics from "./Statistics";
 
 import { getBillType } from "@/lib/billTypeUtils";
 import { DateRange } from "react-day-picker";
+import type { PatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
+import { getStoredPatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
 
 export interface FilterType {
   q: null | string;
@@ -27,6 +29,7 @@ export interface FilterType {
   page: number;
   limit: number;
   doctor: string[];
+  patientVisitor: PatientVisitorFilter;
 }
 
 export default function BillingPage() {
@@ -41,8 +44,13 @@ export default function BillingPage() {
     date: new Date(),
     page: 1,
     limit: 10,
-    doctor: []
+    doctor: [],
+    patientVisitor: "all",
   });
+
+  useEffect(() => {
+    setFilter((prev) => ({ ...prev, patientVisitor: getStoredPatientVisitorFilter() }));
+  }, []);
 
   const params = new URLSearchParams();
 
@@ -60,6 +68,10 @@ export default function BillingPage() {
 
   if (filter.billType && filter.billType !== "all") {
     params.set("billType", filter.billType);
+  }
+
+  if (filter.patientVisitor && filter.patientVisitor !== "all") {
+    params.set("patientVisitor", filter.patientVisitor);
   }
 
   let sd: Date = startOfDay(new Date());
