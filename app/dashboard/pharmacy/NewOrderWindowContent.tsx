@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import { sanitizeOrderCreatePayload } from "@/lib/sanitizeOrderPayload";
 import { AlertTriangle, Eye, Printer, UserPlus, SlidersHorizontal } from "lucide-react";
 import PharmacistSelection from "./PharmacistSelection";
 import DoctorSelection from "./billing/DoctorSelection";
@@ -57,7 +58,10 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
           return;
         }
       }
-      const payloadToSubmit = { ...payload, items: validItems };
+      const payloadToSubmit = sanitizeOrderCreatePayload({
+        ...payload,
+        items: validItems,
+      });
       const { data } = await toast.promise(api.post("/pharmacy/orders", payloadToSubmit), {
         loading: "Order is creating...",
         success: ({ data }) => data.message,

@@ -19,6 +19,7 @@ import api from "@/lib/axios";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { useRouter } from "next/navigation";
 import { useDrafts } from "../DraftContext";
+import { sanitizeOrderCreatePayload } from "@/lib/sanitizeOrderPayload";
 
 export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDialog, initialPatient }: { mutate: () => void, asDialogOnly?: boolean, openDialog?: boolean, setOpenDialog?: (open: boolean) => void, initialPatient?: any }) {
   const { user } = useAuth();
@@ -72,7 +73,7 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
           return;
         }
       }
-      await toast.promise(api.post("/pharmacy/orders", payload), {
+      await toast.promise(api.post("/pharmacy/orders", sanitizeOrderCreatePayload(payload)), {
         loading: "Order is creating...",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
