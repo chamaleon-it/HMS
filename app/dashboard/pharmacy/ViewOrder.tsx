@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { OrderType } from "./interface";
+import { sanitizeOrderUpdatePayload } from "@/lib/sanitizeOrderPayload";
 import { fAge, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import toast from "react-hot-toast";
@@ -192,11 +193,11 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             return;
         }
 
-        const payload = {
+        const payload = sanitizeOrderUpdatePayload({
             ...updatePayload,
             patient: localOrder.patient._id,
             doctor: localOrder.doctor._id,
-        };
+        });
         try {
             setUpdatingOrder(true);
             const res = await toast.promise(api.patch(`pharmacy/orders/update`, payload), {

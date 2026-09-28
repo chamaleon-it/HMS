@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { fDate } from '@/lib/fDateAndTime';
 import { ExternalLink, Image as ImageIcon, ChevronDown, ChevronUp } from 'lucide-react';
+import { sanitizeLabHtml } from "@/lib/sanitize-lab-html";
 
 function formatReferenceRange(t: TestItem): React.ReactNode {
   const testDoc = t.name;
@@ -45,7 +46,7 @@ function formatReferenceRange(t: TestItem): React.ReactNode {
               <span key={idx} className="text-slate-700 font-mono text-xs">
                 {label}
                 {rangeStr}
-                {unit && <span className="text-slate-500 font-normal ml-0.5" dangerouslySetInnerHTML={{ __html: unit }} />}
+                {unit && <span className="text-slate-500 font-normal ml-0.5" dangerouslySetInnerHTML={{ __html: sanitizeLabHtml(unit) }} />}
               </span>
             );
           })}
@@ -61,7 +62,7 @@ function formatReferenceRange(t: TestItem): React.ReactNode {
     return (
       <span className="text-slate-700 font-mono text-xs">
         {testDoc.min} - {testDoc.max}
-        {unit && <span className="text-slate-500 font-normal ml-0.5" dangerouslySetInnerHTML={{ __html: unit }} />}
+        {unit && <span className="text-slate-500 font-normal ml-0.5" dangerouslySetInnerHTML={{ __html: sanitizeLabHtml(unit) }} />}
       </span>
     );
   } else if (hasMin) {

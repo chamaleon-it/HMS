@@ -88,12 +88,204 @@ export default function PatientRegistrationBillPrint({ data, preview = false }: 
     <div
       className={`registration-bill-print ${
         preview ? "block" : "hidden print:block"
-      } bg-white text-black font-montserrat leading-snug select-none`}
+      } bg-white text-black select-none`}
     >
       <style
         dangerouslySetInnerHTML={{
           __html: `
-            @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+            /* Thermal receipt (58–80mm): system fonts print darker than web variable fonts */
+            .registration-bill-print {
+              --rb-ink: #000000;
+              --rb-paper: #ffffff;
+              --rb-width: 70mm;
+              --rb-pad-x: 3mm;
+              --rb-pad-y: 3mm;
+              --rb-base: 11px;
+              --rb-small: 10px;
+              --rb-title: 13px;
+              --rb-name: 12px;
+              --rb-amount: 13px;
+              --rb-label-w: 22mm;
+              box-sizing: border-box;
+              width: var(--rb-width);
+              max-width: 100%;
+              margin: 0 auto;
+              padding: var(--rb-pad-y) var(--rb-pad-x);
+              background: var(--rb-paper);
+              color: var(--rb-ink);
+              font-family: Arial, Helvetica, "DejaVu Sans", sans-serif;
+              font-size: var(--rb-base);
+              font-weight: 600;
+              line-height: 1.35;
+              letter-spacing: 0;
+              overflow-wrap: anywhere;
+              word-break: break-word;
+            }
+            .registration-bill-print *,
+            .registration-bill-print *::before,
+            .registration-bill-print *::after {
+              box-sizing: border-box;
+              color: var(--rb-ink) !important;
+              border-color: var(--rb-ink) !important;
+              -webkit-text-fill-color: var(--rb-ink) !important;
+              background: transparent;
+            }
+            .registration-bill-print .rb-header {
+              text-align: center;
+              padding-bottom: 2px;
+            }
+            .registration-bill-print .rb-hospital {
+              margin: 0;
+              font-size: var(--rb-title);
+              font-weight: 700;
+              line-height: 1.2;
+              text-transform: uppercase;
+            }
+            .registration-bill-print .rb-meta {
+              margin: 1px 0 0;
+              font-size: var(--rb-small);
+              font-weight: 600;
+              line-height: 1.25;
+              text-transform: uppercase;
+            }
+            .registration-bill-print .rb-title-wrap {
+              text-align: center;
+              padding: 4px 0 2px;
+            }
+            .registration-bill-print .rb-title {
+              margin: 0;
+              font-size: var(--rb-title);
+              font-weight: 700;
+              line-height: 1.2;
+            }
+            .registration-bill-print .rb-meta-rows {
+              margin: 4px 0;
+              font-size: var(--rb-base);
+            }
+            .registration-bill-print .rb-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              gap: 4px;
+              margin: 3px 0;
+            }
+            .registration-bill-print .rb-row-left,
+            .registration-bill-print .rb-row-right {
+              min-width: 0;
+            }
+            .registration-bill-print .rb-row-right {
+              text-align: right;
+              flex-shrink: 0;
+              white-space: nowrap;
+            }
+            .registration-bill-print .rb-strong {
+              font-weight: 700;
+              font-size: var(--rb-name);
+            }
+            .registration-bill-print .rb-rule {
+              border: 0;
+              border-top: 1.5px solid #000;
+              margin: 5px 0;
+              height: 0;
+            }
+            .registration-bill-print .rb-detail {
+              font-size: var(--rb-base);
+            }
+            .registration-bill-print .rb-detail-row {
+              display: flex;
+              align-items: stretch;
+              margin: 0 0 6px;
+              gap: 0;
+            }
+            .registration-bill-print .rb-detail-row:last-child {
+              margin-bottom: 0;
+            }
+            .registration-bill-print .rb-detail-label {
+              width: var(--rb-label-w);
+              flex: 0 0 var(--rb-label-w);
+              text-align: right;
+              padding: 0 5px 0 0;
+              margin-right: 5px;
+              border-right: 1.5px solid #000;
+              font-size: var(--rb-small);
+              font-weight: 600;
+              line-height: 1.25;
+            }
+            .registration-bill-print .rb-detail-value {
+              flex: 1 1 auto;
+              min-width: 0;
+              padding-left: 2px;
+              text-align: left;
+              line-height: 1.3;
+            }
+            .registration-bill-print .rb-detail-value .rb-name {
+              font-size: var(--rb-name);
+              font-weight: 700;
+              text-transform: uppercase;
+              line-height: 1.25;
+            }
+            .registration-bill-print .rb-detail-value .rb-sub {
+              font-size: var(--rb-small);
+              font-weight: 600;
+              text-transform: uppercase;
+              line-height: 1.25;
+              margin-top: 1px;
+            }
+            .registration-bill-print .rb-charges-head {
+              display: flex;
+              justify-content: space-between;
+              gap: 6px;
+              font-size: var(--rb-name);
+              font-weight: 700;
+              margin: 4px 0 6px;
+            }
+            .registration-bill-print .rb-charges-line {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 8px;
+              font-size: var(--rb-base);
+              font-weight: 600;
+            }
+            .registration-bill-print .rb-charges-line > span:first-child {
+              min-width: 0;
+              flex: 1 1 auto;
+            }
+            .registration-bill-print .rb-amount-box {
+              flex: 0 0 auto;
+              min-width: 14mm;
+              border: 1.75px solid #000;
+              padding: 2px 6px;
+              text-align: center;
+              font-size: var(--rb-amount);
+              font-weight: 700;
+              font-variant-numeric: tabular-nums;
+              line-height: 1.2;
+            }
+            .registration-bill-print .rb-words {
+              margin: 6px 0;
+              font-size: var(--rb-base);
+            }
+            .registration-bill-print .rb-words-label {
+              font-weight: 600;
+            }
+            .registration-bill-print .rb-words-value {
+              font-weight: 700;
+              margin-top: 2px;
+              text-transform: none;
+            }
+            .registration-bill-print .rb-footer {
+              margin-top: 14px;
+              font-size: var(--rb-small);
+              font-weight: 600;
+            }
+            .registration-bill-print .rb-sign {
+              text-align: right;
+              font-style: italic;
+              margin-top: 18px;
+              padding-right: 2px;
+            }
+
             @media print {
               @page {
                 size: 80mm auto;
@@ -103,41 +295,87 @@ export default function PatientRegistrationBillPrint({ data, preview = false }: 
                 background: #ffffff !important;
                 margin: 0 !important;
                 padding: 0 !important;
+                width: 80mm !important;
+                max-width: 80mm !important;
                 height: auto !important;
                 min-height: 0 !important;
                 display: block !important;
+                overflow: visible !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
-                font-family: 'Montserrat', sans-serif !important;
                 color: #000000 !important;
+                font-family: Arial, Helvetica, "DejaVu Sans", sans-serif !important;
               }
               body > *:not(.registration-bill-print) {
                 display: none !important;
-              }
-              .registration-bill-print, .registration-bill-print * {
-                visibility: visible !important;
-                font-family: 'Montserrat', sans-serif !important;
-                color: #000000 !important;
-                border-color: #000000 !important;
-                -webkit-text-fill-color: #000000 !important;
               }
               .registration-bill-print {
                 position: absolute !important;
                 top: 0 !important;
                 left: 0 !important;
-                right: 0 !important;
-                margin: 0 auto !important;
-                width: 76mm !important;
-                padding: 4mm 2.5mm !important;
-                font-family: 'Montserrat', sans-serif !important;
-                font-size: 10.5px !important;
-                line-height: 1.25 !important;
-                color: #000000 !important;
-                background: #ffffff !important;
+                right: auto !important;
+                visibility: visible !important;
                 display: block !important;
+                width: 70mm !important;
+                max-width: 70mm !important;
+                margin: 0 0 0 2mm !important;
+                padding: 3mm 3mm !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: Arial, Helvetica, "DejaVu Sans", sans-serif !important;
+                font-size: 11px !important;
+                font-weight: 600 !important;
+                line-height: 1.35 !important;
+                overflow: visible !important;
+                overflow-wrap: anywhere !important;
+                word-break: break-word !important;
               }
-              .no-print, header, footer, nav, button, [role="dialog"] {
+              .registration-bill-print,
+              .registration-bill-print * {
+                visibility: visible !important;
+                font-family: Arial, Helvetica, "DejaVu Sans", sans-serif !important;
+                color: #000000 !important;
+                border-color: #000000 !important;
+                -webkit-text-fill-color: #000000 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+              }
+              .registration-bill-print .rb-hospital,
+              .registration-bill-print .rb-title,
+              .registration-bill-print .rb-strong,
+              .registration-bill-print .rb-name,
+              .registration-bill-print .rb-amount-box,
+              .registration-bill-print .rb-words-value,
+              .registration-bill-print .rb-charges-head {
+                font-weight: 700 !important;
+              }
+              .no-print, header, footer, nav, button, [role="dialog"], aside {
                 display: none !important;
+              }
+            }
+
+            /* Narrow thermal (~58mm): tighten label column, keep readable sizes */
+            @media print and (max-width: 62mm) {
+              @page {
+                size: 58mm auto;
+                margin: 0;
+              }
+              html, body {
+                width: 58mm !important;
+                max-width: 58mm !important;
+              }
+              .registration-bill-print {
+                --rb-width: 52mm;
+                --rb-label-w: 18mm;
+                --rb-base: 10.5px;
+                --rb-small: 9.5px;
+                --rb-title: 12px;
+                --rb-name: 11.5px;
+                --rb-amount: 12px;
+                width: 52mm !important;
+                max-width: 52mm !important;
+                margin: 0 0 0 1.5mm !important;
+                padding: 2.5mm 2.5mm !important;
               }
             }
           `,
@@ -145,123 +383,99 @@ export default function PatientRegistrationBillPrint({ data, preview = false }: 
       />
 
       {/* Header / Hospital Branding */}
-      <div className="text-center pb-1">
-        <h2 className="font-bold text-[12px] tracking-tight uppercase leading-tight text-black">
-          {hospitalName}
-        </h2>
-        <p className="text-[9.5px] uppercase font-normal text-black leading-tight">OLD RAJANA THEATRE ROAD</p>
-        <p className="text-[9.5px] uppercase font-normal text-black leading-tight">OPP.MSN APPARTMENTS,KOOTTANAD</p>
-        <p className="text-[9.5px] text-black font-normal leading-tight">GSTIN :32BORPV3323K1ZJ</p>
-        <p className="text-[9.5px] text-black font-normal leading-tight">Mob :8505030406,6282803887</p>
+      <div className="rb-header">
+        <h2 className="rb-hospital">{hospitalName}</h2>
+        <p className="rb-meta">OLD RAJANA THEATRE ROAD</p>
+        <p className="rb-meta">OPP.MSN APPARTMENTS,KOOTTANAD</p>
+        <p className="rb-meta">GSTIN :32BORPV3323K1ZJ</p>
+        <p className="rb-meta">Mob :8505030406,6282803887</p>
       </div>
 
       {/* Bill Title */}
-      <div className="text-center py-1">
-        <h3 className="font-bold text-[13.5px] text-black tracking-normal">
-          Patient Registration Bill
-        </h3>
+      <div className="rb-title-wrap">
+        <h3 className="rb-title">Patient Registration Bill</h3>
       </div>
 
       {/* OP No & Date / Token No & Valid Upto */}
-      <div className="space-y-1 my-1.5 text-[10.5px]">
-        <div className="flex justify-between items-center">
-          <span>
-            <span className="font-normal text-black">OP No / Date :</span>{" "}
-            <span className="font-bold text-black text-[11px]">{opNo}</span>
+      <div className="rb-meta-rows">
+        <div className="rb-row">
+          <span className="rb-row-left">
+            OP No / Date : <span className="rb-strong">{opNo}</span>
           </span>
-          <span className="font-normal text-black">{formattedDate}</span>
+          <span className="rb-row-right">{formattedDate}</span>
         </div>
-        <div className="flex justify-between items-center">
-          <span>
-            <span className="font-normal text-black">Token No : </span>
-            <span className="font-bold text-black text-[11px]">{displayToken}</span>
+        <div className="rb-row">
+          <span className="rb-row-left">
+            Token No : <span className="rb-strong">{displayToken}</span>
           </span>
-          <span>
-            <span className="font-normal text-black">Valid Upto :</span>
-            <span className="font-normal text-black">{validUptoDate}</span>
-          </span>
+          <span className="rb-row-right">Valid Upto : {validUptoDate}</span>
         </div>
       </div>
 
-      {/* Divider 1 */}
-      <div className="border-b border-black my-2" />
+      <hr className="rb-rule" />
 
-      {/* Consultant Name & Patient Details (with vertical divider line) */}
-      <div className="text-[10.5px]">
-        {/* Consultant Row */}
-        <div className="flex items-stretch pb-2.5">
-          <div className="w-[82px] shrink-0 text-right pr-2.5 border-r border-black font-normal text-[10px] text-black leading-tight">
-            Consultant<br />Name
+      {/* Consultant | Patient | Age/Sex */}
+      <div className="rb-detail">
+        <div className="rb-detail-row">
+          <div className="rb-detail-label">
+            Consultant
+            <br />
+            Name
           </div>
-          <div className="flex-1 pl-2.5 text-left leading-tight">
-            <div className="font-bold text-[11px] uppercase text-black">{docName}</div>
-            {docQual && <div className="font-normal text-[9.5px] text-black uppercase">{docQual}</div>}
-            {docSpec && <div className="font-normal text-[9.5px] text-black uppercase">{docSpec}</div>}
+          <div className="rb-detail-value">
+            <div className="rb-name">{docName}</div>
+            {docQual && <div className="rb-sub">{docQual}</div>}
+            {docSpec && <div className="rb-sub">{docSpec}</div>}
           </div>
         </div>
 
-        {/* Patient Details Row */}
-        <div className="flex items-stretch pb-2.5">
-          <div className="w-[82px] shrink-0 text-right pr-2.5 border-r border-black font-normal text-[10px] text-black leading-tight">
-            Patient<br />Details
+        <div className="rb-detail-row">
+          <div className="rb-detail-label">
+            Patient
+            <br />
+            Details
           </div>
-          <div className="flex-1 pl-2.5 text-left leading-tight">
-            <div className="font-bold text-[11px] uppercase text-black">{patientName}</div>
-            {patientAddress && (
-              <div className="font-normal text-[9.5px] text-black uppercase">{patientAddress}</div>
-            )}
+          <div className="rb-detail-value">
+            <div className="rb-name">{patientName}</div>
+            {patientAddress && <div className="rb-sub">{patientAddress}</div>}
           </div>
         </div>
 
-        {/* Age / Sex Row */}
-        <div className="flex items-stretch">
-          <div className="w-[82px] shrink-0 text-right pr-2.5 border-r border-black font-normal text-[10px] text-black leading-tight">
-            Age/Sex
-          </div>
-          <div className="flex-1 pl-2.5 text-left leading-tight">
-            <div className="font-normal text-[10.5px] text-black">{ageSex}</div>
-            {patientPhone && (
-              <div className="font-normal text-[10.5px] text-black tracking-tight">{patientPhone}</div>
-            )}
+        <div className="rb-detail-row">
+          <div className="rb-detail-label">Age/Sex</div>
+          <div className="rb-detail-value">
+            <div>{ageSex}</div>
+            {patientPhone && <div>{patientPhone}</div>}
           </div>
         </div>
       </div>
 
-      {/* Divider 2 */}
-      <div className="border-b border-black my-2" />
+      <hr className="rb-rule" />
 
-      {/* Particulars & Amount Table */}
-      <div className="my-1.5">
-        <div className="flex justify-between font-bold text-[11px] text-black mb-1.5">
+      {/* Particulars & Amount */}
+      <div>
+        <div className="rb-charges-head">
           <span>Particulars</span>
-          <span className="text-right">Amount</span>
+          <span>Amount</span>
         </div>
-
-        <div className="flex justify-between items-center py-0.5 text-[10.5px]">
-          <span className="font-normal text-black">Consultation Charges</span>
-          <span className="font-bold text-black tabular-nums border border-black px-3 py-0.5 text-center min-w-[58px] text-[11px]">
-            {displayFee}
-          </span>
+        <div className="rb-charges-line">
+          <span>Consultation Charges</span>
+          <span className="rb-amount-box">{displayFee}</span>
         </div>
       </div>
 
-      {/* Divider 3 */}
-      <div className="border-b border-black my-2" />
+      <hr className="rb-rule" />
 
       {/* Amount in Words */}
-      <div className="my-2 text-[10.5px]">
-        <div className="font-normal text-black">Amount in Words :</div>
-        <div className="font-bold text-black tracking-wide">{words}</div>
+      <div className="rb-words">
+        <div className="rb-words-label">Amount in Words :</div>
+        <div className="rb-words-value">{words}</div>
       </div>
 
       {/* Footer / Signature */}
-      <div className="mt-5 pt-1 text-[10px]">
-        <div className="font-normal text-black">
-          For {hospitalName.toUpperCase()}
-        </div>
-        <div className="text-right italic text-[10px] text-black mt-6 pr-1">
-          (Sign)
-        </div>
+      <div className="rb-footer">
+        <div>For {hospitalName.toUpperCase()}</div>
+        <div className="rb-sign">(Sign)</div>
       </div>
     </div>
   );

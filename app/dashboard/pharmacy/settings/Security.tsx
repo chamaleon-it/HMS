@@ -1,4 +1,3 @@
-import { useAuth } from "@/auth/context/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,7 +17,7 @@ import {
 } from "@/schemas/changePasswordSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
@@ -135,64 +134,6 @@ export default function Security() {
         </Card>
       </form>
 
-      <RestoreBackup />
     </>
   );
 }
-
-
-const RestoreBackup = () => {
-
-  const { user } = useAuth()
-  const [password, setPassword] = useState("")
-
-  const restoreBackup = async () => {
-    try {
-      await toast.promise(api.post("/auth/login", {
-        email: user?.email,
-        password: password
-      }), {
-        loading: "Checking Password...",
-        success: "Password matched",
-        error: "Password does not match"
-      })
-
-      await toast.promise(api.post("/backup/restore_latest"), {
-        loading: "Restoring Backup...",
-        success: "Backup restored successfully",
-        error: "Failed to restore backup"
-      })
-    } catch (error) {
-      console.log(error)
-    }
-  }
-  return (
-    <Card className="border-0 shadow-lg ring-1 ring-black/5 bg-white/80 backdrop-blur">
-      <CardHeader className="pb-2">
-        <CardTitle>Restore Backup</CardTitle>
-
-        <CardDescription>
-          Restore your account from a backup.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-2 w-full md:w-1/2">
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <Button
-          className="gap-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-light) disabled:opacity-60 shadow-sm transition-colors mt-5"
-          onClick={restoreBackup}
-        >
-          <Save className="h-4 w-4" /> Restore
-        </Button>
-      </CardContent>
-    </Card>
-  );
-};

@@ -36,6 +36,8 @@ export default function Header() {
       { key: "patients", label: "Patients", link: "/dashboard/doctor/patients/" },
       { key: "ip", label: "IP (In Patient)", link: "/dashboard/doctor/ip/" },
       { key: "lab-results", label: "Investigations", link: "/dashboard/doctor/lab-report/" },
+      { key: "therapy", label: "Therapy", link: "/dashboard/doctor/therapy/" },
+      { key: "procedure", label: "Procedure", link: "/dashboard/doctor/procedure/" },
       {
         key: "employees",
         label: "Employees",
@@ -65,8 +67,6 @@ export default function Header() {
       { key: "doctors", label: "Doctors", link: "/dashboard/reception/doctors/" },
       { key: "treatments", label: "Treatments", link: "/dashboard/reception/treatments/" },
       { key: "leaves", label: "Leaves", link: "/dashboard/reception/leaves/" },
-      { key: "therapy", label: "Therapy", link: "/dashboard/reception/therapy/" },
-      { key: "procedure", label: "Procedure", link: "/dashboard/reception/procedure/" },
       { key: "customers", label: "Customer", link: "/dashboard/reception/customers/" },
       { key: "ip", label: "IP", link: "/dashboard/reception/ip/" },
       { key: "billing", label: "Billing", link: "/dashboard/reception/billing/" },
@@ -205,7 +205,7 @@ export default function Header() {
             className="ml-4 flex items-center gap-3 sm:gap-4"
             data-testid="actions"
           >
-            {(user?.role === "Reception" || user?.role === "Admin") && (
+            {user?.role === "Admin" && (
               <button
                 className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => setOpenSync(true)}

@@ -10,6 +10,7 @@ import {
   AlertCircle,
   CheckCircle2,
 } from 'lucide-react';
+import { sanitizeLabHtml } from "@/lib/sanitize-lab-html";
 
 function formatReferenceRange(t: TestItem): React.ReactNode {
   const testDoc = t.name;
@@ -51,7 +52,7 @@ function formatReferenceRange(t: TestItem): React.ReactNode {
               <span key={idx} className="text-slate-700 font-mono text-xs">
                 {label}
                 {rangeStr}
-                {unit && <span className="text-slate-500 font-normal ml-0.5" dangerouslySetInnerHTML={{ __html: unit }} />}
+                {unit && <span className="text-slate-500 font-normal ml-0.5" dangerouslySetInnerHTML={{ __html: sanitizeLabHtml(unit) }} />}
               </span>
             );
           })}
@@ -67,7 +68,7 @@ function formatReferenceRange(t: TestItem): React.ReactNode {
     return (
       <span className="text-slate-700 font-mono text-xs">
         {testDoc.min} - {testDoc.max}
-        {unit && <span className="text-slate-500 font-normal ml-0.5" dangerouslySetInnerHTML={{ __html: unit }} />}
+        {unit && <span className="text-slate-500 font-normal ml-0.5" dangerouslySetInnerHTML={{ __html: sanitizeLabHtml(unit) }} />}
       </span>
     );
   } else if (hasMin) {
@@ -307,7 +308,7 @@ export default function Labs({ labs }: { labs?: LabsDataTypes[] }) {
                                     {unit && (
                                       <span
                                         className="text-slate-600 font-normal ml-0.5"
-                                        dangerouslySetInnerHTML={{ __html: unit }}
+                                        dangerouslySetInnerHTML={{ __html: sanitizeLabHtml(unit) }}
                                       />
                                     )}
                                   </>

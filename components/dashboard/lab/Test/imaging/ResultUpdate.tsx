@@ -96,7 +96,15 @@ export default function ResultUpdate({ r, mutate }: Props) {
         }
 
         try {
-            await toast.promise(api.post("lab/report/result", payload), {
+            const leanPayload = {
+                _id: payload._id,
+                test: payload.test.map((t) => ({
+                    _id: t._id,
+                    value: t.value,
+                    name: { _id: t.name?._id || t.name },
+                })),
+            };
+            await toast.promise(api.post("lab/report/result", leanPayload), {
                 loading: "Updating Result",
                 success: "Result Updated Successfully",
                 error: "Failed to Update Result"

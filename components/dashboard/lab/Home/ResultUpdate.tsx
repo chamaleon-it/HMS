@@ -364,19 +364,20 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint, onSta
       );
 
       const finalPayload: any = {
-        ...payload,
-        test: filteredTests,
+        _id: payload._id,
+        test: filteredTests.map((t) => ({
+          _id: t._id,
+          value: t.value,
+          name: { _id: t.name?._id || t.name },
+        })),
+        note: payload.note,
       };
 
       if (collectedDate) {
         finalPayload.collectedDate = new Date(collectedDate).toISOString();
-        finalPayload.sampleCollectedAt = finalPayload.collectedDate;
-        finalPayload.createdAt = finalPayload.collectedDate;
       }
       if (reportedDate) {
         finalPayload.reportedDate = new Date(reportedDate).toISOString();
-        finalPayload.testStartedAt = finalPayload.reportedDate;
-        finalPayload.updatedAt = finalPayload.reportedDate;
       }
 
       if (markCompleted) {
