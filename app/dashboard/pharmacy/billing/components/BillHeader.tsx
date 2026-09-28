@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { UserPlus, CalendarDays } from "lucide-react";
+import React from "react";
+import { User2, UserPlus, FileText, CalendarDays } from "lucide-react";
 import { fDate } from "@/lib/fDateAndTime";
 import PatientSelection from "../PatientSelection";
 import DoctorSelection from "../DoctorSelection";
@@ -10,12 +10,6 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
-import {
-    PatientModeToggle,
-    getStoredPatientMode,
-    persistPatientMode,
-    type PatientMode,
-} from "@/components/dashboard/billing/PatientModeToggle";
 
 import api from "@/lib/axios";
 
@@ -40,42 +34,12 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
     openCreate,
     setOpenCreate,
 }) => {
-    const [patientMode, setPatientMode] = useState<PatientMode>("existing");
-
-    useEffect(() => {
-        // Prefill from order/URL wins over stored mode so repeat visitors stay searchable
-        if (orderPatient || selectedPatient || payload.patient) {
-            setPatientMode("existing");
-            persistPatientMode("existing");
-            return;
-        }
-        setPatientMode(getStoredPatientMode());
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- hydrate once on mount
-    }, []);
-
-    const handleModeChange = (mode: PatientMode) => {
-        setPatientMode(mode);
-        if (mode === "new") {
-            setPayload((prev: any) => ({ ...prev, patient: "" }));
-            setSelectedPatient(null);
-            setOpenCreate(true);
-        } else {
-            setOpenCreate(false);
-        }
-    };
-
     return (
-        <div className="mb-2 relative z-10 space-y-4">
-            <PatientModeToggle
-                value={patientMode}
-                onChange={handleModeChange}
-                layoutId="pharmacy-billing-patient-mode"
-            />
-
+        <div className="mb-2 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
                 <div className="space-y-2">
                     <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">Patient</label>
-                    {patientMode === "existing" ? (
+                    <div className="flex items-center gap-2">
                         <div className="flex-1">
                             <PatientSelection
                                 orderPatient={selectedPatient || orderPatient}
@@ -86,16 +50,15 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                                 }
                             />
                         </div>
-                    ) : (
                         <button
-                            type="button"
-                            className="h-8 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium hover:bg-slate-50 hover:text-(--color-synapse-light) transition-colors inline-flex items-center justify-center gap-2"
+                            className="h-8 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium hover:bg-slate-50 hover:text-(--color-synapse-light) transition-colors shrink-0"
                             onClick={() => setOpenCreate(true)}
+                            title="New Patient"
                         >
-                            <UserPlus className="h-4 w-4" />
-                            Register New Patient
+                            <UserPlus className="h-4 w-4 md:mr-2 inline" />
+                            <span className="hidden md:inline">New</span>
                         </button>
-                    )}
+                    </div>
                 </div>
 
                 <div className="space-y-2">
@@ -138,8 +101,6 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                                     }).catch(() => {
                                         setSelectedPatient({ _id: id, name: name || "", mrn: mrn || "" });
                                     });
-                                    persistPatientMode("existing");
-                                    setPatientMode("existing");
                                 }
                             }}
                         />
