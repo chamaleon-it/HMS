@@ -5,14 +5,34 @@ export interface BatchType {
   stripCount?: number;
   mrp?: number;
   unitPrice?: number;
+  /** Legacy import alias for unitPrice */
+  saleRate?: number;
   purchasePrice?: number;
+  /** Import-era field — prefer when purchasePrice is missing */
+  purchaseRate?: number;
   gst?: number;
   quantity: number;
   startingQuantity?: number;
   isActive?: boolean;
+  status?: string;
   supplier: string;
   expiryDate: Date | string;
   createdAt?: Date;
+}
+
+/** Dual-read helpers for AR Rahma / mixed batch documents */
+export function batchPurchasePrice(batch: BatchType | any): number {
+  const n = Number(batch?.purchasePrice ?? batch?.purchaseRate ?? 0);
+  return Number.isFinite(n) ? n : 0;
+}
+
+export function batchUnitPrice(batch: BatchType | any): number {
+  const n = Number(batch?.unitPrice ?? batch?.saleRate ?? 0);
+  return Number.isFinite(n) ? n : 0;
+}
+
+export function batchKey(batch: BatchType | any): string | undefined {
+  return batch?._id || batch?.batchNumber || undefined;
 }
 
 export interface ItemType {
