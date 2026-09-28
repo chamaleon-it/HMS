@@ -40,7 +40,7 @@ export default function DoctorProfile() {
     };
   }, []);
 
-  const { data, mutate } = useSWR("/backup/list")
+  const { data, mutate } = useSWR(user?.role === "Admin" ? "/backup/list" : null)
 
 
   return (
@@ -129,59 +129,63 @@ export default function DoctorProfile() {
               </Button>
             </DropdownMenuItem>
 
-            <DropdownMenuSeparator />
+            {user?.role === "Admin" && (
+              <>
+                <DropdownMenuSeparator />
 
-            <DropdownMenuItem className="px-3" asChild>
-              <Button variant={"ghost"} className="w-full text-left justify-start" onClick={async () => {
-                try {
+                <DropdownMenuItem className="px-3" asChild>
+                  <Button variant={"ghost"} className="w-full text-left justify-start" onClick={async () => {
+                    try {
 
-                  await toast.promise(api.post("/backup/create"), {
-                    loading: "Creating Backup...",
-                    success: "Backup Created Successfully",
-                    error: "Failed to Create Backup"
-                  })
-                  await mutate();
-                } catch (error) {
-                  console.log(error)
-                }
-              }}>
-                <div className="flex justify-between w-full items-center">
+                      await toast.promise(api.post("/backup/create"), {
+                        loading: "Creating Backup...",
+                        success: "Backup Created Successfully",
+                        error: "Failed to Create Backup"
+                      })
+                      await mutate();
+                    } catch (error) {
+                      console.log(error)
+                    }
+                  }}>
+                    <div className="flex justify-between w-full items-center">
 
-                  <div className="flex items-center gap-1">
-                    <DatabaseBackup className="mr-1 h-4 w-4" />
-                    Backup
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px] text-slate-500 italic">
-                      {fDateandTime(data?.latestBackup?.replace(/T(\d+)-(\d+)-(\d+)/, "T$1:$2:$3"))}
-                    </span>
+                      <div className="flex items-center gap-1">
+                        <DatabaseBackup className="mr-1 h-4 w-4" />
+                        Backup
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] text-slate-500 italic">
+                          {fDateandTime(data?.latestBackup?.replace(/T(\d+)-(\d+)-(\d+)/, "T$1:$2:$3"))}
+                        </span>
 
-                    {data?.latestBackup && (() => {
-                      const dateStr = data.latestBackup.replace(/T(\d+)-(\d+)-(\d+)/, "T$1:$2:$3");
-                      const backupDate = new Date(dateStr);
-                      const today = new Date();
-                      const diffTime = Math.abs(today.getTime() - backupDate.getTime());
-                      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                        {data?.latestBackup && (() => {
+                          const dateStr = data.latestBackup.replace(/T(\d+)-(\d+)-(\d+)/, "T$1:$2:$3");
+                          const backupDate = new Date(dateStr);
+                          const today = new Date();
+                          const diffTime = Math.abs(today.getTime() - backupDate.getTime());
+                          const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-                      return (
-                        <>
-                          {diffDays >= 1 && (
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-orange-100 text-orange-600 border border-orange-200">
-                              {diffDays} {diffDays === 1 ? "day" : "days"} ago
-                            </span>
-                          )}
+                          return (
+                            <>
+                              {diffDays >= 1 && (
+                                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-orange-100 text-orange-600 border border-orange-200">
+                                  {diffDays} {diffDays === 1 ? "day" : "days"} ago
+                                </span>
+                              )}
 
-                        </>
-                      );
-                    })()}
+                            </>
+                          );
+                        })()}
 
-                  </div>
+                      </div>
 
-                </div>
-              </Button>
-            </DropdownMenuItem>
+                    </div>
+                  </Button>
+                </DropdownMenuItem>
 
-            <DropdownMenuSeparator />
+                <DropdownMenuSeparator />
+              </>
+            )}
 
             {/* <DropdownMenuItem className="px-3" asChild>
               <Button variant={"ghost"} className="w-full text-left justify-start" onClick={async () => {

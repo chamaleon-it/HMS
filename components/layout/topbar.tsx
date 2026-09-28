@@ -205,7 +205,7 @@ export default function Header() {
             className="ml-4 flex items-center gap-3 sm:gap-4"
             data-testid="actions"
           >
-            {(user?.role === "Reception" || user?.role === "Admin") && (
+            {user?.role === "Admin" && (
               <button
                 className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => setOpenSync(true)}
