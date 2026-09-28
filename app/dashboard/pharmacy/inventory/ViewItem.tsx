@@ -3,13 +3,21 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Package, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Banknote, Coins, ShoppingCart, ArrowLeftRight, Layers, Pencil, Loader2, Power } from "lucide-react";
-import { ItemType } from "./interface";
+import { ItemType, batchKey, batchPurchasePrice, batchUnitPrice } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useCallback, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+
+function apiErrorMessage(error: unknown, fallback: string): string {
+  const data = (error as { response?: { data?: { message?: string | string[] } } })?.response?.data;
+  const msg = data?.message;
+  if (Array.isArray(msg)) return msg.filter(Boolean).join(", ") || fallback;
+  if (typeof msg === "string" && msg.trim()) return msg;
+  return fallback;
+}
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatINR } from "@/lib/fNumber";
 import { cn } from "@/lib/utils";
@@ -69,23 +77,43 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
       packing: batch.packing ?? 0,
       stripCount: batch.stripCount ?? 0,
       mrp: batch.mrp ?? 0,
-      unitPrice: batch.unitPrice ?? 0,
-      purchasePrice: batch.purchasePrice ?? 0,
+      unitPrice: batchUnitPrice(batch),
+      purchasePrice: batchPurchasePrice(batch),
       gst: batch.gst ?? 0,
       supplier: batch.supplier || "",
     });
   };
 
   const saveBatch = async () => {
-    if (!editingBatch?._id) return;
+    const id = batchKey(editingBatch);
+    if (!id) {
+      toast.error("Batch id missing — cannot update this batch");
+      return;
+    }
+    const itemId = liveItem?._id || item._id;
     setIsSavingBatch(true);
     try {
-      await api.patch(`/pharmacy/items/${item._id}/batch/${editingBatch._id}`, editForm);
+      const payload = {
+        batchNumber: String(editForm.batchNumber ?? "").trim(),
+        expiryDate: editForm.expiryDate || undefined,
+        quantity: Number(editForm.quantity) || 0,
+        packing: Number(editForm.packing) || 0,
+        stripCount: Number(editForm.stripCount) || 0,
+        mrp: Number(editForm.mrp) || 0,
+        unitPrice: Number(editForm.unitPrice) || 0,
+        purchasePrice: Number(editForm.purchasePrice) || 0,
+        gst: Number(editForm.gst) || 0,
+        supplier: String(editForm.supplier ?? "").trim(),
+      };
+      await api.patch(
+        `/pharmacy/items/${itemId}/batch/${encodeURIComponent(id)}`,
+        payload,
+      );
       toast.success("Batch updated successfully");
       refreshAll();
       setEditingBatch(null);
-    } catch {
-      toast.error("Failed to update batch");
+    } catch (error) {
+      toast.error(apiErrorMessage(error, "Failed to update batch"));
     } finally {
       setIsSavingBatch(false);
     }
@@ -275,7 +303,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
               Unit Price
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{latestBatch?.unitPrice !== undefined ? `₹ ${latestBatch.unitPrice.toFixed(2)}` : "-"}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{latestBatch ? `₹ ${batchUnitPrice(latestBatch).toFixed(2)}` : "-"}</div>
           </div>
 
           <div className="space-y-2">
@@ -326,7 +354,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
               Total Value
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(item.quantity * (latestBatch?.unitPrice || 0))}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(item.quantity * (latestBatch ? batchUnitPrice(latestBatch) : 0))}</div>
           </div>
 
           <div className="space-y-2">
@@ -582,8 +610,8 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                         </TableCell>
                         <TableCell className="text-right text-xs py-3 font-bold text-emerald-700 bg-emerald-50/20 tabular-nums">{data.quantity ?? 0}</TableCell>
                         <TableCell className="text-right text-xs py-3 text-slate-700">{data.mrp ? formatINR(data.mrp) : "-"}</TableCell>
-                        <TableCell className="text-right text-xs py-3 font-semibold text-slate-800">{data.unitPrice ? formatINR(data.unitPrice) : "-"}</TableCell>
-                        <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(data.purchasePrice)}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-semibold text-slate-800">{batchUnitPrice(data) ? formatINR(batchUnitPrice(data)) : "-"}</TableCell>
+                        <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(batchPurchasePrice(data))}</TableCell>
                         <TableCell className="text-right text-xs py-3 text-slate-700">{data.gst ? `${data.gst}%` : "0%"}</TableCell>
                         <TableCell className="text-xs py-3 text-slate-600 truncate max-w-[120px] pr-4">{data.supplier || "-"}</TableCell>
                         <TableCell className="text-center py-3 pr-4">
@@ -591,21 +619,36 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                             <button
                               type="button"
                               onClick={async () => {
-                                const wasActive = data.isActive !== false;
+                                const key = batchKey(data);
+                                if (!key) {
+                                  toast.error("Batch id missing — cannot toggle");
+                                  return;
+                                }
+                                const wasActive =
+                                  data.isActive !== false &&
+                                  String(data.status || "active").toLowerCase() !== "inactive";
                                 try {
-                                  await api.patch(`/pharmacy/items/${item._id}/batch/${data._id}/toggle`);
+                                  await api.patch(
+                                    `/pharmacy/items/${liveItem?._id || item._id}/batch/${encodeURIComponent(key)}/toggle`,
+                                  );
                                   toast.success(wasActive ? "Batch deactivated" : "Batch activated");
                                   refreshAll();
-                                } catch {
-                                  toast.error("Failed to toggle batch status");
+                                } catch (error) {
+                                  toast.error(apiErrorMessage(error, "Failed to toggle batch status"));
                                 }
                               }}
                               className={`inline-flex items-center justify-center w-7 h-7 rounded-full transition-all cursor-pointer ${
-                                data.isActive !== false
+                                data.isActive !== false &&
+                                String(data.status || "active").toLowerCase() !== "inactive"
                                   ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
                                   : "bg-slate-100 text-slate-400 hover:bg-slate-200"
                               }`}
-                              title={data.isActive !== false ? "Active — click to deactivate" : "Inactive — click to activate"}
+                              title={
+                                data.isActive !== false &&
+                                String(data.status || "active").toLowerCase() !== "inactive"
+                                  ? "Active — click to deactivate"
+                                  : "Inactive — click to activate"
+                              }
                             >
                               <Power className="w-3.5 h-3.5" />
                             </button>

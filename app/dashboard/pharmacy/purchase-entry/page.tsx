@@ -65,11 +65,15 @@ export interface PurchaseEntryItem {
         unitPrice: number;
     };
     batch: string;
+    /** Paid pack count (form Qty). Stock units = (quantity + free) × pack. */
     quantity: number;
     pack: number;
+    /** Alias of paid packs; preferred for display when present. */
+    noOfPack?: number;
     unitPrice: number;
     expiryDate: string | Date;
     purchasePrice: number;
+    /** GST rate percent (e.g. 5), not tax amount. */
     gst: number;
     discount: number;
     free: number;

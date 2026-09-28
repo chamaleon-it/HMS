@@ -557,7 +557,17 @@ const SingleSupplierPageContent: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100 ">
-                                            {selectedOrder.items?.map((item, i) => (
+                                            {selectedOrder.items?.map((item, i) => {
+                                                const qty =
+                                                    item.noOfPack != null && item.noOfPack !== undefined
+                                                        ? Number(item.noOfPack) || 0
+                                                        : Number(item.quantity) || 0;
+                                                const rate = Number(item.purchasePrice) || 0;
+                                                const disc = Number(item.discount) || 0;
+                                                const gstPct = Number(item.gst) || 0;
+                                                const taxable = Math.max(0, qty * rate - disc);
+                                                const lineTotal = taxable + taxable * (gstPct / 100);
+                                                return (
                                                 <tr key={i} className="hover:bg-slate-50/50  group">
                                                     <td className="p-3">
                                                         <div className="font-semibold text-slate-900">{item.item.name}</div>
@@ -568,26 +578,27 @@ const SingleSupplierPageContent: React.FC = () => {
                                                         <div className="text-[11px] text-slate-500">{fDate(item.expiryDate)}</div>
                                                     </td>
                                                     <td className="p-3 text-right">
-                                                        <div className="text-slate-900 font-medium">{item.quantity}</div>
+                                                        <div className="text-slate-900 font-medium">{qty}</div>
                                                         <div className="text-[11px] text-slate-500">Pack: {item.pack || 0}</div>
                                                     </td>
                                                     <td className="p-3 text-right text-slate-600">
                                                         {item.free || 0}
                                                     </td>
                                                     <td className="p-3 text-right text-slate-600">
-                                                        {formatINR(item.purchasePrice)}
+                                                        {formatINR(rate)}
                                                     </td>
                                                     <td className="p-3 text-right text-slate-600">
-                                                        {formatINR(item.gst)}
+                                                        {gstPct}%
                                                     </td>
                                                     <td className="p-3 text-right text-rose-500">
-                                                        -{formatINR(item.discount)}
+                                                        {disc > 0 ? `-${formatINR(disc)}` : "—"}
                                                     </td>
                                                     <td className="p-3 text-right font-semibold text-slate-900 pr-6">
-                                                        {formatINR(item.purchasePrice * item.quantity)}
+                                                        {formatINR(lineTotal)}
                                                     </td>
                                                 </tr>
-                                            ))}
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
 

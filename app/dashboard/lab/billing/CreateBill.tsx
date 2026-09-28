@@ -16,15 +16,27 @@ import {
   UserPlus,
   Wallet2,
 } from "lucide-react";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import PatientSelection from "./PatientSelection";
 import ItemSelected from "./ItemSelected";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { PatientForm } from "@/components/shared/patient/PatientForm";
+import {
+  PatientModeToggle,
+  getStoredPatientMode,
+  persistPatientMode,
+  type PatientMode,
+} from "@/components/dashboard/billing/PatientModeToggle";
 
 const theme = {
   from: "var(--color-synapse-light)",
@@ -45,8 +57,6 @@ export default function CreateBill({
 }: {
   billingMutate: () => void;
 }) {
-  const router = useRouter();
-
   const [item, setItem] = useState<null | string>(null);
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
   const itemRef = useRef<null | HTMLInputElement>(null);
@@ -70,9 +80,22 @@ export default function CreateBill({
     note?: string;
   }>(defaultPayload);
 
-  const registerPatient = useCallback(async () => {
-    router.push("/dashboard/doctor/patients#register");
-  }, [router]);
+  const [patientMode, setPatientMode] = useState<PatientMode>("existing");
+  const [openCreate, setOpenCreate] = useState(false);
+
+  useEffect(() => {
+    setPatientMode(getStoredPatientMode());
+  }, []);
+
+  const handleModeChange = (mode: PatientMode) => {
+    setPatientMode(mode);
+    if (mode === "new") {
+      setPayload((prev) => ({ ...prev, patient: "" }));
+      setOpenCreate(true);
+    } else {
+      setOpenCreate(false);
+    }
+  };
 
   const addItem = useCallback(
     (i?: string) => {
@@ -229,6 +252,14 @@ export default function CreateBill({
           "rounded-2xl border border-slate-200 p-4 shadow-sm supports-backdrop-filter:bg-white/80 supports-backdrop-filter:backdrop-blur dark:border-slate-800 dark:supports-backdrop-filter:bg-slate-900/70 bg-white dark:bg-slate-900 relative z-10"
         }
       >
+        <div className="mb-4">
+          <PatientModeToggle
+            value={patientMode}
+            onChange={handleModeChange}
+            layoutId="lab-billing-patient-mode"
+            className="mb-4"
+          />
+        </div>
         <div className="mb-4 grid grid-cols-12 gap-4">
           <div className="col-span-12 md:col-span-4">
             <div className="text-sm font-medium mb-2 flex items-center gap-2">
@@ -242,22 +273,40 @@ export default function CreateBill({
               </span>
               Patient
             </div>
-            <div className="flex items-center justify-between gap-5">
+            {patientMode === "existing" ? (
               <PatientSelection
                 value={payload.patient}
                 setValue={(value) =>
                   setPayload((prev) => ({ ...prev, patient: value }))
                 }
               />
-
+            ) : (
               <button
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 shrink-0"
-                onClick={registerPatient}
+                type="button"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 inline-flex items-center justify-center gap-2"
+                onClick={() => setOpenCreate(true)}
               >
-                <UserPlus className="mr-2 inline h-4 w-4" />
-                New
+                <UserPlus className="h-4 w-4" />
+                Register New Patient
               </button>
-            </div>
+            )}
+            <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+              <DialogContent className="max-w-3xl!">
+                <DialogHeader>
+                  <DialogTitle>Customer Register</DialogTitle>
+                </DialogHeader>
+                <PatientForm
+                  onClose={(id?: string) => {
+                    setOpenCreate(false);
+                    if (id) {
+                      setPayload((prev) => ({ ...prev, patient: id }));
+                      persistPatientMode("existing");
+                      setPatientMode("existing");
+                    }
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
           <div className="col-span-12 md:col-span-4">
             <div className="text-sm font-medium mb-2 flex items-center gap-2">
