@@ -30,7 +30,7 @@ import api from "@/lib/axios";
 import Link from "next/link";
 import PrintPrescription from "./billing/PrintPrescription";
 import PrintReceipt from "./PrintReceipt";
-import { presentPharmacyReceiptLine } from "@/lib/pharmacyReceiptLine";
+import { isPlaceholderBatchNumber, presentPharmacyReceiptLine } from "@/lib/pharmacyReceiptLine";
 import useSWR from "swr";
 import ViewOrder from "./ViewOrder";
 import { PaginationBar } from "./components/PaginationBar";
@@ -284,7 +284,23 @@ export default function OrderTable({
     handlePrintBill(r);
   };
 
+  const missingBatchMessage = (order: OrderType) => {
+    const missing = (order.items || []).filter(
+      (it) =>
+        (Number(it.quantity) || 0) > 0 &&
+        isPlaceholderBatchNumber((it as { batchNumber?: string }).batchNumber),
+    );
+    if (!missing.length) return "";
+    const names = missing.map((it) => it.name?.name || "medicine").join(", ");
+    return `Select a batch for ${names} before completing the order.`;
+  };
+
   const handleCompleteOrderWithTherapyCheck = async (r: OrderType) => {
+    const batchMessage = missingBatchMessage(r);
+    if (batchMessage) {
+      toast.error(batchMessage);
+      return;
+    }
     if (r.status?.toLowerCase() !== "completed" && r.patient?._id) {
       try {
         const { data: res } = await api.get<{ data: any[] }>(`/consultings/patient/${r.patient._id}`);
@@ -330,6 +346,13 @@ export default function OrderTable({
       if (pendingAction === "print") {
         handlePrintBill(pendingTherapyOrder);
       } else {
+        const batchMessage = missingBatchMessage(pendingTherapyOrder);
+        if (batchMessage) {
+          toast.error(batchMessage);
+          setPendingTherapyOrder(null);
+          setPendingConsulting(null);
+          return;
+        }
         await toast.promise(api.patch(`/pharmacy/orders/complete/${pendingTherapyOrder._id}`), {
           loading: "Completing...",
           success: (data) => {

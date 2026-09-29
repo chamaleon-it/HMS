@@ -63,6 +63,7 @@ export function sanitizeOrderUpdatePayload(payload: any) {
         mrp: item.mrp,
         gst: item.gst,
         purchasePrice: item.purchasePrice,
+        expiryDate: item.expiryDate,
       };
     }),
   };
