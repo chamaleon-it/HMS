@@ -146,12 +146,7 @@ function ConsultingMenuContent() {
                 {/* <LabAndTest data={data} setData={setData} /> */}
                 <Test data={data} setData={setData} setTestIsOK={setTestIsOK} />
 
-                <Advice
-                  data={data}
-                  setData={setData}
-                  doctor={appointment.doctor}
-                  patient={appointment.patient._id}
-                />
+                <Advice data={data} setData={setData} />
                 <ActionButton data={data} testIsOK={testIsOK} />
               </Card>
             </div>

@@ -6,7 +6,7 @@ import { numberToWords } from "@/lib/fNumber";
 import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import configuration from "@/config/configuration";
 import { format } from "date-fns";
-import { registrationAmountInWords, registrationBillValidUpto } from "@/lib/registrationBillValidity";
+import { formatRegistrationBillDay, registrationAmountInWords, registrationBillValidUpto } from "@/lib/registrationBillValidity";
 
 interface Props {
   data: {
@@ -78,9 +78,11 @@ export default function PatientRegistrationBillPrint({ data, preview = false }: 
 
   const createdDate = data.date ? new Date(data.date) : new Date();
   const formattedDate = format(createdDate, "dd/MM/yyyy");
-  const validUptoDate = format(
-    registrationBillValidUpto(createdDate, data.consultationValidUntil),
-    "dd/MM/yyyy",
+  const feeAmount = typeof data.fee === "number" ? data.fee : 0;
+  const validUptoDate = formatRegistrationBillDay(
+    registrationBillValidUpto(createdDate, data.consultationValidUntil, {
+      unpaid: feeAmount === 0,
+    }),
   );
 
   const rawOpNo = data.patient?.mrn || "";
@@ -92,7 +94,6 @@ export default function PatientRegistrationBillPrint({ data, preview = false }: 
     displayToken = String(parseInt(displayToken, 10));
   }
 
-  const feeAmount = typeof data.fee === "number" ? data.fee : 0;
   const displayFee = feeAmount % 1 === 0 ? String(feeAmount) : feeAmount.toFixed(2);
   const rawWords = numberToWords(feeAmount).replace(/\s*ONLY$/i, "").trim();
   const words = registrationAmountInWords(feeAmount, `${rawWords} only`);
