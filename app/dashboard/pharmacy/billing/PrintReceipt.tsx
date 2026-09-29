@@ -11,6 +11,7 @@ import {
     PrintSignature,
     PrintFooter,
 } from "@/components/print/PrintHeader";
+import { presentPharmacyReceiptLine } from "@/lib/pharmacyReceiptLine";
 
 interface PrintReceiptProps {
     payload?: {
@@ -80,46 +81,34 @@ export default function PrintReceipt({
 
     const { data: itemsData } = useSWR<{ data: any[] }>("/pharmacy/items?limit=1000");
     const dbItems = itemsData?.data || [];
-
-    const getBatchInfo = (itemName: string) => {
-        const matched = dbItems.find(
-            (it) => it.name.trim().toLowerCase() === itemName.trim().toLowerCase()
-        );
-        if (!matched) return { batchNumber: "", expiryDate: undefined, generic: undefined };
-
-        let batchNumber = matched.batchNumber || "";
-        if (batchNumber === "—") batchNumber = "";
-        let expiryDate = matched.expiryDate;
-
-        if (matched.batches && matched.batches.length > 0) {
-            const sorted = [...matched.batches].sort(
-                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            );
-            batchNumber = sorted[0].batchNumber || "";
-            if (batchNumber === "—") batchNumber = "";
-            expiryDate = sorted[0].expiryDate || matched.expiryDate;
-        }
-
-        return {
-            batchNumber,
-            expiryDate,
-            generic: matched.generic,
-        };
-    };
+    const { data: profile } = useSWR<{ data?: { pharmacy?: { billing?: { defaultGst?: number } } } }>("/users/profile");
+    const defaultGst = profile?.data?.pharmacy?.billing?.defaultGst;
 
     if (!patient || !payload || !mounted) return null;
 
-    const computedSubtotal = payload.items.reduce((sum, item) => sum + (item.total ?? ((item.unitPrice || 0) * (item.quantity || 1))), 0);
-    const computedGrandTotal = computedSubtotal - (payload.discount || 0);
+    const presented = payload.items.map((item) => {
+        const catalog = dbItems.find(
+            (it) => it.name?.trim().toLowerCase() === String(item.name || "").trim().toLowerCase()
+        );
+        return presentPharmacyReceiptLine(item, catalog, defaultGst);
+    });
+    const computedSubtotal = presented.reduce((sum, item) => sum + item.taxable, 0);
+    const computedGst = presented.reduce((sum, item) => sum + item.gstAmount, 0);
 
     const safeInvoiceDetails = invoiceDetails || {
         prefix: "INV",
         roundOffAmount: 0,
         subtotal: computedSubtotal,
-        totalGst: 0,
-        grandTotal: computedGrandTotal,
+        totalGst: computedGst,
+        grandTotal: computedSubtotal + computedGst - (payload.discount || 0),
         invoiceNo: invoiceNoProp || "INV-001",
     };
+    const subtotal = computedSubtotal;
+    const totalGst = computedGst;
+    const grandTotal = Math.max(
+        computedSubtotal + computedGst - (payload.discount || 0) - (safeInvoiceDetails.roundOffAmount || 0),
+        0,
+    );
 
     const invoiceNo = invoiceNoProp || safeInvoiceDetails.invoiceNo || `${safeInvoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;
 
@@ -270,28 +259,22 @@ export default function PrintReceipt({
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200">
-                                {payload.items.map((item, index) => {
-                                    const dbInfo = getBatchInfo(item.name);
-                                    const rawBatch = item.batchNumber && item.batchNumber !== " " && item.batchNumber !== "—" ? item.batchNumber : dbInfo.batchNumber;
-                                    const displayBatch = rawBatch === "—" ? "—" : rawBatch || "—";
-                                    const displayExpiry = item.expiryDate ? item.expiryDate : dbInfo.expiryDate;
-                                    const displayGeneric = item.generic || dbInfo.generic;
-
+                                {presented.map((item, index) => {
                                     return (
                                         <tr key={index} className="even:bg-slate-50/40">
                                             <td className="py-2 px-2 text-center font-bold text-slate-500 text-xs">{index + 1}</td>
                                             <td className="py-2 px-2 font-bold text-slate-900">
                                                 <p className="font-bold text-slate-900">{item.name}</p>
-                                                {displayGeneric && (
-                                                    <p className="text-[10px] text-slate-500 font-medium tracking-tight mt-0.5">GEN: {displayGeneric}</p>
+                                                {item.generic && (
+                                                    <p className="text-[10px] text-slate-500 font-medium tracking-tight mt-0.5">GEN: {item.generic}</p>
                                                 )}
                                             </td>
-                                            <td className="py-2 px-2 text-center font-medium text-slate-700">{displayBatch}</td>
-                                            <td className="py-2 px-2 text-center font-medium text-slate-700">{formatExpiry(displayExpiry) || "—"}</td>
+                                            <td className="py-2 px-2 text-center font-medium text-slate-700">{item.batchLabel}</td>
+                                            <td className="py-2 px-2 text-center font-medium text-slate-700">{formatExpiry(item.expiryDate) || "—"}</td>
                                             <td className="py-2 px-2 text-center font-bold text-slate-900">{item.quantity}</td>
-                                            <td className="py-2 px-2 text-right font-medium text-slate-800">{formatINR(item.unitPrice)}</td>
-                                            <td className="py-2 px-2 text-right font-medium text-slate-800">{item.gst}%</td>
-                                            <td className="py-2 px-2 text-right font-bold text-slate-900">{formatINR(item.total)}</td>
+                                            <td className="py-2 px-2 text-right font-medium text-slate-800">{item.unitPriceLabel}</td>
+                                            <td className="py-2 px-2 text-right font-medium text-slate-800">{item.gstLabel}</td>
+                                            <td className="py-2 px-2 text-right font-bold text-slate-900">{item.amountLabel}</td>
                                         </tr>
                                     );
                                 })}
@@ -316,11 +299,11 @@ export default function PrintReceipt({
                             <div className="p-2 space-y-1">
                                 <div className="flex justify-between text-slate-700">
                                     <span>Gross Amount:</span>
-                                    <span className="font-semibold text-black">{formatINR(safeInvoiceDetails.subtotal)}</span>
+                                    <span className="font-semibold text-black">{formatINR(subtotal)}</span>
                                 </div>
                                 <div className="flex justify-between text-slate-700">
                                     <span>CGST / SGST Total:</span>
-                                    <span className="font-semibold text-black">{formatINR(safeInvoiceDetails.totalGst)}</span>
+                                    <span className="font-semibold text-black">{formatINR(totalGst)}</span>
                                 </div>
                                 {payload.discount > 0 && (
                                     <div className="flex justify-between text-slate-700">
@@ -331,7 +314,7 @@ export default function PrintReceipt({
                             </div>
                             <div className="bg-slate-100 border-t border-slate-300 px-2.5 py-1.5 flex justify-between items-center">
                                 <span className="font-extrabold text-black text-[12.5px] uppercase tracking-wide">NET PAYABLE:</span>
-                                <span className="font-black text-black text-sm">{formatINR(safeInvoiceDetails.grandTotal)}</span>
+                                <span className="font-black text-black text-sm">{formatINR(grandTotal)}</span>
                             </div>
                         </div>
                     </div>

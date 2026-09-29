@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { BatchType } from "./inventory/interface";
+import { isPlaceholderBatchNumber } from "@/lib/pharmacyReceiptLine";
 import { formatINR } from "@/lib/fNumber";
 import { fDate } from "@/lib/fDateAndTime";
 import {
@@ -75,10 +76,33 @@ export default function BatchSelector({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [availableBatches.length, selectedBatchNumber]);
 
-  if (disabled || !itemId) {
+  const drugSelected = Boolean(itemId || medicineName);
+  const onlyBatch =
+    availableBatches.length === 1
+      ? availableBatches[0]
+      : batches.length === 1
+        ? batches[0]
+        : undefined;
+  const savedBatchLabel = !isPlaceholderBatchNumber(selectedBatchNumber)
+    ? selectedBatchNumber
+    : selectedBatch && !isPlaceholderBatchNumber(selectedBatch.batchNumber)
+      ? selectedBatch.batchNumber
+      : onlyBatch && !isPlaceholderBatchNumber(onlyBatch.batchNumber)
+        ? onlyBatch.batchNumber
+        : "";
+
+  if (!drugSelected) {
     return (
       <div className="h-8 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-400 text-xs flex items-center select-none truncate">
         Select drug first
+      </div>
+    );
+  }
+
+  if (disabled || !itemId) {
+    return (
+      <div className="h-8 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 text-xs flex items-center select-none truncate font-semibold">
+        {savedBatchLabel || "—"}
       </div>
     );
   }

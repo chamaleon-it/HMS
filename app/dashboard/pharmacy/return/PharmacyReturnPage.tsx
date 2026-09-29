@@ -16,6 +16,7 @@ import AppShell from "@/components/layout/app-shell";
 import { OrderType } from "./interface";
 import Header from "./Header";
 import { formatINR } from "@/lib/fNumber";
+import { batchUnitPrice, pickBatch, positiveMoney } from "@/lib/pharmacyReceiptLine";
 import Search from "./Search";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -93,7 +94,17 @@ export default function PharmacyReturnPage() {
         ...data.data,
         items: data.data.items
           .filter((it) => it.name)
-          .map((it) => ({ ...it, unitPrice: it.unitPrice || it.name.unitPrice })),
+          .map((it) => {
+            const batches = (it.name as { batches?: any[] })?.batches || [];
+            const selected = pickBatch(batches, (it as { batchNumber?: string }).batchNumber);
+            return {
+              ...it,
+              unitPrice:
+                positiveMoney((it as { unitPrice?: number }).unitPrice) ||
+                batchUnitPrice(selected) ||
+                positiveMoney(it.name?.unitPrice),
+            };
+          }),
       });
       setState({ refundMode: "Cash", returnedBy: "Patient", remarks: "" });
     } catch (error: any) {
@@ -172,7 +183,7 @@ export default function PharmacyReturnPage() {
           name: it.name._id,
           quantity: it.return || 0,
           reason: it.reason,
-          unitPrice: it.unitPrice ?? it.name.unitPrice,
+          unitPrice: positiveMoney(it.unitPrice) || positiveMoney(it.name?.unitPrice),
         })),
         billNo: order?.billNo,
       };
@@ -318,7 +329,11 @@ export default function PharmacyReturnPage() {
                       </TableCell>
 
                       <TableCell className="text-right tabular-nums font-semibold text-slate-900">
-                        {formatINR(((it.unitPrice ?? it.name.unitPrice) * (it.return ?? 0)))}
+                        {formatINR(
+                          (positiveMoney(it.unitPrice) ||
+                            positiveMoney(it.name?.unitPrice)) *
+                            (it.return ?? 0),
+                        )}
                       </TableCell>
 
                       <TableCell className="text-right">
@@ -394,7 +409,11 @@ export default function PharmacyReturnPage() {
                 <span>
                   {formatINR(
                     order?.items.reduce(
-                      (a, b) => a + (b.unitPrice ?? b.name.unitPrice) * (b.return ?? 0),
+                      (a, b) =>
+                        a +
+                        (positiveMoney(b.unitPrice) ||
+                          positiveMoney(b.name?.unitPrice)) *
+                          (b.return ?? 0),
                       0
                     ) ?? 0
                   )}

@@ -24,6 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { OrderType } from "./interface";
 import { sanitizeOrderUpdatePayload } from "@/lib/sanitizeOrderPayload";
+import { batchUnitPrice, pickBatch, positiveMoney } from "@/lib/pharmacyReceiptLine";
 import { fAge, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import toast from "react-hot-toast";
@@ -232,8 +233,15 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         open && localOrder?.patient?._id ? `/consultings/patient/${localOrder.patient._id}` : null
     );
 
-    const lineAmount = (it: { quantity?: number; unitPrice?: number; name?: { unitPrice?: number } }) =>
-        (Number(it.unitPrice ?? it.name?.unitPrice) || 0) * (Number(it.quantity) || 0);
+    const lineAmount = (it: { quantity?: number; unitPrice?: number; batchNumber?: string; name?: { unitPrice?: number; batches?: { batchNumber?: string; unitPrice?: number; saleRate?: number }[] } }) => {
+        const batches = it.name?.batches || [];
+        const selected = pickBatch(batches, it.batchNumber);
+        const price =
+            positiveMoney(it.unitPrice) ||
+            batchUnitPrice(selected) ||
+            positiveMoney(it.name?.unitPrice);
+        return price * (Number(it.quantity) || 0);
+    };
 
     const missingBatch = (items: { quantity?: number; batchNumber?: string; name?: { name?: string } }[]) =>
         items.filter((it) => (Number(it.quantity) || 0) > 0 && !String(it.batchNumber || "").trim());

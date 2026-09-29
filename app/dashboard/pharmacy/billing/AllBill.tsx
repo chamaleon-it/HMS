@@ -64,6 +64,11 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import PrintReceipt from "./PrintReceipt";
 import { PaginationBar } from "../components/PaginationBar";
+import { pharmacyLineMoney } from "@/lib/pharmacyReceiptLine";
+
+function billNet(items: { quantity?: number; unitPrice?: number; gst?: number; total?: number; name?: any; batchNumber?: string; expiryDate?: string | Date }[]) {
+  return items.reduce((sum, item) => sum + pharmacyLineMoney(item).net, 0);
+}
 
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
   const [isPaymentOpen, setIsPaymentOpen] = React.useState(false);
@@ -175,10 +180,10 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       </div>
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums font-medium text-slate-900">
-                      {formatINR(b.items.reduce((a, b) => a + b.total, 0))}
+                      {formatINR(billNet(b.items))}
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-slate-600">
-                      {(b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0)}
+                      {(b.roundOff ? getDecimal(billNet(b.items)) : 0)}
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-slate-600">
                       {formatINR(b.discount)}
@@ -191,8 +196,8 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       {formatINR(
                         Math.max(
                           0,
-                          b.items.reduce((a, i) => a + (i.total ?? 0), 0) -
-                          (b.roundOff ? getDecimal(b.items.reduce((a, i) => a + (i.total ?? 0), 0)) : 0) -
+                          billNet(b.items) -
+                          (b.roundOff ? getDecimal(billNet(b.items)) : 0) -
                           ((b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0) + (b.discount ?? 0))
                         )
                       )}
@@ -206,10 +211,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                           if (b.transactionType === "Return") {
                             return "Return";
                           }
-                          const itemsTotal = b.items.reduce(
-                            (sum, i) => sum + (i.total ?? 0),
-                            0
-                          );
+                          const itemsTotal = billNet(b.items);
                           const roundOffAmount = b.roundOff ? getDecimal(itemsTotal) : 0;
                           const netTotal = itemsTotal - roundOffAmount;
                           const totalPaid = (b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0) + (b.discount ?? 0);
@@ -243,7 +245,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                           <Printer className="h-3.5 w-3.5" /> Print
                         </Button>
 
-                        {(b.items.reduce((sum, i) => sum + (i.total ?? 0), 0) - (b.roundOff ? getDecimal(b.items.reduce((a, i) => a + (i.total ?? 0), 0)) : 0)) > ((b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0) + (b.discount ?? 0) + 0.01) ? (
+                        {(billNet(b.items) - (b.roundOff ? getDecimal(billNet(b.items)) : 0)) > ((b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0) + (b.discount ?? 0) + 0.01) ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
@@ -321,10 +323,10 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       </div>
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums">
-                      {formatINR(billing.reduce((acc, b) => acc + (isNegativeBill(b) ? 0 : b.items.reduce((a, x) => a + (x.total ?? 0), 0)), 0) - billing.reduce((acc, b) => acc + (b.transactionType === "Sale" ? 0 : b.items.reduce((a, x) => a + (x.total ?? 0), 0)), 0))}
+                      {formatINR(billing.reduce((acc, b) => acc + (isNegativeBill(b) ? -billNet(b.items) : billNet(b.items)), 0))}
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-slate-700">
-                      {billing.reduce((acc, b) => acc + (isNegativeBill(b) ? 0 : b.roundOff ? getDecimal(b.items.reduce((a, x) => a + (x.total ?? 0), 0)) : 0), 0).toFixed(2)}
+                      {billing.reduce((acc, b) => acc + (isNegativeBill(b) ? 0 : b.roundOff ? getDecimal(billNet(b.items)) : 0), 0).toFixed(2)}
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums">
                       {formatINR(billing.reduce((acc, b) => acc + (b.discount ?? 0), 0))}
@@ -337,8 +339,8 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-rose-700 font-black">
                       {formatINR(billing.reduce((acc, b) =>
-                        acc + (isNegativeBill(b) ? 0 : Math.max(0, b.items.reduce((a, x) => a + (x.total ?? 0), 0) -
-                          (b.roundOff ? getDecimal(b.items.reduce((a, x) => a + (x.total ?? 0), 0)) : 0) -
+                        acc + (isNegativeBill(b) ? 0 : Math.max(0, billNet(b.items) -
+                          (b.roundOff ? getDecimal(billNet(b.items)) : 0) -
                           ((b.upi ?? 0) + (b.cash ?? 0) + (b.card ?? 0) + (b.discount ?? 0)))), 0
                       )
                       )}
@@ -378,7 +380,19 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
         <PrintReceipt
           payload={{
             patient: printBill.patient?.name || "",
-            items: printBill.items.map((i) => ({ ...i, name: i.name })),
+            items: printBill.items.map((i) => {
+              const money = pharmacyLineMoney(i);
+              return {
+                ...i,
+                name: i.name,
+                quantity: money.quantity,
+                unitPrice: money.unitPrice,
+                gst: money.gst,
+                total: money.taxable,
+                batchNumber: (i as { batchNumber?: string }).batchNumber || money.batchNumber,
+                expiryDate: (i as { expiryDate?: string | Date }).expiryDate || money.expiryDate,
+              };
+            }),
             cash: printBill.cash,
             card: printBill.card,
             upi: printBill.upi,
@@ -390,17 +404,17 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
           invoiceDetails={{
             prefix: "MINV",
             roundOffAmount: printBill.roundOff
-              ? getDecimal(printBill.items.reduce((a, b) => a + b.total, 0))
+              ? getDecimal(billNet(printBill.items))
               : 0,
             subtotal: printBill.items.reduce(
-              (a, b) => a + b.unitPrice * b.quantity,
+              (sum, item) => sum + pharmacyLineMoney(item).taxable,
               0
             ),
             totalGst: printBill.items.reduce(
-              (a, b) => a + (b.total - b.unitPrice * b.quantity),
+              (sum, item) => sum + pharmacyLineMoney(item).gstAmount,
               0
             ),
-            grandTotal: printBill.items.reduce((a, b) => a + b.total, 0),
+            grandTotal: billNet(printBill.items) - (printBill.discount || 0),
           }}
         />
       )}

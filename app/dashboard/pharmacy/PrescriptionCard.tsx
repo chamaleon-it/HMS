@@ -18,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { formatINR } from "@/lib/fNumber";
+import { batchUnitPrice } from "@/lib/pharmacyReceiptLine";
 
 // ------------------ Types ------------------
 interface Medicine {
@@ -188,7 +189,7 @@ export default function PrescriptionCard({
                   updateField(
                     i,
                     "unitPrice",
-                    batch.unitPrice ||
+                    batchUnitPrice(batch) ||
                       (batch.packing && batch.mrp ? batch.mrp / batch.packing : (batch.mrp || 0)) ||
                       0
                   );

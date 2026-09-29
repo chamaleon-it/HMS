@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatINR } from "@/lib/fNumber";
+import { pharmacyLineMoney } from "@/lib/pharmacyReceiptLine";
 import React from "react";
 import { OrderType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
@@ -221,7 +222,7 @@ export default function Search({
           </span>
           <span className="text-emerald-700 font-bold text-lg leading-tight mt-1">
             {formatINR(
-              order?.items.reduce((a, b) => a + b.name.unitPrice * b.quantity, 0) ?? 0
+              order?.items.reduce((sum, item) => sum + pharmacyLineMoney(item).net, 0) ?? 0
             )}
           </span>
           <span className="text-[10px] font-semibold text-slate-400">incl. GST</span>

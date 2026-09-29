@@ -3,7 +3,7 @@
 import AppShell from "@/components/layout/app-shell";
 import HospitalName from "@/components/print/HospitalName";
 import Watermark from "@/components/print/Watermark";
-import { fDateandTime } from "@/lib/fDateAndTime";
+import { fDate, fDateandTime } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import Link from "next/link";
 import useSWR from "swr";
@@ -15,6 +15,7 @@ import React from "react";
 import { getDecimal } from "@/lib/fNumber";
 import PrintReceipt from "./PrintReceipt";
 import configuration from "@/config/configuration";
+import { pharmacyLineMoney, isPlaceholderBatchNumber } from "@/lib/pharmacyReceiptLine";
 
 export default function ViewBill({ id }: { id: string }) {
 
@@ -75,25 +76,19 @@ export default function ViewBill({ id }: { id: string }) {
     }
 
     // Calculations for totals
-    const subtotal = billing.items.reduce(
-        (sum, item) => sum + (item.quantity * item.unitPrice - item.discount),
-        0
-    );
-
-    const totalGst = billing.items.reduce(
-        (sum, item) =>
-            sum + ((item.quantity * item.unitPrice - item.discount) * item.gst) / 100,
-        0
-    );
-
-    const grandTotal = billing.items.reduce((s, { total }) => s + total, 0);
+    const lineMoney = billing.items.map((item) => pharmacyLineMoney(item));
+    const subtotal = lineMoney.reduce((sum, item) => sum + item.taxable, 0);
+    const totalGst = lineMoney.reduce((sum, item) => sum + item.gstAmount, 0);
+    const grandTotal = lineMoney.reduce((sum, item) => sum + item.net, 0);
 
     const paymentMethod =
         billing.upi > 0
             ? "UPI"
             : billing.card > 0
                 ? "Card"
-                : "Cash";
+                : billing.cash > 0
+                    ? "Cash"
+                    : "—";
 
     return (
         <AppShell>
@@ -167,19 +162,27 @@ export default function ViewBill({ id }: { id: string }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {billing.items.map((item, index) => (
+                                    {billing.items.map((item, index) => {
+                                        const money = lineMoney[index];
+                                        const batchLabel = !isPlaceholderBatchNumber((item as { batchNumber?: string }).batchNumber)
+                                            ? (item as { batchNumber?: string }).batchNumber
+                                            : money.batchNumber;
+                                        const expiry = (item as { expiryDate?: string | Date }).expiryDate || money.expiryDate;
+                                        const meta = [batchLabel, expiry ? fDate(expiry) : ""].filter(Boolean).join(" · ");
+                                        return (
                                         <tr key={index} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
                                             <td className="px-3 py-2.5 text-center font-medium text-slate-400 text-xs">{index + 1}</td>
                                             <td className="px-3 py-2.5">
                                                 <p className="font-bold text-slate-900 uppercase text-[12px]">{item.name}</p>
-                                                <p className="text-[10px] text-slate-500 font-medium tracking-tight">B‑7721 · 12/26 · HSN 3004</p>
+                                                {meta ? <p className="text-[10px] text-slate-500 font-medium tracking-tight">{meta}</p> : null}
                                             </td>
-                                            <td className="px-3 py-2.5 text-center font-bold text-slate-700">{item.quantity}</td>
-                                            <td className="px-3 py-2.5 text-right font-medium text-slate-600">{formatINR(item.unitPrice)}</td>
-                                            <td className="px-3 py-2.5 text-right font-medium text-slate-500">{item.gst}%</td>
-                                            <td className="px-3 py-2.5 text-right font-bold text-slate-900">{formatINR(item.total)}</td>
+                                            <td className="px-3 py-2.5 text-center font-bold text-slate-700">{money.quantity}</td>
+                                            <td className="px-3 py-2.5 text-right font-medium text-slate-600">{formatINR(money.unitPrice)}</td>
+                                            <td className="px-3 py-2.5 text-right font-medium text-slate-500">{money.gst}%</td>
+                                            <td className="px-3 py-2.5 text-right font-bold text-slate-900">{formatINR(money.taxable)}</td>
                                         </tr>
-                                    ))}
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
@@ -244,7 +247,19 @@ export default function ViewBill({ id }: { id: string }) {
                 <PrintReceipt
                     payload={{
                         patient: billing.patient?.name || "",
-                        items: billing.items.map((i: any) => ({ ...i, name: i.name })),
+                        items: billing.items.map((i: any, index: number) => {
+                            const money = lineMoney[index];
+                            return {
+                                ...i,
+                                name: i.name,
+                                quantity: money.quantity,
+                                unitPrice: money.unitPrice,
+                                gst: money.gst,
+                                total: money.taxable,
+                                batchNumber: i.batchNumber || money.batchNumber,
+                                expiryDate: i.expiryDate || money.expiryDate,
+                            };
+                        }),
                         cash: billing.cash,
                         card: billing.card,
                         upi: billing.upi,
@@ -255,18 +270,10 @@ export default function ViewBill({ id }: { id: string }) {
                     patient={billing.patient as any}
                     invoiceDetails={{
                         prefix: "MINV",
-                        roundOffAmount: billing.roundOff
-                            ? getDecimal(billing.items.reduce((a: any, b: any) => a + b.total, 0))
-                            : 0,
-                        subtotal: billing.items.reduce(
-                            (a: any, b: any) => a + b.unitPrice * b.quantity,
-                            0
-                        ),
-                        totalGst: billing.items.reduce(
-                            (a: any, b: any) => a + (b.total - b.unitPrice * b.quantity),
-                            0
-                        ),
-                        grandTotal: billing.items.reduce((a: any, b: any) => a + b.total, 0),
+                        roundOffAmount: billing.roundOff ? getDecimal(grandTotal) : 0,
+                        subtotal,
+                        totalGst,
+                        grandTotal: grandTotal - (billing.discount || 0),
                         invoiceNo: billing.mrn,
                     }}
                     invoiceNo={billing.mrn}
