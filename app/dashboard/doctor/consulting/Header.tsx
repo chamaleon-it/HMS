@@ -32,7 +32,7 @@ export default function Header({
   data: DataType;
   setData: Dispatch<SetStateAction<DataType>>
 }) {
-  const { data } = useGetLabReport({ patientId: appointment.patient._id });
+  const { data } = useGetLabReport({ patientId: appointment.patient?._id });
   const { data: treatmentData } = useSWR<{ data: any[] }>(
     appointment?.patient?._id ? `/treatment?patient=${appointment.patient._id}&limit=200` : null,
     { revalidateOnFocus: false }
@@ -43,8 +43,8 @@ export default function Header({
   return (
     <div className="space-y-4 mb-6">
       <DoctorHeader
-        title={appointment.patient.name}
-        subtitle={`(ID: ${appointment.patient.mrn}) • Age ${fAgeString(appointment?.patient?.dateOfBirth)}, ${appointment.patient.gender} ${!!appointment.patient.allergies ? `• Allergies: ${appointment.patient.allergies}` : ""}`}
+        title={appointment.patient?.name || "Unknown patient"}
+        subtitle={`(ID: ${appointment.patient?.mrn || "—"}) • Age ${fAgeString(appointment?.patient?.dateOfBirth)}, ${appointment.patient?.gender || "—"} ${appointment.patient?.allergies ? `• Allergies: ${appointment.patient.allergies}` : ""}`}
       >
         <div className="flex gap-2.5 items-center">
           <Button
@@ -52,7 +52,7 @@ export default function Header({
             className="cursor-pointer text-slate-600 hover:text-slate-900"
             onClick={() =>
               window.open(
-                `/dashboard/doctor/patients/single?id=${appointment.patient._id}`,
+                `/dashboard/doctor/patients/single?id=${appointment.patient?._id}`,
                 "_blank"
               )
             }

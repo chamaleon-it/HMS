@@ -48,7 +48,7 @@ export default function History({ patientId }: { patientId: string }) {
                   {fDate(consulting.createdAt)}
                 </TableCell>
                 <TableCell>
-                  {consulting.doctor.name}
+                  {consulting.doctor?.name || "—"}
                 </TableCell>
 
                 <TableCell className="max-w-75">

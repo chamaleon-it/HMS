@@ -195,8 +195,8 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
         const payload = sanitizeOrderUpdatePayload({
             ...updatePayload,
-            patient: localOrder.patient._id,
-            doctor: localOrder.doctor._id,
+            patient: localOrder.patient?._id,
+            doctor: localOrder.doctor?._id,
         });
         try {
             setUpdatingOrder(true);

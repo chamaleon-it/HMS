@@ -100,7 +100,7 @@ const Customers: React.FC = () => {
     }[];
   }>(`/pharmacy/orders/customers?${params.toString()}`);
 
-  const customers = customersData?.data ?? [];
+  const customers = (customersData?.data ?? []).filter((p) => p.patient);
   const total = customersData?.total ?? 0;
 
 

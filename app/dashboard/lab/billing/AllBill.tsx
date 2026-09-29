@@ -152,10 +152,10 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                   </TableCell>
                   <TableCell className="py-3">
                     <div className="font-medium truncate text-slate-900">
-                      {b.patient.name}
+                      {b.patient?.name || "Unknown patient"}
                     </div>
                     <div className="text-[11px] text-slate-500">
-                      {b.patient.mrn}
+                      {b.patient?.mrn}
                     </div>
                   </TableCell>
                   <TableCell className="py-3 text-center">

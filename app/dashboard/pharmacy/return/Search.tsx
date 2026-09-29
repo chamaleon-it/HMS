@@ -137,7 +137,7 @@ export default function Search({
                       <div className="text-xs font-semibold text-slate-800">
                         {item.patient?.name}{" "}
                         <span className="font-medium ml-1 text-[10px]">
-                          ({item.patient.mrn})
+                          ({item.patient?.mrn})
                         </span>
                       </div>
                       <div className="text-[10px] text-slate-400">

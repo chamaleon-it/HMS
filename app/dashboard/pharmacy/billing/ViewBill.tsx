@@ -143,10 +143,10 @@ export default function ViewBill({ id }: { id: string }) {
                     <div className="p-5 flex-1 flex flex-col gap-6 text-[13px]">
                         {/* PATIENT STRIP - 4 COL COMPACT */}
                         <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
-                            <Compact label="Patient" value={billing.patient.name} />
-                            <Compact label="OP NO" value={billing.patient.mrn?.replace("MRN", "P-") || "—"} />
-                            <Compact label="Age/G" value={`${billing.patient.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient.gender || "—"}`} />
-                            <Compact label="Phone" value={billing.patient.phoneNumber || "—"} />
+                            <Compact label="Patient" value={billing.patient?.name || "—"} />
+                            <Compact label="OP NO" value={billing.patient?.mrn?.replace("MRN", "P-") || "—"} />
+                            <Compact label="Age/G" value={`${billing.patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient?.gender || "—"}`} />
+                            <Compact label="Phone" value={billing.patient?.phoneNumber || "—"} />
                             <Compact label="Doctor" value={typeof billing.doctor === "object" ? (billing.doctor as any)?.name : (billing.doctor === "Self" ? "" : billing.doctor || "—")} />
                             <Compact label="Dept" value={typeof billing.doctor === "object" ? (billing.doctor as any)?.specialization : (billing.department || "—")} />
                             <Compact label="Pay" value={paymentMethod} />
@@ -243,7 +243,7 @@ export default function ViewBill({ id }: { id: string }) {
             {billing && (
                 <PrintReceipt
                     payload={{
-                        patient: billing.patient.name,
+                        patient: billing.patient?.name || "",
                         items: billing.items.map((i: any) => ({ ...i, name: i.name })),
                         cash: billing.cash,
                         card: billing.card,

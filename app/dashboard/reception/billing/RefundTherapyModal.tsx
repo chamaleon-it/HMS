@@ -149,7 +149,7 @@ export default function RefundTherapyModal({
                 Refund Therapy Package
               </DialogTitle>
               <DialogDescription className="text-xs text-slate-500">
-                Invoice #{bill.mrn} • Patient: <span className="font-semibold text-slate-700 dark:text-slate-300">{bill.patient.name}</span>
+                Invoice #{bill.mrn} • Patient: <span className="font-semibold text-slate-700 dark:text-slate-300">{bill.patient?.name || "Unknown patient"}</span>
               </DialogDescription>
             </div>
           </div>
