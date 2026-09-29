@@ -42,7 +42,6 @@ export default function Header() {
       { key: "dashboard", label: "Dashboard", link: "/dashboard/doctor/" },
       { key: "patients", label: "Patients", link: "/dashboard/doctor/patients/" },
       { key: "ip", label: "IP (In Patient)", link: "/dashboard/doctor/ip/" },
-      { key: "lab-results", label: "Investigations", link: "/dashboard/doctor/lab-report/" },
       { key: "therapy", label: "Therapy", link: "/dashboard/doctor/therapy/" },
       { key: "procedure", label: "Procedure", link: "/dashboard/doctor/procedure/" },
       {
@@ -81,7 +80,6 @@ export default function Header() {
     (user?.role === "Lab" && [
       // { key: "appointments", label: "Appointments", link: "/dashboard/lab/appointments/" },
       { key: "dashboard", label: "Dashboard", link: "/dashboard/lab/" },
-      { key: "tests", label: "Test", childrens: [{ key: "lab", label: "Lab", link: "/dashboard/lab/test/lab/" }, { key: "imaging", label: "Imaging", link: "/dashboard/lab/test/imaging/" }] },
       { key: "inventory", label: "Catalogue", link: "/dashboard/lab/inventory/" },
       { key: "patients", label: "Customers", link: "/dashboard/lab/patients/" },
       { key: "billing", label: "Billing", link: "/dashboard/lab/billing/" },
