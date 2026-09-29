@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import useSWR from "swr";
+import { doctorScheduleListSwrOptions } from "@/hooks/doctorScheduleCachePolicy";
 
 const colorMap = {
   Consultation: {
@@ -102,7 +103,10 @@ export default function WeeklyCalender({
   const { data: weeklyData } = useSWR<{
     message: string;
     data: WeekItem[];
-  }>(`/appointments/calender/weekly?date=${formattedDateParam}`);
+  }>(
+    `/appointments/calender/weekly?date=${formattedDateParam}`,
+    doctorScheduleListSwrOptions
+  );
   const weekItems = useMemo(() => weeklyData?.data ?? [], [weeklyData]);
 
   const { eventsInWeek } = useMemo(() => {
