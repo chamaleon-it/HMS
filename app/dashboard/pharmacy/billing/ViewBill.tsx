@@ -279,6 +279,7 @@ export default function ViewBill({ id }: { id: string }) {
                         discount: billing.discount,
                         doctor: typeof billing.doctor === "object" ? billing.doctor?.name : (billing.doctor === "Self" ? "" : billing.doctor),
                         department: typeof billing.doctor === "object" ? billing.doctor?.specialization : billing.department,
+                        note: billing.note,
                         inCharge: (billing as { inCharge?: string }).inCharge,
                     }}
                     patient={billing.patient as any}

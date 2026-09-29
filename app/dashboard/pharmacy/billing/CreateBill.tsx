@@ -473,6 +473,7 @@ export default function CreateBill({
           discount: printBillData.discount,
           doctor: typeof printBillData.doctor === "object" ? printBillData.doctor?.name : (printBillData.doctor === "Self" ? "" : printBillData.doctor),
           department: typeof printBillData.doctor === "object" ? printBillData.doctor?.specialization : printBillData.department,
+          note: printBillData.note,
           inCharge: printBillData.inCharge || payload.inCharge,
         } : payload}
         patient={printBillData ? printBillData.patient : selectedPatient}

@@ -410,7 +410,7 @@ const CustomerPageContent: React.FC = () => {
                     patient: patientObj?._id || "",
                     department: "Pharmacy",
                     doctor: doctorName,
-                    note: "",
+                    note: bill.note || "",
                     inCharge: bill.inCharge || bill.pharmacist,
                 },
                 invoiceDetails: {

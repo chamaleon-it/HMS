@@ -12,6 +12,7 @@ import {
     PrintFooter,
 } from "@/components/print/PrintHeader";
 import { presentPharmacyReceiptLine } from "@/lib/pharmacyReceiptLine";
+import { getBillType } from "@/lib/billTypeUtils";
 
 interface PrintReceiptProps {
     payload?: {
@@ -147,6 +148,11 @@ export default function PrintReceipt({
 
     const isConsultationOnly = payload.items.every(item => item.name.toLowerCase().includes("consultation"));
     const tableHeader = isConsultationOnly ? "Description" : "Medicine / Item Description";
+    const billType = getBillType({
+        note: payload.note,
+        items: payload.items.map((item) => ({ name: String(item.name || "") })),
+    });
+    const showBatchColumns = billType !== "therapy" && billType !== "procedure";
 
     return createPortal(
         <div className="print-receipt hidden print:block bg-white text-black font-montserrat leading-relaxed">
@@ -244,8 +250,12 @@ export default function PrintReceipt({
                                 <tr className="border-b-2 border-synapse-light text-[10.5px] font-bold text-slate-700 uppercase tracking-wider text-left bg-slate-50">
                                     <th className="py-2 px-2 text-center w-10">#</th>
                                     <th className="py-2 px-2">{tableHeader}</th>
-                                    <th className="py-2 px-2 text-center">Batch No</th>
-                                    <th className="py-2 px-2 text-center">Expiry</th>
+                                    {showBatchColumns && (
+                                        <>
+                                            <th className="py-2 px-2 text-center">Batch No</th>
+                                            <th className="py-2 px-2 text-center">Expiry</th>
+                                        </>
+                                    )}
                                     <th className="py-2 px-2 text-center">Qty</th>
                                     <th className="py-2 px-2 text-right">Unit Price</th>
                                     <th className="py-2 px-2 text-right">GST</th>
@@ -263,8 +273,12 @@ export default function PrintReceipt({
                                                     <p className="text-[10px] text-slate-500 font-medium tracking-tight mt-0.5">GEN: {item.generic}</p>
                                                 )}
                                             </td>
-                                            <td className="py-2 px-2 text-center font-medium text-slate-700">{item.batchLabel}</td>
-                                            <td className="py-2 px-2 text-center font-medium text-slate-700">{formatExpiry(item.expiryDate) || "—"}</td>
+                                            {showBatchColumns && (
+                                                <>
+                                                    <td className="py-2 px-2 text-center font-medium text-slate-700">{item.batchLabel}</td>
+                                                    <td className="py-2 px-2 text-center font-medium text-slate-700">{formatExpiry(item.expiryDate) || "—"}</td>
+                                                </>
+                                            )}
                                             <td className="py-2 px-2 text-center font-bold text-slate-900">{item.quantity}</td>
                                             <td className="py-2 px-2 text-right font-medium text-slate-800">{item.unitPriceLabel}</td>
                                             <td className="py-2 px-2 text-right font-medium text-slate-800">{item.gstLabel}</td>
@@ -311,11 +325,7 @@ export default function PrintReceipt({
 
                     {/* AUTHORIZED SIGNATURE */}
                     <div className="relative z-10 pt-2 flex justify-end">
-                        <PrintSignature
-                            label="Authorized Signature"
-                            doctorName={payload.doctor && payload.doctor !== "-" ? payload.doctor : undefined}
-                            specialization={payload.department}
-                        />
+                        <PrintSignature label="Authorised Signatory" />
                     </div>
                 </div>
 
