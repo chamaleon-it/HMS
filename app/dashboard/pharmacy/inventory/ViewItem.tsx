@@ -567,7 +567,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                     <TableHead className="w-28 text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Customer</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Doctor</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Pharmacist</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Accountant in charge</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">QTY</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Unit Price</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Total</TableHead>
@@ -686,7 +686,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                           </div>
                         </TableCell>
                         <TableCell className="text-xs py-3 text-slate-700 font-medium">{data.doctorName || data.doctor || data.doctorInCharge || "-"}</TableCell>
-                        <TableCell className="text-xs py-3 text-slate-700 font-medium">{data.pharmacistName || data.pharmacist || data.pharmacistInCharge || data.createdByName || "-"}</TableCell>
+                        <TableCell className="text-xs py-3 text-slate-700 font-medium">{data.inCharge || data.accountant || data.pharmacistName || data.pharmacist || data.pharmacistInCharge || "-"}</TableCell>
                         <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{data.quantity}</TableCell>
                         <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.unitPrice)}</TableCell>
                         <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.total)}</TableCell>
