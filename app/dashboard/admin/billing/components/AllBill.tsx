@@ -131,9 +131,9 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     </TableCell>
                     <TableCell className="py-3 text-slate-600 whitespace-nowrap">{fDateandTime(b.createdAt)}</TableCell>
                     <TableCell className="py-3">
-                      <div className="font-medium truncate text-slate-900">{b.patient.name}</div>
+                      <div className="font-medium truncate text-slate-900">{b.patient?.name || "Unknown patient"}</div>
                       <div className="text-[11px] text-slate-500">
-                        {b.patient.mrn}
+                        {b.patient?.mrn}
                       </div>
                     </TableCell>
                     <TableCell className="py-3">
@@ -272,7 +272,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
       {printBill && (
         <PrintReceipt
           payload={{
-            patient: printBill.patient.name,
+            patient: printBill.patient?.name || "",
             items: printBill.items.map((i) => ({ ...i, name: i.name })),
             cash: printBill.cash,
             card: printBill.card,

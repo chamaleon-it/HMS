@@ -322,7 +322,7 @@ export default function List({
                   <TableCell className="py-2.5">
                     <div className="flex items-center gap-3">
                       <div className="relative shrink-0">
-                        <Avatar text={row.patient.name} />
+                        <Avatar text={row.patient?.name || "?"} />
                         {row.visitCount === 1 ? (
                           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1 py-0 rounded-full ring-2 ring-white">N</span>
                         ) : (
@@ -331,13 +331,13 @@ export default function List({
                       </div>
                       <div className="min-w-0 max-w-50">
                         <div className="flex items-center gap-1.5">
-                          <span className="truncate font-semibold text-gray-900 block">{row.patient.name}</span>
+                          <span className="truncate font-semibold text-gray-900 block">{row.patient?.name || "Unknown patient"}</span>
                           {row.visitCount > 0 && <span className="bg-gray-100 text-gray-500 text-[10px] px-1 rounded border border-gray-200" title="Visit Count">{row.visitCount}</span>}
                         </div>
                         <div className="text-xs text-gray-500 truncate flex items-center gap-1">
-                          <span>{row.patient.mrn}</span>
-                          {row.patient.phoneNumber && <span className="text-gray-300">•</span>}
-                          <span>{row.patient.phoneNumber}</span>
+                          <span>{row.patient?.mrn}</span>
+                          {row.patient?.phoneNumber && <span className="text-gray-300">•</span>}
+                          <span>{row.patient?.phoneNumber}</span>
                         </div>
                       </div>
                     </div>

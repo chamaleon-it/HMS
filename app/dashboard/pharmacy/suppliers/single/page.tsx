@@ -266,10 +266,10 @@ const SingleSupplierPageContent: React.FC = () => {
                                     </div>
                                     <div className="min-w-0">
                                         <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight leading-none mb-1 ">Address</p>
-                                        <p className="font-medium text-slate-700 text-sm leading-snug truncate" title={`${supplier.address.line1}${supplier.address.line2 ? `, ${supplier.address.line2}` : ""}${supplier.address.city ? `, ${supplier.address.city}` : ""}`}>
-                                            {supplier.address.line1}
-                                            {supplier.address.line2 && <span className="text-slate-500">, {supplier.address.line2}</span>}
-                                            {supplier.address.city && <span className="text-slate-500">, {supplier.address.city}</span>}
+                                        <p className="font-medium text-slate-700 text-sm leading-snug truncate" title={`${supplier.address?.line1 || ""}${supplier.address?.line2 ? `, ${supplier.address.line2}` : ""}${supplier.address?.city ? `, ${supplier.address.city}` : ""}`}>
+                                            {supplier.address?.line1 || "N/A"}
+                                            {supplier.address?.line2 && <span className="text-slate-500">, {supplier.address.line2}</span>}
+                                            {supplier.address?.city && <span className="text-slate-500">, {supplier.address.city}</span>}
                                         </p>
                                     </div>
                                 </div>
@@ -570,8 +570,8 @@ const SingleSupplierPageContent: React.FC = () => {
                                                 return (
                                                 <tr key={i} className="hover:bg-slate-50/50  group">
                                                     <td className="p-3">
-                                                        <div className="font-semibold text-slate-900">{item.item.name}</div>
-                                                        <div className="text-[11px] text-slate-500">HSN: {item.item.hsnCode || "N/A"}</div>
+                                                        <div className="font-semibold text-slate-900">{item.item?.name || "Unknown item"}</div>
+                                                        <div className="text-[11px] text-slate-500">HSN: {item.item?.hsnCode || "N/A"}</div>
                                                     </td>
                                                     <td className="p-3">
                                                         <div className="text-slate-700 font-medium">{item.batch}</div>

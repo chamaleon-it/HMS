@@ -116,11 +116,11 @@ export default function ViewResultModal({ r }: Props) {
                         <div className="grid grid-cols-3 gap-x-8 gap-y-1">
                             <div>
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Gender</p>
-                                <p className="text-sm font-medium text-gray-700">{r.patient.gender}</p>
+                                <p className="text-sm font-medium text-gray-700">{r?.patient?.gender}</p>
                             </div>
                             <div>
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Age</p>
-                                <p className="text-sm font-medium text-gray-700">{fAgeString(r.patient.dateOfBirth)}</p>
+                                <p className="text-sm font-medium text-gray-700">{fAgeString(r?.patient?.dateOfBirth)}</p>
                             </div>
                             <div>
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Blood Type</p>

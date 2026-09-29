@@ -331,7 +331,7 @@ export default function CreateBill({
           discount: number;
           gst: number;
           total: number;
-        }[] = order.items.map((item: any) => ({
+        }[] = order.items.filter((item: any) => item.name).map((item: any) => ({
           name: item.name.name,
           quantity: item.quantity,
           unitPrice: item.name.unitPrice,

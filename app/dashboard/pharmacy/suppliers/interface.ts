@@ -28,6 +28,7 @@ export interface Supplier {
 
 export interface SupplierOrderItem {
     _id: string;
+    /** Populated pharmacy item; null when the referenced item no longer exists. */
     item: {
         _id: string;
         name: string;
@@ -35,7 +36,7 @@ export interface SupplierOrderItem {
         hsnCode?: string;
         sku?: string;
         unitPrice: number;
-    };
+    } | null;
     batch: string;
     expiryDate: string;
     /** Paid pack count (form Qty). */

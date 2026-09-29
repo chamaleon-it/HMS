@@ -174,7 +174,7 @@ export default function OrderTable({
         message: string;
       }>(`/pharmacy/orders/single?${params}`);
 
-      const items = data.data.items.map((e) => {
+      const items = data.data.items.filter((e) => e.name).map((e) => {
         const unitPrice = e.name.unitPrice || 0;
         const quantity = e.quantity || 0;
         // Since GST might not be in the order fetch, we fallback to defaultGst or 0
@@ -213,9 +213,9 @@ export default function OrderTable({
           discount,
           upi: 0,
           card: 0,
-          patient: data.data.patient._id,
-          department: data.data.doctor.specialization,
-          doctor: data.data.doctor.name,
+          patient: data.data.patient?._id,
+          department: data.data.doctor?.specialization,
+          doctor: data.data.doctor?.name,
           note: "",
         },
         invoiceDetails: {

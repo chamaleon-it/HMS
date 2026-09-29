@@ -122,7 +122,7 @@ export default function UpdatePrescriptionCard({
             </tr>
           </thead>
           <tbody>
-            {data?.items?.map((m, i) => (
+            {data?.items?.map((m, i) => m.name && (
               <tr key={i} className="border-b last:border-b-0 hover:bg-slate-50/80 transition-all duration-200 group">
                 <td className="p-3 align-middle text-slate-500 font-medium text-sm">{i + 1}</td>
                 <td className="p-3 align-middle">

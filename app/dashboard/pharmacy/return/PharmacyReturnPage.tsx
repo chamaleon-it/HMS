@@ -89,7 +89,12 @@ export default function PharmacyReturnPage() {
       }
 
       const { data }: { data: { data: OrderType } } = await api.get(`/pharmacy/orders/single?${params}`);
-      setOrder({ ...data.data, items: data.data.items.map((it) => ({ ...it, unitPrice: it.unitPrice || it.name.unitPrice })) });
+      setOrder({
+        ...data.data,
+        items: data.data.items
+          .filter((it) => it.name)
+          .map((it) => ({ ...it, unitPrice: it.unitPrice || it.name.unitPrice })),
+      });
       setState({ refundMode: "Cash", returnedBy: "Patient", remarks: "" });
     } catch (error: any) {
       if (error?.response?.data?.message === "Order not found.") {
