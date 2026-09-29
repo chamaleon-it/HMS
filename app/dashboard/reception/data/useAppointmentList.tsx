@@ -76,6 +76,7 @@ export default function useAppointmentList({
       isRefunded?: boolean;
       refundReason?: string;
       hasConsultationFee?: boolean;
+      consultationValidUntil?: string | Date | null;
       token?: string;
       tokenNumber?: number;
       isArrived?: boolean;

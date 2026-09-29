@@ -712,7 +712,6 @@ export function AddDoctorModal({
                       endMonth={new Date(new Date().getFullYear() + 10, 11)}
                       mode="range"
                       numberOfMonths={2}
-                      disabled={{ before: new Date() }}
                       captionLayout="dropdown"
                       selected={{
                         from: startDate ? new Date(startDate) : undefined,
@@ -1494,7 +1493,6 @@ export function EditDoctorModal({
                       endMonth={new Date(new Date().getFullYear() + 10, 11)}
                       mode="range"
                       numberOfMonths={2}
-                      disabled={{ before: new Date() }}
                       captionLayout="dropdown"
                       selected={{
                         from: startDate ? new Date(startDate) : undefined,
