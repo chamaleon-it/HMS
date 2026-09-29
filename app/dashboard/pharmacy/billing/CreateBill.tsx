@@ -6,6 +6,7 @@ import api from "@/lib/axios";
 
 import usePrint from "./usePrint";
 import PrintReceipt from "./PrintReceipt";
+import { batchUnitPrice, pickBatch, pickGst, positiveMoney } from "@/lib/pharmacyReceiptLine";
 import { useBillCalculations } from "./hooks/useBillCalculations";
 import { getDecimal } from "@/lib/fNumber";
 
@@ -333,16 +334,13 @@ export default function CreateBill({
           total: number;
         }[] = order.items.filter((item: any) => item.name).map((item: any) => {
           const batches = Array.isArray(item.name?.batches) ? item.name.batches : [];
-          const wanted = String(item.batchNumber || "").trim().toLowerCase();
-          const batch = wanted
-            ? batches.find(
-                (b: any) =>
-                  String(b?.batchNumber || "").trim().toLowerCase() === wanted,
-              )
-            : undefined;
+          const batch = pickBatch(batches, item.batchNumber, item.expiryDate);
           const unitPrice =
-            Number(item.unitPrice ?? batch?.unitPrice ?? item.name?.unitPrice) || 0;
-          const gst = Number(item.gst ?? batch?.gst) || 0;
+            positiveMoney(item.unitPrice) ||
+            batchUnitPrice(batch) ||
+            positiveMoney(item.name?.unitPrice) ||
+            0;
+          const gst = pickGst(item.gst, batch?.gst, pharmacyBilling.defaultGst);
           const quantity = Number(item.quantity) || 0;
           return {
             name: item.name.name,

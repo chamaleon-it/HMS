@@ -30,6 +30,7 @@ import api from "@/lib/axios";
 import Link from "next/link";
 import PrintPrescription from "./billing/PrintPrescription";
 import PrintReceipt from "./PrintReceipt";
+import { presentPharmacyReceiptLine } from "@/lib/pharmacyReceiptLine";
 import useSWR from "swr";
 import ViewOrder from "./ViewOrder";
 import { PaginationBar } from "./components/PaginationBar";
@@ -175,22 +176,28 @@ export default function OrderTable({
       }>(`/pharmacy/orders/single?${params}`);
 
       const items = data.data.items.filter((e) => e.name).map((e) => {
-        const unitPrice = e.name.unitPrice || 0;
-        const quantity = e.quantity || 0;
-        // Since GST might not be in the order fetch, we fallback to defaultGst or 0
-        const itemGst = defaultGst;
-        const basePrice = unitPrice * quantity;
-        const gstAmount = basePrice * (itemGst / 100);
+        const line = presentPharmacyReceiptLine(
+          {
+            name: e.name.name,
+            generic: e.name.genericName || (e.name as { generic?: string }).generic,
+            batchNumber: e.batchNumber,
+            expiryDate: e.expiryDate,
+            quantity: e.quantity,
+            unitPrice: (e as { unitPrice?: number }).unitPrice,
+            gst: (e as { gst?: number }).gst,
+          },
+          e.name,
+          defaultGst,
+        );
         return {
-          gst: itemGst,
-          name: e.name.name,
-          generic: e.name.genericName,
-          manufacturer: e.name.manufacturer,
-          batchNumber: e.batchNumber || e.name.batchNumber,
-          expiryDate: e.expiryDate || e.name.expiryDate,
-          quantity,
-          unitPrice,
-          total: Math.round((basePrice + gstAmount) * 100) / 100,
+          gst: line.gst,
+          name: line.name,
+          generic: line.generic,
+          batchNumber: line.batchNumber,
+          expiryDate: line.expiryDate,
+          quantity: line.quantity,
+          unitPrice: line.unitPrice,
+          total: line.taxable,
         };
       });
 

@@ -10,6 +10,7 @@ import {
     Stethoscope
 } from "lucide-react";
 import useSWR from "swr";
+import { pharmacyLineMoney } from "@/lib/pharmacyReceiptLine";
 
 interface StatisticsProps {
     billing: {
@@ -68,7 +69,7 @@ export default function Statistics({ billing }: StatisticsProps) {
 
             let billTotal = 0;
             bill.items.forEach(item => {
-                const itemTotal = (item.total || 0) * multiplier;
+                const itemTotal = pharmacyLineMoney(item).net * multiplier;
                 billTotal += itemTotal;
 
                 if (item.name.toLowerCase().includes("consultation")) {

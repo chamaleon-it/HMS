@@ -38,6 +38,7 @@ function useDebounced<T>(value: T, delay = 250) {
 }
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { batchUnitPrice, positiveMoney } from "@/lib/pharmacyReceiptLine";
 
 export default function MedicineField({
   m,
@@ -94,9 +95,20 @@ export default function MedicineField({
       if (m.availableQuantity !== itemById.data.quantity) {
         updateField(i, "availableQuantity", itemById.data.quantity);
       }
-      const targetUnitPrice = itemById.data.batches?.[0]?.unitPrice ?? itemById.data.unitPrice ?? 0;
-      if (m.unitPrice !== targetUnitPrice) {
-        updateField(i, "unitPrice", targetUnitPrice);
+      if (!(Number(m.unitPrice) > 0)) {
+        const batches = itemById.data.batches || [];
+        const selected = batches.find(
+          (batch) =>
+            String(batch?.batchNumber || "").trim().toLowerCase() ===
+            String(m.batchNumber || "").trim().toLowerCase(),
+        );
+        const targetUnitPrice =
+          batchUnitPrice(selected) ||
+          (batches.length === 1 ? batchUnitPrice(batches[0]) : 0) ||
+          positiveMoney(itemById.data.unitPrice);
+        if (targetUnitPrice > 0) {
+          updateField(i, "unitPrice", targetUnitPrice);
+        }
       }
       if (!open) setQuery("");
     }
@@ -138,7 +150,7 @@ export default function MedicineField({
       const b = itemBatches[0];
       updateField(i, "batchNumber", b.batchNumber);
       updateField(i, "availableQuantity", b.quantity ?? 0);
-      updateField(i, "unitPrice", b.unitPrice || (b.packing ? b.mrp / b.packing : b.mrp) || 0);
+      updateField(i, "unitPrice", batchUnitPrice(b) || (b.packing ? b.mrp / b.packing : b.mrp) || 0);
       updateField(i, "mrp" as any, b.mrp || 0);
       updateField(i, "purchasePrice" as any, b.purchasePrice || 0);
       updateField(i, "gst" as any, b.gst || 0);

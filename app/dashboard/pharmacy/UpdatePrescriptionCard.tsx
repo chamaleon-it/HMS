@@ -11,6 +11,7 @@ import UpdateMedicine from "./UpdateMedicine";
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import BatchSelector from "./BatchSelector";
+import { batchUnitPrice, pickBatch, positiveMoney } from "@/lib/pharmacyReceiptLine";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,9 +86,21 @@ export default function UpdatePrescriptionCard({
     }));
   };
 
-  const linePrice = (item: (typeof data.items)[number]) =>
-    Number((item as { unitPrice?: number }).unitPrice ?? item.name?.unitPrice) || 0;
-  const subTotal = data.items.reduce((a, b) => a + (b.quantity || 0) * linePrice(b), 0);
+  const linePrice = (item: (typeof data.items)[number], selectedBatch?: { unitPrice?: number; saleRate?: number; mrp?: number; packing?: number }) =>
+    positiveMoney((item as { unitPrice?: number }).unitPrice) ||
+    batchUnitPrice(selectedBatch) ||
+    positiveMoney(item.name?.unitPrice) ||
+    0;
+
+  const subTotal = data.items.reduce((sum, item) => {
+    const batches = (item.name as { batches?: { batchNumber?: string; unitPrice?: number; saleRate?: number }[] })?.batches || [];
+    const selectedBatch = pickBatch(
+      batches,
+      (item as { batchNumber?: string }).batchNumber,
+      (item as { expiryDate?: string | Date }).expiryDate,
+    );
+    return sum + (item.quantity || 0) * linePrice(item, selectedBatch);
+  }, 0);
 
   useEffect(() => {
     if (data.items.length > 0) {
@@ -128,12 +141,12 @@ export default function UpdatePrescriptionCard({
           <tbody>
             {data?.items?.map((m, i) => m.name && (() => {
               const batches = (m.name as { batches?: any[] }).batches || [];
-              const selectedBatch = batches.find(
-                (b) =>
-                  String(b?.batchNumber || "").trim().toLowerCase() ===
-                  String((m as { batchNumber?: string }).batchNumber || "").trim().toLowerCase(),
+              const selectedBatch = pickBatch(
+                batches,
+                (m as { batchNumber?: string }).batchNumber,
+                (m as { expiryDate?: string | Date }).expiryDate,
               );
-              const price = linePrice(m);
+              const price = linePrice(m, selectedBatch);
               const expiry = (m as { expiryDate?: string | Date }).expiryDate || selectedBatch?.expiryDate;
               const available = (m as { availableQuantity?: number }).availableQuantity ?? selectedBatch?.quantity;
               return (
@@ -184,7 +197,7 @@ export default function UpdatePrescriptionCard({
                       updateField(
                         i,
                         "unitPrice",
-                        batch.unitPrice ||
+                        batchUnitPrice(batch) ||
                           (batch.packing && batch.mrp
                             ? batch.mrp / batch.packing
                             : batch.mrp || 0) ||

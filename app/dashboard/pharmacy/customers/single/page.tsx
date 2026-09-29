@@ -31,6 +31,11 @@ import PharmacyHeader from "../../components/PharmacyHeader";
 import { useDrafts } from "../../DraftContext";
 import { hasMedicineItems, isMedicineItem, isPharmacyBill } from "@/lib/billTypeUtils";
 import { formatPatientAddress } from "@/lib/formatPatientAddress";
+import { pharmacyLineMoney, presentPharmacyReceiptLine } from "@/lib/pharmacyReceiptLine";
+
+function visitNet(items: { total?: number; unitPrice?: number; quantity?: number; gst?: number; name?: any }[] = []) {
+    return (items || []).reduce((sum, item) => sum + pharmacyLineMoney(item).net, 0);
+}
 import {
     AlertDialog,
     AlertDialogAction,
@@ -85,7 +90,7 @@ const CustomerPageContent: React.FC = () => {
         let lastPurchase = billing.length > 0 ? billing[0].createdAt : null;
 
         billing.forEach(b => {
-            const itemsTotal = b.items.reduce((acc, it) => acc + (it.total || 0), 0);
+            const itemsTotal = visitNet(b.items);
             const rOff = b.roundOff ? getDecimal(itemsTotal) : 0;
             const paid = (b.cash || 0) + (b.card || 0) + (b.upi || 0);
 
@@ -166,6 +171,7 @@ const CustomerPageContent: React.FC = () => {
             const itemObj = typeof it.name === "object" && it.name !== null ? it.name : null;
             const itemNameStr = itemObj ? (itemObj.name || "") : (typeof it.name === "string" ? it.name : "");
             const itemId = itemObj ? (itemObj._id || "") : (it.item || it.medicineId || "");
+            const money = pharmacyLineMoney(it);
 
             return {
                 rowId: `${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
@@ -177,7 +183,10 @@ const CustomerPageContent: React.FC = () => {
                 duration: it.duration || "5 Days",
                 quantity: it.quantity || 1,
                 availableQuantity: it.availableQuantity || 0,
-                unitPrice: it.unitPrice || 0,
+                unitPrice: money.unitPrice,
+                batchNumber: money.batchNumber,
+                gst: money.gst,
+                expiryDate: money.expiryDate,
             };
         });
 
@@ -335,16 +344,30 @@ const CustomerPageContent: React.FC = () => {
 
             // Map Items Logic
             const items = (bill.items || []).map((e: any) => {
-                const unitPrice = e.unitPrice || 0;
-                const quantity = e.quantity || 0;
-                const itemGst = e.gst || 0;
-                const total = e.total || 0;
+                const catalog = typeof e.name === "object" && e.name !== null ? e.name : undefined;
+                const line = presentPharmacyReceiptLine(
+                    {
+                        name: catalog ? (catalog.name || String(e.name)) : String(e.name || ""),
+                        generic: e.generic || catalog?.generic,
+                        batchNumber: e.batchNumber,
+                        expiryDate: e.expiryDate,
+                        quantity: e.quantity,
+                        unitPrice: e.unitPrice,
+                        gst: e.gst || defaultGst,
+                        total: e.total,
+                    },
+                    catalog,
+                    defaultGst,
+                );
                 return {
-                    gst: itemGst,
-                    name: typeof e.name === 'object' && e.name !== null ? (e.name.name || String(e.name)) : String(e.name || ''),
-                    quantity,
-                    unitPrice,
-                    total: total,
+                    gst: line.gst,
+                    name: line.name,
+                    generic: line.generic,
+                    batchNumber: line.batchNumber,
+                    expiryDate: line.expiryDate,
+                    quantity: line.quantity,
+                    unitPrice: line.unitPrice,
+                    total: line.taxable,
                 };
             });
 
@@ -400,7 +423,7 @@ const CustomerPageContent: React.FC = () => {
 
     const calculatedDueAmount = (() => {
         if (!selectedVisit || selectedVisit.transactionType !== "Sale" || !selectedVisit.items) return 0;
-        const itemsTotal = selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0);
+        const itemsTotal = visitNet(selectedVisit.items);
         const rOff = selectedVisit.roundOff ? getDecimal(itemsTotal) : 0;
         const paid = (selectedVisit.cash || 0) + (selectedVisit.card || 0) + (selectedVisit.upi || 0);
         const netTotal = itemsTotal - rOff - (selectedVisit.discount || 0);
@@ -731,7 +754,7 @@ const CustomerPageContent: React.FC = () => {
                                                 const active = selectedVisit && selectedVisit._id === item._id;
                                                 const isReturn = item.type === "return";
 
-                                                const itemsTotal = item.items.reduce((a: number, b: any) => a + (b.total || 0), 0);
+                                                const itemsTotal = visitNet(item.items);
                                                 const rOff = item.roundOff ? getDecimal(itemsTotal) : 0;
                                                 const paid = (item.cash || 0) + (item.card || 0) + (item.upi || 0);
                                                 const netTotal = itemsTotal - rOff - (item.discount || 0);
@@ -848,7 +871,8 @@ const CustomerPageContent: React.FC = () => {
                                                     </thead>
                                                     <tbody>
                                                         {selectedVisit.items.map((it, i) => {
-                                                            const amount = it.total || 0;
+                                                            const money = pharmacyLineMoney(it);
+                                                            const amount = money.net;
                                                             return (
                                                                 <tr
                                                                     key={it.name + i}
@@ -866,7 +890,7 @@ const CustomerPageContent: React.FC = () => {
                                                                         {it.quantity}
                                                                     </td>
                                                                     <td className="p-2 align-top text-right text-slate-800">
-                                                                        {formatINR(it.unitPrice)}
+                                                                        {formatINR(money.unitPrice)}
                                                                     </td>
                                                                     <td className="p-2 align-top text-right font-semibold text-slate-900">
                                                                         {formatINR(amount)}
@@ -892,9 +916,7 @@ const CustomerPageContent: React.FC = () => {
                                                                 Sub Total
                                                             </td>
                                                             <td className="p-2 text-right text-sm font-semibold text-slate-900">
-                                                                {formatINR(
-                                                                    selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0)
-                                                                )}
+                                                                {formatINR(visitNet(selectedVisit.items))}
                                                             </td>
                                                         </tr>
                                                         {selectedVisit?.transactionType === "Sale" && (
@@ -925,7 +947,7 @@ const CustomerPageContent: React.FC = () => {
                                                                     </td>
                                                                     <td className="p-2 text-right text-sm font-semibold text-rose-500">
                                                                         {formatINR(
-                                                                            selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) -
+                                                                            visitNet(selectedVisit.items) -
                                                                             (selectedVisit?.discount || 0) -
                                                                             ((selectedVisit?.cash || 0) +
                                                                                 (selectedVisit?.card || 0) +
@@ -941,7 +963,7 @@ const CustomerPageContent: React.FC = () => {
                                                             </td>
                                                             <td className="p-2 text-right text-sm font-bold text-slate-900">
                                                                 {formatINR(
-                                                                    selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) -
+                                                                    visitNet(selectedVisit.items) -
                                                                     (selectedVisit?.discount || 0)
                                                                 )}
                                                             </td>
