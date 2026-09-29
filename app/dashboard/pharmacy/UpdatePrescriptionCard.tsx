@@ -8,7 +8,6 @@ import { Trash, AlertTriangle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import UpdateMedicine from "./UpdateMedicine";
-import { fDate } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import BatchSelector from "./BatchSelector";
 import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney } from "@/lib/pharmacyReceiptLine";
@@ -112,7 +111,7 @@ export default function UpdatePrescriptionCard({
 
   return (
     <div className="rounded-lg border overflow-x-auto">
-      <div className="rounded-t-lg min-w-310">
+      <div className="rounded-t-lg">
         <table className="w-full text-[15px]">
           <thead className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white text-xs uppercase tracking-wider font-semibold">
             <tr className="w-full">
@@ -123,20 +122,18 @@ export default function UpdatePrescriptionCard({
               <th className="p-3 text-left min-w-26.25">Frequency</th>
               <th className="p-3 text-left min-w-31.25">Food</th>
               <th className="p-3 text-left min-w-26.25">Duration</th>
-              <th className="p-3 text-left min-w-20">Rack</th>
-              <th className="p-3 text-left min-w-23.75">Exp</th>
-              <th className="p-3 text-center min-w-20">Available</th>
+              <th className="p-3 text-left">Rack</th>
+              <th className="p-3 text-center">Available</th>
               <th className="p-3 text-right min-w-21.25">Qty</th>
-              <th className="p-3 text-right min-w-18.75">MRP</th>
-              <th className="p-3 text-right min-w-20">Amount</th>
-              <th className="p-3 text-right min-w-15">Actions</th>
+              <th className="p-3 text-right">MRP</th>
+              <th className="p-3 text-right">Amount</th>
+              <th className="p-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
             {data?.items?.map((m, i) => m.name && (() => {
               const row = batchRow(m);
               const price = row.price;
-              const expiry = row.expiry;
               const available = row.available;
               const selectedBatch = row.picked;
               return (
@@ -256,9 +253,6 @@ export default function UpdatePrescriptionCard({
                 </td>
                 <td className="p-3 align-middle text-sm text-slate-600">
                   {m?.name?.rackLocation || "-"}
-                </td>
-                <td className="p-3 align-middle text-sm text-slate-600">
-                  {expiry ? fDate(expiry) : "—"}
                 </td>
                 <td className="p-3 align-middle text-center font-medium text-slate-700">
                   {available ?? "—"}
@@ -420,14 +414,13 @@ function batchRow(item: Item) {
     : picked
       ? positiveMoney((item as { unitPrice?: number }).unitPrice)
       : 0;
-  const expiry = selected?.expiryDate || (picked ? (item as { expiryDate?: string | Date }).expiryDate : undefined);
   const lineStock = (item as { availableQuantity?: number }).availableQuantity;
   const available = selected
     ? Number(selected.quantity ?? 0)
     : picked && lineStock != null
       ? Number(lineStock)
       : undefined;
-  return { selected, picked, price, expiry, available };
+  return { selected, picked, price, available };
 }
 
 const QuantityInput = ({
