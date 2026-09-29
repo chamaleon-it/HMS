@@ -261,7 +261,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                           <Printer className="h-3.5 w-3.5" /> Print
                         </Button>
 
-                        {b.transactionType !== "Refund" && getBillType(b) === "therapy" && (
+                        {b.transactionType !== "Refund" && (getBillType(b) === "therapy" || getBillType(b) === "procedure") && (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
@@ -274,7 +274,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>Refund Therapy Package</p>
+                              <p>{getBillType(b) === "procedure" ? "Refund Procedure" : "Refund Therapy Package"}</p>
                             </TooltipContent>
                           </Tooltip>
                         )}

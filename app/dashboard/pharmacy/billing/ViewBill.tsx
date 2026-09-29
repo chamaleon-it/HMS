@@ -103,13 +103,13 @@ export default function ViewBill({ id }: { id: string }) {
                         title="Invoice Details"
                         subtitle={`Viewing invoice ${billing.mrn}`}
                     >
-                        {billing.transactionType !== "Refund" && getBillType(billing) === "therapy" && (
+                        {billing.transactionType !== "Refund" && (getBillType(billing) === "therapy" || getBillType(billing) === "procedure") && (
                             <button
                                 onClick={() => setIsRefundOpen(true)}
                                 className="flex items-center gap-2 px-4 py-2 bg-rose-50 border border-rose-200 rounded-full text-rose-700 hover:bg-rose-100 transition-colors shadow-xs text-xs font-bold"
                             >
                                 <RotateCcw className="h-4 w-4" />
-                                Refund Therapy
+                                {getBillType(billing) === "procedure" ? "Refund Procedure" : "Refund Therapy"}
                             </button>
                         )}
                         <button
