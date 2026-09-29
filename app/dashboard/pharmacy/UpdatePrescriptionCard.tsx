@@ -11,6 +11,7 @@ import UpdateMedicine from "./UpdateMedicine";
 import { formatINR } from "@/lib/fNumber";
 import BatchSelector from "./BatchSelector";
 import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney } from "@/lib/pharmacyReceiptLine";
+import { isOutsideOrderLine, outsideDrugLabel } from "@/lib/pharmacyOutsideMedicine";
 import {
   PRESCRIPTION_FREQUENCY_OPTIONS,
   frequencySetsQuantityToOne,
@@ -90,6 +91,7 @@ export default function UpdatePrescriptionCard({
   };
 
   const subTotal = data.items.reduce((sum, item) => {
+    if (isOutsideOrderLine(item)) return sum;
     const row = batchRow(item);
     if (!row.picked) return sum;
     return sum + (item.quantity || 0) * row.price;
@@ -112,50 +114,73 @@ export default function UpdatePrescriptionCard({
   return (
     <div className="rounded-lg border overflow-x-auto">
       <div className="rounded-t-lg">
-        <table className="w-full text-[15px]">
+        <table className="w-full table-fixed text-[13px]">
+          <colgroup>
+            <col className="w-[4%]" />
+            <col className="w-[14%]" />
+            <col className="w-[12%]" />
+            <col className="w-[8%]" />
+            <col className="w-[8%]" />
+            <col className="w-[9%]" />
+            <col className="w-[8%]" />
+            <col className="w-[6%]" />
+            <col className="w-[7%]" />
+            <col className="w-[6%]" />
+            <col className="w-[6%]" />
+            <col className="w-[6%]" />
+            <col className="w-[6%]" />
+          </colgroup>
           <thead className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white text-xs uppercase tracking-wider font-semibold">
             <tr className="w-full">
-              <th className="p-3 text-left w-10">Sl</th>
-              <th className="p-3 text-left min-w-45">Drug</th>
-              <th className="p-3 text-left min-w-44">Batch</th>
-              <th className="p-3 text-left min-w-26.25">Dosage</th>
-              <th className="p-3 text-left min-w-26.25">Frequency</th>
-              <th className="p-3 text-left min-w-31.25">Food</th>
-              <th className="p-3 text-left min-w-26.25">Duration</th>
-              <th className="p-3 text-left">Rack</th>
-              <th className="p-3 text-center">Available</th>
-              <th className="p-3 text-right min-w-21.25">Qty</th>
-              <th className="p-3 text-right">MRP</th>
-              <th className="p-3 text-right">Amount</th>
-              <th className="p-3 text-right">Actions</th>
+              <th className="p-2 text-left">Sl</th>
+              <th className="p-2 text-left">Drug</th>
+              <th className="p-2 text-left">Batch</th>
+              <th className="p-2 text-left">Dosage</th>
+              <th className="p-2 text-left">Frequency</th>
+              <th className="p-2 text-left">Food</th>
+              <th className="p-2 text-left">Duration</th>
+              <th className="p-2 text-left">Rack</th>
+              <th className="p-2 text-center">Available</th>
+              <th className="p-2 text-right">Qty</th>
+              <th className="p-2 text-right">MRP</th>
+              <th className="p-2 text-right">Amount</th>
+              <th className="p-2 text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {data?.items?.map((m, i) => m.name && (() => {
+            {data?.items?.map((m, i) => {
+              const outside = isOutsideOrderLine(m);
+              if (!m.name && !outside) return null;
               const row = batchRow(m);
               const price = row.price;
               const available = row.available;
               const selectedBatch = row.picked;
+              const drugName = outside ? outsideDrugLabel(m) : m.name?.name || "";
               return (
               <tr key={i} className="border-b last:border-b-0 hover:bg-slate-50/80 transition-all duration-200 group">
-                <td className="p-3 align-middle text-slate-500 font-medium text-sm">{i + 1}</td>
-                <td className="p-3 align-middle">
-                  <div className="flex items-center justify-start gap-2">
-                    <div className="">
+                <td className="p-2 align-middle text-slate-500 font-medium text-sm">{i + 1}</td>
+                <td className="p-2 align-middle">
+                  <div className="flex items-center justify-start gap-2 min-w-0">
+                    <div className="min-w-0">
                       <div className="relative w-full">
                         <input
                           placeholder="Drug Name"
                           type="text"
                           disabled
                           className="w-full bg-transparent text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none disabled:cursor-not-allowed"
-                          value={m.name.name}
+                          value={drugName}
                         />
                       </div>
-                      <div className="text-xs text-slate-500 font-medium mt-1 pl-0.5">
-                        {m.name.generic ? <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">Gen: {m.name.generic}</span> : null}
+                      <div className="text-xs text-slate-500 font-medium mt-1 pl-0.5 flex flex-wrap items-center gap-1">
+                        {!outside && m.name?.generic ? <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">Gen: {m.name.generic}</span> : null}
+                        {outside ? (
+                          <span className="inline-flex items-center rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 border border-amber-200">
+                            Outside
+                          </span>
+                        ) : null}
                       </div>
                     </div>
-                    {hasAllergyConflict(m.name.generic, allergies) && (
+                    {hasAllergyConflict(m.name?.generic, allergies) && (
                       <div className="mt-1 flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-rose-50 border border-rose-100 w-fit">
                         <TooltipProvider>
                           <Tooltip>
@@ -171,7 +196,12 @@ export default function UpdatePrescriptionCard({
                     )}
                   </div>
                 </td>
-                <td className="p-3 align-middle min-w-44">
+                <td className="p-2 align-middle">
+                  {outside ? (
+                    <span className="inline-flex items-center rounded-md bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800 border border-amber-200">
+                      Outside
+                    </span>
+                  ) : (
                   <BatchSelector
                     itemId={m.name?._id}
                     medicineName={m.name?.name}
@@ -196,6 +226,7 @@ export default function UpdatePrescriptionCard({
                       );
                     }}
                   />
+                  )}
                 </td>
                 <td className="p-3 align-middle">
                   <ComboboxInput
@@ -251,20 +282,20 @@ export default function UpdatePrescriptionCard({
                     ]}
                   />
                 </td>
-                <td className="p-3 align-middle text-sm text-slate-600">
-                  {m?.name?.rackLocation || "-"}
+                <td className="p-2 align-middle text-sm text-slate-600">
+                  {outside ? "—" : m?.name?.rackLocation || "—"}
                 </td>
-                <td className="p-3 align-middle text-center font-medium text-slate-700">
-                  {available ?? "—"}
+                <td className="p-2 align-middle text-center font-medium text-slate-700">
+                  {outside ? "—" : available ?? "—"}
                 </td>
-                <td className="p-3 align-middle">
-                  <QuantityInput i={i} m={m} updateField={updateField} status={data.status} />
+                <td className="p-2 align-middle">
+                  <QuantityInput i={i} m={m} updateField={updateField} status={data.status} outside={outside} />
                 </td>
-                <td className="p-3 align-middle text-right text-sm font-medium text-slate-600 whitespace-nowrap">
-                  {selectedBatch ? formatINR(price) : "—"}
+                <td className="p-2 align-middle text-right text-sm font-medium text-slate-600 whitespace-nowrap">
+                  {outside || !selectedBatch ? "—" : formatINR(price)}
                 </td>
-                <td className="p-3 align-middle text-right text-sm font-semibold text-slate-800 whitespace-nowrap">
-                  {selectedBatch ? formatINR((m.quantity || 0) * price) : "—"}
+                <td className="p-2 align-middle text-right text-sm font-semibold text-slate-800 whitespace-nowrap">
+                  {outside || !selectedBatch ? "—" : formatINR((m.quantity || 0) * price)}
                 </td>
                 <td className="p-3 align-middle text-right">
                   <Button
@@ -280,7 +311,7 @@ export default function UpdatePrescriptionCard({
                 </td>
               </tr>
               );
-            })())}
+            })}
           </tbody>
         </table>
       </div>
@@ -350,7 +381,7 @@ const ComboboxInput = ({
   };
 
   return (
-    <div className="relative w-full min-w-21.25" ref={containerRef}>
+    <div className="relative w-full min-w-0" ref={containerRef}>
       <Popover open={open && !disabled} onOpenChange={(o) => !disabled && setOpen(o)}>
         <PopoverTrigger asChild>
           <div className="relative w-full">
@@ -428,11 +459,13 @@ const QuantityInput = ({
   i,
   m,
   status,
+  outside,
 }: {
   updateField: (idx: number, key: any, val: string | number) => void;
   i: number;
   m: Item;
   status: string;
+  outside?: boolean;
 }) => {
   const [openWarning, setOpenWarning] = useState(false);
   const [warnedStock, setWarnedStock] = useState(0);
@@ -449,6 +482,7 @@ const QuantityInput = ({
             updateField(i, "quantity", parseInt(e.target.value) || 0)
           }
           onBlur={(e) => {
+            if (outside) return;
             const value = parseInt(e.target.value) || 0;
             const row = batchRow(m);
             if (!row.picked || row.available == null) return;

@@ -59,6 +59,7 @@ export default function Header() {
       { key: "purchase-entry", label: "Purchase Entry", link: "/dashboard/pharmacy/purchase-entry/" },
       { key: "suppliers", label: "Suppliers", link: "/dashboard/pharmacy/suppliers/" },
       { key: "customers", label: "Customers", link: "/dashboard/pharmacy/customers/" },
+      { key: "treatments", label: "Treatments", link: "/dashboard/pharmacy/treatments/" },
       { key: "return", label: "Return", link: "/dashboard/pharmacy/return/" },
       // { key: "purchase", label: "Purchase", link: "/dashboard/pharmacy/purchase/" },
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy/billing/" },
@@ -71,7 +72,6 @@ export default function Header() {
     (user?.role === "Reception" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/reception/" },
       { key: "doctors", label: "Doctors", link: "/dashboard/reception/doctors/" },
-      { key: "treatments", label: "Treatments", link: "/dashboard/reception/treatments/" },
       { key: "leaves", label: "Leaves", link: "/dashboard/reception/leaves/" },
       { key: "customers", label: "Customer", link: "/dashboard/reception/customers/" },
       { key: "ip", label: "IP", link: "/dashboard/reception/ip/" },
@@ -202,8 +202,8 @@ export default function Header() {
             </div>
           </nav>
 
-          {/* Search */}
-          <SearchBar />
+          {/* Search stays on reception. Pharmacy uses its own patient pickers. */}
+          {user?.role !== "Pharmacy" && <SearchBar />}
 
           {/* Actions */}
           <div

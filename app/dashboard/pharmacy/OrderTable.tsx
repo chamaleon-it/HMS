@@ -31,6 +31,7 @@ import Link from "next/link";
 import PrintPrescription from "./billing/PrintPrescription";
 import PrintReceipt from "./PrintReceipt";
 import { isPlaceholderBatchNumber, presentPharmacyReceiptLine } from "@/lib/pharmacyReceiptLine";
+import { isOutsideOrderLine, withConsultationLines } from "@/lib/pharmacyOutsideMedicine";
 import useSWR from "swr";
 import ViewOrder from "./ViewOrder";
 import { PaginationBar } from "./components/PaginationBar";
@@ -112,8 +113,18 @@ export default function OrderTable({
   const [printOrder, setPrintOrder] = useState<OrderType | null>(null);
   const [printingOrderId, setPrintingOrderId] = useState<string | null>(null);
 
-  const handlePrint = (order: OrderType) => {
-    setPrintOrder(order);
+  const handlePrint = async (order: OrderType) => {
+    let next = order;
+    const patientId = order.patient?._id;
+    if (patientId) {
+      try {
+        const { data } = await api.get<{ data: any[] }>(`/consultings/patient/${patientId}`);
+        next = withConsultationLines(order, data?.data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    setPrintOrder(next);
     setTimeout(() => {
       window.print();
       setTimeout(() => {
@@ -175,7 +186,7 @@ export default function OrderTable({
         message: string;
       }>(`/pharmacy/orders/single?${params}`);
 
-      const items = data.data.items.filter((e) => e.name).map((e) => {
+      const items = data.data.items.filter((e) => e.name && !isOutsideOrderLine(e)).map((e) => {
         const line = presentPharmacyReceiptLine(
           {
             name: e.name.name,
@@ -287,6 +298,7 @@ export default function OrderTable({
   const missingBatchMessage = (order: OrderType) => {
     const missing = (order.items || []).filter(
       (it) =>
+        !isOutsideOrderLine(it) &&
         (Number(it.quantity) || 0) > 0 &&
         isPlaceholderBatchNumber((it as { batchNumber?: string }).batchNumber),
     );

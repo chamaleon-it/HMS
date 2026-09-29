@@ -26,6 +26,7 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { OrderType } from "../../interface";
 import PrintPrescription from "../../billing/PrintPrescription";
+import { withConsultationLines } from "@/lib/pharmacyOutsideMedicine";
 import PrintReceipt from "../../PrintReceipt";
 import PharmacyHeader from "../../components/PharmacyHeader";
 import { useDrafts } from "../../DraftContext";
@@ -295,6 +296,17 @@ const CustomerPageContent: React.FC = () => {
                         food: it.food || 'After Food'
                     }))
                 } as any;
+            }
+
+            if (fetchedOrder?.patient?._id) {
+                try {
+                    const { data: consultings } = await api.get<{ data: any[] }>(
+                        `/consultings/patient/${fetchedOrder.patient._id}`,
+                    );
+                    fetchedOrder = withConsultationLines(fetchedOrder, consultings?.data);
+                } catch {
+                    // Print the order lines we already have.
+                }
             }
 
             setPrintOrder(fetchedOrder);
