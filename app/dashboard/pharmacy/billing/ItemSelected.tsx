@@ -226,7 +226,7 @@ export default function ItemSelected({
               <input
                 type="number"
                 min="0"
-                value={editingItem?.price === 0 ? "" : editingItem?.price.toString()}
+                value={Number(editingItem?.price) ? String(editingItem?.price) : ""}
                 onChange={(e) => setEditingItem(prev => prev ? { ...prev, price: Number(e.target.value) } : null)}
                 className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/20 transition-all"
                 placeholder="0"

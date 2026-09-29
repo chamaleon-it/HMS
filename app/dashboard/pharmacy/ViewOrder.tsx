@@ -232,10 +232,33 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         open && localOrder?.patient?._id ? `/consultings/patient/${localOrder.patient._id}` : null
     );
 
-    const handleCompleteOrderDirect = async (orderToComplete = localOrder) => {
-        if (!orderToComplete) return;
+    const lineAmount = (it: { quantity?: number; unitPrice?: number; name?: { unitPrice?: number } }) =>
+        (Number(it.unitPrice ?? it.name?.unitPrice) || 0) * (Number(it.quantity) || 0);
+
+    const missingBatch = (items: { quantity?: number; batchNumber?: string; name?: { name?: string } }[]) =>
+        items.filter((it) => (Number(it.quantity) || 0) > 0 && !String(it.batchNumber || "").trim());
+
+    const handleCompleteOrderDirect = async () => {
+        if (!updatePayload || !localOrder) return;
+        const missing = missingBatch(updatePayload.items as { quantity?: number; batchNumber?: string; name?: { name?: string } }[]);
+        if (missing.length) {
+            toast.error("Select a batch for every medicine before completing the order.");
+            return;
+        }
+        if (updatePayload.items.some((m) => (m.quantity || 0) === 0)) {
+            toast.error("Quantity cannot be 0");
+            return;
+        }
         try {
-            await toast.promise(api.patch(`/pharmacy/orders/complete/${orderToComplete._id}`), {
+            await api.patch(
+                `pharmacy/orders/update`,
+                sanitizeOrderUpdatePayload({
+                    ...updatePayload,
+                    patient: localOrder.patient?._id,
+                    doctor: localOrder.doctor?._id,
+                }),
+            );
+            await toast.promise(api.patch(`/pharmacy/orders/complete/${updatePayload._id}`), {
                 loading: "Completing...",
                 success: (data) => {
                     OrderMutate();
@@ -245,17 +268,17 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                     return data?.message || "Failed to complete order";
                 }
             });
-            handlePrintBill(orderToComplete);
+            handlePrintBill(updatePayload);
             setOpen(false);
         } catch (error) {
 
         }
     };
 
-    const handleCompleteOrder = async (orderToComplete = localOrder) => {
-        if (!orderToComplete) return;
+    const handleCompleteOrder = async () => {
+        if (!updatePayload) return;
 
-        if (orderToComplete.status?.toLowerCase() !== "completed") {
+        if (updatePayload.status?.toLowerCase() !== "completed") {
             // Check if patient has prescribed therapies in consultation that are not marked completed
             const activeConsultingWithTherapy = patientConsultings?.data?.find(
                 (c) => c.therapy && c.therapy.length > 0 && !c.therapyCompleted
@@ -263,14 +286,14 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
             if (activeConsultingWithTherapy) {
                 setPendingConsulting(activeConsultingWithTherapy);
-                setPendingOrderToComplete(orderToComplete);
+                setPendingOrderToComplete(updatePayload);
                 setPendingAction("complete");
                 setOpenTherapyAlert(true);
                 return;
             }
         }
 
-        await handleCompleteOrderDirect(orderToComplete);
+        await handleCompleteOrderDirect();
     };
 
     const handlePrintWithTherapyCheck = async () => {
@@ -309,7 +332,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             handlePrintBill(pendingOrderToComplete);
             setOpen(false);
         } else if (pendingOrderToComplete) {
-            await handleCompleteOrderDirect(pendingOrderToComplete);
+            await handleCompleteOrderDirect();
         }
         setPendingOrderToComplete(null);
         setPendingConsulting(null);
@@ -328,7 +351,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
         if (paymentMethod === "UPI" || paymentMethod === "Cash") {
             payload.paymentStatus = "Paid";
-            payload.paidAmount = (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0)) || 0;
+            payload.paidAmount = (updatePayload?.items.reduce((acc, it) => acc + lineAmount(it), 0) - (updatePayload?.discount || 0)) || 0;
         } else {
             payload.paymentStatus = "Partial";
             payload.paidAmount = Number(amountPaid);
@@ -350,7 +373,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
                 if (paymentMethod === "UPI" || paymentMethod === "Cash") {
                     // Trigger completion and printing
-                    await handleCompleteOrder(response.data);
+                    await handleCompleteOrder();
                 }
             }
         } catch (error) {
