@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/auth/context/auth-context";
 import useSWR from "swr";
+import { doctorScheduleListSwrOptions } from "./doctorScheduleCachePolicy";
 
 function formatLocalDate(d: Date | string): string {
   if (!d) return "";
@@ -82,9 +83,10 @@ export default function useAppointmentList({
       createdAt: Date;
       visitCount: number;
     }[];
-  }>(user?.role === "Doctor" ? `/appointments/list?${params?.toString()}` : null, {
-    revalidateIfStale: false
-  });
+  }>(
+    user?.role === "Doctor" ? `/appointments/list?${params?.toString()}` : null,
+    doctorScheduleListSwrOptions
+  );
 
   return { data, isLoading, mutate, error };
 }

@@ -2,6 +2,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import React from "react";
 import { motion } from "framer-motion";
 import useSWR from "swr";
+import { doctorScheduleListSwrOptions } from "@/hooks/doctorScheduleCachePolicy";
 import { cn } from "@/lib/utils";
 
 const colorMap = {
@@ -64,7 +65,10 @@ export default function MonthlyCalender({
       type: string;
       status: string;
     }[];
-  }>(`/appointments/calender-monthly?date=${dateParam}`);
+  }>(
+    `/appointments/calender-monthly?date=${dateParam}`,
+    doctorScheduleListSwrOptions
+  );
 
   return (
     <TabsContent
