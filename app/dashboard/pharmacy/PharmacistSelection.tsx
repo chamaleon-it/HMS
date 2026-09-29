@@ -29,7 +29,7 @@ interface Props {
 const PharmacistSelection: React.FC<Props> = ({ setValue, pharmacistName, hideLabel, className }) => {
     const { data: pharmacistResponse, mutate: pharmacistMutate, isLoading: pharmacistLoading } = useSWR<{
         data: (PharmacistData & { status?: string })[], message: string
-    }>("/employee?role=Pharmacist&status=active")
+    }>("/employee?role=Accountant&status=active")
 
     const pharmacists = (pharmacistResponse?.data ?? []).filter(
         (p) => !p.status || p.status.toLowerCase() === "active"
@@ -45,7 +45,7 @@ const PharmacistSelection: React.FC<Props> = ({ setValue, pharmacistName, hideLa
 
     return (
         <div className={cn("relative w-full", className)}>
-            {!hideLabel && <Label className="block mb-1.5">Pharmacist Name</Label>}
+            {!hideLabel && <Label className="block mb-1.5">Accountant in charge</Label>}
             <Select
                 onValueChange={(val) => {
 
@@ -54,13 +54,13 @@ const PharmacistSelection: React.FC<Props> = ({ setValue, pharmacistName, hideLa
                 value={pharmacistName}
             >
                 <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select pharmacist" />
+                    <SelectValue placeholder="Select accountant" />
                 </SelectTrigger>
                 <SelectContent>
                     {pharmacistLoading ? (
                         <div className="p-2 text-sm text-gray-500">Loading...</div>
                     ) : pharmacists.length === 0 ? (
-                        <div className="p-2 text-sm text-gray-500">No pharmacists found</div>
+                        <div className="p-2 text-sm text-gray-500">No accountants found</div>
                     ) : (
 
                         pharmacists.map((p) => (

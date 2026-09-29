@@ -384,9 +384,9 @@ const CustomerPageContent: React.FC = () => {
             });
 
             const subtotal = items.reduce((a: number, b: any) => a + b.unitPrice * b.quantity, 0);
-            const totalGst = items.reduce((a: number, b: any) => a + b.unitPrice * b.quantity * (b.gst / 100), 0);
+            const totalGst = 0;
             const discount = bill.discount || 0;
-            const grandTotalBeforeRoundOff = subtotal + totalGst - discount;
+            const grandTotalBeforeRoundOff = subtotal - discount;
             const roundOffAmount = bill.roundOff ? getDecimal(grandTotalBeforeRoundOff) : 0;
             const grandTotal = grandTotalBeforeRoundOff - roundOffAmount;
 
@@ -411,6 +411,7 @@ const CustomerPageContent: React.FC = () => {
                     department: "Pharmacy",
                     doctor: doctorName,
                     note: "",
+                    inCharge: bill.inCharge || bill.pharmacist,
                 },
                 invoiceDetails: {
                     totalGst,

@@ -28,10 +28,7 @@ export const useBillCalculations = ({
 }: CalculationOptions) => {
     const calculations = useMemo(() => {
         const subtotal = items.reduce((acc, item) => acc + item.quantity * item.unitPrice, 0);
-        const totalGst = items.reduce(
-            (acc, item) => acc + (item.quantity * item.unitPrice * item.gst) / 100,
-            0
-        );
+        const totalGst = 0;
         const itemsTotal = items.reduce((acc, item) => acc + item.total, 0);
 
         const roundOffAmount = roundOff ? getDecimal(itemsTotal) : 0;

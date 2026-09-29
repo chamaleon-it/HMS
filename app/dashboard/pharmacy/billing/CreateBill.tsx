@@ -77,6 +77,7 @@ export default function CreateBill({
     preAuthNo?: string;
     note?: string;
     rxId?: string;
+    inCharge?: string;
   }>(defaultPayload);
 
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
@@ -379,6 +380,7 @@ export default function CreateBill({
             ? order.doctorName
             : (order.doctor?.name || ""),
           department: order.doctor?.specialization || "",
+          inCharge: order.pharmacist && order.pharmacist !== "-" ? order.pharmacist : prev.inCharge,
         }));
         setOrderPatient(order.patient)
         setSelectedPatient(order.patient)
@@ -471,6 +473,7 @@ export default function CreateBill({
           discount: printBillData.discount,
           doctor: typeof printBillData.doctor === "object" ? printBillData.doctor?.name : (printBillData.doctor === "Self" ? "" : printBillData.doctor),
           department: typeof printBillData.doctor === "object" ? printBillData.doctor?.specialization : printBillData.department,
+          inCharge: printBillData.inCharge || payload.inCharge,
         } : payload}
         patient={printBillData ? printBillData.patient : selectedPatient}
         invoiceDetails={{
@@ -509,9 +512,8 @@ const PrimaryButton: React.FC<
 const calcTotal = (
   unitPrice: number = 0,
   quantity: number = 0,
-  gstPct: number = 0
+  _gstPct: number = 0
 ) => {
-  const base = unitPrice * quantity;
-  const gstAmount = base * (gstPct / 100);
-  return Math.round((base + gstAmount) * 100) / 100;
+  void _gstPct;
+  return Math.round(unitPrice * quantity * 100) / 100;
 };

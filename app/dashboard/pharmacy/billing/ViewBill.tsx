@@ -206,7 +206,7 @@ export default function ViewBill({ id }: { id: string }) {
 
                             <div className="w-[320px] border border-slate-200 rounded-lg p-5 space-y-2 bg-slate-50">
                                 <Line label="Gross Amount" value={formatINR(subtotal)} />
-                                <Line label="CGST/SGST Total" value={formatINR(totalGst)} />
+                                {totalGst > 0 && <Line label="CGST/SGST Total" value={formatINR(totalGst)} />}
                                 {billing.discount > 0 && (
                                     <Line label="Discount (Billing level)" value={`-${formatINR(billing.discount)}`} />
                                 )}
@@ -266,6 +266,7 @@ export default function ViewBill({ id }: { id: string }) {
                         discount: billing.discount,
                         doctor: typeof billing.doctor === "object" ? billing.doctor?.name : (billing.doctor === "Self" ? "" : billing.doctor),
                         department: typeof billing.doctor === "object" ? billing.doctor?.specialization : billing.department,
+                        inCharge: (billing as { inCharge?: string }).inCharge,
                     }}
                     patient={billing.patient as any}
                     invoiceDetails={{

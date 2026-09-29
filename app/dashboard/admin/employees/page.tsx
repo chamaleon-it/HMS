@@ -17,6 +17,9 @@ import {
   Pill,
   FlaskConical,
   HeartHandshake,
+  Headset,
+  PhoneCall,
+  Calculator,
   Search,
   Calendar,
   IndianRupee,
@@ -37,6 +40,9 @@ const ROLES = [
   { key: "Pharmacist", label: "Pharmacists" },
   { key: "Technician", label: "Technicians" },
   { key: "Therapist", label: "Therapists" },
+  { key: "Receptionist", label: "Receptionists" },
+  { key: "Telecaller", label: "Telecallers" },
+  { key: "Accountant", label: "Accountants" },
 ];
 
 const ROLE_CONFIG: Record<
@@ -60,6 +66,24 @@ const ROLE_CONFIG: Record<
     badge: "bg-purple-50 text-purple-700 border-purple-200",
     color: "text-purple-600",
     bg: "bg-purple-50",
+  },
+  Receptionist: {
+    icon: Headset,
+    badge: "bg-teal-50 text-teal-700 border-teal-200",
+    color: "text-teal-600",
+    bg: "bg-teal-50",
+  },
+  Telecaller: {
+    icon: PhoneCall,
+    badge: "bg-sky-50 text-sky-700 border-sky-200",
+    color: "text-sky-600",
+    bg: "bg-sky-50",
+  },
+  Accountant: {
+    icon: Calculator,
+    badge: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
   },
 };
 

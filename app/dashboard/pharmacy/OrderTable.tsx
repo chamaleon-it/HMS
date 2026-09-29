@@ -92,6 +92,7 @@ export default function OrderTable({
       doctor?: string;
       department?: string;
       note?: string;
+      inCharge?: string;
     };
     patient?: {
       name: string;
@@ -216,12 +217,9 @@ export default function OrderTable({
         (a, b) => a + b.unitPrice * b.quantity,
         0
       );
-      const totalGst = items.reduce(
-        (a, b) => a + b.unitPrice * b.quantity * (b.gst / 100),
-        0
-      );
       const discount = data.data.discount || 0;
-      const grandTotal = subtotal + totalGst - discount;
+      const grandTotal = subtotal - discount;
+      const accountant = String((data.data as { pharmacist?: string }).pharmacist || "").trim();
 
       setPrintBill({
         patient: data.data.patient,
@@ -235,9 +233,10 @@ export default function OrderTable({
           department: data.data.doctor?.specialization,
           doctor: data.data.doctor?.name,
           note: "",
+          inCharge: accountant && accountant !== "-" ? accountant : undefined,
         },
         invoiceDetails: {
-          totalGst,
+          totalGst: 0,
           prefix,
           roundOffAmount: 0, // Simplified for now
           subtotal,

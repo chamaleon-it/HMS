@@ -461,9 +461,8 @@ const PrimaryButton: React.FC<
 const calcTotal = (
   unitPrice: number = 0,
   quantity: number = 0,
-  gstPct: number = 0
+  _gstPct: number = 0
 ) => {
-  const base = unitPrice * quantity;
-  const gstAmount = base * (gstPct / 100);
-  return Math.round((base + gstAmount) * 100) / 100;
+  void _gstPct;
+  return Math.round(unitPrice * quantity * 100) / 100;
 };

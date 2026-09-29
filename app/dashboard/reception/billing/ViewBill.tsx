@@ -112,11 +112,7 @@ export default function ViewBill({ id }: { id: string }) {
         0
     );
 
-    const totalGst = billing.items.reduce(
-        (sum, item) =>
-            sum + ((item.quantity * item.unitPrice - item.discount) * item.gst) / 100,
-        0
-    );
+    const totalGst = 0;
 
     const grandTotal = billing.items.reduce((s, { total }) => s + total, 0);
 
@@ -298,7 +294,7 @@ export default function ViewBill({ id }: { id: string }) {
 
                             <div className="w-[320px] border border-slate-200 rounded-lg p-5 space-y-2 bg-slate-50">
                                 <Line label="Gross Amount" value={formatINR(subtotal)} />
-                                <Line label="CGST/SGST Total" value={formatINR(totalGst)} />
+                                {totalGst > 0 && <Line label="CGST/SGST Total" value={formatINR(totalGst)} />}
                                 {billing.discount > 0 && (
                                     <Line label="Discount (Billing level)" value={`-${formatINR(billing.discount)}`} />
                                 )}

@@ -26,6 +26,9 @@ import {
   GraduationCap,
   Briefcase,
   HeartHandshake,
+  Headset,
+  PhoneCall,
+  Calculator,
   CheckCircle2,
   XCircle,
   Sparkles,
@@ -80,7 +83,14 @@ import { motion } from "framer-motion";
 
 import { formatINR } from "@/lib/fNumber";
 
-const EMPLOYEE_ROLES = ["Pharmacist", "Technician", "Therapist"] as const;
+const EMPLOYEE_ROLES = [
+  "Pharmacist",
+  "Technician",
+  "Therapist",
+  "Receptionist",
+  "Telecaller",
+  "Accountant",
+] as const;
 type EmployeeRole = (typeof EMPLOYEE_ROLES)[number];
 
 const ROLE_CONFIG: Record<
@@ -113,6 +123,27 @@ const ROLE_CONFIG: Record<
     bg: "bg-purple-50",
     badge: "bg-purple-50 text-purple-700 border-purple-200",
     border: "border-purple-100",
+  },
+  Receptionist: {
+    icon: Headset,
+    color: "text-teal-600",
+    bg: "bg-teal-50",
+    badge: "bg-teal-50 text-teal-700 border-teal-200",
+    border: "border-teal-100",
+  },
+  Telecaller: {
+    icon: PhoneCall,
+    color: "text-sky-600",
+    bg: "bg-sky-50",
+    badge: "bg-sky-50 text-sky-700 border-sky-200",
+    border: "border-sky-100",
+  },
+  Accountant: {
+    icon: Calculator,
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    badge: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    border: "border-emerald-100",
   },
 };
 
@@ -379,7 +410,7 @@ export default function EmployeesPage() {
           {/* Header */}
           <PharmacyHeader
             title="Employee Management"
-            subtitle="Manage hospital staff roster across Pharmacists, Technicians, and Therapists"
+            subtitle="Manage hospital staff roster across Pharmacists, Technicians, Therapists, Receptionists, Telecallers, and Accountants"
           >
             <div className="flex items-center gap-3">
               <Button
@@ -403,7 +434,7 @@ export default function EmployeesPage() {
           </PharmacyHeader>
 
           {/* Summary KPI Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="rounded-2xl border-slate-200/80 bg-white shadow-sm hover:shadow-md transition-all">
               <CardContent className="p-4 flex items-center justify-between">
                 <div>

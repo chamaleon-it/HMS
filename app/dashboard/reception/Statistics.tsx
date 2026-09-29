@@ -29,16 +29,16 @@ const STAT_CONFIG = {
     iconBg: "bg-synapse-light/20",
     border: "hover:border-synapse-light/30",
   },
-  weekNewPatient: {
-    label: "This week new patient",
+  monthNewPatient: {
+    label: "This month new patient",
     icon: UserRound,
     color: "from-emerald-500/10 to-emerald-500/5",
     iconColor: "text-emerald-600",
     iconBg: "bg-emerald-100",
     border: "hover:border-emerald-200",
   },
-  weekAppointment: {
-    label: "This week appointment",
+  monthAppointment: {
+    label: "This month appointment",
     icon: CalendarRange,
     color: "from-amber-500/10 to-amber-500/5",
     iconColor: "text-amber-600",
@@ -70,7 +70,7 @@ export default function Statistics() {
     message: string;
     data: {
       today: number;
-      thisWeek: number;
+      thisMonth: number;
       total: number;
     };
   }>("/appointments/statistics");
@@ -79,7 +79,7 @@ export default function Statistics() {
     message: string;
     data: {
       today: number;
-      thisWeek: number;
+      thisMonth: number;
       total: number;
     };
   }>("/patients/statistics");
@@ -90,8 +90,8 @@ export default function Statistics() {
   const statItems: { key: StatKey; value: number | undefined }[] = [
     { key: "todayNewPatient", value: patients?.today },
     { key: "todayAppointment", value: appointments?.today },
-    { key: "weekNewPatient", value: patients?.thisWeek },
-    { key: "weekAppointment", value: appointments?.thisWeek },
+    { key: "monthNewPatient", value: patients?.thisMonth },
+    { key: "monthAppointment", value: appointments?.thisMonth },
     { key: "totalPatient", value: patients?.total },
     { key: "totalAppointment", value: appointments?.total },
   ];

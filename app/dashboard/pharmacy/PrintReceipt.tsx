@@ -33,6 +33,7 @@ interface PrintReceiptProps {
         doctor?: string;
         department?: string;
         note?: string;
+        inCharge?: string;
     };
     patient?: {
         name: string;
@@ -93,22 +94,22 @@ export default function PrintReceipt({
         return presentPharmacyReceiptLine(item, catalog, defaultGst);
     });
     const computedSubtotal = presented.reduce((sum, item) => sum + item.taxable, 0);
-    const computedGst = presented.reduce((sum, item) => sum + item.gstAmount, 0);
 
     const safeInvoiceDetails = invoiceDetails || {
         prefix: "INV",
         roundOffAmount: 0,
         subtotal: computedSubtotal,
-        totalGst: computedGst,
-        grandTotal: computedSubtotal + computedGst - (payload.discount || 0),
+        totalGst: 0,
+        grandTotal: computedSubtotal - (payload.discount || 0),
         invoiceNo: invoiceNoProp || "INV-001",
     };
     const subtotal = computedSubtotal;
-    const totalGst = computedGst;
     const grandTotal = Math.max(
-        computedSubtotal + computedGst - (payload.discount || 0) - (safeInvoiceDetails.roundOffAmount || 0),
+        computedSubtotal - (payload.discount || 0) - (safeInvoiceDetails.roundOffAmount || 0),
         0,
     );
+    const inChargeName = String(payload.inCharge || "").trim();
+    const inChargeLabel = !inChargeName || inChargeName === "-" ? "—" : inChargeName;
 
     const invoiceNo = invoiceNoProp || safeInvoiceDetails.invoiceNo || `${safeInvoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;
 
@@ -146,13 +147,6 @@ export default function PrintReceipt({
 
     const isConsultationOnly = payload.items.every(item => item.name.toLowerCase().includes("consultation"));
     const tableHeader = isConsultationOnly ? "Description" : "Medicine / Item Description";
-
-    const paymentMethod =
-        payload.upi > 0
-            ? "UPI"
-            : payload.card > 0
-                ? "CARD"
-                : "CASH";
 
     return createPortal(
         <div className="print-receipt hidden print:block bg-white text-black font-montserrat leading-relaxed">
@@ -287,7 +281,7 @@ export default function PrintReceipt({
                         {/* Payment & Validation Info on Left */}
                         <div className="space-y-1 text-xs">
                             <p className="text-slate-600 font-medium">
-                                Mode of Payment: <span className="font-bold text-black uppercase">{paymentMethod}</span>
+                                In charge: <span className="font-bold text-black">{inChargeLabel}</span>
                             </p>
                             <p className="text-[10px] text-slate-500 italic">
                                 * This receipt is valid only if signed by authorized personnel.
@@ -300,10 +294,6 @@ export default function PrintReceipt({
                                 <div className="flex justify-between text-slate-700">
                                     <span>Gross Amount:</span>
                                     <span className="font-semibold text-black">{formatINR(subtotal)}</span>
-                                </div>
-                                <div className="flex justify-between text-slate-700">
-                                    <span>CGST / SGST Total:</span>
-                                    <span className="font-semibold text-black">{formatINR(totalGst)}</span>
                                 </div>
                                 {payload.discount > 0 && (
                                     <div className="flex justify-between text-slate-700">
