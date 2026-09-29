@@ -5,7 +5,8 @@ import { createPortal } from "react-dom";
 import { numberToWords } from "@/lib/fNumber";
 import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import configuration from "@/config/configuration";
-import { format, addDays } from "date-fns";
+import { format } from "date-fns";
+import { registrationAmountInWords, registrationBillValidUpto } from "@/lib/registrationBillValidity";
 
 interface Props {
   data: {
@@ -29,6 +30,7 @@ interface Props {
     token?: string;
     tokenNumber?: number;
     fee?: number;
+    consultationValidUntil?: string | Date | null;
   } | null;
   preview?: boolean;
 }
@@ -76,7 +78,10 @@ export default function PatientRegistrationBillPrint({ data, preview = false }: 
 
   const createdDate = data.date ? new Date(data.date) : new Date();
   const formattedDate = format(createdDate, "dd/MM/yyyy");
-  const validUptoDate = format(addDays(createdDate, 10), "dd/MM/yyyy");
+  const validUptoDate = format(
+    registrationBillValidUpto(createdDate, data.consultationValidUntil),
+    "dd/MM/yyyy",
+  );
 
   const rawOpNo = data.patient?.mrn || "";
   const opNo = rawOpNo ? rawOpNo.replace(/^(MRN-?|P-)/i, "") : "—";
@@ -89,8 +94,8 @@ export default function PatientRegistrationBillPrint({ data, preview = false }: 
 
   const feeAmount = typeof data.fee === "number" ? data.fee : 0;
   const displayFee = feeAmount % 1 === 0 ? String(feeAmount) : feeAmount.toFixed(2);
-  const rawWords = feeAmount === 0 ? "ZERO" : numberToWords(feeAmount).replace(/\s*ONLY$/i, "").trim();
-  const words = `${rawWords} only`;
+  const rawWords = numberToWords(feeAmount).replace(/\s*ONLY$/i, "").trim();
+  const words = registrationAmountInWords(feeAmount, `${rawWords} only`);
 
   const content = (
     <div

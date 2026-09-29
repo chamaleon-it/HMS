@@ -3,6 +3,7 @@ import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, Mo
 import React, { useState } from "react";
 import BlankPrescription from "@/components/shared/appointment/BlankPrescription";
 import PatientRegistrationBillPrint from "./PatientRegistrationBillPrint";
+import { registrationConsultationFee } from "@/lib/registrationBillValidity";
 import useSWR, { useSWRConfig } from "swr";
 import useAppointmentList from "./data/useAppointmentList";
 import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
@@ -93,15 +94,12 @@ export default function List({
   const [refundReason, setRefundReason] = useState("");
 
   const handlePrintRegistrationBill = (row: any) => {
-    const isFeeZero =
-      row.hasConsultationFee === false ||
-      row.isRefunded === true ||
-      Boolean(row.refundReason);
-    const fee = isFeeZero
-      ? 0
-      : (typeof row.doctor?.consultationFee === "number"
-        ? row.doctor.consultationFee
-        : 200);
+    const fee = registrationConsultationFee({
+      hasConsultationFee: row.hasConsultationFee,
+      isRefunded: row.isRefunded,
+      refundReason: row.refundReason,
+      consultationFee: row.doctor?.consultationFee,
+    });
     setRegistrationBillData({
       patient: row.patient,
       doctor: row.doctor,
@@ -109,6 +107,7 @@ export default function List({
       token: row.token,
       tokenNumber: row.tokenNumber,
       fee,
+      consultationValidUntil: row.consultationValidUntil,
     });
     setTimeout(() => {
       window.print();
