@@ -11,7 +11,7 @@ import UpdateMedicine from "./UpdateMedicine";
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import BatchSelector from "./BatchSelector";
-import { batchUnitPrice, pickBatch, positiveMoney } from "@/lib/pharmacyReceiptLine";
+import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney } from "@/lib/pharmacyReceiptLine";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -86,20 +86,10 @@ export default function UpdatePrescriptionCard({
     }));
   };
 
-  const linePrice = (item: (typeof data.items)[number], selectedBatch?: { unitPrice?: number; saleRate?: number; mrp?: number; packing?: number }) =>
-    positiveMoney((item as { unitPrice?: number }).unitPrice) ||
-    batchUnitPrice(selectedBatch) ||
-    positiveMoney(item.name?.unitPrice) ||
-    0;
-
   const subTotal = data.items.reduce((sum, item) => {
-    const batches = (item.name as { batches?: { batchNumber?: string; unitPrice?: number; saleRate?: number }[] })?.batches || [];
-    const selectedBatch = pickBatch(
-      batches,
-      (item as { batchNumber?: string }).batchNumber,
-      (item as { expiryDate?: string | Date }).expiryDate,
-    );
-    return sum + (item.quantity || 0) * linePrice(item, selectedBatch);
+    const row = batchRow(item);
+    if (!row.picked) return sum;
+    return sum + (item.quantity || 0) * row.price;
   }, 0);
 
   useEffect(() => {
@@ -140,15 +130,11 @@ export default function UpdatePrescriptionCard({
           </thead>
           <tbody>
             {data?.items?.map((m, i) => m.name && (() => {
-              const batches = (m.name as { batches?: any[] }).batches || [];
-              const selectedBatch = pickBatch(
-                batches,
-                (m as { batchNumber?: string }).batchNumber,
-                (m as { expiryDate?: string | Date }).expiryDate,
-              );
-              const price = linePrice(m, selectedBatch);
-              const expiry = (m as { expiryDate?: string | Date }).expiryDate || selectedBatch?.expiryDate;
-              const available = (m as { availableQuantity?: number }).availableQuantity ?? selectedBatch?.quantity;
+              const row = batchRow(m);
+              const price = row.price;
+              const expiry = row.expiry;
+              const available = row.available;
+              const selectedBatch = row.picked;
               return (
               <tr key={i} className="border-b last:border-b-0 hover:bg-slate-50/80 transition-all duration-200 group">
                 <td className="p-3 align-middle text-slate-500 font-medium text-sm">{i + 1}</td>
@@ -188,21 +174,13 @@ export default function UpdatePrescriptionCard({
                   <BatchSelector
                     itemId={m.name?._id}
                     medicineName={m.name?.name}
-                    initialBatches={batches}
+                    initialBatches={(m.name as { batches?: any[] }).batches || []}
                     selectedBatchNumber={(m as { batchNumber?: string }).batchNumber}
                     disabled={data.status === "Completed" || !m.name?._id}
                     onSelectBatch={(batch) => {
                       updateField(i, "batchNumber", batch.batchNumber);
                       updateField(i, "availableQuantity", batch.quantity ?? 0);
-                      updateField(
-                        i,
-                        "unitPrice",
-                        batchUnitPrice(batch) ||
-                          (batch.packing && batch.mrp
-                            ? batch.mrp / batch.packing
-                            : batch.mrp || 0) ||
-                          0,
-                      );
+                      updateField(i, "unitPrice", batchSalePrice(batch));
                       updateField(i, "mrp", batch.mrp || 0);
                       updateField(i, "purchasePrice", batch.purchasePrice || 0);
                       updateField(i, "gst", batch.gst || 0);
@@ -280,10 +258,10 @@ export default function UpdatePrescriptionCard({
                   <QuantityInput i={i} m={m} updateField={updateField} status={data.status} />
                 </td>
                 <td className="p-3 align-middle text-right text-sm font-medium text-slate-600 whitespace-nowrap">
-                  {formatINR(price)}
+                  {selectedBatch ? formatINR(price) : "—"}
                 </td>
                 <td className="p-3 align-middle text-right text-sm font-semibold text-slate-800 whitespace-nowrap">
-                  {formatINR((m.quantity || 0) * price)}
+                  {selectedBatch ? formatINR((m.quantity || 0) * price) : "—"}
                 </td>
                 <td className="p-3 align-middle text-right">
                   <Button
@@ -423,6 +401,26 @@ const ComboboxInput = ({
   );
 };
 
+function batchRow(item: Item) {
+  const batches = (item.name as { batches?: any[] } | undefined)?.batches || [];
+  const batchNumber = (item as { batchNumber?: string }).batchNumber;
+  const selected = chosenBatch(batches, batchNumber);
+  const picked = Boolean(selected) || !isPlaceholderBatchNumber(batchNumber);
+  const price = selected
+    ? batchSalePrice(selected)
+    : picked
+      ? positiveMoney((item as { unitPrice?: number }).unitPrice)
+      : 0;
+  const expiry = selected?.expiryDate || (picked ? (item as { expiryDate?: string | Date }).expiryDate : undefined);
+  const lineStock = (item as { availableQuantity?: number }).availableQuantity;
+  const available = selected
+    ? Number(selected.quantity ?? 0)
+    : picked && lineStock != null
+      ? Number(lineStock)
+      : undefined;
+  return { selected, picked, price, expiry, available };
+}
+
 const QuantityInput = ({
   updateField,
   i,
@@ -435,6 +433,7 @@ const QuantityInput = ({
   status: string;
 }) => {
   const [openWarning, setOpenWarning] = useState(false);
+  const [warnedStock, setWarnedStock] = useState(0);
 
   return (
     <>
@@ -449,18 +448,10 @@ const QuantityInput = ({
           }
           onBlur={(e) => {
             const value = parseInt(e.target.value) || 0;
-            const batches = (m.name as { batches?: { batchNumber?: string; quantity?: number }[] }).batches || [];
-            const selected = batches.find(
-              (b) =>
-                String(b.batchNumber || "").trim().toLowerCase() ===
-                String((m as { batchNumber?: string }).batchNumber || "").trim().toLowerCase(),
-            );
-            const stock =
-              (m as { availableQuantity?: number }).availableQuantity ??
-              selected?.quantity ??
-              m.name?.quantity ??
-              0;
-            if (value > stock) {
+            const row = batchRow(m);
+            if (!row.picked || row.available == null) return;
+            if (value > row.available) {
+              setWarnedStock(row.available);
               setOpenWarning(true);
             }
           }}
@@ -485,7 +476,7 @@ const QuantityInput = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              Available quantity: {(m as { availableQuantity?: number }).availableQuantity ?? m.name?.quantity ?? 0} <br />
+              Available quantity: {warnedStock} <br />
               Entered quantity: {m.quantity}
               <br />
               <br />

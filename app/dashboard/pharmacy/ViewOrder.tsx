@@ -24,7 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { OrderType } from "./interface";
 import { sanitizeOrderUpdatePayload } from "@/lib/sanitizeOrderPayload";
-import { batchUnitPrice, pickBatch, positiveMoney } from "@/lib/pharmacyReceiptLine";
+import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney } from "@/lib/pharmacyReceiptLine";
 import { fAge, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import toast from "react-hot-toast";
@@ -233,24 +233,29 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         open && localOrder?.patient?._id ? `/consultings/patient/${localOrder.patient._id}` : null
     );
 
-    const lineAmount = (it: { quantity?: number; unitPrice?: number; batchNumber?: string; name?: { unitPrice?: number; batches?: { batchNumber?: string; unitPrice?: number; saleRate?: number }[] } }) => {
+    const lineAmount = (it: { quantity?: number; unitPrice?: number; batchNumber?: string; name?: { unitPrice?: number; batches?: { batchNumber?: string; unitPrice?: number; saleRate?: number; mrp?: number; packing?: number }[] } }) => {
         const batches = it.name?.batches || [];
-        const selected = pickBatch(batches, it.batchNumber);
-        const price =
-            positiveMoney(it.unitPrice) ||
-            batchUnitPrice(selected) ||
-            positiveMoney(it.name?.unitPrice);
+        const selected = chosenBatch(batches, it.batchNumber);
+        if (!selected && isPlaceholderBatchNumber(it.batchNumber)) return 0;
+        const price = selected
+            ? batchSalePrice(selected) || positiveMoney(it.unitPrice)
+            : positiveMoney(it.unitPrice);
         return price * (Number(it.quantity) || 0);
     };
 
     const missingBatch = (items: { quantity?: number; batchNumber?: string; name?: { name?: string } }[]) =>
-        items.filter((it) => (Number(it.quantity) || 0) > 0 && !String(it.batchNumber || "").trim());
+        items.filter((it) => (Number(it.quantity) || 0) > 0 && isPlaceholderBatchNumber(it.batchNumber));
+
+    const batchRequiredMessage = (items: { name?: { name?: string } }[]) => {
+        const names = items.map((it) => it.name?.name || "medicine").join(", ");
+        return `Select a batch for ${names} before completing the order.`;
+    };
 
     const handleCompleteOrderDirect = async () => {
         if (!updatePayload || !localOrder) return;
         const missing = missingBatch(updatePayload.items as { quantity?: number; batchNumber?: string; name?: { name?: string } }[]);
         if (missing.length) {
-            toast.error("Select a batch for every medicine before completing the order.");
+            toast.error(batchRequiredMessage(missing));
             return;
         }
         if (updatePayload.items.some((m) => (m.quantity || 0) === 0)) {
@@ -285,6 +290,12 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
     const handleCompleteOrder = async () => {
         if (!updatePayload) return;
+
+        const missing = missingBatch(updatePayload.items as { quantity?: number; batchNumber?: string; name?: { name?: string } }[]);
+        if (missing.length) {
+            toast.error(batchRequiredMessage(missing));
+            return;
+        }
 
         if (updatePayload.status?.toLowerCase() !== "completed") {
             // Check if patient has prescribed therapies in consultation that are not marked completed
@@ -349,6 +360,12 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
     const handlePaymentUpdate = async () => {
         if (!updatePayload) return;
+
+        const missing = missingBatch(updatePayload.items as { quantity?: number; batchNumber?: string; name?: { name?: string } }[]);
+        if (missing.length) {
+            toast.error(batchRequiredMessage(missing));
+            return;
+        }
 
         const payload = {
             orderId: updatePayload._id,

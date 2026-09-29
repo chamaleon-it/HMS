@@ -38,6 +38,15 @@ export function batchUnitPrice(batch: any): number {
   return positiveMoney(batch.unitPrice ?? batch.saleRate);
 }
 
+/** Selling price stored on a batch: unit price, sale rate, or MRP split by pack. */
+export function batchSalePrice(batch: any): number {
+  if (!batch) return 0;
+  const packing = Number(batch.packing);
+  const mrp = Number(batch.mrp);
+  const perUnit = packing > 0 && mrp > 0 ? mrp / packing : 0;
+  return batchUnitPrice(batch) || positiveMoney(perUnit) || positiveMoney(mrp) || 0;
+}
+
 export function readBatchNumber(batch: any): string {
   if (!batch) return "";
   const candidates = [
@@ -100,6 +109,26 @@ export function pickBatch(
   return undefined;
 }
 
+/**
+ * Batch the pharmacist picked in the queue. Empty, placeholder, and
+ * unselected rows do not fall back to another batch's stock or price.
+ */
+export function chosenBatch(
+  batches: any[] | undefined,
+  wanted?: unknown,
+): any | undefined {
+  const list = Array.isArray(batches) ? batches : [];
+  const key = String(wanted ?? "").trim().toLowerCase();
+  if (!key || isPlaceholderBatchNumber(key)) return undefined;
+  return list.find((batch) => {
+    const number = readBatchNumber(batch).toLowerCase();
+    const raw = String(batch?.batchNumber ?? "")
+      .trim()
+      .toLowerCase();
+    return (number && number === key) || raw === key;
+  });
+}
+
 export interface ResolvedSaleLine {
   name: string;
   generic?: string;
@@ -137,7 +166,7 @@ export function resolveSaleLine(input: {
   );
   const unitPrice =
     positiveMoney(input.unitPrice) ||
-    batchUnitPrice(batch) ||
+    batchSalePrice(batch) ||
     positiveMoney(item?.unitPrice) ||
     positiveMoney(item?.saleRate) ||
     0;
