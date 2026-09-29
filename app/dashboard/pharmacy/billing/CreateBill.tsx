@@ -331,14 +331,28 @@ export default function CreateBill({
           discount: number;
           gst: number;
           total: number;
-        }[] = order.items.filter((item: any) => item.name).map((item: any) => ({
-          name: item.name.name,
-          quantity: item.quantity,
-          unitPrice: item.name.unitPrice,
-          discount: 0,
-          gst: 0,
-          total: item.quantity * item.name.unitPrice,
-        }));
+        }[] = order.items.filter((item: any) => item.name).map((item: any) => {
+          const batches = Array.isArray(item.name?.batches) ? item.name.batches : [];
+          const wanted = String(item.batchNumber || "").trim().toLowerCase();
+          const batch = wanted
+            ? batches.find(
+                (b: any) =>
+                  String(b?.batchNumber || "").trim().toLowerCase() === wanted,
+              )
+            : undefined;
+          const unitPrice =
+            Number(item.unitPrice ?? batch?.unitPrice ?? item.name?.unitPrice) || 0;
+          const gst = Number(item.gst ?? batch?.gst) || 0;
+          const quantity = Number(item.quantity) || 0;
+          return {
+            name: item.name.name,
+            quantity,
+            unitPrice,
+            discount: 0,
+            gst,
+            total: calcTotal(unitPrice, quantity, gst),
+          };
+        });
 
         // 🔹 Remove duplicates by `name`
         const uniqueItems = Array.from(

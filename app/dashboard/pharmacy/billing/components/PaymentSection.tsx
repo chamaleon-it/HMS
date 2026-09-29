@@ -90,7 +90,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                                         placeholder="0"
                                         onFocus={(e) => (e.target.placeholder = "")}
                                         onBlur={(e) => (e.target.placeholder = "0")}
-                                        value={payload[key] === 0 ? "" : payload[key].toString()}
+                                        value={Number(payload[key]) ? String(payload[key]) : ""}
                                         onChange={(e) =>
                                             setPayload((prev: any) => ({
                                                 ...prev,

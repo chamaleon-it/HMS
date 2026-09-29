@@ -290,7 +290,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                     <input
                                                         type="number"
                                                         min={1}
-                                                        value={it.quantity === 0 ? "" : it.quantity.toString()}
+                                                        value={Number(it.quantity) ? String(it.quantity) : ""}
                                                         placeholder="0"
                                                         onFocus={(e) => (e.target.placeholder = "")}
                                                         onBlur={(e) => (e.target.placeholder = "0")}
@@ -304,7 +304,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                     <input
                                                         type="number"
                                                         min={0}
-                                                        value={it.unitPrice === 0 ? "" : it.unitPrice.toString()}
+                                                        value={Number(it.unitPrice) ? String(it.unitPrice) : ""}
                                                         placeholder="0"
                                                         onFocus={(e) => (e.target.placeholder = "")}
                                                         onBlur={(e) => (e.target.placeholder = "0")}
@@ -319,7 +319,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         type="number"
                                                         min={0}
                                                         max={28}
-                                                        value={it.gst === 0 ? "" : it.gst.toString()}
+                                                        value={Number(it.gst) ? String(it.gst) : ""}
                                                         placeholder="0"
                                                         onFocus={(e) => (e.target.placeholder = "")}
                                                         onBlur={(e) => (e.target.placeholder = "0")}
@@ -436,7 +436,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                 ref={unitPriceRef}
                                 type="number"
                                 min="0"
-                                value={customItem.unitPrice === 0 ? "" : customItem.unitPrice.toString()}
+                                value={Number(customItem.unitPrice) ? String(customItem.unitPrice) : ""}
                                 onChange={(e) => setCustomItem({ ...customItem, unitPrice: Number(e.target.value) })}
 
                                 className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/20 transition-all"

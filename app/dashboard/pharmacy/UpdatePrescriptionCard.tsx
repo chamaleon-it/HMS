@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import UpdateMedicine from "./UpdateMedicine";
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
+import BatchSelector from "./BatchSelector";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,7 +58,7 @@ export default function UpdatePrescriptionCard({
 }) {
   const updateField = (
     idx: number,
-    key: keyof Medicine,
+    key: string,
     val: string | number
   ) => {
     setData((prev) => ({
@@ -84,7 +85,9 @@ export default function UpdatePrescriptionCard({
     }));
   };
 
-  const subTotal = data.items.reduce((a, b) => a + (b.quantity || 0) * (b.name.unitPrice || 0), 0);
+  const linePrice = (item: (typeof data.items)[number]) =>
+    Number((item as { unitPrice?: number }).unitPrice ?? item.name?.unitPrice) || 0;
+  const subTotal = data.items.reduce((a, b) => a + (b.quantity || 0) * linePrice(b), 0);
 
   useEffect(() => {
     if (data.items.length > 0) {
@@ -108,6 +111,7 @@ export default function UpdatePrescriptionCard({
             <tr className="w-full">
               <th className="p-3 text-left w-10">Sl</th>
               <th className="p-3 text-left min-w-45">Drug</th>
+              <th className="p-3 text-left min-w-44">Batch</th>
               <th className="p-3 text-left min-w-26.25">Dosage</th>
               <th className="p-3 text-left min-w-26.25">Frequency</th>
               <th className="p-3 text-left min-w-31.25">Food</th>
@@ -122,7 +126,17 @@ export default function UpdatePrescriptionCard({
             </tr>
           </thead>
           <tbody>
-            {data?.items?.map((m, i) => m.name && (
+            {data?.items?.map((m, i) => m.name && (() => {
+              const batches = (m.name as { batches?: any[] }).batches || [];
+              const selectedBatch = batches.find(
+                (b) =>
+                  String(b?.batchNumber || "").trim().toLowerCase() ===
+                  String((m as { batchNumber?: string }).batchNumber || "").trim().toLowerCase(),
+              );
+              const price = linePrice(m);
+              const expiry = (m as { expiryDate?: string | Date }).expiryDate || selectedBatch?.expiryDate;
+              const available = (m as { availableQuantity?: number }).availableQuantity ?? selectedBatch?.quantity;
+              return (
               <tr key={i} className="border-b last:border-b-0 hover:bg-slate-50/80 transition-all duration-200 group">
                 <td className="p-3 align-middle text-slate-500 font-medium text-sm">{i + 1}</td>
                 <td className="p-3 align-middle">
@@ -156,6 +170,40 @@ export default function UpdatePrescriptionCard({
                       </div>
                     )}
                   </div>
+                </td>
+                <td className="p-3 align-middle min-w-44">
+                  <BatchSelector
+                    itemId={m.name?._id}
+                    medicineName={m.name?.name}
+                    initialBatches={batches}
+                    selectedBatchNumber={(m as { batchNumber?: string }).batchNumber}
+                    disabled={data.status === "Completed" || !m.name?._id}
+                    onSelectBatch={(batch) => {
+                      updateField(i, "batchNumber", batch.batchNumber);
+                      updateField(i, "availableQuantity", batch.quantity ?? 0);
+                      updateField(
+                        i,
+                        "unitPrice",
+                        batch.unitPrice ||
+                          (batch.packing && batch.mrp
+                            ? batch.mrp / batch.packing
+                            : batch.mrp || 0) ||
+                          0,
+                      );
+                      updateField(i, "mrp", batch.mrp || 0);
+                      updateField(i, "purchasePrice", batch.purchasePrice || 0);
+                      updateField(i, "gst", batch.gst || 0);
+                      updateField(
+                        i,
+                        "expiryDate",
+                        batch.expiryDate
+                          ? typeof batch.expiryDate === "string"
+                            ? batch.expiryDate
+                            : new Date(batch.expiryDate).toISOString()
+                          : "",
+                      );
+                    }}
+                  />
                 </td>
                 <td className="p-3 align-middle">
                   <ComboboxInput
@@ -210,19 +258,19 @@ export default function UpdatePrescriptionCard({
                   {m?.name?.rackLocation || "-"}
                 </td>
                 <td className="p-3 align-middle text-sm text-slate-600">
-                  {fDate(m.name.expiryDate)}
+                  {expiry ? fDate(expiry) : "—"}
                 </td>
                 <td className="p-3 align-middle text-center font-medium text-slate-700">
-                  {m.name.quantity}
+                  {available ?? "—"}
                 </td>
                 <td className="p-3 align-middle">
                   <QuantityInput i={i} m={m} updateField={updateField} status={data.status} />
                 </td>
                 <td className="p-3 align-middle text-right text-sm font-medium text-slate-600 whitespace-nowrap">
-                  {formatINR(m.name.unitPrice)}
+                  {formatINR(price)}
                 </td>
                 <td className="p-3 align-middle text-right text-sm font-semibold text-slate-800 whitespace-nowrap">
-                  {formatINR((m.quantity || 0) * (m.name.unitPrice || 0))}
+                  {formatINR((m.quantity || 0) * price)}
                 </td>
                 <td className="p-3 align-middle text-right">
                   <Button
@@ -237,7 +285,8 @@ export default function UpdatePrescriptionCard({
                   </Button>
                 </td>
               </tr>
-            ))}
+              );
+            })())}
           </tbody>
         </table>
       </div>
@@ -387,7 +436,18 @@ const QuantityInput = ({
           }
           onBlur={(e) => {
             const value = parseInt(e.target.value) || 0;
-            if (value > m.name.quantity) {
+            const batches = (m.name as { batches?: { batchNumber?: string; quantity?: number }[] }).batches || [];
+            const selected = batches.find(
+              (b) =>
+                String(b.batchNumber || "").trim().toLowerCase() ===
+                String((m as { batchNumber?: string }).batchNumber || "").trim().toLowerCase(),
+            );
+            const stock =
+              (m as { availableQuantity?: number }).availableQuantity ??
+              selected?.quantity ??
+              m.name?.quantity ??
+              0;
+            if (value > stock) {
               setOpenWarning(true);
             }
           }}
@@ -412,7 +472,7 @@ const QuantityInput = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              Available quantity: {m.name.quantity} <br />
+              Available quantity: {(m as { availableQuantity?: number }).availableQuantity ?? m.name?.quantity ?? 0} <br />
               Entered quantity: {m.quantity}
               <br />
               <br />
