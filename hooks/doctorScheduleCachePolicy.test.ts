@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   doctorScheduleListSwrOptions,
   shouldRefetchDoctorScheduleOnMount,
-} from "./doctorScheduleCachePolicy.ts";
+} from "./doctorScheduleCachePolicy.js";
 
 const staleListOptions = {
   revalidateIfStale: false,
