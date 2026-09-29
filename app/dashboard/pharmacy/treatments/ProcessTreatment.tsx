@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, CreditCard, DollarSign, Loader2, QrCode, Receipt, UserCheck, ShieldCheck } from "lucide-react";
 import { formatINR } from "@/lib/fNumber";
@@ -40,7 +39,6 @@ export default function ProcessTreatment({
   const [discount, setDiscount] = useState<number>(0);
   const [therapistId, setTherapistId] = useState("");
   const [therapistName, setTherapistName] = useState("");
-  const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const subtotal = (treatment?.items || []).reduce((sum, it) => sum + it.total, 0);
@@ -59,7 +57,6 @@ export default function ProcessTreatment({
       setTherapistId(tId);
       setTherapistName(treatment.therapistName || "");
       setDiscount(treatment.discount || 0);
-      setNotes(treatment.notes || "");
       const initialNet = Math.max(0, (treatment.items || []).reduce((s, i) => s + i.total, 0) - (treatment.discount || 0));
       setCash(initialNet);
       setCard(0);
@@ -107,7 +104,6 @@ export default function ProcessTreatment({
         paymentMethod: primaryMethod,
         therapist: therapistId || null,
         therapistName,
-        notes,
       });
 
       const billNo = res.data?.bill?.mrn || res.data?.data?.billNo;
@@ -270,20 +266,6 @@ export default function ProcessTreatment({
               <span className="text-sm font-bold">{formatINR(remainingDue)}</span>
             </div>
           )}
-
-          {/* Session Notes */}
-          <div className="space-y-2 pt-1">
-            <Label className="text-xs font-semibold text-slate-700">
-              Completion Notes / Remarks
-            </Label>
-            <Textarea
-              rows={2}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Any clinical remarks or session completion notes..."
-              className="rounded-xl border-slate-200 text-xs p-3"
-            />
-          </div>
 
           <DialogFooter className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
             <Button
