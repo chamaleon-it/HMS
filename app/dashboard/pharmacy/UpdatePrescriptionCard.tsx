@@ -13,6 +13,10 @@ import { formatINR } from "@/lib/fNumber";
 import BatchSelector from "./BatchSelector";
 import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney } from "@/lib/pharmacyReceiptLine";
 import {
+  PRESCRIPTION_FREQUENCY_OPTIONS,
+  frequencySetsQuantityToOne,
+} from "@/lib/prescriptionFrequency";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -210,8 +214,13 @@ export default function UpdatePrescriptionCard({
                     label="Frequency"
                     value={m.frequency}
                     disabled={data.status === "Completed"}
-                    onChange={(val) => updateField(i, "frequency", val)}
-                    options={["1-0-1", "1-1-1", "0-1-1", "1-0-0", "0-0-1", "SOS"]}
+                    onChange={(val) => {
+                      updateField(i, "frequency", val);
+                      if (frequencySetsQuantityToOne(val)) {
+                        updateField(i, "quantity", 1);
+                      }
+                    }}
+                    options={PRESCRIPTION_FREQUENCY_OPTIONS}
                   />
                 </td>
                 <td className="p-3 align-middle">
