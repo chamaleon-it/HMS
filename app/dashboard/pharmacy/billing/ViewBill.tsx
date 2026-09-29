@@ -9,7 +9,9 @@ import Link from "next/link";
 import useSWR from "swr";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft, Printer, RotateCcw } from "lucide-react";
+import RefundTherapyModal from "@/components/dashboard/billing/RefundTherapyModal";
+import { getBillType } from "@/lib/billTypeUtils";
 import PharmacyHeader from "../components/PharmacyHeader";
 import React from "react";
 import { getDecimal } from "@/lib/fNumber";
@@ -18,6 +20,7 @@ import configuration from "@/config/configuration";
 import { pharmacyLineMoney, isPlaceholderBatchNumber } from "@/lib/pharmacyReceiptLine";
 
 export default function ViewBill({ id }: { id: string }) {
+    const [isRefundOpen, setIsRefundOpen] = React.useState(false);
 
     const { data: billingData } = useSWR<{
         message: string;
@@ -60,6 +63,7 @@ export default function ViewBill({ id }: { id: string }) {
             doctor?: string | { _id: string; name: string; specialization?: string };
             department?: string;
             note?: string;
+            transactionType?: "Sale" | "Return" | "Refund";
         };
     }>(`/billing/${id}`);
 
@@ -99,6 +103,15 @@ export default function ViewBill({ id }: { id: string }) {
                         title="Invoice Details"
                         subtitle={`Viewing invoice ${billing.mrn}`}
                     >
+                        {billing.transactionType !== "Refund" && getBillType(billing) === "therapy" && (
+                            <button
+                                onClick={() => setIsRefundOpen(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-rose-50 border border-rose-200 rounded-full text-rose-700 hover:bg-rose-100 transition-colors shadow-xs text-xs font-bold"
+                            >
+                                <RotateCcw className="h-4 w-4" />
+                                Refund Therapy
+                            </button>
+                        )}
                         <button
                             onClick={() => window.print()}
                             className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-900 hover:bg-slate-50 transition-colors shadow-sm text-xs font-bold"
@@ -281,6 +294,11 @@ export default function ViewBill({ id }: { id: string }) {
                 />
             )}
             <Watermark />
+            <RefundTherapyModal
+                bill={isRefundOpen ? (billing as any) : null}
+                open={isRefundOpen}
+                onOpenChange={setIsRefundOpen}
+            />
         </AppShell>
     );
 }

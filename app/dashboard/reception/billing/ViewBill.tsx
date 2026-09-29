@@ -15,12 +15,7 @@ import React from "react";
 import configuration from "@/config/configuration";
 import { format, addDays } from "date-fns";
 
-import RefundTherapyModal from "./RefundTherapyModal";
-import { getBillType } from "@/lib/billTypeUtils";
-
 export default function ViewBill({ id }: { id: string }) {
-    const [isRefundOpen, setIsRefundOpen] = React.useState(false);
-
     const { data: billingData } = useSWR<{
         message: string;
         data: {
@@ -132,15 +127,6 @@ export default function ViewBill({ id }: { id: string }) {
                         title="Invoice Details"
                         subtitle={`Viewing invoice ${billing.mrn}`}
                     >
-                        {billing.transactionType !== "Refund" && getBillType(billing) === "therapy" && (
-                            <button
-                                onClick={() => setIsRefundOpen(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-rose-50 border border-rose-200 rounded-full text-rose-700 hover:bg-rose-100 transition-colors shadow-xs text-xs font-bold"
-                            >
-                                <RotateCcw className="h-4 w-4" />
-                                Refund Therapy
-                            </button>
-                        )}
                         <button
                             onClick={() => {
                                 window.print();
@@ -332,11 +318,6 @@ export default function ViewBill({ id }: { id: string }) {
                 </div>
             </div>
             <Watermark />
-            <RefundTherapyModal
-                bill={billing as any}
-                open={isRefundOpen}
-                onOpenChange={setIsRefundOpen}
-            />
         </AppShell>
     );
 }

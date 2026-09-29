@@ -13,6 +13,7 @@ import Filters from "./Filter";
 import { endOfDay, startOfDay, subDays } from "date-fns";
 import Statistics from "./Statistics";
 
+import { getBillType } from "@/lib/billTypeUtils";
 import { DateRange } from "react-day-picker";
 import type { PatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
 import { getStoredPatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
@@ -21,6 +22,7 @@ export interface FilterType {
   q: null | string;
   status: string;
   method: string;
+  billType: string;
   activeDate: "Today" | "7 days" | "30 days" | "Custom";
   dateRange?: DateRange;
   date?: Date;
@@ -36,6 +38,7 @@ export default function BillingPage() {
     q: null,
     status: "",
     method: "",
+    billType: "all",
     activeDate: "Today",
     dateRange: { from: new Date(), to: new Date() },
     date: new Date(),
@@ -61,6 +64,10 @@ export default function BillingPage() {
 
   if (filter.method && filter.method !== "all") {
     params.set("method", filter.method);
+  }
+
+  if (filter.billType && filter.billType !== "all") {
+    params.set("billType", filter.billType);
   }
 
   if (filter.patientVisitor && filter.patientVisitor !== "all") {
@@ -105,6 +112,7 @@ export default function BillingPage() {
       card: number;
       upi: number;
       discount: number;
+      note?: string;
       items: {
         name: string;
         total: number;
@@ -123,9 +131,18 @@ export default function BillingPage() {
 
   const allBilling = billingData?.data ?? [];
   const billing = useMemo(() => {
-    if (filter.doctor.length === 0) return allBilling;
-    return allBilling.filter(b => filter.doctor.includes(b.doctor));
-  }, [allBilling, filter.doctor]);
+    let list = allBilling;
+    if (filter.doctor.length > 0) {
+      list = list.filter(b => {
+        const docName = typeof b.doctor === "object" ? (b.doctor as { name?: string })?.name : b.doctor;
+        return filter.doctor.includes(docName || "");
+      });
+    }
+    if (filter.billType && filter.billType !== "all") {
+      list = list.filter(b => getBillType(b) === filter.billType);
+    }
+    return list;
+  }, [allBilling, filter.doctor, filter.billType]);
 
   const total = billingData?.total ?? 0;
 

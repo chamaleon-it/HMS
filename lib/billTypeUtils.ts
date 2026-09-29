@@ -201,6 +201,11 @@ export function hasMedicineItems(items?: any[]): boolean {
 export function isPharmacyBill(bill: any): boolean {
   if (!bill) return false;
 
+  const billType = getBillType(bill);
+  if (billType === "therapy" || billType === "procedure") {
+    return true;
+  }
+
   // 1. If user/creator role is populated
   const userRole = String(
     bill.user?.role || bill.creator?.role || ""
@@ -224,13 +229,8 @@ export function isPharmacyBill(bill: any): boolean {
     return false;
   }
 
-  // 4. Check bill note & bill type
-  const billType = getBillType(bill);
-  if (
-    billType === "therapy" ||
-    billType === "procedure" ||
-    billType === "reception"
-  ) {
+  // 4. Consultation and registration bills stay on reception.
+  if (billType === "reception") {
     return false;
   }
 
