@@ -44,6 +44,7 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
       page: 1,
       limit: 10,
       doctor: [],
+      therapist: "",
       patientVisitor: "all",
     });
   };
@@ -101,7 +102,11 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
       }
       if (filter.doctor && filter.doctor.length > 0) {
         const docName = typeof b.doctor === "object" ? b.doctor?.name : b.doctor;
-        return filter.doctor.includes(docName);
+        if (!filter.doctor.includes(docName)) return false;
+      }
+      if (filter.therapist) {
+        const wanted = filter.therapist.trim().toLowerCase();
+        return String(b.therapistName || "").trim().toLowerCase() === wanted;
       }
       return true;
     });

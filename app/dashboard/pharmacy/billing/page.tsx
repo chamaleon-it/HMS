@@ -29,6 +29,7 @@ export interface FilterType {
   page: number;
   limit: number;
   doctor: string[];
+  therapist: string;
   patientVisitor: PatientVisitorFilter;
 }
 
@@ -45,6 +46,7 @@ export default function BillingPage() {
     page: 1,
     limit: 10,
     doctor: [],
+    therapist: "",
     patientVisitor: "all",
   });
 
@@ -125,7 +127,8 @@ export default function BillingPage() {
         mrn: string;
       };
       transactionType: "Return" | "Sale"
-      doctor: string
+      doctor: string;
+      therapistName?: string;
     }[];
   }>(`/billing?${params.toString()}`);
 
@@ -138,11 +141,17 @@ export default function BillingPage() {
         return filter.doctor.includes(docName || "");
       });
     }
+    if (filter.therapist) {
+      const wanted = filter.therapist.trim().toLowerCase();
+      list = list.filter(
+        (b) => String(b.therapistName || "").trim().toLowerCase() === wanted,
+      );
+    }
     if (filter.billType && filter.billType !== "all") {
       list = list.filter(b => getBillType(b) === filter.billType);
     }
     return list;
-  }, [allBilling, filter.doctor, filter.billType]);
+  }, [allBilling, filter.doctor, filter.therapist, filter.billType]);
 
   const total = billingData?.total ?? 0;
 

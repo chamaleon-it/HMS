@@ -1,5 +1,6 @@
-import { FilePlus2, PlusCircle, ReceiptIndianRupee, ChevronDown, Check, Filter, User2 } from 'lucide-react';
+import { FilePlus2, PlusCircle, ReceiptIndianRupee, ChevronDown, Check, Filter, User2, UserCheck } from 'lucide-react';
 import React, { useMemo, useState, useRef, useEffect } from 'react'
+import useSWR from 'swr';
 import { FilterType } from './page';
 import BillingStatusFilter from './BillingStatusFilter';
 import PharmacyHeader from '../components/PharmacyHeader';
@@ -39,17 +40,32 @@ interface PropsType {
 
 export default function Header({ tab, setTab, filter, setFilter, billing }: PropsType) {
   const [isDoctorOpen, setIsDoctorOpen] = useState(false);
+  const [isTherapistOpen, setIsTherapistOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const therapistRef = useRef<HTMLDivElement>(null);
+  const { data: therapistResponse } = useSWR<{
+    data: { _id: string; name: string }[];
+  }>("/employee?role=Therapist&status=active");
 
   const doctors = useMemo(() => {
     const list = [...new Set(billing.map(b => b.doctor))].filter(Boolean);
     return list.sort();
   }, [billing]);
 
+  const therapists = useMemo(() => {
+    const names = (therapistResponse?.data ?? [])
+      .map((therapist) => String(therapist.name || "").trim())
+      .filter((name) => name && name !== "-");
+    return [...new Set(names)].sort((a, b) => a.localeCompare(b));
+  }, [therapistResponse]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDoctorOpen(false);
+      }
+      if (therapistRef.current && !therapistRef.current.contains(event.target as Node)) {
+        setIsTherapistOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -135,6 +151,70 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
                     >
                       <span className="truncate">{doctor}</span>
                       {filter.doctor.includes(doctor) && <Check size={16} className="text-(--color-synapse-light)" />}
+                    </button>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="relative" ref={therapistRef}>
+        <button
+          onClick={() => setIsTherapistOpen(!isTherapistOpen)}
+          className={cn(
+            "flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all border cursor-pointer font-medium",
+            filter.therapist
+              ? "bg-synapse-light/10 border-synapse-light/30 text-(--color-synapse-light) shadow-sm"
+              : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+          )}
+          type="button"
+        >
+          <UserCheck size={14} className={cn(filter.therapist ? "text-(--color-synapse-light)" : "text-slate-400")} />
+          <span>{filter.therapist || "All Therapists"}</span>
+          <ChevronDown size={14} className={cn("transition-transform duration-200", isTherapistOpen && "rotate-180")} />
+        </button>
+
+        <AnimatePresence>
+          {isTherapistOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 8, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.95 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="absolute left-0 z-50 mt-2 w-56 rounded-2xl border border-slate-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5"
+            >
+              <button
+                onClick={() => {
+                  setFilter((prev) => ({ ...prev, therapist: "", page: 1 }));
+                  setIsTherapistOpen(false);
+                }}
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+              >
+                <span className="font-medium">All Therapists</span>
+                {!filter.therapist && <Check size={16} className="text-(--color-synapse-light)" />}
+              </button>
+
+              <div className="my-1.5 h-px bg-slate-100" />
+
+              <div className="max-h-60 overflow-y-auto scrollbar-hide">
+                {therapists.length === 0 ? (
+                  <div className="px-3 py-4 text-center text-xs text-slate-400">
+                    No therapists found
+                  </div>
+                ) : (
+                  therapists.map((therapist) => (
+                    <button
+                      key={therapist}
+                      onClick={() => {
+                        setFilter((prev) => ({ ...prev, therapist, page: 1 }));
+                        setIsTherapistOpen(false);
+                      }}
+                      className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                    >
+                      <span className="truncate">{therapist}</span>
+                      {filter.therapist === therapist && <Check size={16} className="text-(--color-synapse-light)" />}
                     </button>
                   ))
                 )}
