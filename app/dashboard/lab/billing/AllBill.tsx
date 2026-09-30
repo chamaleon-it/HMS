@@ -1,4 +1,4 @@
-import { Eye, Search, Edit, Printer, CheckCircle2 } from "lucide-react";
+import { Eye, Search, Edit, Printer, CheckCircle2, Wallet } from "lucide-react";
 import React from "react";
 import Link from "next/link";
 import Filters from "./Filter";
@@ -231,28 +231,32 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                         const due = total - paid;
 
                         return (
-                          <>
-                            {due > 0 && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => {
-                                      setSelectedMarkAsPaidBill(b);
-                                      setMarkAsPaidModalOpen(true);
-                                    }}
-                                    className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                                  >
-                                    <CheckCircle2 className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Mark as Paid</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
-                          </>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  setSelectedMarkAsPaidBill(b);
+                                  setMarkAsPaidModalOpen(true);
+                                }}
+                                className={
+                                  due > 0.01
+                                    ? "h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                    : "h-8 w-8 text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                                }
+                              >
+                                {due > 0.01 ? (
+                                  <CheckCircle2 className="h-4 w-4" />
+                                ) : (
+                                  <Wallet className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{due > 0.01 ? "Mark as Paid" : "Edit Cash / UPI / Card split"}</p>
+                            </TooltipContent>
+                          </Tooltip>
                         );
                       })()}
                       <Tooltip>

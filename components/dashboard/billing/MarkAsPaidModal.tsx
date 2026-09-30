@@ -81,24 +81,31 @@ export default function MarkAsPaidModal({
     0
   );
   const roundOffAmount = bill?.roundOff ? getDecimal(itemsTotal) : 0;
+  const totalAmount = Math.max(0, itemsTotal - roundOffAmount);
+  const existingCash = bill?.cash ?? 0;
+  const existingUpi = bill?.upi ?? 0;
+  const existingCard = bill?.card ?? 0;
   const existingDiscount = bill?.discount ?? 0;
-  const totalAmount = Math.max(0, itemsTotal - roundOffAmount - existingDiscount);
-  const previouslyPaid =
-    (bill?.cash ?? 0) + (bill?.card ?? 0) + (bill?.upi ?? 0);
-  const dueAmount = Math.max(0, totalAmount - previouslyPaid);
+  const previouslyPaid = existingCash + existingCard + existingUpi;
+  const previouslySettled = previouslyPaid + existingDiscount;
+  const dueAmount = Math.max(0, totalAmount - previouslySettled);
+  const isEditingPaidBill = dueAmount <= 0.01;
 
-  // Initialize amount whenever modal opens or bill changes
+  const toField = (n: number) => (n > 0 ? String(Number(n.toFixed(2))) : "");
+
+  // The fields hold the final split for the bill. Any outstanding due is
+  // defaulted to cash so a plain "mark as paid" is one click.
   useEffect(() => {
     if (open && bill) {
-      const defaultDue = dueAmount > 0 ? dueAmount : totalAmount;
       setPayments({
-        cash: defaultDue > 0 ? defaultDue.toString() : "",
-        upi: "",
-        card: "",
-        discount: "",
+        cash: toField(existingCash + dueAmount),
+        upi: toField(existingUpi),
+        card: toField(existingCard),
+        discount: toField(existingDiscount),
       });
     }
-  }, [open, bill, dueAmount, totalAmount]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, bill?._id]);
 
   if (!bill) return null;
 
@@ -110,9 +117,13 @@ export default function MarkAsPaidModal({
   const totalPayingNow = numCash + numUpi + numCard;
   const totalSettlingNow = totalPayingNow + numDiscount;
 
-  // Max allowed is the total bill amount
-  const isOverMax = totalSettlingNow > totalAmount + 0.001 || (previouslyPaid + totalSettlingNow > totalAmount + 0.001);
-  const isInvalidAmount = totalSettlingNow <= 0 || isOverMax;
+  const isOverMax = totalSettlingNow > totalAmount + 0.001;
+  const isUnchanged =
+    Math.abs(numCash - existingCash) < 0.001 &&
+    Math.abs(numUpi - existingUpi) < 0.001 &&
+    Math.abs(numCard - existingCard) < 0.001 &&
+    Math.abs(numDiscount - existingDiscount) < 0.001;
+  const isInvalidAmount = totalSettlingNow <= 0 || isOverMax || isUnchanged;
 
   const handleFieldChange = (
     field: "cash" | "upi" | "card" | "discount",
@@ -125,13 +136,13 @@ export default function MarkAsPaidModal({
   };
 
   const handlePreset = (method: "cash" | "upi" | "card") => {
-    const targetAmount = dueAmount > 0 ? dueAmount : totalAmount;
-    setPayments({
-      cash: method === "cash" ? targetAmount.toString() : "",
-      upi: method === "upi" ? targetAmount.toString() : "",
-      card: method === "card" ? targetAmount.toString() : "",
-      discount: "",
-    });
+    const targetAmount = Math.max(0, totalAmount - numDiscount);
+    setPayments((prev) => ({
+      cash: method === "cash" ? toField(targetAmount) : "",
+      upi: method === "upi" ? toField(targetAmount) : "",
+      card: method === "card" ? toField(targetAmount) : "",
+      discount: prev.discount,
+    }));
   };
 
   const handleClearAll = () => {
@@ -156,6 +167,11 @@ export default function MarkAsPaidModal({
       return;
     }
 
+    if (isUnchanged) {
+      toast.error("Payment split is unchanged");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       await api.patch(`/billing/mark_as_paid/${bill._id}`, {
@@ -163,9 +179,12 @@ export default function MarkAsPaidModal({
         upi: numUpi,
         card: numCard,
         discount: numDiscount,
+        replace: true,
       });
 
-      toast.success("Payment recorded successfully");
+      toast.success(
+        isEditingPaidBill ? "Payment split updated" : "Payment recorded successfully"
+      );
       onOpenChange(false);
       if (onSuccess) {
         onSuccess();
@@ -214,7 +233,7 @@ export default function MarkAsPaidModal({
     },
   ];
 
-  const remainingDueAfter = Math.max(0, dueAmount - totalSettlingNow);
+  const remainingDueAfter = Math.max(0, totalAmount - totalSettlingNow);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -227,7 +246,7 @@ export default function MarkAsPaidModal({
             </div>
             <div className="flex-1">
               <DialogTitle className="text-lg font-bold text-slate-900">
-                Mark as Paid
+                {isEditingPaidBill ? "Edit Payment Split" : "Mark as Paid"}
               </DialogTitle>
               <DialogDescription className="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
                 <span className="inline-flex items-center gap-1 font-semibold text-slate-700">
@@ -259,11 +278,22 @@ export default function MarkAsPaidModal({
             </div>
             <div className="text-center border-x border-slate-100">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600">
-                Already Paid
+                Recorded So Far
               </p>
               <p className="text-sm font-bold text-emerald-600 tabular-nums mt-0.5">
                 {formatINR(previouslyPaid)}
               </p>
+              {previouslyPaid > 0 && (
+                <p className="text-[10px] text-slate-400 tabular-nums mt-0.5">
+                  {[
+                    existingCash > 0 && `Cash ${formatINR(existingCash)}`,
+                    existingUpi > 0 && `UPI ${formatINR(existingUpi)}`,
+                    existingCard > 0 && `Card ${formatINR(existingCard)}`,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              )}
             </div>
             <div className="text-center">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-rose-600">
@@ -280,7 +310,7 @@ export default function MarkAsPaidModal({
           {/* Quick preset chips */}
           <div className="flex items-center justify-between gap-1 flex-wrap">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
-              Payment Breakdown
+              Final Payment Breakdown
             </span>
             <div className="flex items-center gap-1.5 flex-wrap">
               <button
@@ -371,29 +401,41 @@ export default function MarkAsPaidModal({
             </div>
           )}
 
+          <p className="text-[11px] text-slate-500 -mt-2">
+            Enter what the patient actually paid by each method. These amounts replace what is recorded on the bill.
+          </p>
+
           {/* Live Calculation Breakdown */}
           {totalSettlingNow > 0 && !isOverMax && (
             <div className="rounded-xl border border-slate-100 bg-slate-50/80 p-3 space-y-1.5 text-xs">
               <div className="flex justify-between text-slate-600">
-                <span>Paying Now (Total)</span>
+                <span>Total Paid (Cash + UPI + Card)</span>
                 <span className="font-bold text-emerald-600 tabular-nums">
-                  +{formatINR(totalPayingNow)}
+                  {formatINR(totalPayingNow)}
                 </span>
               </div>
               {numDiscount > 0 && (
                 <div className="flex justify-between text-amber-700">
-                  <span>Additional Discount</span>
+                  <span>Discount</span>
                   <span className="font-bold tabular-nums">
-                    +{formatINR(numDiscount)}
+                    {formatINR(numDiscount)}
                   </span>
                 </div>
               )}
-              <div className="flex justify-between text-slate-600">
-                <span>New Total Settled</span>
-                <span className="font-medium tabular-nums">
-                  {formatINR(previouslyPaid + totalSettlingNow)}
-                </span>
-              </div>
+              {Math.abs(totalPayingNow - previouslyPaid) > 0.001 && (
+                <div className="flex justify-between text-slate-600">
+                  <span>Change from recorded</span>
+                  <span
+                    className={cn(
+                      "font-medium tabular-nums",
+                      totalPayingNow > previouslyPaid ? "text-emerald-600" : "text-rose-600"
+                    )}
+                  >
+                    {totalPayingNow > previouslyPaid ? "+" : "−"}
+                    {formatINR(Math.abs(totalPayingNow - previouslyPaid))}
+                  </span>
+                </div>
+              )}
               <div className="h-px bg-slate-200 my-1" />
               <div className="flex justify-between font-bold text-slate-800">
                 <span>Remaining Due</span>
@@ -432,12 +474,12 @@ export default function MarkAsPaidModal({
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Recording Payment...
+                  Saving...
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="h-4 w-4" />
-                  Submit Payment ({formatINR(totalPayingNow)})
+                  {isEditingPaidBill ? "Update Payment" : "Save Payment"} ({formatINR(totalPayingNow)})
                 </>
               )}
             </Button>

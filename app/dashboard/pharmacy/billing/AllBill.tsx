@@ -1,4 +1,4 @@
-import { Eye, Printer, Search, CheckCircle, RotateCcw } from "lucide-react";
+import { Eye, Printer, Search, CheckCircle, RotateCcw, Wallet } from "lucide-react";
 import React, { useState } from "react";
 import Link from "next/link";
 import Filters from "./Filter";
@@ -308,7 +308,24 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                             </TooltipContent>
                           </Tooltip>
                         ) : (
-                          <div className="w-8 h-8" />
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                                onClick={() => {
+                                  setSelectedMarkAsPaidBill(b);
+                                  setMarkAsPaidModalOpen(true);
+                                }}
+                              >
+                                <Wallet className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Edit Cash / UPI / Card split</p>
+                            </TooltipContent>
+                          </Tooltip>
                         )}
                       </div>
                     </TableCell>
