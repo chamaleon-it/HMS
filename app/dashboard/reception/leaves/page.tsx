@@ -24,7 +24,6 @@ import {
   Trash2,
   User,
   Users,
-  XCircle,
   AlertCircle,
   FileText,
   Loader2,
@@ -125,20 +124,32 @@ const STATUS_CONFIG: Record<
   },
 };
 
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 export default function ReceptionLeavesPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [roleFilter, setRoleFilter] = useState("all");
   const [employeeFilter, setEmployeeFilter] = useState("all");
+  const leaveYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1;
+  const [monthFilter, setMonthFilter] = useState(currentMonth);
 
   // Modal states
   const [openApplyModal, setOpenApplyModal] = useState(false);
-  const [openStatusModal, setOpenStatusModal] = useState(false);
-  const [selectedLeave, setSelectedLeave] = useState<LeaveItem | null>(null);
-  const [statusDecision, setStatusDecision] = useState<"Approved" | "Rejected">(
-    "Approved"
-  );
-  const [decisionNote, setDecisionNote] = useState("");
 
   // Apply Form State
   const [formEmployee, setFormEmployee] = useState("");
@@ -156,7 +167,7 @@ export default function ReceptionLeavesPage() {
   const activeEmployees = employeeData?.data || [];
 
   // Fetch leaves
-  const queryUrl = `/employee-leave?search=${encodeURIComponent(search)}${
+  const queryUrl = `/employee-leave?search=${encodeURIComponent(search)}&month=${monthFilter}&year=${leaveYear}${
     statusFilter !== "all" ? `&status=${encodeURIComponent(statusFilter)}` : ""
   }${roleFilter !== "all" ? `&role=${encodeURIComponent(roleFilter)}` : ""}${
     employeeFilter !== "all"
@@ -173,7 +184,7 @@ export default function ReceptionLeavesPage() {
 
   // Fetch Stats
   const { data: statsData } = useSWR<{ data: any }>(
-    "/employee-leave/stats",
+    `/employee-leave/stats?month=${monthFilter}&year=${leaveYear}`,
     { revalidateOnFocus: false }
   );
   const stats = statsData?.data || {
@@ -239,35 +250,6 @@ export default function ReceptionLeavesPage() {
       toast.error(
         err.response?.data?.message || "Failed to submit leave application"
       );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleOpenStatusModal = (
-    leave: LeaveItem,
-    decision: "Approved" | "Rejected"
-  ) => {
-    setSelectedLeave(leave);
-    setStatusDecision(decision);
-    setDecisionNote("");
-    setOpenStatusModal(true);
-  };
-
-  const handleConfirmStatus = async () => {
-    if (!selectedLeave) return;
-    try {
-      setIsSubmitting(true);
-      await api.patch(`/employee-leave/${selectedLeave._id}/status`, {
-        status: statusDecision,
-        approvalNote: decisionNote.trim(),
-      });
-
-      toast.success(`Leave request marked as ${statusDecision}`);
-      await mutate();
-      setOpenStatusModal(false);
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to update leave status");
     } finally {
       setIsSubmitting(false);
     }
@@ -446,6 +428,22 @@ export default function ReceptionLeavesPage() {
                 />
               </div>
 
+              <Select
+                value={String(monthFilter)}
+                onValueChange={(value) => setMonthFilter(Number(value))}
+              >
+                <SelectTrigger className="w-24 h-9 rounded-xl border-slate-200 text-xs cursor-pointer">
+                  <SelectValue placeholder="Month" />
+                </SelectTrigger>
+                <SelectContent>
+                  {MONTHS.map((label, index) => (
+                    <SelectItem key={label} value={String(index + 1)}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
                 <SelectTrigger className="w-36 h-9 rounded-xl border-slate-200 text-xs cursor-pointer">
                   <SelectValue placeholder="All Staff" />
@@ -460,7 +458,7 @@ export default function ReceptionLeavesPage() {
                 </SelectContent>
               </Select>
 
-              {(search || statusFilter !== "all" || employeeFilter !== "all") && (
+              {(search || statusFilter !== "all" || employeeFilter !== "all" || monthFilter !== currentMonth) && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -468,6 +466,7 @@ export default function ReceptionLeavesPage() {
                     setSearch("");
                     setStatusFilter("all");
                     setEmployeeFilter("all");
+                    setMonthFilter(currentMonth);
                   }}
                   className="text-xs text-slate-500 hover:text-slate-900 rounded-xl h-9 px-2.5"
                 >
@@ -540,9 +539,9 @@ export default function ReceptionLeavesPage() {
                           No leave applications found
                         </p>
                         <p className="text-xs text-slate-400 max-w-sm mt-0.5 mb-3">
-                          {search || statusFilter !== "all"
-                            ? "Try adjusting your search criteria or status filter."
-                            : "Click 'Apply Leave' above to record a new staff leave request."}
+                          {search || statusFilter !== "all" || monthFilter !== currentMonth
+                            ? "Try another month, or adjust your search and status filter."
+                            : `No leave requests for ${MONTHS[monthFilter - 1]} ${leaveYear}. Click 'Apply Leave' to record one.`}
                         </p>
                       </div>
                     </TableCell>
@@ -638,61 +637,22 @@ export default function ReceptionLeavesPage() {
                         <TableCell className="py-3.5 pr-6 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             {leave.status === "Pending" && (
-                              <>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      size="sm"
-                                      onClick={() =>
-                                        handleOpenStatusModal(leave, "Approved")
-                                      }
-                                      className="h-7 px-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg gap-1 shadow-2xs cursor-pointer"
-                                    >
-                                      <CheckCircle2 className="h-3.5 w-3.5" />
-                                      <span>Approve</span>
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Approve Leave</p>
-                                  </TooltipContent>
-                                </Tooltip>
-
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() =>
-                                        handleOpenStatusModal(leave, "Rejected")
-                                      }
-                                      className="h-7 px-2.5 text-xs font-semibold text-rose-600 border-rose-200 hover:bg-rose-50 rounded-lg gap-1 cursor-pointer"
-                                    >
-                                      <XCircle className="h-3.5 w-3.5" />
-                                      <span>Reject</span>
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Reject Leave</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleDeleteLeave(leave._id)}
+                                    className="h-7 w-7 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Delete Record</p>
+                                </TooltipContent>
+                              </Tooltip>
                             )}
-
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleDeleteLeave(leave._id)}
-                                  className="h-7 w-7 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Delete Record</p>
-                              </TooltipContent>
-                            </Tooltip>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -847,76 +807,6 @@ export default function ReceptionLeavesPage() {
                 </Button>
               </DialogFooter>
             </form>
-          </DialogContent>
-        </Dialog>
-
-        {/* ── Status Decision Dialog ────────────────────────────────────── */}
-        <Dialog open={openStatusModal} onOpenChange={setOpenStatusModal}>
-          <DialogContent className="max-w-md p-6 rounded-2xl border-slate-100 shadow-xl">
-            <DialogHeader>
-              <DialogTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                {statusDecision === "Approved" ? (
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                ) : (
-                  <XCircle className="h-5 w-5 text-rose-600" />
-                )}
-                <span>
-                  {statusDecision === "Approved" ? "Approve Leave" : "Reject Leave"}
-                </span>
-              </DialogTitle>
-              <DialogDescription className="text-xs text-slate-500">
-                {selectedLeave?.employee?.name} • {selectedLeave?.leaveType} (
-                {selectedLeave?.daysCount} days)
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-3 pt-2">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-slate-700">
-                  Decision Note / Remarks (Optional)
-                </Label>
-                <Textarea
-                  value={decisionNote}
-                  onChange={(e) => setDecisionNote(e.target.value)}
-                  placeholder={
-                    statusDecision === "Approved"
-                      ? "e.g. Approved by management, duty covered by staff"
-                      : "e.g. Critical shift coverage required"
-                  }
-                  rows={3}
-                  className="rounded-xl border-slate-200 text-sm resize-none"
-                />
-              </div>
-
-              <DialogFooter className="gap-2 pt-3 border-t border-slate-100">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setOpenStatusModal(false)}
-                  disabled={isSubmitting}
-                  className="rounded-xl border-slate-200 font-semibold"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleConfirmStatus}
-                  disabled={isSubmitting}
-                  className={cn(
-                    "rounded-xl font-bold px-5 text-white shadow-xs",
-                    statusDecision === "Approved"
-                      ? "bg-emerald-600 hover:bg-emerald-700"
-                      : "bg-rose-600 hover:bg-rose-700"
-                  )}
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    `Confirm ${statusDecision}`
-                  )}
-                </Button>
-              </DialogFooter>
-            </div>
           </DialogContent>
         </Dialog>
       </TooltipProvider>

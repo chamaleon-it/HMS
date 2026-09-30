@@ -125,11 +125,29 @@ const STATUS_CONFIG: Record<
   },
 };
 
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 export default function ReceptionLeavesPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [roleFilter, setRoleFilter] = useState("all");
   const [employeeFilter, setEmployeeFilter] = useState("all");
+  const leaveYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1;
+  const [monthFilter, setMonthFilter] = useState(currentMonth);
 
   // Modal states
   const [openApplyModal, setOpenApplyModal] = useState(false);
@@ -156,7 +174,7 @@ export default function ReceptionLeavesPage() {
   const activeEmployees = employeeData?.data || [];
 
   // Fetch leaves
-  const queryUrl = `/employee-leave?search=${encodeURIComponent(search)}${
+  const queryUrl = `/employee-leave?search=${encodeURIComponent(search)}&month=${monthFilter}&year=${leaveYear}${
     statusFilter !== "all" ? `&status=${encodeURIComponent(statusFilter)}` : ""
   }${roleFilter !== "all" ? `&role=${encodeURIComponent(roleFilter)}` : ""}${
     employeeFilter !== "all"
@@ -173,7 +191,7 @@ export default function ReceptionLeavesPage() {
 
   // Fetch Stats
   const { data: statsData } = useSWR<{ data: any }>(
-    "/employee-leave/stats",
+    `/employee-leave/stats?month=${monthFilter}&year=${leaveYear}`,
     { revalidateOnFocus: false }
   );
   const stats = statsData?.data || {
@@ -446,6 +464,22 @@ export default function ReceptionLeavesPage() {
                 />
               </div>
 
+              <Select
+                value={String(monthFilter)}
+                onValueChange={(value) => setMonthFilter(Number(value))}
+              >
+                <SelectTrigger className="w-24 h-9 rounded-xl border-slate-200 text-xs cursor-pointer">
+                  <SelectValue placeholder="Month" />
+                </SelectTrigger>
+                <SelectContent>
+                  {MONTHS.map((label, index) => (
+                    <SelectItem key={label} value={String(index + 1)}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
                 <SelectTrigger className="w-36 h-9 rounded-xl border-slate-200 text-xs cursor-pointer">
                   <SelectValue placeholder="All Staff" />
@@ -460,7 +494,7 @@ export default function ReceptionLeavesPage() {
                 </SelectContent>
               </Select>
 
-              {(search || statusFilter !== "all" || employeeFilter !== "all") && (
+              {(search || statusFilter !== "all" || employeeFilter !== "all" || monthFilter !== currentMonth) && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -468,6 +502,7 @@ export default function ReceptionLeavesPage() {
                     setSearch("");
                     setStatusFilter("all");
                     setEmployeeFilter("all");
+                    setMonthFilter(currentMonth);
                   }}
                   className="text-xs text-slate-500 hover:text-slate-900 rounded-xl h-9 px-2.5"
                 >
@@ -540,9 +575,9 @@ export default function ReceptionLeavesPage() {
                           No leave applications found
                         </p>
                         <p className="text-xs text-slate-400 max-w-sm mt-0.5 mb-3">
-                          {search || statusFilter !== "all"
-                            ? "Try adjusting your search criteria or status filter."
-                            : "Click 'Apply Leave' above to record a new staff leave request."}
+                          {search || statusFilter !== "all" || monthFilter !== currentMonth
+                            ? "Try another month, or adjust your search and status filter."
+                            : `No leave requests for ${MONTHS[monthFilter - 1]} ${leaveYear}. Click 'Apply Leave' to record one.`}
                         </p>
                       </div>
                     </TableCell>
@@ -675,24 +710,24 @@ export default function ReceptionLeavesPage() {
                                     <p>Reject Leave</p>
                                   </TooltipContent>
                                 </Tooltip>
+
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleDeleteLeave(leave._id)}
+                                      className="h-7 w-7 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Delete Record</p>
+                                  </TooltipContent>
+                                </Tooltip>
                               </>
                             )}
-
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleDeleteLeave(leave._id)}
-                                  className="h-7 w-7 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Delete Record</p>
-                              </TooltipContent>
-                            </Tooltip>
                           </div>
                         </TableCell>
                       </TableRow>
