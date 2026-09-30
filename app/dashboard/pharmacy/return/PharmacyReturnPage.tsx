@@ -35,6 +35,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useSearchParams } from "next/navigation";
+
+const DEFAULT_RETURN_REASON = "Doctor Changed Rx";
 import { Trash, CreditCard, User, MessageSquareText } from "lucide-react";
 import {
   Select,
@@ -99,6 +101,7 @@ export default function PharmacyReturnPage() {
             const selected = pickBatch(batches, (it as { batchNumber?: string }).batchNumber);
             return {
               ...it,
+              reason: it.reason || DEFAULT_RETURN_REASON,
               unitPrice:
                 positiveMoney((it as { unitPrice?: number }).unitPrice) ||
                 batchUnitPrice(selected) ||
@@ -184,7 +187,7 @@ export default function PharmacyReturnPage() {
           .map((it) => ({
           name: it.name?._id || "",
           quantity: it.return || 0,
-          reason: it.reason,
+          reason: it.reason || DEFAULT_RETURN_REASON,
           unitPrice: positiveMoney(it.unitPrice) || positiveMoney(it.name?.unitPrice),
         })),
         billNo: order?.billNo,
@@ -340,8 +343,7 @@ export default function PharmacyReturnPage() {
 
                       <TableCell className="text-right">
                         <Select
-                          defaultValue="Doctor Changed Rx"
-                          value={it.reason}
+                          value={it.reason || DEFAULT_RETURN_REASON}
                           onValueChange={(val) => {
                             setOrder((prev) =>
                               prev
