@@ -27,7 +27,7 @@ export default function Header() {
   const pathname = usePathname();
   const { data: tallyStatus, mutate: refreshTallyStatus } = useSWR<{
     data: { connected?: boolean; host?: string; port?: number };
-  }>(user?.role === "Pharmacy" || user?.role === "Admin" ? "/tally/status" : null, {
+  }>(user?.role === "Accountant" || user?.role === "Admin" ? "/tally/status" : null, {
     refreshInterval: 60_000,
     revalidateOnFocus: true,
   });
@@ -44,14 +44,6 @@ export default function Header() {
       { key: "ip", label: "IP (In Patient)", link: "/dashboard/doctor/ip/" },
       { key: "therapy", label: "Therapy", link: "/dashboard/doctor/therapy/" },
       { key: "procedure", label: "Procedure", link: "/dashboard/doctor/procedure/" },
-      {
-        key: "employees",
-        label: "Employees",
-        childrens: [
-          { key: "employees-list", label: "Employee Management", link: "/dashboard/doctor/employees/" },
-          { key: "employees-salary", label: "Salary Management", link: "/dashboard/doctor/salary/" },
-        ],
-      },
     ]) ||
     (user?.role === "Pharmacy" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy/" },
@@ -63,7 +55,6 @@ export default function Header() {
       { key: "return", label: "Return", link: "/dashboard/pharmacy/return/" },
       // { key: "purchase", label: "Purchase", link: "/dashboard/pharmacy/purchase/" },
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy/billing/" },
-      { key: "accounts", label: "Accounts", link: "/dashboard/pharmacy/accounts/" },
     ]) ||
     (user?.role === "Pharmacy Wholesaler" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy-wholesaler" },
@@ -101,6 +92,22 @@ export default function Header() {
       { key: "billing", label: "Billing", link: "/dashboard/admin/billing/" },
       { key: "accounts", label: "Accounts", link: "/dashboard/admin/accounts/" },
 
+    ]) ||
+    (user?.role === "Accountant" && [
+      { key: "dashboard", label: "Dashboard", link: "/dashboard/accountant/" },
+      { key: "doctors", label: "Doctor", link: "/dashboard/accountant/doctors/" },
+      { key: "leaves", label: "Leave", link: "/dashboard/accountant/leaves/" },
+      {
+        key: "employees",
+        label: "Employees",
+        childrens: [
+          { key: "employees-list", label: "Employee Management", link: "/dashboard/accountant/employees/" },
+          { key: "employees-salary", label: "Salary Management", link: "/dashboard/accountant/salary/" },
+        ],
+      },
+      { key: "accounts", label: "Accounts", link: "/dashboard/accountant/accounts/" },
+      { key: "accounts-analytics", label: "Accounts Analytics", link: "/dashboard/accountant/accounts-analytics/" },
+      { key: "billing", label: "All Billing", link: "/dashboard/accountant/billing/" },
     ]) || [];
 
   return (
@@ -235,7 +242,7 @@ export default function Header() {
                 <Plus className="h-4 w-4" /> New Order
               </button>
             )}
-            {user?.role === "Pharmacy" && (
+            {user?.role === "Accountant" && (
               <button
                 className={`hidden sm:inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105 ${
                   tallyConnected

@@ -29,6 +29,9 @@ import {
   Headset,
   PhoneCall,
   Calculator,
+  Camera,
+  SprayCan,
+  Stethoscope,
   CheckCircle2,
   XCircle,
   Sparkles,
@@ -90,6 +93,9 @@ const EMPLOYEE_ROLES = [
   "Receptionist",
   "Telecaller",
   "Accountant",
+  "Media Team",
+  "Cleaning Staff",
+  "Doctor",
 ] as const;
 type EmployeeRole = (typeof EMPLOYEE_ROLES)[number];
 
@@ -144,6 +150,27 @@ const ROLE_CONFIG: Record<
     bg: "bg-emerald-50",
     badge: "bg-emerald-50 text-emerald-700 border-emerald-200",
     border: "border-emerald-100",
+  },
+  "Media Team": {
+    icon: Camera,
+    color: "text-rose-600",
+    bg: "bg-rose-50",
+    badge: "bg-rose-50 text-rose-700 border-rose-200",
+    border: "border-rose-100",
+  },
+  "Cleaning Staff": {
+    icon: SprayCan,
+    color: "text-cyan-600",
+    bg: "bg-cyan-50",
+    badge: "bg-cyan-50 text-cyan-700 border-cyan-200",
+    border: "border-cyan-100",
+  },
+  Doctor: {
+    icon: Stethoscope,
+    color: "text-indigo-600",
+    bg: "bg-indigo-50",
+    badge: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    border: "border-indigo-100",
   },
 };
 
@@ -410,7 +437,7 @@ export default function EmployeesPage() {
           {/* Header */}
           <PharmacyHeader
             title="Employee Management"
-            subtitle="Manage hospital staff roster across Pharmacists, Technicians, Therapists, Receptionists, Telecallers, and Accountants"
+            subtitle="Manage hospital staff roster across Pharmacists, Technicians, Therapists, Receptionists, Telecallers, Accountants, Media Team, Cleaning Staff, and Doctors"
           >
             <div className="flex items-center gap-3">
               <Button

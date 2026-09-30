@@ -11,6 +11,7 @@ const ROLE_HOME: Record<string, string> = {
   "Pharmacy Wholesaler": "/dashboard/pharmacy",
   Lab: "/dashboard/lab",
   Reception: "/dashboard/reception",
+  Accountant: "/dashboard/accountant",
 };
 
 type RequireRoleProps = {

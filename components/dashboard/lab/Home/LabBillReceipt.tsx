@@ -120,13 +120,13 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
         @media print {
           @page {
             margin: 0;
-            size: A4 portrait;
+            size: A5 portrait;
           }
           html, body { 
             margin: 0 !important;
             padding: 0 !important;
-            height: 297mm !important;
-            max-height: 297mm !important;
+            height: 210mm !important;
+            max-height: 210mm !important;
             overflow: hidden !important;
             background: white !important;
             -webkit-print-color-adjust: exact !important;
@@ -148,6 +148,8 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             width: 210mm !important;
             height: 297mm !important;
             max-height: 297mm !important;
+            /* A4 layout scaled onto an A5 sheet (148 / 210). */
+            zoom: 0.7047 !important;
             box-sizing: border-box !important;
             overflow: hidden !important;
             flex-direction: column !important;

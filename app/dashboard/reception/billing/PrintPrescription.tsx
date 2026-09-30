@@ -108,7 +108,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
         @media print {
           @page {
             margin: 0;
-            size: A4 portrait;
+            size: A5 portrait;
           }
           html, body { 
             margin: 0 !important;
@@ -134,7 +134,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 210mm !important;
+            width: 148mm !important;
             margin: 0 !important;
             padding: 0 !important;
             background: white !important;
@@ -144,6 +144,8 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
             height: 297mm !important;
             min-height: 297mm !important;
             max-height: 297mm !important;
+            /* A4 layout scaled onto an A5 sheet (148 / 210). */
+            zoom: 0.7047 !important;
             page-break-after: always !important;
             break-after: page !important;
             page-break-inside: avoid !important;

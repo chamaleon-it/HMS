@@ -112,12 +112,12 @@ export default function Form() {
           I&apos;m a
         </label>
         <div
-          className={`flex items-center rounded-lg bg-white border max-w-36 ${errors.role ? "border-red-400" : "border-slate-300"
+          className={`flex items-center rounded-lg bg-white border max-w-44 ${errors.role ? "border-red-400" : "border-slate-300"
             } focus-within:ring-4 focus-within:ring-(--brand-soft) focus-within:border-(--brand) hover:border-slate-400 transition`}
         >
 
           <select
-            className="flex-1 bg-transparent text-slate-900 placeholder-slate-400 px-3.5 py-2.5 outline-none max-w-32"
+            className="flex-1 bg-transparent text-slate-900 placeholder-slate-400 px-3.5 py-2.5 outline-none max-w-40"
             {...register("role")}
           >
             <option value="">I&apos;m a</option>
@@ -126,6 +126,7 @@ export default function Form() {
             <option value="Pharmacy Wholesaler">Pharmacy Wholesaler</option>
             <option value="Lab">Lab</option>
             <option value="Reception">Reception</option>
+            <option value="Accountant">Accountant</option>
           </select>
         </div>
         {errors.role && (

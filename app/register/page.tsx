@@ -22,6 +22,8 @@ export default function RegisterPage() {
         router.push("/dashboard/lab");
       } else if (user.role === "Reception") {
         router.push("/dashboard/reception");
+      } else if (user.role === "Accountant") {
+        router.push("/dashboard/accountant");
       }
     }
   }, [user?.role, router]);

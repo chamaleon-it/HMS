@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import useSWR from "swr";
 import api from "@/lib/axios";
 import AppShell from "@/components/layout/app-shell";
-import PharmacyHeader from "../components/PharmacyHeader";
+import PharmacyHeader from "@/app/dashboard/pharmacy/components/PharmacyHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

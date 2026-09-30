@@ -531,7 +531,7 @@ export default function DoctorSalaryPage() {
               </Select>
 
               <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger className="w-36 h-9 rounded-xl border-slate-200 text-xs font-medium cursor-pointer">
+                <SelectTrigger className="w-40 h-9 rounded-xl border-slate-200 text-xs font-medium cursor-pointer">
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
                 <SelectContent>
@@ -539,6 +539,12 @@ export default function DoctorSalaryPage() {
                   <SelectItem value="Pharmacist">Pharmacists</SelectItem>
                   <SelectItem value="Technician">Technicians</SelectItem>
                   <SelectItem value="Therapist">Therapists</SelectItem>
+                  <SelectItem value="Receptionist">Receptionists</SelectItem>
+                  <SelectItem value="Telecaller">Telecallers</SelectItem>
+                  <SelectItem value="Accountant">Accountants</SelectItem>
+                  <SelectItem value="Media Team">Media Team</SelectItem>
+                  <SelectItem value="Cleaning Staff">Cleaning Staff</SelectItem>
+                  <SelectItem value="Doctor">Doctors</SelectItem>
                 </SelectContent>
               </Select>
 

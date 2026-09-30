@@ -41,6 +41,7 @@ export const EXPENSE_CATEGORIES = [
   "Maintenance",
   "Refund",
   "Sales Return",
+  "Payment Correction",
   "Miscellaneous",
   "Other Expense"
 ] as const;
@@ -50,6 +51,8 @@ export const INCOME_CATEGORIES = [
   "Consultation Fee",
   "Laboratory Income",
   "Therapy Income",
+  "Procedure Income",
+  "Payment Correction",
   "Other Income",
 ] as const;
 

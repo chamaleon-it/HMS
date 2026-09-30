@@ -20,7 +20,7 @@ export const signupSchema = z
       .toLowerCase()
       .email("Enter a valid email address"),
     role: z.enum(
-      ["Doctor", "Pharmacy", "Pharmacy Wholesaler", "Lab", "Reception"],
+      ["Doctor", "Pharmacy", "Pharmacy Wholesaler", "Lab", "Reception", "Accountant"],
       { message: "Select a valid account type." },
     ),
     password: z
