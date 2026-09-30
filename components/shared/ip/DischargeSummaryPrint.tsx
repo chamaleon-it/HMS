@@ -11,6 +11,10 @@ import {
 } from "@/components/print/PrintHeader";
 import { fDateOnly, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
+import {
+  getFormattedProcedureNames,
+  getFormattedTherapyNames,
+} from "@/lib/investigationUtils";
 import { useAuth } from "@/auth/context/auth-context";
 
 interface DischargeSummaryPrintProps {
@@ -22,6 +26,46 @@ interface DischargeSummaryPrintProps {
   totalBilled?: number;
   totalPaid?: number;
   totalDue?: number;
+}
+
+function uniqueText(values: Array<string | null | undefined>, separator = "; "): string {
+  const seen = new Set<string>();
+  const lines: string[] = [];
+  for (const value of values) {
+    const text = typeof value === "string" ? value.trim() : "";
+    if (!text) continue;
+    const key = text.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    lines.push(text);
+  }
+  return lines.join(separator);
+}
+
+function consultationTimestamp(consultation: any): number | null {
+  const raw = consultation?.createdAt || consultation?.date || consultation?.appointment?.date;
+  if (!raw) return null;
+  const time = new Date(raw).getTime();
+  return Number.isNaN(time) ? null : time;
+}
+
+function summaryBlockHeight(text: string): number {
+  const body = (text || "—").trim();
+  const wrapped = Math.max(body.split(/\n/).length, Math.ceil(body.length / 80));
+  return 20 + wrapped * 16;
+}
+
+function SummaryField({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span className="font-black text-synapse-light uppercase tracking-wider text-[11px] block">
+        {label}
+      </span>
+      <span className="font-bold text-slate-900 text-[12px] whitespace-pre-wrap">
+        {value || "—"}
+      </span>
+    </div>
+  );
 }
 
 interface PageChunk {
@@ -108,6 +152,36 @@ export default function DischargeSummaryPrint({
     });
   });
 
+  const stayStart = admissionDate ? admissionDate.getTime() - 12 * 60 * 60 * 1000 : null;
+  const stayEnd = dischargeDate.getTime() + 12 * 60 * 60 * 1000;
+  const duringAdmission = consultations.filter((consultation) => {
+    const time = consultationTimestamp(consultation);
+    if (time == null || stayStart == null) return false;
+    return time >= stayStart && time <= stayEnd;
+  });
+  const clinicalConsultations =
+    duringAdmission.length > 0 ? duringAdmission : consultations.slice(0, 1);
+
+  const chiefComplaints = uniqueText(
+    clinicalConsultations.map((consultation) => consultation?.consultationNotes?.presentHistory)
+  );
+  const therapyAndProcedures = uniqueText(
+    clinicalConsultations.flatMap((consultation) => {
+      const names = [
+        getFormattedTherapyNames(consultation?.therapy),
+        getFormattedProcedureNames(consultation?.procedure),
+      ].flatMap((chunk) => chunk.split(",").map((part) => part.trim()));
+      const notes = [consultation?.therapyNotes, consultation?.procedureNotes]
+        .map((note) => (typeof note === "string" ? note.trim() : ""))
+        .filter(Boolean);
+      return [...names, ...notes];
+    }),
+    ", "
+  );
+  const consultationAdvice = uniqueText(
+    clinicalConsultations.map((consultation) => consultation?.advice)
+  );
+
   // Consolidate lab investigations
   const allLabs: any[] = [];
   labReports.forEach((l: any, idx: number) => {
@@ -123,8 +197,17 @@ export default function DischargeSummaryPrint({
   const titleHeight = 28;
   const admissionGridHeight = 55 + (ip.notes ? 20 : 0);
   const diagnosisHeight = 30 + (patient?.conditions?.length > 0 ? 18 : 0);
+  const chiefComplaintsHeight = summaryBlockHeight(chiefComplaints);
+  const therapyHeight = summaryBlockHeight(therapyAndProcedures);
+  const consultAdviceHeight = summaryBlockHeight(consultationAdvice);
   const notesHeight = ipNotes.length > 0 ? 25 + Math.min(ipNotes.length, 3) * 18 : 0;
-  const summaryHeight = admissionGridHeight + diagnosisHeight + notesHeight;
+  const summaryHeight =
+    admissionGridHeight +
+    diagnosisHeight +
+    chiefComplaintsHeight +
+    therapyHeight +
+    consultAdviceHeight +
+    notesHeight;
 
   const medsHeaderHeight = 28;
   const medRowHeight = 22;
@@ -436,7 +519,7 @@ export default function DischargeSummaryPrint({
               {page.showSummary && (
                 <>
                   {/* Clean Admission Details Grid */}
-                  <div className="relative z-10 grid grid-cols-4 gap-x-4 gap-y-1.5 py-1.5 border-b border-slate-200 text-xs">
+                  <div className="relative z-10 grid grid-cols-3 gap-x-4 gap-y-1.5 py-1.5 border-b border-slate-200 text-xs">
                     <div>
                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
                         Assigned Doctor
@@ -447,26 +530,18 @@ export default function DischargeSummaryPrint({
                     </div>
                     <div>
                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                        Ward & Room
-                      </span>
-                      <span className="font-bold text-slate-900 text-[12px]">
-                        {ip.ward || "—"} / {ip.room || "—"}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                        Bed Number
-                      </span>
-                      <span className="font-bold text-slate-900 text-[12px]">
-                        {ip.bed || ip.bedNumber || "—"}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
                         Length of Stay
                       </span>
                       <span className="font-bold text-emerald-800 text-[12px]">
                         {stayDays} {stayDays === 1 ? "Day" : "Days"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        Admission Status
+                      </span>
+                      <span className="font-bold text-slate-900 text-[11.5px]">
+                        {ip.status || "Discharged"}
                       </span>
                     </div>
                     <div>
@@ -485,16 +560,8 @@ export default function DischargeSummaryPrint({
                         {fDateandTime(dischargeDate)}
                       </span>
                     </div>
-                    <div>
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                        Admission Status
-                      </span>
-                      <span className="font-bold text-slate-900 text-[11.5px]">
-                        {ip.status || "Discharged"}
-                      </span>
-                    </div>
                     {ip.notes && (
-                      <div className="col-span-4 pt-0.5">
+                      <div className="col-span-3 pt-0.5">
                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
                           Admission Notes
                         </span>
@@ -506,15 +573,14 @@ export default function DischargeSummaryPrint({
                   </div>
 
                   {/* Clean Diagnosis & Medical History */}
-                  <div className="relative z-10 py-1.5 border-b border-slate-200 text-xs space-y-1">
+                  <div className="relative z-10 py-1.5 border-b border-slate-200 text-xs space-y-1.5">
+                    <SummaryField label="Chief Complaints:" value={chiefComplaints || "—"} />
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <span className="font-black text-synapse-light uppercase tracking-wider text-[11px] block">
-                          Primary Diagnosis:
-                        </span>
-                        <span className="font-bold text-slate-900 text-[12px]">
-                          {ip.diagnosis || "Under Observation & Medical Management"}
-                        </span>
+                        <SummaryField
+                          label="Diagnosis:"
+                          value={ip.diagnosis || "Under Observation & Medical Management"}
+                        />
                       </div>
                       {patient?.allergies && (
                         <div className="shrink-0">
@@ -524,6 +590,11 @@ export default function DischargeSummaryPrint({
                         </div>
                       )}
                     </div>
+                    <SummaryField
+                      label="Therapy & Procedures:"
+                      value={therapyAndProcedures || "—"}
+                    />
+                    <SummaryField label="Advice:" value={consultationAdvice || "—"} />
                     {patient?.conditions?.length > 0 && (
                       <p className="text-slate-800 text-[11.5px]">
                         <span className="font-bold text-slate-600 text-[10px] uppercase tracking-wide">

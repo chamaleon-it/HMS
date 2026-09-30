@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Bell, Plus, Menu, CloudUpload, Link2, CheckCircle2 } from "lucide-react";
+import { Bell, Plus, Menu, CloudUpload, Link2, CheckCircle2, RefreshCw } from "lucide-react";
 import DoctorProfile from "./Profile";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -12,6 +12,8 @@ import useAppointmentList from "@/hooks/useAppointmentList";
 import { useAuth } from "@/auth/context/auth-context";
 import SearchBar from "./SearchBar";
 import useSWR from "swr";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -21,6 +23,7 @@ export default function Header() {
   const [openPatient, setOpenPatient] = useState(false);
   const [openSync, setOpenSync] = useState(false);
   const [openTally, setOpenTally] = useState(false);
+  const [syncingTally, setSyncingTally] = useState(false);
 
 
   const { user } = useAuth();
@@ -32,6 +35,28 @@ export default function Header() {
     revalidateOnFocus: true,
   });
   const tallyConnected = !!tallyStatus?.data?.connected;
+
+  const handleSyncTally = async () => {
+    if (syncingTally) return;
+    try {
+      setSyncingTally(true);
+      const res = await api.post("/tally/sync");
+      const failed = Number(res.data?.data?.failed || 0);
+      const message = res.data?.message || "Tally sync finished";
+      if (failed > 0) {
+        toast.error(message);
+      } else {
+        toast.success(message);
+      }
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message || err?.message || "Tally sync failed";
+      toast.error(typeof msg === "string" ? msg : "Tally sync failed");
+    } finally {
+      setSyncingTally(false);
+      void refreshTallyStatus();
+    }
+  };
 
 
 
@@ -240,29 +265,40 @@ export default function Header() {
               </button>
             )}
             {user?.role === "Accountant" && (
-              <button
-                className={`hidden sm:inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105 ${
-                  tallyConnected
-                    ? "bg-emerald-600 hover:bg-emerald-700"
-                    : "bg-(--color-synapse-light)"
-                }`}
-                onClick={() => setOpenTally(true)}
-                title={
-                  tallyConnected
-                    ? `Tally connected (${tallyStatus?.data?.host}:${tallyStatus?.data?.port})`
-                    : "Connect Tally"
-                }
-              >
-                {tallyConnected ? (
-                  <>
-                    <CheckCircle2 className="h-4 w-4" /> Tally Connected
-                  </>
-                ) : (
-                  <>
-                    <Link2 className="h-4 w-4" /> Connect Tally
-                  </>
-                )}
-              </button>
+              <>
+                <button
+                  className={`hidden sm:inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105 ${
+                    tallyConnected
+                      ? "bg-emerald-600 hover:bg-emerald-700"
+                      : "bg-(--color-synapse-light)"
+                  }`}
+                  onClick={() => setOpenTally(true)}
+                  title={
+                    tallyConnected
+                      ? `Tally connected (${tallyStatus?.data?.host}:${tallyStatus?.data?.port})`
+                      : "Connect Tally"
+                  }
+                >
+                  {tallyConnected ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4" /> Tally Connected
+                    </>
+                  ) : (
+                    <>
+                      <Link2 className="h-4 w-4" /> Connect Tally
+                    </>
+                  )}
+                </button>
+                <button
+                  className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-(--color-synapse-light) px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 disabled:hover:shadow-sm"
+                  onClick={() => void handleSyncTally()}
+                  disabled={syncingTally}
+                  title="Push unsynced account transactions to Tally"
+                >
+                  <RefreshCw className={`h-4 w-4 ${syncingTally ? "animate-spin" : ""}`} />
+                  Sync Tally
+                </button>
+              </>
             )}
             {user?.role === "Lab" && (
               <button

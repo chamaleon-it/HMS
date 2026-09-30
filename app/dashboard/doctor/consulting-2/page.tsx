@@ -139,6 +139,7 @@ function ConsultingTwoContent() {
       bowelMovement: null,
       urineMovement: null,
       appetite: null,
+      digestiveSystem: null,
     },
     therapy: null,
     therapyNotes: null,
