@@ -1,5 +1,6 @@
 import { Eye, Printer, Search, CheckCircle, RotateCcw, Wallet } from "lucide-react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import useSWR from "swr";
 import Link from "next/link";
 import Filters from "./Filter";
 import { formatINR, getDecimal } from "@/lib/fNumber";
@@ -70,12 +71,47 @@ import { PaginationBar } from "../components/PaginationBar";
 import { pharmacyLineMoney } from "@/lib/pharmacyReceiptLine";
 import { getBillType, getBillTypeBadgeProps } from "@/lib/billTypeUtils";
 import { cn } from "@/lib/utils";
+import { isDoctorAssignee, mergeTherapyAssignees, TherapyAssignee } from "@/lib/therapyAssignees";
 
 function billNet(items: { quantity?: number; unitPrice?: number; gst?: number; total?: number; name?: any; batchNumber?: string; expiryDate?: string | Date }[]) {
   return items.reduce((sum, item) => sum + pharmacyLineMoney(item).net, 0);
 }
 
+function TherapistNameCell({
+  name,
+  doctorNames,
+}: {
+  name?: string;
+  doctorNames: Set<string>;
+}) {
+  const therapistLabel = name?.trim() && name.trim() !== "-" ? name.trim() : "";
+  if (!therapistLabel) {
+    return <div className="font-medium text-slate-900">—</div>;
+  }
+  return (
+    <div className="flex items-center gap-1.5 min-w-0">
+      <span className="font-medium truncate text-slate-900">{therapistLabel}</span>
+      {doctorNames.has(therapistLabel.toLowerCase()) && (
+        <span className="shrink-0 rounded-full border border-sky-200 bg-sky-50 px-1.5 py-0 text-[9px] font-bold uppercase tracking-wide text-sky-700">
+          Doctor
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
+  const { data: doctorEmployeeResponse } = useSWR<{ data: TherapyAssignee[] }>(
+    "/employee?role=Doctor&status=active",
+  );
+  const doctorNames = useMemo(() => {
+    const names = new Set<string>();
+    for (const person of mergeTherapyAssignees([], doctorEmployeeResponse?.data ?? [])) {
+      if (isDoctorAssignee(person)) names.add(person.name.toLowerCase());
+    }
+    return names;
+  }, [doctorEmployeeResponse]);
+
   const [isPaymentOpen, setIsPaymentOpen] = React.useState(false);
   const [markAsPaidModalOpen, setMarkAsPaidModalOpen] = React.useState(false);
   const [selectedMarkAsPaidBill, setSelectedMarkAsPaidBill] = React.useState<any>(null);
@@ -173,11 +209,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
 
                     </TableCell>
                     <TableCell className="py-3">
-                      <div className="font-medium truncate text-slate-900">
-                        {b.therapistName?.trim() && b.therapistName.trim() !== "-"
-                          ? b.therapistName
-                          : "—"}
-                      </div>
+                      <TherapistNameCell name={b.therapistName} doctorNames={doctorNames} />
                     </TableCell>
                     <TableCell className="py-3 text-center">
                       <div className="flex items-center justify-center gap-1 flex-wrap">

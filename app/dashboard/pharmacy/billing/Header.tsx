@@ -7,6 +7,7 @@ import PharmacyHeader from '../components/PharmacyHeader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { PatientVisitorToggle } from '@/components/dashboard/billing/PatientModeToggle';
+import { isDoctorAssignee, mergeTherapyAssignees, TherapyAssignee } from '@/lib/therapyAssignees';
 
 interface PropsType {
   tab: "all" | "new";
@@ -44,8 +45,11 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
   const dropdownRef = useRef<HTMLDivElement>(null);
   const therapistRef = useRef<HTMLDivElement>(null);
   const { data: therapistResponse } = useSWR<{
-    data: { _id: string; name: string }[];
+    data: TherapyAssignee[];
   }>("/employee?role=Therapist&status=active");
+  const { data: doctorEmployeeResponse } = useSWR<{
+    data: TherapyAssignee[];
+  }>("/employee?role=Doctor&status=active");
 
   const doctors = useMemo(() => {
     const list = [...new Set(billing.map(b => b.doctor))].filter(Boolean);
@@ -53,11 +57,21 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
   }, [billing]);
 
   const therapists = useMemo(() => {
-    const names = (therapistResponse?.data ?? [])
-      .map((therapist) => String(therapist.name || "").trim())
-      .filter((name) => name && name !== "-");
-    return [...new Set(names)].sort((a, b) => a.localeCompare(b));
-  }, [therapistResponse]);
+    const people = mergeTherapyAssignees(
+      therapistResponse?.data ?? [],
+      doctorEmployeeResponse?.data ?? [],
+    );
+    const byName = new Map<string, TherapyAssignee>();
+    for (const person of people) {
+      const key = person.name.toLowerCase();
+      if (!byName.has(key)) byName.set(key, person);
+    }
+    return [...byName.values()].sort((a, b) => {
+      const roleOrder = Number(isDoctorAssignee(a)) - Number(isDoctorAssignee(b));
+      if (roleOrder !== 0) return roleOrder;
+      return a.name.localeCompare(b.name);
+    });
+  }, [therapistResponse, doctorEmployeeResponse]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -201,20 +215,25 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
               <div className="max-h-60 overflow-y-auto scrollbar-hide">
                 {therapists.length === 0 ? (
                   <div className="px-3 py-4 text-center text-xs text-slate-400">
-                    No therapists found
+                    No therapists or doctors found
                   </div>
                 ) : (
                   therapists.map((therapist) => (
                     <button
-                      key={therapist}
+                      key={therapist._id || therapist.name}
                       onClick={() => {
-                        setFilter((prev) => ({ ...prev, therapist, page: 1 }));
+                        setFilter((prev) => ({ ...prev, therapist: therapist.name, page: 1 }));
                         setIsTherapistOpen(false);
                       }}
                       className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                     >
-                      <span className="truncate">{therapist}</span>
-                      {filter.therapist === therapist && <Check size={16} className="text-(--color-synapse-light)" />}
+                      <span className="truncate">{therapist.name}</span>
+                      <span className="flex items-center gap-2 shrink-0">
+                        {isDoctorAssignee(therapist) && (
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-sky-600">Doctor</span>
+                        )}
+                        {filter.therapist === therapist.name && <Check size={16} className="text-(--color-synapse-light)" />}
+                      </span>
                     </button>
                   ))
                 )}
