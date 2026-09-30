@@ -1,5 +1,5 @@
 import {
-    Users, DollarSign, Calendar, Stethoscope,
+    Users, IndianRupee, Calendar, Stethoscope,
     Wallet, AlertTriangle, Activity
 } from "lucide-react";
 import React from "react";
@@ -43,8 +43,8 @@ export default function Statistics() {
         },
         {
             title: "Total Revenue",
-            value: "$45,231",
-            icon: DollarSign,
+            value: formatINR(45231),
+            icon: IndianRupee,
             color: "text-green-500",
             change: "+8% from last month",
         },
