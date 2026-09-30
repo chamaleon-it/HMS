@@ -22,6 +22,7 @@ async function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
+        backgroundColor: '#23311f',
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true
