@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import {
   PrintFooter,
   PrintHeader,
+  PrintWatermark,
 } from "@/components/print/PrintHeader";
 import {
   certificatePronouns,
@@ -95,7 +96,9 @@ export default function PrintMedicalCertificate({
       `,
         }}
       />
-      <article className="certificate-sheet flex flex-col bg-white text-black">
+      <article className="certificate-sheet relative flex flex-col bg-white text-black">
+        <PrintWatermark />
+        <div className="relative z-10 flex min-h-0 flex-1 flex-col">
         <PrintHeader
           logoUrl="/print/logo.png"
           showSocials
@@ -127,12 +130,7 @@ export default function PrintMedicalCertificate({
             to avoid long journeys and hard work.
           </p>
 
-          <div className="mt-auto flex items-end justify-between pt-16">
-            <img
-              src="/logo.png"
-              alt="Bhumi stamp"
-              className="h-28 w-28 object-contain"
-            />
+          <div className="mt-auto flex items-end justify-end pt-16">
             <div className="min-w-52 text-right">
               {certificate.doctorSignature ? (
                 <img
@@ -160,6 +158,7 @@ export default function PrintMedicalCertificate({
           hospitalAddress="Old Rajama Theatre Rd, Opp. MSN Appartments, Koottanad"
           hospitalPhone="8505030406, 6282803887"
         />
+        </div>
       </article>
     </div>,
     document.body,
