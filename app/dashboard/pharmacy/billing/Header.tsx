@@ -1,4 +1,4 @@
-import { FilePlus2, PlusCircle, ReceiptIndianRupee, ChevronDown, Check, Filter, User2, UserCheck } from 'lucide-react';
+import { PlusCircle, ReceiptIndianRupee, ChevronDown, Check, User2, UserCheck, ScrollText } from 'lucide-react';
 import React, { useMemo, useState, useRef, useEffect } from 'react'
 import useSWR from 'swr';
 import { FilterType } from './page';
@@ -10,8 +10,8 @@ import { PatientVisitorToggle } from '@/components/dashboard/billing/PatientMode
 import { isDoctorAssignee, mergeTherapyAssignees, TherapyAssignee } from '@/lib/therapyAssignees';
 
 interface PropsType {
-  tab: "all" | "new";
-  setTab: (v: "all" | "new") => void;
+  tab: "all" | "new" | "certificate";
+  setTab: (v: "all" | "new" | "certificate") => void;
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   billing: {
@@ -105,8 +105,14 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
   return (
     <PharmacyHeader
       title="Billing"
-      subtitle="Search, filter & review billing history"
+      subtitle={
+        tab === "certificate"
+          ? "Create, save, and print medical certificates"
+          : "Search, filter & review billing history"
+      }
     >
+      {tab !== "certificate" && (
+      <>
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsDoctorOpen(!isDoctorOpen)}
@@ -282,17 +288,20 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
           layoutId="pharmacy-billing-patient-visitor"
         />
       )}
+      </>
+      )}
 
       <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 print:hidden w-fit">
         {[
           { key: "all", label: "All Bills", icon: ReceiptIndianRupee },
           { key: "new", label: "Create Bill", icon: PlusCircle },
+          { key: "certificate", label: "Medical Certificate", icon: ScrollText },
         ].map(({ key, label, icon: Icon }) => {
           const active = tab === key;
           return (
             <button
               key={key}
-              onClick={() => setTab(key as "all" | "new")}
+              onClick={() => setTab(key as "all" | "new" | "certificate")}
               className={
                 "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer font-medium " +
                 (active ? "text-white" : "text-slate-600 hover:bg-slate-50")
