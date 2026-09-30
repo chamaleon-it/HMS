@@ -20,6 +20,9 @@ import {
   Headset,
   PhoneCall,
   Calculator,
+  Camera,
+  SprayCan,
+  Stethoscope,
   Search,
   Calendar,
   IndianRupee,
@@ -43,6 +46,9 @@ const ROLES = [
   { key: "Receptionist", label: "Receptionists" },
   { key: "Telecaller", label: "Telecallers" },
   { key: "Accountant", label: "Accountants" },
+  { key: "Media Team", label: "Media Team" },
+  { key: "Cleaning Staff", label: "Cleaning Staff" },
+  { key: "Doctor", label: "Doctors" },
 ];
 
 const ROLE_CONFIG: Record<
@@ -84,6 +90,24 @@ const ROLE_CONFIG: Record<
     badge: "bg-emerald-50 text-emerald-700 border-emerald-200",
     color: "text-emerald-600",
     bg: "bg-emerald-50",
+  },
+  "Media Team": {
+    icon: Camera,
+    badge: "bg-rose-50 text-rose-700 border-rose-200",
+    color: "text-rose-600",
+    bg: "bg-rose-50",
+  },
+  "Cleaning Staff": {
+    icon: SprayCan,
+    badge: "bg-cyan-50 text-cyan-700 border-cyan-200",
+    color: "text-cyan-600",
+    bg: "bg-cyan-50",
+  },
+  Doctor: {
+    icon: Stethoscope,
+    badge: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    color: "text-indigo-600",
+    bg: "bg-indigo-50",
   },
 };
 
