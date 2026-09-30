@@ -44,14 +44,6 @@ export default function Header() {
       { key: "ip", label: "IP (In Patient)", link: "/dashboard/doctor/ip/" },
       { key: "therapy", label: "Therapy", link: "/dashboard/doctor/therapy/" },
       { key: "procedure", label: "Procedure", link: "/dashboard/doctor/procedure/" },
-      {
-        key: "employees",
-        label: "Employees",
-        childrens: [
-          { key: "employees-list", label: "Employee Management", link: "/dashboard/doctor/employees/" },
-          { key: "employees-salary", label: "Salary Management", link: "/dashboard/doctor/salary/" },
-        ],
-      },
     ]) ||
     (user?.role === "Pharmacy" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy/" },
@@ -70,6 +62,7 @@ export default function Header() {
     ]) ||
     (user?.role === "Reception" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/reception/" },
+      { key: "doctors", label: "Doctors", link: "/dashboard/reception/doctors/" },
       { key: "leaves", label: "Leaves", link: "/dashboard/reception/leaves/" },
       { key: "customers", label: "Customer", link: "/dashboard/reception/customers/" },
       { key: "ip", label: "IP", link: "/dashboard/reception/ip/" },
@@ -104,6 +97,14 @@ export default function Header() {
       { key: "dashboard", label: "Dashboard", link: "/dashboard/accountant/" },
       { key: "doctors", label: "Doctor", link: "/dashboard/accountant/doctors/" },
       { key: "leaves", label: "Leave", link: "/dashboard/accountant/leaves/" },
+      {
+        key: "employees",
+        label: "Employees",
+        childrens: [
+          { key: "employees-list", label: "Employee Management", link: "/dashboard/accountant/employees/" },
+          { key: "employees-salary", label: "Salary Management", link: "/dashboard/accountant/salary/" },
+        ],
+      },
       { key: "accounts", label: "Accounts", link: "/dashboard/accountant/accounts/" },
       { key: "accounts-analytics", label: "Accounts Analytics", link: "/dashboard/accountant/accounts-analytics/" },
       { key: "billing", label: "All Billing", link: "/dashboard/accountant/billing/" },
