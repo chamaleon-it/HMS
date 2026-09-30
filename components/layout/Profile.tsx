@@ -53,7 +53,7 @@ export default function DoctorProfile() {
           >
             <span className="relative inline-flex">
               <div className="h-10 w-10 rounded-xl grid place-items-center">
-                {/* {user?.name.slice(0, 1).toUpperCase()} */}
+                {/* {user?.name?.slice(0, 1).toUpperCase()} */}
                 <img src="/logo.png" alt="" className="h-10 w-10" />
               </div>
 
@@ -85,7 +85,7 @@ export default function DoctorProfile() {
                   />
                 )}
                 <AvatarFallback>
-                  {user?.name.slice(0, 2).toUpperCase()}
+                  {user?.name?.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="leading-tight">
@@ -110,10 +110,8 @@ export default function DoctorProfile() {
                   href={
                     user?.role === "Doctor"
                       ? "/dashboard/doctor/settings"
-                      : user?.role === "Pharmacy"
+                      : user?.role === "Pharmacy" || user?.role === "Pharmacy Wholesaler"
                       ? "/dashboard/pharmacy/settings"
-                      : user?.role === "Pharmacy Wholesaler"
-                      ? "/dashboard/pharmacy-wholesaler/settings"
                       : user?.role === "Lab"
                       ? "/dashboard/lab/settings"
                       : user?.role === "Reception"
@@ -121,7 +119,7 @@ export default function DoctorProfile() {
                       : user?.role === "Admin"
                       ? "/dashboard/admin/settings"
                       : user?.role === "Accountant"
-                      ? "/dashboard/accountant/"
+                      ? "/dashboard/accountant/settings"
                       : "/dashboard/doctor/settings"
                   }
                   className="flex items-center gap-1"

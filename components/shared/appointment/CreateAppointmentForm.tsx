@@ -213,7 +213,7 @@ export function CreateAppointmentForm({
             const { data: fullAppt } = await api.get(`/appointments/single/${createdId}`);
             let printPayload = fullAppt.data;
             if (typeof printPayload.doctor === 'string') {
-              const selectedDoctor = doctorsData?.data.find((d) => d._id === printPayload.doctor);
+              const selectedDoctor = doctorsData?.data?.find((d) => d._id === printPayload.doctor);
               if (selectedDoctor) {
                 printPayload = { ...printPayload, doctor: selectedDoctor };
               }
@@ -367,7 +367,7 @@ export function CreateAppointmentForm({
                 onChange={(v) => setValue("doctor", v, { shouldValidate: true })}
                 placeholder="Choose doctor"
                 options={
-                  doctorsData?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
+                  doctorsData?.data?.map((s) => ({ label: s.name, value: s._id })) ?? []
                 }
                 ref={refs.doctor}
                 onKeyDown={(e) => handleKeyDown(e, refs.method)}

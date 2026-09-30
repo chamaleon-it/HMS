@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import React, { useState } from "react";;
+import React, { useState } from "react";
 import { ConsultationType, PatientType } from "./interface";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
@@ -14,7 +14,12 @@ export default function Overview({ setTab, consult, patient, mutatePatient, isAd
 
   const handleSaveRemarks = async () => {
     try {
-      await toast.promise(api.patch(`/patients/remarks/${consult[0]?.patient._id}`, { remarks }), {
+      const patientId = consult[0]?.patient?._id || patient?._id;
+      if (!patientId) {
+        toast.error("Patient record is missing");
+        return;
+      }
+      await toast.promise(api.patch(`/patients/remarks/${patientId}`, { remarks }), {
         loading: "Saving remarks...",
         success: "Remarks saved successfully",
         error: "Failed to save remarks"
@@ -35,9 +40,9 @@ export default function Overview({ setTab, consult, patient, mutatePatient, isAd
             View All
           </Button>
         </div>
-        {consult[0]?.consultationNotes.diagnosis && (
+        {consult[0]?.consultationNotes?.diagnosis && (
           <p className="mt-2 text-sm text-muted-foreground leading-6">
-            {consult[0]?.consultationNotes.diagnosis}
+            {consult[0]?.consultationNotes?.diagnosis}
           </p>
         )}
       </div>
@@ -83,7 +88,7 @@ export default function Overview({ setTab, consult, patient, mutatePatient, isAd
 
           </div>
           <div className="mt-2 text-sm text-muted-foreground">
-            {consult[0]?.consultationNotes.pastHistory}
+            {consult[0]?.consultationNotes?.pastHistory}
           </div>
         </div>
 

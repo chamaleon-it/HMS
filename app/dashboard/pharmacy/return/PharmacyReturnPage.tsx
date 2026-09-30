@@ -66,35 +66,26 @@ export default function PharmacyReturnPage() {
       setFetching(true);
 
 
-      if (!mrn && !filter.q && !billNumber) {
+      const typed = String(billNumber ?? filter.q ?? "").trim();
+      const invoice = typed || String(mrn || "").trim();
+
+      if (!invoice) {
         toast.error("Please enter a valid RX id");
         return;
       }
 
+      if (invoice.startsWith("RX")) {
+        toast.error("Please enter a valid RX id");
+        return;
+      }
 
       const params = new URLSearchParams();
-
-      if (billNumber) {
-        params.set("q", billNumber);
-      } else if (mrn) {
-        params.set("q", mrn);
-      }
-      else if (filter.q) {
-
-        if (filter.q.startsWith("RX")) {
-          toast.error("Please enter a valid RX id");
-          return;
-        }
-        params.set("q", filter.q ?? "");
-      } else {
-        toast.error("Please enter a valid RX id");
-        return;
-      }
+      params.set("q", invoice);
 
       const { data }: { data: { data: OrderType } } = await api.get(`/pharmacy/orders/single?${params}`);
       setOrder({
         ...data.data,
-        items: data.data.items
+        items: (data.data?.items ?? [])
           .filter((it) => it.name)
           .map((it) => {
             const batches = (it.name as { batches?: any[] })?.batches || [];

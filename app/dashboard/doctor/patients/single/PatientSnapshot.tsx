@@ -51,7 +51,7 @@ export default function PatientSnapshot({
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"HR"}
-                  value={consult[0]?.examinationNote.hr}
+                  value={consult[0]?.examinationNote?.hr}
                   sub={"bpm"}
                 />
               </div>
@@ -61,7 +61,7 @@ export default function PatientSnapshot({
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"BP"}
-                  value={consult[0]?.examinationNote.bp}
+                  value={consult[0]?.examinationNote?.bp}
                   sub={"mmHg"}
                 />
               </div>
@@ -71,7 +71,7 @@ export default function PatientSnapshot({
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"SpO2"}
-                  value={consult[0]?.examinationNote.spo2}
+                  value={consult[0]?.examinationNote?.spo2}
                   sub={"%"}
                 />
               </div>
@@ -81,8 +81,8 @@ export default function PatientSnapshot({
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"Temp"}
-                  value={consult[0]?.examinationNote.temp}
-                  sub={consult[0]?.examinationNote.tempUnit || "°C"}
+                  value={consult[0]?.examinationNote?.temp}
+                  sub={consult[0]?.examinationNote?.tempUnit || "°C"}
                 />
               </div>
             )}
@@ -91,7 +91,7 @@ export default function PatientSnapshot({
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"RS"}
-                  value={consult[0]?.examinationNote.rs}
+                  value={consult[0]?.examinationNote?.rs}
                   sub={""}
                 />
               </div>
@@ -101,7 +101,7 @@ export default function PatientSnapshot({
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"CVS"}
-                  value={consult[0]?.examinationNote.cvs}
+                  value={consult[0]?.examinationNote?.cvs}
                   sub={""}
                 />
               </div>
@@ -111,7 +111,7 @@ export default function PatientSnapshot({
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"P/A"}
-                  value={consult[0]?.examinationNote.pa}
+                  value={consult[0]?.examinationNote?.pa}
                   sub={""}
                 />
               </div>
@@ -121,7 +121,7 @@ export default function PatientSnapshot({
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"CNS"}
-                  value={consult[0]?.examinationNote.cns}
+                  value={consult[0]?.examinationNote?.cns}
                   sub={""}
                 />
               </div>
@@ -142,10 +142,10 @@ export default function PatientSnapshot({
             </LabeledRow>
           )} */}
 
-          {!!patient?.conditions.length && (
+          {!!patient?.conditions?.length && (
             <LabeledRow label="Conditions">
               <div className="flex flex-wrap gap-2">
-                {patient?.conditions.map((condition) => (
+                {patient?.conditions?.map((condition) => (
                   <Badge key={condition} variant="outline">
                     {condition}
                   </Badge>
@@ -214,14 +214,14 @@ export default function PatientSnapshot({
         </CardContent>
       </Card>
 
-      {Boolean(consult[0]?.medicines.length) && <Card>
+      {Boolean(consult[0]?.medicines?.length) && <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2">
             <Pill className="h-5 w-5" /> Last Prescribed Medicine
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0 space-y-2">
-          {consult[0]?.medicines.map((m, i) => (
+          {consult[0]?.medicines?.map((m, i) => (
             <div
               key={i}
               className="flex items-start justify-between rounded-lg border p-3"

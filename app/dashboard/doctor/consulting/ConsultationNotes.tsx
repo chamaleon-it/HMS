@@ -52,7 +52,7 @@ export default function ConsultationNotes({
       ...prev,
       consultationNotes: {
         ...prev.consultationNotes,
-        pastHistory: consulting[0]?.consultationNotes.pastHistory ?? null,
+        pastHistory: consulting[0]?.consultationNotes?.pastHistory ?? null,
       },
     }));
   }, [consulting, setData]);

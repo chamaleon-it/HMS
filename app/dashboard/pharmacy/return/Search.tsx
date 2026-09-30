@@ -9,6 +9,16 @@ import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import { User, Stethoscope, CreditCard, ReceiptIndianRupee, Download } from "lucide-react";
 import useSWR from "swr";
 
+function paymentSummary(order: OrderType | null) {
+  if (!order) return "—";
+  const parts: string[] = [];
+  if (Number(order.cash) > 0) parts.push("Cash");
+  if (Number(order.card) > 0) parts.push("Card");
+  if (Number(order.upi) > 0) parts.push("UPI");
+  if (parts.length > 0) return parts.join(" · ");
+  return order.paymentStatus || "—";
+}
+
 interface Props {
   filter: {
     q: string | null;
@@ -230,7 +240,7 @@ export default function Search({
             <CreditCard className="w-3 h-3 text-orange-500" /> Payment
           </span>
           <span className="text-slate-900 font-medium text-sm leading-tight mt-1">
-            UPI
+            {paymentSummary(order)}
           </span>
         </div>
         <div className="flex flex-col">

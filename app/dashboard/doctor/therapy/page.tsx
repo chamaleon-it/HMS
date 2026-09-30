@@ -1307,7 +1307,7 @@ export default function TherapyPage() {
           <AlertDialogContent className="rounded-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-base font-bold text-slate-800">
-                Delete Sub-Therapy &quot;{deleteSubTarget?.subTherapy.name}&quot;?
+                Delete Sub-Therapy &quot;{deleteSubTarget?.subTherapy?.name}&quot;?
               </AlertDialogTitle>
               <AlertDialogDescription className="text-xs text-slate-500">
                 This will remove the sub-therapy from &quot;

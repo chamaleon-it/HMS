@@ -376,7 +376,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
         if (paymentMethod === "UPI" || paymentMethod === "Cash") {
             payload.paymentStatus = "Paid";
-            payload.paidAmount = (updatePayload?.items.reduce((acc, it) => acc + lineAmount(it), 0) - (updatePayload?.discount || 0)) || 0;
+            payload.paidAmount = ((updatePayload?.items ?? []).reduce((acc, it) => acc + lineAmount(it), 0) - (updatePayload?.discount || 0)) || 0;
         } else {
             payload.paymentStatus = "Partial";
             payload.paidAmount = Number(amountPaid);
@@ -464,7 +464,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                     <UpdatePrescriptionCard
                         setData={setUpdatePayload as React.Dispatch<React.SetStateAction<OrderType>>}
                         data={updatePayload}
-                        allergies={order?.patient.allergies}
+                        allergies={order?.patient?.allergies}
                     />
 
 

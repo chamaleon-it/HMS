@@ -471,7 +471,7 @@ const CustomerPageContent: React.FC = () => {
                                                 </div>
                                             )}
                                             <div className="flex flex-wrap gap-2 mt-3 text-[11px]">
-                                                {customer?.billing.length === 0 && (
+                                                {customer?.billing?.length === 0 && (
                                                     <span className="px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
                                                         No purchase history yet
                                                     </span>
@@ -936,7 +936,7 @@ const CustomerPageContent: React.FC = () => {
                                                                                             error: "Something went wrong"
                                                                                         })
                                                                                         const updatedData = await mutate()
-                                                                                        const lastone = updatedData?.data.length
+                                                                                        const lastone = updatedData?.data?.length
                                                                                         setSelectedVisit(updatedData?.data[(lastone ?? 0) - 1] ?? null)
                                                                                     } catch (error) {
                                                                                         // Handle error
