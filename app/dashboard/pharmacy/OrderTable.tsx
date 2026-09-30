@@ -30,7 +30,8 @@ import api from "@/lib/axios";
 import Link from "next/link";
 import PrintPrescription from "./billing/PrintPrescription";
 import PrintReceipt from "./PrintReceipt";
-import { isPlaceholderBatchNumber, presentPharmacyReceiptLine } from "@/lib/pharmacyReceiptLine";
+import { presentPharmacyReceiptLine, unselectedOversellWarnings, OversellWarning } from "@/lib/pharmacyReceiptLine";
+import OversellWarningDialog from "./OversellWarningDialog";
 import { isOutsideOrderLine, withConsultationLines } from "@/lib/pharmacyOutsideMedicine";
 import useSWR from "swr";
 import ViewOrder from "./ViewOrder";
@@ -294,24 +295,24 @@ export default function OrderTable({
     handlePrintBill(r);
   };
 
-  const missingBatchMessage = (order: OrderType) => {
-    const missing = (order.items || []).filter(
-      (it) =>
-        !isOutsideOrderLine(it) &&
-        (Number(it.quantity) || 0) > 0 &&
-        isPlaceholderBatchNumber((it as { batchNumber?: string }).batchNumber),
-    );
-    if (!missing.length) return "";
-    const names = missing.map((it) => it.name?.name || "medicine").join(", ");
-    return `Select a batch for ${names} before completing the order.`;
+  const [openOversell, setOpenOversell] = useState(false);
+  const [oversellLines, setOversellLines] = useState<OversellWarning[]>([]);
+  const [oversellOrder, setOversellOrder] = useState<OrderType | null>(null);
+
+  const finishComplete = async (r: OrderType) => {
+    await toast.promise(api.patch(`/pharmacy/orders/complete/${r._id}`), {
+      loading: "Completing...",
+      success: (data) => {
+        OrderMutate();
+        return data.data.message;
+      },
+      error: ({ response: { data } }) => {
+        return data?.message || "Failed to complete order";
+      }
+    });
   };
 
-  const handleCompleteOrderWithTherapyCheck = async (r: OrderType) => {
-    const batchMessage = missingBatchMessage(r);
-    if (batchMessage) {
-      toast.error(batchMessage);
-      return;
-    }
+  const continueComplete = async (r: OrderType) => {
     if (r.status?.toLowerCase() !== "completed" && r.patient?._id) {
       try {
         const { data: res } = await api.get<{ data: any[] }>(`/consultings/patient/${r.patient._id}`);
@@ -329,16 +330,18 @@ export default function OrderTable({
         console.error(err);
       }
     }
-    await toast.promise(api.patch(`/pharmacy/orders/complete/${r._id}`), {
-      loading: "Completing...",
-      success: (data) => {
-        OrderMutate();
-        return data.data.message;
-      },
-      error: ({ response: { data } }) => {
-        return data.message;
-      }
-    });
+    await finishComplete(r);
+  };
+
+  const handleCompleteOrderWithTherapyCheck = async (r: OrderType) => {
+    const warnings = unselectedOversellWarnings(r.items);
+    if (warnings.length) {
+      setOversellOrder(r);
+      setOversellLines(warnings);
+      setOpenOversell(true);
+      return;
+    }
+    await continueComplete(r);
   };
 
   const handleConfirmTherapyCompletion = async () => {
@@ -357,23 +360,7 @@ export default function OrderTable({
       if (pendingAction === "print") {
         handlePrintBill(pendingTherapyOrder);
       } else {
-        const batchMessage = missingBatchMessage(pendingTherapyOrder);
-        if (batchMessage) {
-          toast.error(batchMessage);
-          setPendingTherapyOrder(null);
-          setPendingConsulting(null);
-          return;
-        }
-        await toast.promise(api.patch(`/pharmacy/orders/complete/${pendingTherapyOrder._id}`), {
-          loading: "Completing...",
-          success: (data) => {
-            OrderMutate();
-            return data.data.message;
-          },
-          error: ({ response: { data } }) => {
-            return data.message;
-          }
-        });
+        await finishComplete(pendingTherapyOrder);
       }
       setPendingTherapyOrder(null);
       setPendingConsulting(null);
@@ -557,7 +544,7 @@ export default function OrderTable({
                     onClick={() => handlePrint(r)}
                   >
                     <Printer className="h-3.5 w-3.5" />
-                    Rx
+                    Pr
                   </Button>
 
                   {r.billNo != "-" ? (
@@ -639,6 +626,24 @@ export default function OrderTable({
       {printOrder && <PrintPrescription order={printOrder} />}
 
       {/* Prescribed Therapy Alert Dialog for Table Actions */}
+      <OversellWarningDialog
+        open={openOversell}
+        lines={oversellLines}
+        onOpenChange={(next) => {
+          setOpenOversell(next);
+          if (!next) setOversellOrder(null);
+        }}
+        onConfirm={() => {
+          const order = oversellOrder;
+          setOpenOversell(false);
+          setOversellOrder(null);
+          if (order) void continueComplete(order);
+        }}
+        onDecline={() => {
+          setOpenOversell(false);
+          setOversellOrder(null);
+        }}
+      />
       <AlertDialog open={openTherapyAlert} onOpenChange={setOpenTherapyAlert}>
         <AlertDialogContent className="rounded-2xl max-w-md p-6">
           <AlertDialogHeader>

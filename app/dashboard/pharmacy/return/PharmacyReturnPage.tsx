@@ -174,13 +174,15 @@ export default function PharmacyReturnPage() {
         }[];
         billNo?: string;
       } = {
-        patient: order?.patient._id,
+        patient: order?.patient?._id || "",
         order: order?._id,
         refundMode: state.refundMode,
         returnedBy: state.returnedBy,
         remarks: state.remarks,
-        items: order?.items.map((it) => ({
-          name: it.name._id,
+        items: (order?.items || [])
+          .filter((it) => Boolean(it.name?._id))
+          .map((it) => ({
+          name: it.name?._id || "",
           quantity: it.return || 0,
           reason: it.reason,
           unitPrice: positiveMoney(it.unitPrice) || positiveMoney(it.name?.unitPrice),
@@ -238,23 +240,23 @@ export default function PharmacyReturnPage() {
                 </TableHeader>
 
                 <TableBody className="[&>tr:nth-child(even)]:bg-slate-50/40">
-                  {order?.items.map((it, i) => (
-                    <TableRow key={it.name._id} className="text-[14px]">
+                  {order?.items?.map((it, i) => (
+                    <TableRow key={it.name?._id || i} className="text-[14px]">
                       <TableCell className="text-center  text-slate-500 py-3 pl-4">
                         {i + 1}
                       </TableCell>
 
                       <TableCell className="">
                         <div className="text-slate-900 font-medium text-[12px] leading-tight">
-                          {it.name.name}
+                          {it.name?.name || "—"}
                         </div>
                         <div className="text-[10px] text-slate-500 leading-tight">
-                          (Gen: {it.name.generic})
+                          (Gen: {it.name?.generic || "—"})
                         </div>
                       </TableCell>
 
                       <TableCell className=" text-slate-700 font-medium text-sm">
-                        {it.name.hsnCode}
+                        {it.name?.hsnCode || "—"}
                       </TableCell>
 
                       <TableCell className=" text-slate-700 font-medium">
@@ -262,7 +264,7 @@ export default function PharmacyReturnPage() {
                       </TableCell>
 
                       <TableCell className=" text-slate-700 font-medium">
-                        {fDate(it.name.expiryDate)}
+                        {fDate(it.name?.expiryDate)}
                       </TableCell>
 
                       <TableCell className="text-center font-medium text-slate-700">
@@ -286,8 +288,8 @@ export default function PharmacyReturnPage() {
                               prev
                                 ? {
                                   ...prev,
-                                  items: prev.items.map((item) =>
-                                    item.name._id === it.name._id
+                                  items: prev.items.map((item, itemIndex) =>
+                                    (item.name?._id || itemIndex) === (it.name?._id || i)
                                       ? {
                                         ...item,
                                         return: value || 0,
@@ -313,8 +315,8 @@ export default function PharmacyReturnPage() {
                               prev
                                 ? {
                                   ...prev,
-                                  items: prev.items.map((item) =>
-                                    item.name._id === it.name._id
+                                  items: prev.items.map((item, itemIndex) =>
+                                    (item.name?._id || itemIndex) === (it.name?._id || i)
                                       ? {
                                         ...item,
                                         unitPrice: value,
@@ -345,8 +347,8 @@ export default function PharmacyReturnPage() {
                               prev
                                 ? {
                                   ...prev,
-                                  items: prev.items.map((item) =>
-                                    item.name._id === it.name._id
+                                  items: prev.items.map((item, itemIndex) =>
+                                    (item.name?._id || itemIndex) === (it.name?._id || i)
                                       ? {
                                         ...item,
                                         reason: val,
@@ -384,7 +386,7 @@ export default function PharmacyReturnPage() {
                                 ? {
                                   ...prev,
                                   items: prev.items.filter(
-                                    (e) => e.name._id !== it.name._id
+                                    (e, itemIndex) => (e.name?._id || itemIndex) !== (it.name?._id || i)
                                   ),
                                 }
                                 : null
@@ -408,7 +410,7 @@ export default function PharmacyReturnPage() {
                 <span>Total Refund</span>
                 <span>
                   {formatINR(
-                    order?.items.reduce(
+                    order?.items?.reduce(
                       (a, b) =>
                         a +
                         (positiveMoney(b.unitPrice) ||

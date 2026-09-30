@@ -191,10 +191,10 @@ export default function Search({
             <User className="w-3 h-3 text-(--color-synapse-light)" /> Patient
           </span>
           <span className="text-(--color-synapse-light) font-semibold text-sm leading-tight mt-1">
-            {order?.patient.name}
+            {order?.patient?.name || "—"}
           </span>
           <span className="text-[10px] font-semibold text-slate-400">
-            OP NO: {order?.patient.mrn}
+            OP NO: {order?.patient?.mrn || "—"}
           </span>
         </div>
         <div className="flex flex-col">
@@ -202,10 +202,10 @@ export default function Search({
             <Stethoscope className="w-3 h-3 text-(--color-synapse-light)" /> Doctor
           </span>
           <span className="text-slate-900 font-medium text-sm leading-tight mt-1">
-            Dr. {order?.doctor.name}
+            Dr. {order?.doctor?.name || "—"}
           </span>
           <span className="text-[10px] font-semibold text-slate-400">
-            {order?.doctor.specialization}
+            {order?.doctor?.specialization || "—"}
           </span>
         </div>
         <div className="flex flex-col">
@@ -222,7 +222,7 @@ export default function Search({
           </span>
           <span className="text-emerald-700 font-bold text-lg leading-tight mt-1">
             {formatINR(
-              order?.items.reduce((sum, item) => sum + pharmacyLineMoney(item).net, 0) ?? 0
+              order?.items?.reduce((sum, item) => sum + pharmacyLineMoney(item).net, 0) ?? 0
             )}
           </span>
           <span className="text-[10px] font-semibold text-slate-400">incl. GST</span>

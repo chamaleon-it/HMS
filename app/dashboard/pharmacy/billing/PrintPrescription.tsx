@@ -281,7 +281,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                                     )}
                                     <div className="pt-2 border-t border-slate-200 relative z-10">
                                         <p className="font-bold text-[10.5px] uppercase tracking-wider text-synapse-light mb-0.5">Additional Advice:</p>
-                                        <p className="text-slate-800 leading-relaxed font-medium italic text-xs">
+                                        <p className="text-slate-800 leading-snug font-medium italic text-base">
                                             {"Patient is advised to follow the prescribed medication schedule strictly. Any adverse reactions or lack of improvement should be reported immediately. This prescription is based on current clinical assessment."}
                                         </p>
                                     </div>
