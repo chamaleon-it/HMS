@@ -141,7 +141,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
                   <div className="p-1.5 rounded-lg bg-slate-200/60 text-slate-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user-cog"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /><circle cx="19" cy="11" r="2" /><path d="m19 13.5 0 .5" /><path d="m19 8.5 0 .5" /></svg>
                   </div>
-                  <Label className="text-sm font-semibold text-slate-700">Pharmacist In-charge</Label>
+                  <Label className="text-sm font-semibold text-slate-700">Accountant in charge</Label>
                 </div>
                 <PharmacistSelection
                   hideLabel

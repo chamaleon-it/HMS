@@ -17,6 +17,7 @@ import { formatINR } from "@/lib/fNumber";
 import { RotateCcw, AlertCircle, CheckCircle2, IndianRupee, Sparkles, ShieldAlert } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import { getBillType } from "@/lib/billTypeUtils";
 
 export interface BillingItemType {
   name: string;
@@ -72,6 +73,9 @@ export default function RefundTherapyModal({
   }, [bill]);
 
   const items = bill?.items || [];
+  const isProcedure = bill ? getBillType(bill) === "procedure" : false;
+  const packageLabel = isProcedure ? "Procedure" : "Therapy";
+  const packageLabelLower = packageLabel.toLowerCase();
 
   const toggleItem = (idx: number) => {
     setSelectedItemIndexes((prev) =>
@@ -90,7 +94,7 @@ export default function RefundTherapyModal({
   const handleProcessRefund = async () => {
     if (!bill) return;
     if (selectedItems.length === 0) {
-      toast.error("Please select at least one therapy package to refund.");
+      toast.error(`Please select at least one ${packageLabelLower} package to refund.`);
       return;
     }
 
@@ -116,12 +120,12 @@ export default function RefundTherapyModal({
         card: refundMethod === "Card" ? refundTotal : 0,
         upi: refundMethod === "UPI" ? refundTotal : 0,
         transactionType: "Refund",
-        note: `Therapy Package Refund for Invoice ${bill.mrn}${refundReason ? `: ${refundReason}` : ""}`,
+        note: `${packageLabel} Package Refund for Invoice ${bill.mrn}${refundReason ? `: ${refundReason}` : ""}`,
       };
 
       await toast.promise(api.post("/billing", payload), {
-        loading: "Processing therapy package refund...",
-        success: "Therapy refund processed successfully!",
+        loading: `Processing ${packageLabelLower} package refund...`,
+        success: `${packageLabel} refund processed successfully!`,
         error: ({ response }) => response?.data?.message || "Failed to process refund",
       });
 
@@ -146,7 +150,7 @@ export default function RefundTherapyModal({
             </div>
             <div>
               <DialogTitle className="text-lg font-bold text-slate-900 dark:text-white">
-                Refund Therapy Package
+                Refund {packageLabel} Package
               </DialogTitle>
               <DialogDescription className="text-xs text-slate-500">
                 Invoice #{bill.mrn} • Patient: <span className="font-semibold text-slate-700 dark:text-slate-300">{bill.patient?.name || "Unknown patient"}</span>
@@ -161,8 +165,8 @@ export default function RefundTherapyModal({
             <div className="flex items-center justify-between">
               <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 {items.length > 1
-                  ? "Select which therapy package(s) to refund:"
-                  : "Therapy Items in Package:"}
+                  ? `Select which ${packageLabelLower} package(s) to refund:`
+                  : `${packageLabel} Items in Package:`}
               </Label>
               <span className="text-xs font-semibold text-rose-600">
                 {selectedItemIndexes.length} of {items.length} selected
@@ -172,7 +176,7 @@ export default function RefundTherapyModal({
             {items.length > 1 && (
               <div className="flex items-center gap-2 p-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-xl text-xs text-amber-800 dark:text-amber-300">
                 <AlertCircle className="h-4 w-4 shrink-0 text-amber-600" />
-                <span>Multiple therapy packages detected. Select which therapy package(s) you want to refund.</span>
+                <span>Multiple {packageLabelLower} packages detected. Select which {packageLabelLower} package(s) you want to refund.</span>
               </div>
             )}
 

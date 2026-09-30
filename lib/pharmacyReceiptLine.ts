@@ -180,7 +180,6 @@ export function resolveSaleLine(input: {
     | Date
     | undefined;
   const total = roundMoney(unitPrice * quantity);
-  const gstAmount = roundMoney(total * (gst / 100));
 
   return {
     name: displayName,
@@ -191,8 +190,8 @@ export function resolveSaleLine(input: {
     unitPrice,
     gst,
     total,
-    gstAmount,
-    net: roundMoney(total + gstAmount),
+    gstAmount: 0,
+    net: total,
   };
 }
 
@@ -213,7 +212,7 @@ export interface ReceiptLineView {
   gstLabel: string;
 }
 
-/** Values rendered on a cash receipt row. Amount is the pre-tax line total. */
+/** Values rendered on a cash receipt row. Amount is qty × unit price, tax included. */
 export function presentPharmacyReceiptLine(
   item: {
     name?: any;
@@ -284,18 +283,13 @@ export function pharmacyLineMoney(item: {
   const storedOk = Number.isFinite(stored) && stored > 0;
   const taxable = resolved.total || (storedOk ? roundMoney(stored) : 0);
   const gst = resolved.gst || (Number(item.gst) > 0 ? Number(item.gst) : 0);
-  const discount = Number(item.discount) || 0;
-  const gstBase = Math.max(taxable - discount, 0);
-  const gstAmount = roundMoney(gstBase * (gst / 100));
-  const storedIncludesGst =
-    resolved.total > 0 && storedOk && stored > resolved.total + 0.009;
-  const net = storedIncludesGst ? roundMoney(stored) : roundMoney(taxable + gstAmount);
+  const net = taxable;
   return {
     quantity: resolved.quantity || Number(item.quantity) || 0,
     unitPrice: resolved.unitPrice || positiveMoney(item.unitPrice),
     gst,
     taxable,
-    gstAmount,
+    gstAmount: 0,
     net,
     batchNumber: resolved.batchNumber,
     expiryDate: resolved.expiryDate,

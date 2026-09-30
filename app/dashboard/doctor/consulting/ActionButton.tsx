@@ -2,9 +2,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import {
   CheckCircle2,
-  Eye,
   FileText,
-  FlaskConical,
   Hospital,
 } from "lucide-react";
 import React, { useState } from "react";
@@ -74,16 +72,6 @@ export default function ActionButton({ data, testIsOK }: { data: DataType, testI
         <FileText className="w-4 h-4 mr-1" /> Print
       </Button>
       <motion.div whileTap={{ scale: 0.98 }} className="flex flex-wrap gap-3">
-        {/* Observation Button */}
-        <Button
-          type="button"
-          onClick={() => consulting("Observation")}
-          className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold shadow-sm cursor-pointer"
-        >
-          <Eye className="w-4 h-4" />
-          Observation
-        </Button>
-
         {/* Admit Button */}
         <Button
           type="button"

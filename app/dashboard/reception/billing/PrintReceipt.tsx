@@ -267,10 +267,12 @@ export default function PrintReceipt({
                                     <span>Gross Amount:</span>
                                     <span className="font-semibold text-black">{formatINR(safeInvoiceDetails.subtotal)}</span>
                                 </div>
+                                {safeInvoiceDetails.totalGst > 0 && (
                                 <div className="flex justify-between text-slate-700">
                                     <span>CGST / SGST Total:</span>
                                     <span className="font-semibold text-black">{formatINR(safeInvoiceDetails.totalGst)}</span>
                                 </div>
+                                )}
                                 {payload.discount > 0 && (
                                     <div className="flex justify-between text-slate-700">
                                         <span>Discount:</span>

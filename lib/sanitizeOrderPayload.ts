@@ -1,3 +1,10 @@
+import { isOutsideOrderLine, outsideDrugLabel } from "@/lib/pharmacyOutsideMedicine";
+
+function inventoryItemId(item: any): string | undefined {
+  const raw = typeof item?.name === "object" ? item?.name?._id : item?.name;
+  return typeof raw === "string" && /^[0-9a-fA-F]{24}$/.test(raw) ? raw : undefined;
+}
+
 /** Map pharmacy order create payload to BE CreateOrderDto shape. */
 export function sanitizeOrderCreatePayload(payload: any) {
   return {
@@ -11,19 +18,24 @@ export function sanitizeOrderCreatePayload(payload: any) {
     priority: payload.priority,
     status: payload.status,
     assignedTo: payload.assignedTo,
-    items: (payload.items || []).map((item: any) => ({
-      name: typeof item.name === "object" ? item.name?._id : item.name,
-      dosage: item.dosage,
-      frequency: item.frequency,
-      food: item.food,
-      duration: item.duration,
-      quantity: item.quantity,
-      batchNumber: item.batchNumber,
-      unitPrice: item.unitPrice,
-      mrp: item.mrp,
-      gst: item.gst,
-      purchasePrice: item.purchasePrice,
-    })),
+    advice: payload.advice,
+    items: (payload.items || []).map((item: any) => {
+      const outside = isOutsideOrderLine(item);
+      const name = inventoryItemId(item);
+      return {
+        ...(outside || !name ? { isCustom: true, referralName: outsideDrugLabel(item) } : { name }),
+        dosage: item.dosage,
+        frequency: item.frequency,
+        food: item.food,
+        duration: item.duration,
+        quantity: item.quantity,
+        batchNumber: outside ? undefined : item.batchNumber,
+        unitPrice: outside ? 0 : item.unitPrice,
+        mrp: outside ? 0 : item.mrp,
+        gst: outside ? 0 : item.gst,
+        purchasePrice: outside ? 0 : item.purchasePrice,
+      };
+    }),
   };
 }
 
@@ -48,22 +60,25 @@ export function sanitizeOrderUpdatePayload(payload: any) {
     priority: payload.priority,
     status: payload.status,
     assignedTo: payload.assignedTo,
+    advice: payload.advice,
     items: (payload.items || []).map((item: any) => {
-      const nameId =
-        typeof item.name === "object" ? item.name?._id : item.name;
+      const outside = isOutsideOrderLine(item);
+      const nameId = inventoryItemId(item);
       return {
-        name: nameId ? { _id: nameId } : undefined,
+        ...(outside || !nameId
+          ? { isCustom: true, referralName: outsideDrugLabel(item) }
+          : { name: { _id: nameId } }),
         dosage: item.dosage,
         frequency: item.frequency,
         food: item.food,
         duration: item.duration,
         quantity: item.quantity,
-        batchNumber: item.batchNumber,
-        unitPrice: item.unitPrice,
-        mrp: item.mrp,
-        gst: item.gst,
-        purchasePrice: item.purchasePrice,
-        expiryDate: item.expiryDate,
+        batchNumber: outside ? undefined : item.batchNumber,
+        unitPrice: outside ? 0 : item.unitPrice,
+        mrp: outside ? 0 : item.mrp,
+        gst: outside ? 0 : item.gst,
+        purchasePrice: outside ? 0 : item.purchasePrice,
+        expiryDate: outside ? undefined : item.expiryDate,
       };
     }),
   };

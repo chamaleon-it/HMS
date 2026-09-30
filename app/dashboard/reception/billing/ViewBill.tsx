@@ -15,12 +15,7 @@ import React from "react";
 import configuration from "@/config/configuration";
 import { format, addDays } from "date-fns";
 
-import RefundTherapyModal from "./RefundTherapyModal";
-import { getBillType } from "@/lib/billTypeUtils";
-
 export default function ViewBill({ id }: { id: string }) {
-    const [isRefundOpen, setIsRefundOpen] = React.useState(false);
-
     const { data: billingData } = useSWR<{
         message: string;
         data: {
@@ -112,11 +107,7 @@ export default function ViewBill({ id }: { id: string }) {
         0
     );
 
-    const totalGst = billing.items.reduce(
-        (sum, item) =>
-            sum + ((item.quantity * item.unitPrice - item.discount) * item.gst) / 100,
-        0
-    );
+    const totalGst = 0;
 
     const grandTotal = billing.items.reduce((s, { total }) => s + total, 0);
 
@@ -136,15 +127,6 @@ export default function ViewBill({ id }: { id: string }) {
                         title="Invoice Details"
                         subtitle={`Viewing invoice ${billing.mrn}`}
                     >
-                        {billing.transactionType !== "Refund" && getBillType(billing) === "therapy" && (
-                            <button
-                                onClick={() => setIsRefundOpen(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-rose-50 border border-rose-200 rounded-full text-rose-700 hover:bg-rose-100 transition-colors shadow-xs text-xs font-bold"
-                            >
-                                <RotateCcw className="h-4 w-4" />
-                                Refund Therapy
-                            </button>
-                        )}
                         <button
                             onClick={() => {
                                 window.print();
@@ -298,7 +280,7 @@ export default function ViewBill({ id }: { id: string }) {
 
                             <div className="w-[320px] border border-slate-200 rounded-lg p-5 space-y-2 bg-slate-50">
                                 <Line label="Gross Amount" value={formatINR(subtotal)} />
-                                <Line label="CGST/SGST Total" value={formatINR(totalGst)} />
+                                {totalGst > 0 && <Line label="CGST/SGST Total" value={formatINR(totalGst)} />}
                                 {billing.discount > 0 && (
                                     <Line label="Discount (Billing level)" value={`-${formatINR(billing.discount)}`} />
                                 )}
@@ -336,11 +318,6 @@ export default function ViewBill({ id }: { id: string }) {
                 </div>
             </div>
             <Watermark />
-            <RefundTherapyModal
-                bill={billing as any}
-                open={isRefundOpen}
-                onOpenChange={setIsRefundOpen}
-            />
         </AppShell>
     );
 }

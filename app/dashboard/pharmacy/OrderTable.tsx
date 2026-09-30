@@ -31,6 +31,7 @@ import Link from "next/link";
 import PrintPrescription from "./billing/PrintPrescription";
 import PrintReceipt from "./PrintReceipt";
 import { isPlaceholderBatchNumber, presentPharmacyReceiptLine } from "@/lib/pharmacyReceiptLine";
+import { isOutsideOrderLine, withConsultationLines } from "@/lib/pharmacyOutsideMedicine";
 import useSWR from "swr";
 import ViewOrder from "./ViewOrder";
 import { PaginationBar } from "./components/PaginationBar";
@@ -91,6 +92,7 @@ export default function OrderTable({
       doctor?: string;
       department?: string;
       note?: string;
+      inCharge?: string;
     };
     patient?: {
       name: string;
@@ -112,8 +114,18 @@ export default function OrderTable({
   const [printOrder, setPrintOrder] = useState<OrderType | null>(null);
   const [printingOrderId, setPrintingOrderId] = useState<string | null>(null);
 
-  const handlePrint = (order: OrderType) => {
-    setPrintOrder(order);
+  const handlePrint = async (order: OrderType) => {
+    let next = order;
+    const patientId = order.patient?._id;
+    if (patientId) {
+      try {
+        const { data } = await api.get<{ data: any[] }>(`/consultings/patient/${patientId}`);
+        next = withConsultationLines(order, data?.data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    setPrintOrder(next);
     setTimeout(() => {
       window.print();
       setTimeout(() => {
@@ -175,7 +187,7 @@ export default function OrderTable({
         message: string;
       }>(`/pharmacy/orders/single?${params}`);
 
-      const items = data.data.items.filter((e) => e.name).map((e) => {
+      const items = data.data.items.filter((e) => e.name && !isOutsideOrderLine(e)).map((e) => {
         const line = presentPharmacyReceiptLine(
           {
             name: e.name.name,
@@ -205,12 +217,9 @@ export default function OrderTable({
         (a, b) => a + b.unitPrice * b.quantity,
         0
       );
-      const totalGst = items.reduce(
-        (a, b) => a + b.unitPrice * b.quantity * (b.gst / 100),
-        0
-      );
       const discount = data.data.discount || 0;
-      const grandTotal = subtotal + totalGst - discount;
+      const grandTotal = subtotal - discount;
+      const accountant = String((data.data as { pharmacist?: string }).pharmacist || "").trim();
 
       setPrintBill({
         patient: data.data.patient,
@@ -224,9 +233,10 @@ export default function OrderTable({
           department: data.data.doctor?.specialization,
           doctor: data.data.doctor?.name,
           note: "",
+          inCharge: accountant && accountant !== "-" ? accountant : undefined,
         },
         invoiceDetails: {
-          totalGst,
+          totalGst: 0,
           prefix,
           roundOffAmount: 0, // Simplified for now
           subtotal,
@@ -287,6 +297,7 @@ export default function OrderTable({
   const missingBatchMessage = (order: OrderType) => {
     const missing = (order.items || []).filter(
       (it) =>
+        !isOutsideOrderLine(it) &&
         (Number(it.quantity) || 0) > 0 &&
         isPlaceholderBatchNumber((it as { batchNumber?: string }).batchNumber),
     );

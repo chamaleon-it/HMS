@@ -22,7 +22,6 @@ export interface FilterType {
   q: null | string;
   status: string;
   method: string;
-  billType: string;
   activeDate: "Today" | "7 days" | "30 days" | "Custom";
   dateRange?: DateRange;
   date?: Date;
@@ -38,7 +37,6 @@ export default function BillingPage() {
     q: null,
     status: "",
     method: "",
-    billType: "all",
     activeDate: "Today",
     dateRange: { from: new Date(), to: new Date() },
     date: new Date(),
@@ -64,10 +62,6 @@ export default function BillingPage() {
 
   if (filter.method && filter.method !== "all") {
     params.set("method", filter.method);
-  }
-
-  if (filter.billType && filter.billType !== "all") {
-    params.set("billType", filter.billType);
   }
 
   if (filter.patientVisitor && filter.patientVisitor !== "all") {
@@ -139,18 +133,18 @@ export default function BillingPage() {
 
   const allBilling = billingData?.data ?? [];
   const billing = useMemo(() => {
-    let list = allBilling;
+    let list = allBilling.filter((b) => {
+      const type = getBillType(b);
+      return type !== "therapy" && type !== "procedure";
+    });
     if (filter.doctor.length > 0) {
       list = list.filter(b => {
         const docName = typeof b.doctor === 'object' ? (b.doctor as any)?.name : b.doctor;
         return filter.doctor.includes(docName);
       });
     }
-    if (filter.billType && filter.billType !== "all") {
-      list = list.filter(b => getBillType(b) === filter.billType);
-    }
     return list;
-  }, [allBilling, filter.doctor, filter.billType]);
+  }, [allBilling, filter.doctor]);
 
   const total = billingData?.total ?? 0;
 

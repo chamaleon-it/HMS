@@ -42,7 +42,6 @@ export default function Header() {
       { key: "dashboard", label: "Dashboard", link: "/dashboard/doctor/" },
       { key: "patients", label: "Patients", link: "/dashboard/doctor/patients/" },
       { key: "ip", label: "IP (In Patient)", link: "/dashboard/doctor/ip/" },
-      { key: "lab-results", label: "Investigations", link: "/dashboard/doctor/lab-report/" },
       { key: "therapy", label: "Therapy", link: "/dashboard/doctor/therapy/" },
       { key: "procedure", label: "Procedure", link: "/dashboard/doctor/procedure/" },
       {
@@ -60,6 +59,7 @@ export default function Header() {
       { key: "purchase-entry", label: "Purchase Entry", link: "/dashboard/pharmacy/purchase-entry/" },
       { key: "suppliers", label: "Suppliers", link: "/dashboard/pharmacy/suppliers/" },
       { key: "customers", label: "Customers", link: "/dashboard/pharmacy/customers/" },
+      { key: "treatments", label: "Treatments", link: "/dashboard/pharmacy/treatments/" },
       { key: "return", label: "Return", link: "/dashboard/pharmacy/return/" },
       // { key: "purchase", label: "Purchase", link: "/dashboard/pharmacy/purchase/" },
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy/billing/" },
@@ -72,7 +72,6 @@ export default function Header() {
     (user?.role === "Reception" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/reception/" },
       { key: "doctors", label: "Doctors", link: "/dashboard/reception/doctors/" },
-      { key: "treatments", label: "Treatments", link: "/dashboard/reception/treatments/" },
       { key: "leaves", label: "Leaves", link: "/dashboard/reception/leaves/" },
       { key: "customers", label: "Customer", link: "/dashboard/reception/customers/" },
       { key: "ip", label: "IP", link: "/dashboard/reception/ip/" },
@@ -81,7 +80,6 @@ export default function Header() {
     (user?.role === "Lab" && [
       // { key: "appointments", label: "Appointments", link: "/dashboard/lab/appointments/" },
       { key: "dashboard", label: "Dashboard", link: "/dashboard/lab/" },
-      { key: "tests", label: "Test", childrens: [{ key: "lab", label: "Lab", link: "/dashboard/lab/test/lab/" }, { key: "imaging", label: "Imaging", link: "/dashboard/lab/test/imaging/" }] },
       { key: "inventory", label: "Catalogue", link: "/dashboard/lab/inventory/" },
       { key: "patients", label: "Customers", link: "/dashboard/lab/patients/" },
       { key: "billing", label: "Billing", link: "/dashboard/lab/billing/" },
@@ -204,8 +202,8 @@ export default function Header() {
             </div>
           </nav>
 
-          {/* Search */}
-          <SearchBar />
+          {/* Search stays on reception. Pharmacy uses its own patient pickers. */}
+          {user?.role !== "Pharmacy" && <SearchBar />}
 
           {/* Actions */}
           <div

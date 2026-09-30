@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { OrderType } from "./interface";
 import { sanitizeOrderUpdatePayload } from "@/lib/sanitizeOrderPayload";
 import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney } from "@/lib/pharmacyReceiptLine";
+import { isOutsideOrderLine, withConsultationLines } from "@/lib/pharmacyOutsideMedicine";
 import { fAge, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import toast from "react-hot-toast";
@@ -65,11 +66,8 @@ function Barcode({ value }: { value: string }) {
 }
 
 function OrderHeader({ order }: { order: OrderType }) {
-    const { data: pharmacistResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/employee?role=Pharmacist&status=active");
-    const inChargePharmacist = pharmacistResponse?.data?.find((p) => p.inCharge);
-    const pharmacistDisplay = (order?.pharmacist && order.pharmacist !== "-" && order.pharmacist.trim() !== "")
-        ? order.pharmacist
-        : inChargePharmacist?.name || "-";
+    const accountantName = String(order?.pharmacist ?? "").trim();
+    const accountantDisplay = accountantName && accountantName !== "-" ? accountantName : "—";
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
@@ -118,7 +116,7 @@ function OrderHeader({ order }: { order: OrderType }) {
                         {order?.doctor?.specialization}
                     </div>
                     <div className="text-xs text-slate-600">
-                        Pharmacist: <span className="font-medium">{pharmacistDisplay}</span>
+                        Accountant in charge: <span className="font-medium">{accountantDisplay}</span>
                     </div>
                 </div>
                 <div className="ml-3 bg-white p-1 rounded border">
@@ -137,10 +135,12 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     const [paymentMethod, setPaymentMethod] = useState<"Cash" | "UPI" | "Underpaid">("Cash");
     const [amountPaid, setAmountPaid] = useState("");
     const [referenceNumber, setReferenceNumber] = useState("");
+    const mergedOrderId = useRef<string | null>(null);
 
     useEffect(() => {
         setLocalOrder(order);
         setUpdatePayload(order);
+        mergedOrderId.current = null;
     }, [order]);
 
     useEffect(() => {
@@ -230,10 +230,20 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             createdAt?: string;
         }>;
     }>(
-        open && localOrder?.patient?._id ? `/consultings/patient/${localOrder.patient._id}` : null
+        open && order?.patient?._id ? `/consultings/patient/${order.patient._id}` : null
     );
 
-    const lineAmount = (it: { quantity?: number; unitPrice?: number; batchNumber?: string; name?: { unitPrice?: number; batches?: { batchNumber?: string; unitPrice?: number; saleRate?: number; mrp?: number; packing?: number }[] } }) => {
+    useEffect(() => {
+        if (!order?._id || !patientConsultings?.data) return;
+        if (mergedOrderId.current === order._id) return;
+        mergedOrderId.current = order._id;
+        const merged = withConsultationLines(order, patientConsultings.data);
+        setLocalOrder(merged);
+        setUpdatePayload(merged);
+    }, [order, patientConsultings?.data]);
+
+    const lineAmount = (it: { isCustom?: boolean; referralName?: string; quantity?: number; unitPrice?: number; batchNumber?: string; name?: { unitPrice?: number; batches?: { batchNumber?: string; unitPrice?: number; saleRate?: number; mrp?: number; packing?: number }[] } | null }) => {
+        if (isOutsideOrderLine(it)) return 0;
         const batches = it.name?.batches || [];
         const selected = chosenBatch(batches, it.batchNumber);
         if (!selected && isPlaceholderBatchNumber(it.batchNumber)) return 0;
@@ -243,17 +253,17 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         return price * (Number(it.quantity) || 0);
     };
 
-    const missingBatch = (items: { quantity?: number; batchNumber?: string; name?: { name?: string } }[]) =>
-        items.filter((it) => (Number(it.quantity) || 0) > 0 && isPlaceholderBatchNumber(it.batchNumber));
+    const missingBatch = (items: { isCustom?: boolean; referralName?: string; quantity?: number; batchNumber?: string; name?: { name?: string } | null }[]) =>
+        items.filter((it) => !isOutsideOrderLine(it) && (Number(it.quantity) || 0) > 0 && isPlaceholderBatchNumber(it.batchNumber));
 
-    const batchRequiredMessage = (items: { name?: { name?: string } }[]) => {
+    const batchRequiredMessage = (items: { name?: { name?: string } | null }[]) => {
         const names = items.map((it) => it.name?.name || "medicine").join(", ");
         return `Select a batch for ${names} before completing the order.`;
     };
 
     const handleCompleteOrderDirect = async () => {
         if (!updatePayload || !localOrder) return;
-        const missing = missingBatch(updatePayload.items as { quantity?: number; batchNumber?: string; name?: { name?: string } }[]);
+        const missing = missingBatch(updatePayload.items);
         if (missing.length) {
             toast.error(batchRequiredMessage(missing));
             return;
@@ -291,7 +301,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     const handleCompleteOrder = async () => {
         if (!updatePayload) return;
 
-        const missing = missingBatch(updatePayload.items as { quantity?: number; batchNumber?: string; name?: { name?: string } }[]);
+        const missing = missingBatch(updatePayload.items);
         if (missing.length) {
             toast.error(batchRequiredMessage(missing));
             return;
@@ -361,7 +371,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     const handlePaymentUpdate = async () => {
         if (!updatePayload) return;
 
-        const missing = missingBatch(updatePayload.items as { quantity?: number; batchNumber?: string; name?: { name?: string } }[]);
+        const missing = missingBatch(updatePayload.items);
         if (missing.length) {
             toast.error(batchRequiredMessage(missing));
             return;

@@ -20,6 +20,7 @@ import { fDateandTime } from "@/lib/fDateAndTime";
 import { getDecimal } from "@/lib/fNumber";
 import { startOfDay, endOfDay, subDays } from "date-fns";
 import { generateBillingReportPdf } from "@/lib/generateBillingReportPdf";
+import { getBillType } from "@/lib/billTypeUtils";
 
 interface PropsType {
   filter: FilterType;
@@ -36,12 +37,14 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
       q: null,
       status: "all",
       method: "all",
+      billType: "all",
       activeDate: "Today",
       dateRange: { from: new Date(), to: new Date() },
       date: new Date(),
       page: 1,
       limit: 10,
       doctor: [],
+      therapist: "",
       patientVisitor: "all",
     });
   };
@@ -78,6 +81,7 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
     if (filter.q && filter.q.trim()) params.set("q", filter.q.trim());
     if (filter.status && filter.status !== "all") params.set("status", filter.status);
     if (filter.method && filter.method !== "all") params.set("method", filter.method);
+    if (filter.billType && filter.billType !== "all") params.set("billType", filter.billType);
     if (filter.patientVisitor && filter.patientVisitor !== "all") {
       params.set("patientVisitor", filter.patientVisitor);
     }
@@ -92,12 +96,20 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
     const res = await api.get(`/billing?${params.toString()}`);
     let exportData = res.data?.data ?? [];
 
-    if (filter.doctor && filter.doctor.length > 0) {
-      exportData = exportData.filter((b: any) => {
+    exportData = exportData.filter((b: any) => {
+      if (filter.billType && filter.billType !== "all" && getBillType(b) !== filter.billType) {
+        return false;
+      }
+      if (filter.doctor && filter.doctor.length > 0) {
         const docName = typeof b.doctor === "object" ? b.doctor?.name : b.doctor;
-        return filter.doctor.includes(docName);
-      });
-    }
+        if (!filter.doctor.includes(docName)) return false;
+      }
+      if (filter.therapist) {
+        const wanted = filter.therapist.trim().toLowerCase();
+        return String(b.therapistName || "").trim().toLowerCase() === wanted;
+      }
+      return true;
+    });
     return { exportData, sd, ed };
   };
 
@@ -245,6 +257,7 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
         paymentMethod: filter.method === "all" || !filter.method ? "ALL" : filter.method,
         statusFilter: filter.status === "all" || !filter.status ? "ALL" : filter.status,
         searchQuery: filter.q,
+        billType: filter.billType,
       });
 
       toast.success("Pharmacy billing PDF report downloaded successfully!");

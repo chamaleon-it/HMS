@@ -20,6 +20,7 @@ import { fDateandTime } from "@/lib/fDateAndTime";
 import { getDecimal } from "@/lib/fNumber";
 import { startOfDay, endOfDay, subDays } from "date-fns";
 import { generateBillingReportPdf } from "@/lib/generateBillingReportPdf";
+import { getBillType } from "@/lib/billTypeUtils";
 
 interface PropsType {
   filter: FilterType;
@@ -36,7 +37,6 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
       q: null,
       status: "all",
       method: "all",
-      billType: "all",
       activeDate: "Today",
       dateRange: { from: new Date(), to: new Date() },
       date: new Date(),
@@ -79,7 +79,6 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
     if (filter.q && filter.q.trim()) params.set("q", filter.q.trim());
     if (filter.status && filter.status !== "all") params.set("status", filter.status);
     if (filter.method && filter.method !== "all") params.set("method", filter.method);
-    if (filter.billType && filter.billType !== "all") params.set("billType", filter.billType);
     if (filter.patientVisitor && filter.patientVisitor !== "all") {
       params.set("patientVisitor", filter.patientVisitor);
     }
@@ -95,12 +94,15 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
     const res = await api.get(`/billing?${params.toString()}`);
     let exportData = res.data?.data ?? [];
 
-    if (filter.doctor && filter.doctor.length > 0) {
-      exportData = exportData.filter((b: any) => {
+    exportData = exportData.filter((b: any) => {
+      const type = getBillType(b);
+      if (type === "therapy" || type === "procedure") return false;
+      if (filter.doctor && filter.doctor.length > 0) {
         const docName = typeof b.doctor === "object" ? b.doctor?.name : b.doctor;
         return filter.doctor.includes(docName);
-      });
-    }
+      }
+      return true;
+    });
     return { exportData, sd, ed };
   };
 
@@ -253,7 +255,6 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
         paymentMethod: filter.method === "all" || !filter.method ? "ALL" : filter.method,
         statusFilter: filter.status === "all" || !filter.status ? "ALL" : filter.status,
         searchQuery: filter.q,
-        billType: filter.billType,
       });
 
       toast.success("Reception billing PDF report downloaded successfully!");
@@ -297,40 +298,6 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
                 <X className="h-3.5 w-3.5" />
               </button>
             )}
-          </div>
-        </div>
-
-        {/* Bill Type */}
-        <div className="space-y-2 min-w-45">
-          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
-            Bill Type
-          </label>
-          <div className="flex items-center gap-2">
-            <Select
-              value={filter.billType || "all"}
-              onValueChange={(value) =>
-                setFilter((prev) => ({ ...prev, billType: value, page: 1 }))
-              }
-            >
-              <SelectTrigger className="h-10! bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all">
-                <div className="flex items-center gap-2">
-                  <FilterIcon className="h-4 w-4 text-slate-400" />
-                  <SelectValue placeholder="Select type" />
-                </div>
-              </SelectTrigger>
-              <SelectContent className="rounded-lg border-slate-200 shadow-xl">
-                <SelectGroup>
-                  <SelectLabel className="text-[10px] uppercase tracking-wider text-slate-400">
-                    Bill Type
-                  </SelectLabel>
-                  <SelectItem value="all">All Bill Types</SelectItem>
-                  <SelectItem value="therapy">Therapy Bills</SelectItem>
-                  <SelectItem value="procedure">Procedure Bills</SelectItem>
-                  <SelectItem value="reception">Reception Bills</SelectItem>
-                  <SelectItem value="other">Other Bills</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
           </div>
         </div>
 

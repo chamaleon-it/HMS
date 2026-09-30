@@ -26,6 +26,7 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { OrderType } from "../../interface";
 import PrintPrescription from "../../billing/PrintPrescription";
+import { withConsultationLines } from "@/lib/pharmacyOutsideMedicine";
 import PrintReceipt from "../../PrintReceipt";
 import PharmacyHeader from "../../components/PharmacyHeader";
 import { useDrafts } from "../../DraftContext";
@@ -297,6 +298,17 @@ const CustomerPageContent: React.FC = () => {
                 } as any;
             }
 
+            if (fetchedOrder?.patient?._id) {
+                try {
+                    const { data: consultings } = await api.get<{ data: any[] }>(
+                        `/consultings/patient/${fetchedOrder.patient._id}`,
+                    );
+                    fetchedOrder = withConsultationLines(fetchedOrder, consultings?.data);
+                } catch {
+                    // Print the order lines we already have.
+                }
+            }
+
             setPrintOrder(fetchedOrder);
             setTimeout(() => {
                 window.print();
@@ -372,9 +384,9 @@ const CustomerPageContent: React.FC = () => {
             });
 
             const subtotal = items.reduce((a: number, b: any) => a + b.unitPrice * b.quantity, 0);
-            const totalGst = items.reduce((a: number, b: any) => a + b.unitPrice * b.quantity * (b.gst / 100), 0);
+            const totalGst = 0;
             const discount = bill.discount || 0;
-            const grandTotalBeforeRoundOff = subtotal + totalGst - discount;
+            const grandTotalBeforeRoundOff = subtotal - discount;
             const roundOffAmount = bill.roundOff ? getDecimal(grandTotalBeforeRoundOff) : 0;
             const grandTotal = grandTotalBeforeRoundOff - roundOffAmount;
 
@@ -398,7 +410,8 @@ const CustomerPageContent: React.FC = () => {
                     patient: patientObj?._id || "",
                     department: "Pharmacy",
                     doctor: doctorName,
-                    note: "",
+                    note: bill.note || "",
+                    inCharge: bill.inCharge || bill.pharmacist,
                 },
                 invoiceDetails: {
                     totalGst,

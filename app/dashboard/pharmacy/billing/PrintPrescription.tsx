@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { fDateandTime, fAge } from "@/lib/fDateAndTime";
 import { OrderType } from "../interface";
+import { isOutsideOrderLine, outsideDrugLabel } from "@/lib/pharmacyOutsideMedicine";
 import {
     PrintHeader,
     PrintPatientStrip,
@@ -228,14 +229,30 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                                     </thead>
                                     <tbody className="divide-y divide-slate-200">
                                         {page.items.map((m) => {
-                                            const itemName = typeof m.name === "object" && m.name !== null ? m.name.name : String(m.name || "—");
-                                            const itemGeneric = typeof m.name === "object" && m.name !== null ? (m.name.generic || (m.name as any).genericName || "—") : "—";
+                                            const outside = isOutsideOrderLine(m);
+                                            const itemName = outside
+                                                ? outsideDrugLabel(m)
+                                                : typeof m.name === "object" && m.name !== null
+                                                    ? m.name.name
+                                                    : String(m.name || "—");
+                                            const itemGeneric = outside
+                                                ? ""
+                                                : typeof m.name === "object" && m.name !== null
+                                                    ? (m.name.generic || (m.name as any).genericName || "—")
+                                                    : "—";
                                             return (
                                                 <tr key={m.globalIndex} className="even:bg-slate-50/40">
                                                     <td className="py-2 px-2 text-center font-bold text-slate-500 text-xs">{m.globalIndex}</td>
                                                     <td className="py-2 px-2 font-bold text-slate-900">
-                                                        <p className="font-bold text-slate-900">{itemName}</p>
-                                                        {itemGeneric !== "—" && (
+                                                        <p className="font-bold text-slate-900">
+                                                            {itemName}
+                                                            {outside && (
+                                                                <span className="ml-1.5 text-[9px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-1 py-0.5 rounded not-italic">
+                                                                    Outside
+                                                                </span>
+                                                            )}
+                                                        </p>
+                                                        {itemGeneric && itemGeneric !== "—" && (
                                                             <p className="text-[10px] text-slate-500 font-medium tracking-tight mt-0.5">(GEN: {itemGeneric})</p>
                                                         )}
                                                     </td>
@@ -255,6 +272,11 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                             {/* ON LAST PAGE: ADDITIONAL INFORMATION & SIGNATURE */}
                             {page.isLastPage && (
                                 <>
+                                    {String(order.advice || "").trim() && (
+                                        <p className="pt-2 text-slate-900 font-semibold text-xs relative z-10">
+                                            {String(order.advice).trim()}
+                                        </p>
+                                    )}
                                     <div className="pt-2 border-t border-slate-200 relative z-10">
                                         <p className="font-bold text-[10.5px] uppercase tracking-wider text-synapse-light mb-0.5">Additional Advice:</p>
                                         <p className="text-slate-800 leading-relaxed font-medium italic text-xs">

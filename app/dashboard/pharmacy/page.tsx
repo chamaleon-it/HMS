@@ -20,8 +20,8 @@ function RxQueue() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selected, setSelected] = useState<OrderType | null>(null);
 
-  const { data: pharmacistResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/employee?role=Pharmacist&status=active");
-  const inChargePharmacist = pharmacistResponse?.data?.find((p) => p.inCharge);
+  const { data: accountantResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/employee?role=Accountant&status=active");
+  const inChargeAccountant = accountantResponse?.data?.find((p) => p.inCharge);
 
 
   const handleDelete = (rx: OrderType) => {
@@ -127,8 +127,8 @@ function RxQueue() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
               </div>
               <div className="flex flex-col leading-tight">
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Pharmacist In-charge</span>
-                <span className="text-sm font-semibold text-slate-700">{inChargePharmacist?.name ?? "—"}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Accountant in charge</span>
+                <span className="text-sm font-semibold text-slate-700">{inChargeAccountant?.name ?? "—"}</span>
               </div>
             </div>
             <PharmacyStatus currenctStatus={filter.q} setCurrenctStatus={(status) => setFilter((prev) => ({ ...prev, q: status, page: 1 }))} />

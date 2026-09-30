@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,11 @@ import LabeledCombobox from "./LabeledCombobox";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  PRESCRIPTION_FREQUENCY_OPTIONS,
+  derivedTabletQuantity,
+  frequencySetsQuantityToOne,
+} from "@/lib/prescriptionFrequency";
 
 interface Medicine {
   referralName: string;
@@ -445,14 +450,7 @@ export default function PrescriptionCard({
 
                     <div className="col-span-1">
                       <LabeledCombobox
-                        options={[
-                          "1-0-1",
-                          "1-1-1",
-                          "0-1-1",
-                          "1-0-0",
-                          "0-0-1",
-                          "SOS",
-                        ]}
+                        options={PRESCRIPTION_FREQUENCY_OPTIONS}
                         label="Frequency"
                         value={m.frequency}
                         onChange={(e) => updateField(i, "frequency", e)}
@@ -941,24 +939,25 @@ export default function PrescriptionCard({
 
 
 const QuantityInput = ({ updateField, i, m }: { updateField: (idx: number, key: keyof Medicine, val: string | number) => void, i: number, m: Medicine }) => {
-
-
-  const currentOptions = {
-    dosage: ["½ tab", "1 tab", "2 tab"],
-    duration: ["3 days", "5 days", "7 days", "10 days", "14 days", "28 days"],
-    frequency: ["1-0-1", "1-1-1", "0-1-1", "1-0-0", "0-0-1"]
-  }
+  const seenFrequency = useRef(m.frequency);
 
   useEffect(() => {
-    if (currentOptions.dosage.includes(m.dosage) && currentOptions.frequency.includes(m.frequency)) {
-      const dosage = currentOptions.dosage[0] === m.dosage && 0.5 || currentOptions.dosage[1] === m.dosage && 1 || currentOptions.dosage[2] === m.dosage && 2 || 0
-      const duration = currentOptions.duration[0] === m.duration && 3 || currentOptions.duration[1] === m.duration && 5 || currentOptions.duration[2] === m.duration && 7 || currentOptions.duration[3] === m.duration && 10 || currentOptions.duration[4] === m.duration && 14 || currentOptions.duration[5] === m.duration && 28 || Number(m.duration) || 0
-      const frequency = currentOptions.frequency[0] === m.frequency && 2 || currentOptions.frequency[1] === m.frequency && 3 || currentOptions.frequency[2] === m.frequency && 2 || currentOptions.frequency[3] === m.frequency && 1 || currentOptions.frequency[4] === m.frequency && 1 || 0
-      updateField(i, "quantity", Math.ceil(dosage * duration * frequency))
-    } else {
-      updateField(i, "quantity", 0)
+    const previousFrequency = seenFrequency.current;
+    seenFrequency.current = m.frequency;
+
+    if (frequencySetsQuantityToOne(m.frequency)) {
+      if (previousFrequency !== m.frequency) {
+        updateField(i, "quantity", 1);
+      }
+      return;
     }
 
+    const quantity = derivedTabletQuantity(m.dosage, m.duration, m.frequency);
+    if (quantity != null) {
+      updateField(i, "quantity", quantity);
+    } else {
+      updateField(i, "quantity", 0);
+    }
   }, [m.dosage, m.duration, m.frequency])
 
 

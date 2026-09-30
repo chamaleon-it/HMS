@@ -15,6 +15,7 @@ export interface OrderType {
     billNo?: string;
     pharmacist?: string
     doctorName?: string
+    advice?: string | null
     isDeleted: boolean;
 }
 
@@ -27,7 +28,9 @@ export interface Doctor {
 }
 
 export interface Item {
-    name: Name;
+    name?: Name | null;
+    referralName?: string;
+    isCustom?: boolean;
     dosage: string;
     frequency: string;
     food: string;

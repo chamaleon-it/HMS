@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { ConsultationType, PatientType } from "./interface";
-import { TreatmentOrderType } from "@/app/dashboard/reception/treatments/interface";
+import { TreatmentOrderType } from "@/app/dashboard/pharmacy/treatments/interface";
 import useGetTherapy from "@/data/useGetTherapy";
 import useGetProcedure from "@/data/useGetProcedure";
 import { getFormattedTherapyNames, getFormattedProcedureNames } from "@/lib/investigationUtils";

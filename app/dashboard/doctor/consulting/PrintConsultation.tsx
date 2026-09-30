@@ -342,6 +342,39 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
 
   if (!appointment || !mounted) return null;
 
+  const procedureNames = [
+    getFormattedTherapyNames(data.therapy, therapies),
+    getFormattedProcedureNames(data.procedure, procedures),
+  ]
+    .map((name) => name.trim())
+    .filter(Boolean)
+    .join(", ");
+  const procedureNotes = [data.therapyNotes, data.procedureNotes]
+    .map((note) => (typeof note === "string" ? note.trim() : ""))
+    .filter(Boolean)
+    .join(", ");
+  const procedureAndNote =
+    procedureNames || procedureNotes ? (
+      <div className="space-y-0.5">
+        <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2">
+          <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
+          Procedure and Note
+        </h3>
+        <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
+          {procedureNames ? (
+            <p>
+              <span className="font-bold text-slate-700">Procedure:</span> {procedureNames}
+            </p>
+          ) : null}
+          {procedureNotes ? (
+            <p>
+              <span className="font-bold text-slate-700">Notes:</span> {procedureNotes}
+            </p>
+          ) : null}
+        </div>
+      </div>
+    ) : null;
+
   // Render consultation notes content
   const renderNotesContent = () => (
     <>
@@ -387,51 +420,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
             </div>
           )}
 
-          {/* THERAPY & THERAPY NOTES */}
-          {(data.therapy || data.therapyNotes) && (
-            <div className="space-y-0.5">
-              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2">
-                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
-                Therapy & Notes
-              </h3>
-              <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
-                {Boolean(getFormattedTherapyNames(data.therapy, therapies)) && (
-                  <p>
-                    <span className="font-bold text-slate-700">Therapy:</span>{" "}
-                    {getFormattedTherapyNames(data.therapy, therapies)}
-                  </p>
-                )}
-                {data.therapyNotes && (
-                  <p>
-                    <span className="font-bold text-slate-700">Notes:</span> {data.therapyNotes}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* PROCEDURE & PROCEDURE NOTES */}
-          {(data.procedure || data.procedureNotes) && (
-            <div className="space-y-0.5">
-              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2">
-                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
-                Procedure & Notes
-              </h3>
-              <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
-                {Boolean(getFormattedProcedureNames(data.procedure, procedures)) && (
-                  <p>
-                    <span className="font-bold text-slate-700">Procedure:</span>{" "}
-                    {getFormattedProcedureNames(data.procedure, procedures)}
-                  </p>
-                )}
-                {data.procedureNotes && (
-                  <p>
-                    <span className="font-bold text-slate-700">Notes:</span> {data.procedureNotes}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
+          {procedureAndNote}
 
           {/* EXAMINATION & VITALS */}
           {(data.examinationNote?.bp ||
@@ -629,51 +618,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
             </div>
           )}
 
-          {/* THERAPY & THERAPY NOTES */}
-          {(data.therapy || data.therapyNotes) && (
-            <div className="space-y-0.5">
-              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2">
-                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
-                Therapy & Notes
-              </h3>
-              <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
-                {Boolean(getFormattedTherapyNames(data.therapy, therapies)) && (
-                  <p>
-                    <span className="font-bold text-slate-700">Therapy:</span>{" "}
-                    {getFormattedTherapyNames(data.therapy, therapies)}
-                  </p>
-                )}
-                {data.therapyNotes && (
-                  <p>
-                    <span className="font-bold text-slate-700">Notes:</span> {data.therapyNotes}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* PROCEDURE & PROCEDURE NOTES */}
-          {(data.procedure || data.procedureNotes) && (
-            <div className="space-y-0.5">
-              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2">
-                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
-                Procedure & Notes
-              </h3>
-              <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
-                {Boolean(getFormattedProcedureNames(data.procedure, procedures)) && (
-                  <p>
-                    <span className="font-bold text-slate-700">Procedure:</span>{" "}
-                    {getFormattedProcedureNames(data.procedure, procedures)}
-                  </p>
-                )}
-                {data.procedureNotes && (
-                  <p>
-                    <span className="font-bold text-slate-700">Notes:</span> {data.procedureNotes}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
+          {procedureAndNote}
         </div>
       )}
     </>
