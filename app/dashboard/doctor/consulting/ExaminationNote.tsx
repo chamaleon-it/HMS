@@ -247,6 +247,7 @@ export default function ExaminationNote({
   const [selectedBowel, setSelectedBowel] = useState<string>("");
   const [selectedUrine, setSelectedUrine] = useState<string>("");
   const [selectedAppetite, setSelectedAppetite] = useState<string>("");
+  const [selectedDigestive, setSelectedDigestive] = useState<string>("");
 
   useEffect(() => {
     if (data.medicalParameters) {
@@ -254,6 +255,7 @@ export default function ExaminationNote({
       if (data.medicalParameters.bowelMovement) setSelectedBowel(data.medicalParameters.bowelMovement);
       if (data.medicalParameters.urineMovement) setSelectedUrine(data.medicalParameters.urineMovement);
       if (data.medicalParameters.appetite) setSelectedAppetite(data.medicalParameters.appetite);
+      if (data.medicalParameters.digestiveSystem) setSelectedDigestive(data.medicalParameters.digestiveSystem);
     }
   }, [data.medicalParameters]);
 
@@ -261,7 +263,8 @@ export default function ExaminationNote({
     sleep: string,
     bowel: string,
     urine: string,
-    appetite: string
+    appetite: string,
+    digestive: string
   ) => {
     setData((prev) => ({
       ...prev,
@@ -270,6 +273,7 @@ export default function ExaminationNote({
         bowelMovement: bowel || null,
         urineMovement: urine || null,
         appetite: appetite || null,
+        digestiveSystem: digestive || null,
       },
     }));
   };
@@ -277,25 +281,31 @@ export default function ExaminationNote({
   const handleSleepToggle = (option: string) => {
     const nextVal = selectedSleep === option ? "" : option;
     setSelectedSleep(nextVal);
-    updateMedicalParameters(nextVal, selectedBowel, selectedUrine, selectedAppetite);
+    updateMedicalParameters(nextVal, selectedBowel, selectedUrine, selectedAppetite, selectedDigestive);
   };
 
   const handleBowelToggle = (option: string) => {
     const nextVal = selectedBowel === option ? "" : option;
     setSelectedBowel(nextVal);
-    updateMedicalParameters(selectedSleep, nextVal, selectedUrine, selectedAppetite);
+    updateMedicalParameters(selectedSleep, nextVal, selectedUrine, selectedAppetite, selectedDigestive);
   };
 
   const handleUrineToggle = (option: string) => {
     const nextVal = selectedUrine === option ? "" : option;
     setSelectedUrine(nextVal);
-    updateMedicalParameters(selectedSleep, selectedBowel, nextVal, selectedAppetite);
+    updateMedicalParameters(selectedSleep, selectedBowel, nextVal, selectedAppetite, selectedDigestive);
   };
 
   const handleAppetiteToggle = (option: string) => {
     const nextVal = selectedAppetite === option ? "" : option;
     setSelectedAppetite(nextVal);
-    updateMedicalParameters(selectedSleep, selectedBowel, selectedUrine, nextVal);
+    updateMedicalParameters(selectedSleep, selectedBowel, selectedUrine, nextVal, selectedDigestive);
+  };
+
+  const handleDigestiveToggle = (option: string) => {
+    const nextVal = selectedDigestive === option ? "" : option;
+    setSelectedDigestive(nextVal);
+    updateMedicalParameters(selectedSleep, selectedBowel, selectedUrine, selectedAppetite, nextVal);
   };
 
   useEffect(() => {
@@ -909,6 +919,57 @@ export default function ExaminationNote({
                         value={opt}
                         checked={active}
                         onChange={() => handleAppetiteToggle(opt)}
+                        className="sr-only"
+                      />
+                      <span
+                        className={cn(
+                          "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
+                          active
+                            ? "border-emerald-500 bg-emerald-500"
+                            : "border-slate-300 bg-white group-hover:border-emerald-300"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
+                            active ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                          )}
+                        />
+                      </span>
+                      {opt}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="border-t border-slate-100/60" />
+
+            {/* 5. Digestive System */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5">
+              <span className="text-xs font-semibold text-slate-700 w-36 shrink-0">
+                Digestive System
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {["Normal", "Bloating", "APD", "GERD"].map((opt) => {
+                  const active = selectedDigestive === opt;
+                  return (
+                    <label
+                      key={opt}
+                      className={cn(
+                        "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200",
+                        "border",
+                        active
+                          ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm shadow-emerald-100/50"
+                          : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="medparam-digestive"
+                        value={opt}
+                        checked={active}
+                        onChange={() => handleDigestiveToggle(opt)}
                         className="sr-only"
                       />
                       <span
