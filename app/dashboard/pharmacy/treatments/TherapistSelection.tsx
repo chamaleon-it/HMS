@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import useSWR from "swr";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -12,17 +12,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, UserCheck } from "lucide-react";
+import { UserCheck } from "lucide-react";
+import {
+  isDoctorAssignee,
+  mergeTherapyAssignees,
+  TherapyAssignee,
+} from "@/lib/therapyAssignees";
 
-export interface TherapistEmployee {
-  _id: string;
-  name: string;
+export interface TherapistEmployee extends TherapyAssignee {
   role: string;
-  qualification?: string;
-  designation?: string;
-  inCharge?: boolean;
-  status?: string;
-  phone?: string;
 }
 
 interface Props {
@@ -44,29 +42,39 @@ export default function TherapistSelection({
   required = true,
   allowEmptyDefault = false,
 }: Props) {
-  const { data: therapistResponse, isLoading } = useSWR<{
+  const { data: therapistResponse, isLoading: loadingTherapists } = useSWR<{
     data: TherapistEmployee[];
     message: string;
   }>("/employee?role=Therapist&status=active");
+  const { data: doctorResponse, isLoading: loadingDoctors } = useSWR<{
+    data: TherapistEmployee[];
+    message: string;
+  }>("/employee?role=Doctor&status=active");
 
-  const therapists = (therapistResponse?.data ?? []).filter(
-    (t) => !t.status || t.status.toLowerCase() === "active"
+  const therapists = useMemo(
+    () =>
+      mergeTherapyAssignees(
+        therapistResponse?.data ?? [],
+        doctorResponse?.data ?? [],
+      ),
+    [therapistResponse, doctorResponse],
   );
 
-  const inChargeTherapist = therapists.find((t) => t.inCharge);
+  const isLoading = (loadingTherapists || loadingDoctors) && therapists.length === 0;
 
-  // Default to Therapist In-Charge if no value selected
+  const inChargeTherapist = therapists.find(
+    (t) => !isDoctorAssignee(t) && t.inCharge,
+  );
+
+  // Default stays the therapist in charge. Doctors are selectable, not the default.
   useEffect(() => {
-    if (!allowEmptyDefault && !value && therapists.length > 0) {
-      if (inChargeTherapist) {
-        onChange(inChargeTherapist._id, inChargeTherapist.name);
-      } else if (therapists[0]) {
-        onChange(therapists[0]._id, therapists[0].name);
-      }
-    }
+    if (allowEmptyDefault || value || therapists.length === 0) return;
+    const pick =
+      inChargeTherapist || therapists.find((t) => !isDoctorAssignee(t));
+    if (pick) onChange(pick._id, pick.name);
   }, [therapists, inChargeTherapist, value, allowEmptyDefault]);
 
-  // Match selected therapist object by ID or name
+  // Match selected therapist or doctor employee by ID or name
   const currentTherapist = therapists.find(
     (t) => t._id === value || t.name === value
   );
@@ -95,14 +103,14 @@ export default function TherapistSelection({
         }}
       >
         <SelectTrigger className="w-full h-11 bg-white rounded-xl border-slate-200 focus:ring-2 focus:ring-synapse-light/20 text-xs px-3">
-          <SelectValue placeholder={isLoading ? "Loading therapists..." : "Select therapist (Mandatory)"} />
+          <SelectValue placeholder={isLoading ? "Loading therapists..." : "Select therapist or doctor"} />
         </SelectTrigger>
         <SelectContent>
           {isLoading ? (
             <div className="p-3 text-xs text-slate-400 text-center">Loading therapists...</div>
           ) : therapists.length === 0 ? (
             <div className="p-3 text-xs text-slate-400 text-center">
-              No active therapists found
+              No active therapists or doctors found
             </div>
           ) : (
             therapists.map((t) => (
@@ -116,9 +124,14 @@ export default function TherapistSelection({
                       </span>
                     )}
                   </div>
-                  {t.inCharge && (
+                  {t.inCharge && !isDoctorAssignee(t) && (
                     <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-300 text-[9.5px] font-bold px-1.5 py-0 uppercase shrink-0">
                       In-Charge
+                    </Badge>
+                  )}
+                  {isDoctorAssignee(t) && (
+                    <Badge variant="outline" className="bg-sky-50 text-sky-700 border-sky-200 text-[9.5px] font-bold px-1.5 py-0 uppercase shrink-0">
+                      Doctor
                     </Badge>
                   )}
                 </div>

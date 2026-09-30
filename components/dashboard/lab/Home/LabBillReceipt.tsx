@@ -43,7 +43,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
     const patient = bill?.patient || report?.patient;
     const doctorVal = bill?.doctor || report?.doctor;
     const doctorName = typeof doctorVal === 'object' ? doctorVal?.name : doctorVal;
-    const invoiceNo = bill?.mrn || `LAB-${report?.sampleId || report?.mrn || report?._id.substring(0, 6).toUpperCase()}`;
+    const invoiceNo = bill?.mrn || `LAB-${report?.sampleId || report?.mrn || report?._id?.substring(0, 6).toUpperCase()}`;
     const billDate = bill?.createdAt ? new Date(bill.createdAt) : new Date();
 
     // Patient info calculations for standard Patient Strip

@@ -10,6 +10,10 @@ export interface OrderType {
     createdAt: Date;
     updatedAt: Date;
     billNo?: string;
+    cash?: number;
+    card?: number;
+    upi?: number;
+    paymentStatus?: string;
 }
 
 

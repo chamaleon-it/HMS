@@ -112,7 +112,7 @@ export default function MonthlyCalender({
           const targetDateStr = `${year}-${monthStr}-${dayStr}`;
 
           const events =
-            data?.data.filter((b) => {
+            (data?.data ?? []).filter((b) => {
               if (!b.date) return false;
               const bDateStr = typeof b.date === "string" ? b.date.split("T")[0] : "";
               return bDateStr === targetDateStr;

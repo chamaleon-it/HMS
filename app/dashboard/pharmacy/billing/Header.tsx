@@ -1,4 +1,4 @@
-import { FilePlus2, PlusCircle, ReceiptIndianRupee, ChevronDown, Check, Filter, User2, UserCheck } from 'lucide-react';
+import { PlusCircle, ReceiptIndianRupee, ChevronDown, Check, User2, UserCheck, ScrollText } from 'lucide-react';
 import React, { useMemo, useState, useRef, useEffect } from 'react'
 import useSWR from 'swr';
 import { FilterType } from './page';
@@ -7,10 +7,11 @@ import PharmacyHeader from '../components/PharmacyHeader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { PatientVisitorToggle } from '@/components/dashboard/billing/PatientModeToggle';
+import { isDoctorAssignee, mergeTherapyAssignees, TherapyAssignee } from '@/lib/therapyAssignees';
 
 interface PropsType {
-  tab: "all" | "new";
-  setTab: (v: "all" | "new") => void;
+  tab: "all" | "new" | "certificate";
+  setTab: (v: "all" | "new" | "certificate") => void;
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   billing: {
@@ -44,8 +45,11 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
   const dropdownRef = useRef<HTMLDivElement>(null);
   const therapistRef = useRef<HTMLDivElement>(null);
   const { data: therapistResponse } = useSWR<{
-    data: { _id: string; name: string }[];
+    data: TherapyAssignee[];
   }>("/employee?role=Therapist&status=active");
+  const { data: doctorEmployeeResponse } = useSWR<{
+    data: TherapyAssignee[];
+  }>("/employee?role=Doctor&status=active");
 
   const doctors = useMemo(() => {
     const list = [...new Set(billing.map(b => b.doctor))].filter(Boolean);
@@ -53,11 +57,21 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
   }, [billing]);
 
   const therapists = useMemo(() => {
-    const names = (therapistResponse?.data ?? [])
-      .map((therapist) => String(therapist.name || "").trim())
-      .filter((name) => name && name !== "-");
-    return [...new Set(names)].sort((a, b) => a.localeCompare(b));
-  }, [therapistResponse]);
+    const people = mergeTherapyAssignees(
+      therapistResponse?.data ?? [],
+      doctorEmployeeResponse?.data ?? [],
+    );
+    const byName = new Map<string, TherapyAssignee>();
+    for (const person of people) {
+      const key = person.name.toLowerCase();
+      if (!byName.has(key)) byName.set(key, person);
+    }
+    return [...byName.values()].sort((a, b) => {
+      const roleOrder = Number(isDoctorAssignee(a)) - Number(isDoctorAssignee(b));
+      if (roleOrder !== 0) return roleOrder;
+      return a.name.localeCompare(b.name);
+    });
+  }, [therapistResponse, doctorEmployeeResponse]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -91,8 +105,14 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
   return (
     <PharmacyHeader
       title="Billing"
-      subtitle="Search, filter & review billing history"
+      subtitle={
+        tab === "certificate"
+          ? "Create, save, and print medical certificates"
+          : "Search, filter & review billing history"
+      }
     >
+      {tab !== "certificate" && (
+      <>
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsDoctorOpen(!isDoctorOpen)}
@@ -201,20 +221,25 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
               <div className="max-h-60 overflow-y-auto scrollbar-hide">
                 {therapists.length === 0 ? (
                   <div className="px-3 py-4 text-center text-xs text-slate-400">
-                    No therapists found
+                    No therapists or doctors found
                   </div>
                 ) : (
                   therapists.map((therapist) => (
                     <button
-                      key={therapist}
+                      key={therapist._id || therapist.name}
                       onClick={() => {
-                        setFilter((prev) => ({ ...prev, therapist, page: 1 }));
+                        setFilter((prev) => ({ ...prev, therapist: therapist.name, page: 1 }));
                         setIsTherapistOpen(false);
                       }}
                       className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                     >
-                      <span className="truncate">{therapist}</span>
-                      {filter.therapist === therapist && <Check size={16} className="text-(--color-synapse-light)" />}
+                      <span className="truncate">{therapist.name}</span>
+                      <span className="flex items-center gap-2 shrink-0">
+                        {isDoctorAssignee(therapist) && (
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-sky-600">Doctor</span>
+                        )}
+                        {filter.therapist === therapist.name && <Check size={16} className="text-(--color-synapse-light)" />}
+                      </span>
                     </button>
                   ))
                 )}
@@ -263,17 +288,20 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
           layoutId="pharmacy-billing-patient-visitor"
         />
       )}
+      </>
+      )}
 
       <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 print:hidden w-fit">
         {[
           { key: "all", label: "All Bills", icon: ReceiptIndianRupee },
           { key: "new", label: "Create Bill", icon: PlusCircle },
+          { key: "certificate", label: "Medical Certificate", icon: ScrollText },
         ].map(({ key, label, icon: Icon }) => {
           const active = tab === key;
           return (
             <button
               key={key}
-              onClick={() => setTab(key as "all" | "new")}
+              onClick={() => setTab(key as "all" | "new" | "certificate")}
               className={
                 "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer font-medium " +
                 (active ? "text-white" : "text-slate-600 hover:bg-slate-50")

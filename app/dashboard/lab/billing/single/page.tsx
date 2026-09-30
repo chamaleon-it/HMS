@@ -150,17 +150,17 @@ function InvoiceViewContent() {
                 <p>{configuration().hospitalEmail}</p>
                 <p className="mt-1">{configuration().hospitalAddress}</p>
                 <p>{configuration().hospitalPhone}</p>
-                <p className="mt-1">Booking No: BK2025-00921</p>
+                <p className="mt-1">Invoice: {billing?.mrn || "—"}</p>
               </div>
             </div>
             <div className="p-8">
               <h3 className="text-sm text-gray-500 mb-2">Patient Details</h3>
               <div className="text-sm text-gray-700">
                 <p className="font-semibold text-gray-800">
-                  {billing?.patient.name}
+                  {billing?.patient?.name || "—"}
                 </p>
-                <p>{billing?.patient.phoneNumber}</p>{" "}
-                <p className="mt-1">Patient ID: PT-002134</p>
+                <p>{billing?.patient?.phoneNumber || "—"}</p>{" "}
+                <p className="mt-1">Patient ID: {billing?.patient?.mrn || "—"}</p>
               </div>
             </div>
           </div>
@@ -191,7 +191,7 @@ function InvoiceViewContent() {
                 </tr>
               </thead>
               <tbody>
-                {billing?.items.map((item) => {
+                {(billing?.items ?? []).map((item) => {
                   return (
                     <tr className="border-b hover:bg-gray-50 transition" key={item.name}>
                       <td className="p-4">{item.name}</td>
@@ -217,7 +217,7 @@ function InvoiceViewContent() {
                 <span>Subtotal</span>{" "}
                 <span>
                   {formatINR(
-                    billing?.items.reduce(
+                    (billing?.items ?? []).reduce(
                       (sum, item) =>
                         sum + (item.quantity * item.unitPrice - item.discount),
                       0

@@ -73,15 +73,15 @@ export default function ProfileForm() {
   } = useForm<UpdateSettingsInput>({
     resolver: zodResolver(updateSettingsSchema) as any,
     defaultValues: {
-      name: userData?.data.name,
-      phoneNumber: userData?.data.phoneNumber || "+91",
-      email: userData?.data.email,
-      hospital: userData?.data.hospital || null,
-      specialization: userData?.data.specialization || null,
-      profilePic: userData?.data.profilePic || null,
-      signature: userData?.data.signature || null,
-      consultationFee: userData?.data.consultationFee || 0,
-      availability: userData?.data.availability,
+      name: userData?.data?.name,
+      phoneNumber: userData?.data?.phoneNumber || "+91",
+      email: userData?.data?.email,
+      hospital: userData?.data?.hospital || null,
+      specialization: userData?.data?.specialization || null,
+      profilePic: userData?.data?.profilePic || null,
+      signature: userData?.data?.signature || null,
+      consultationFee: userData?.data?.consultationFee || 0,
+      availability: userData?.data?.availability,
     },
   });
 
@@ -91,15 +91,15 @@ export default function ProfileForm() {
 
   useEffect(() => {
     reset({
-      name: userData?.data.name,
-      phoneNumber: userData?.data.phoneNumber || "+91",
-      email: userData?.data.email,
-      hospital: userData?.data.hospital || null,
-      specialization: userData?.data.specialization || null,
-      profilePic: userData?.data.profilePic || null,
-      signature: userData?.data.signature || null,
-      consultationFee: userData?.data.consultationFee || 0,
-      availability: userData?.data.availability,
+      name: userData?.data?.name,
+      phoneNumber: userData?.data?.phoneNumber || "+91",
+      email: userData?.data?.email,
+      hospital: userData?.data?.hospital || null,
+      specialization: userData?.data?.specialization || null,
+      profilePic: userData?.data?.profilePic || null,
+      signature: userData?.data?.signature || null,
+      consultationFee: userData?.data?.consultationFee || 0,
+      availability: userData?.data?.availability,
     });
   }, [userData?.data, reset]);
 
@@ -270,7 +270,7 @@ export default function ProfileForm() {
               <div className="grid gap-4">
                 <Appointments
                   setValue={setValue}
-                  availability={userData?.data.availability}
+                  availability={userData?.data?.availability}
                 />
               </div>
             </div>

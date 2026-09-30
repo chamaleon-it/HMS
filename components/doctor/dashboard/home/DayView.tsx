@@ -141,6 +141,7 @@ export default function DailyViewTimeline({
       <ScheduleTabsPreview
         currenctStatus={currenctStatus}
         setCurrenctStatus={setCurrenctStatus}
+        onRefresh={() => mutate()}
       />
 
       <div className="relative mt-2 rounded-xl bg-white">

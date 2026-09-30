@@ -35,6 +35,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useSearchParams } from "next/navigation";
+
+const DEFAULT_RETURN_REASON = "Doctor Changed Rx";
 import { Trash, CreditCard, User, MessageSquareText } from "lucide-react";
 import {
   Select,
@@ -64,41 +66,33 @@ export default function PharmacyReturnPage() {
       setFetching(true);
 
 
-      if (!mrn && !filter.q && !billNumber) {
+      const typed = String(billNumber ?? filter.q ?? "").trim();
+      const invoice = typed || String(mrn || "").trim();
+
+      if (!invoice) {
         toast.error("Please enter a valid RX id");
         return;
       }
 
+      if (invoice.startsWith("RX")) {
+        toast.error("Please enter a valid RX id");
+        return;
+      }
 
       const params = new URLSearchParams();
-
-      if (billNumber) {
-        params.set("q", billNumber);
-      } else if (mrn) {
-        params.set("q", mrn);
-      }
-      else if (filter.q) {
-
-        if (filter.q.startsWith("RX")) {
-          toast.error("Please enter a valid RX id");
-          return;
-        }
-        params.set("q", filter.q ?? "");
-      } else {
-        toast.error("Please enter a valid RX id");
-        return;
-      }
+      params.set("q", invoice);
 
       const { data }: { data: { data: OrderType } } = await api.get(`/pharmacy/orders/single?${params}`);
       setOrder({
         ...data.data,
-        items: data.data.items
+        items: (data.data?.items ?? [])
           .filter((it) => it.name)
           .map((it) => {
             const batches = (it.name as { batches?: any[] })?.batches || [];
             const selected = pickBatch(batches, (it as { batchNumber?: string }).batchNumber);
             return {
               ...it,
+              reason: it.reason || DEFAULT_RETURN_REASON,
               unitPrice:
                 positiveMoney((it as { unitPrice?: number }).unitPrice) ||
                 batchUnitPrice(selected) ||
@@ -174,15 +168,17 @@ export default function PharmacyReturnPage() {
         }[];
         billNo?: string;
       } = {
-        patient: order?.patient._id,
+        patient: order?.patient?._id || "",
         order: order?._id,
         refundMode: state.refundMode,
         returnedBy: state.returnedBy,
         remarks: state.remarks,
-        items: order?.items.map((it) => ({
-          name: it.name._id,
+        items: (order?.items || [])
+          .filter((it) => Boolean(it.name?._id))
+          .map((it) => ({
+          name: it.name?._id || "",
           quantity: it.return || 0,
-          reason: it.reason,
+          reason: it.reason || DEFAULT_RETURN_REASON,
           unitPrice: positiveMoney(it.unitPrice) || positiveMoney(it.name?.unitPrice),
         })),
         billNo: order?.billNo,
@@ -238,23 +234,23 @@ export default function PharmacyReturnPage() {
                 </TableHeader>
 
                 <TableBody className="[&>tr:nth-child(even)]:bg-slate-50/40">
-                  {order?.items.map((it, i) => (
-                    <TableRow key={it.name._id} className="text-[14px]">
+                  {order?.items?.map((it, i) => (
+                    <TableRow key={it.name?._id || i} className="text-[14px]">
                       <TableCell className="text-center  text-slate-500 py-3 pl-4">
                         {i + 1}
                       </TableCell>
 
                       <TableCell className="">
                         <div className="text-slate-900 font-medium text-[12px] leading-tight">
-                          {it.name.name}
+                          {it.name?.name || "—"}
                         </div>
                         <div className="text-[10px] text-slate-500 leading-tight">
-                          (Gen: {it.name.generic})
+                          (Gen: {it.name?.generic || "—"})
                         </div>
                       </TableCell>
 
                       <TableCell className=" text-slate-700 font-medium text-sm">
-                        {it.name.hsnCode}
+                        {it.name?.hsnCode || "—"}
                       </TableCell>
 
                       <TableCell className=" text-slate-700 font-medium">
@@ -262,7 +258,7 @@ export default function PharmacyReturnPage() {
                       </TableCell>
 
                       <TableCell className=" text-slate-700 font-medium">
-                        {fDate(it.name.expiryDate)}
+                        {fDate(it.name?.expiryDate)}
                       </TableCell>
 
                       <TableCell className="text-center font-medium text-slate-700">
@@ -286,8 +282,8 @@ export default function PharmacyReturnPage() {
                               prev
                                 ? {
                                   ...prev,
-                                  items: prev.items.map((item) =>
-                                    item.name._id === it.name._id
+                                  items: prev.items.map((item, itemIndex) =>
+                                    (item.name?._id || itemIndex) === (it.name?._id || i)
                                       ? {
                                         ...item,
                                         return: value || 0,
@@ -313,8 +309,8 @@ export default function PharmacyReturnPage() {
                               prev
                                 ? {
                                   ...prev,
-                                  items: prev.items.map((item) =>
-                                    item.name._id === it.name._id
+                                  items: prev.items.map((item, itemIndex) =>
+                                    (item.name?._id || itemIndex) === (it.name?._id || i)
                                       ? {
                                         ...item,
                                         unitPrice: value,
@@ -338,15 +334,14 @@ export default function PharmacyReturnPage() {
 
                       <TableCell className="text-right">
                         <Select
-                          defaultValue="Doctor Changed Rx"
-                          value={it.reason}
+                          value={it.reason || DEFAULT_RETURN_REASON}
                           onValueChange={(val) => {
                             setOrder((prev) =>
                               prev
                                 ? {
                                   ...prev,
-                                  items: prev.items.map((item) =>
-                                    item.name._id === it.name._id
+                                  items: prev.items.map((item, itemIndex) =>
+                                    (item.name?._id || itemIndex) === (it.name?._id || i)
                                       ? {
                                         ...item,
                                         reason: val,
@@ -384,7 +379,7 @@ export default function PharmacyReturnPage() {
                                 ? {
                                   ...prev,
                                   items: prev.items.filter(
-                                    (e) => e.name._id !== it.name._id
+                                    (e, itemIndex) => (e.name?._id || itemIndex) !== (it.name?._id || i)
                                   ),
                                 }
                                 : null
@@ -408,7 +403,7 @@ export default function PharmacyReturnPage() {
                 <span>Total Refund</span>
                 <span>
                   {formatINR(
-                    order?.items.reduce(
+                    order?.items?.reduce(
                       (a, b) =>
                         a +
                         (positiveMoney(b.unitPrice) ||

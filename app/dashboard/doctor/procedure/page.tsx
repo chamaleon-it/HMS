@@ -1420,7 +1420,7 @@ export default function ProcedurePage() {
               <AlertDialogDescription className="text-sm text-slate-600 mt-2">
                 Are you sure you want to delete sub-procedure{" "}
                 <strong className="text-slate-900">
-                  {deleteSubTarget?.subProc.name}
+                  {deleteSubTarget?.subProc?.name}
                 </strong>{" "}
                 under parent{" "}
                 <strong className="text-slate-900">

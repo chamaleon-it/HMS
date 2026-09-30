@@ -41,7 +41,7 @@ export default function LoginPage() {
   if (loading) return null;
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-(--color-synapse-dark) p-4 md:p-8">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#23311f] p-4 md:p-8">
       <style>{`
         :root { 
           --brand: var(--color-synapse-purple); 

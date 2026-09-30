@@ -9,6 +9,16 @@ import { formatPatientAddress } from "@/lib/formatPatientAddress";
 import { User, Stethoscope, CreditCard, ReceiptIndianRupee, Download } from "lucide-react";
 import useSWR from "swr";
 
+function paymentSummary(order: OrderType | null) {
+  if (!order) return "—";
+  const parts: string[] = [];
+  if (Number(order.cash) > 0) parts.push("Cash");
+  if (Number(order.card) > 0) parts.push("Card");
+  if (Number(order.upi) > 0) parts.push("UPI");
+  if (parts.length > 0) return parts.join(" · ");
+  return order.paymentStatus || "—";
+}
+
 interface Props {
   filter: {
     q: string | null;
@@ -31,7 +41,8 @@ export default function Search({
   order,
 }: Props) {
 
-  const { data: ordersData, isLoading: isLoadingOrders } = useSWR<{
+  const invoiceQuery = filter.q?.trim() ?? "";
+  const { data: ordersData } = useSWR<{
     message: string,
     data: {
       _id: string,
@@ -44,16 +55,29 @@ export default function Search({
         dateOfBirth: Date,
         mrn: string,
         address: string
-      },
+      } | null,
       mrn: string
     }[]
-  }>(filter.q ? `/billing/drop-down${filter.q ? `?query=${filter.q}` : ""}` : null)
+  }>(invoiceQuery ? `/billing/drop-down?query=${encodeURIComponent(invoiceQuery)}` : null)
 
   const orders = ordersData?.data ?? [];
 
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [selectedIndex, setSelectedIndex] = React.useState(-1);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const choosingRef = React.useRef(false);
+
+  const chooseBill = (mrn?: string) => {
+    const invoice = String(mrn || "").trim();
+    if (!invoice || choosingRef.current) return;
+    choosingRef.current = true;
+    setFilter((prev) => ({ ...prev, q: invoice }));
+    setShowDropdown(false);
+    setSelectedIndex(-1);
+    void Promise.resolve(fetchOrder(invoice)).finally(() => {
+      choosingRef.current = false;
+    });
+  };
 
   React.useEffect(() => {
     if (selectedIndex !== -1 && dropdownRef.current) {
@@ -69,7 +93,7 @@ export default function Search({
 
   React.useEffect(() => {
     setSelectedIndex(-1);
-  }, [orders, showDropdown]);
+  }, [ordersData?.data, showDropdown]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!showDropdown || orders.length === 0) return;
@@ -83,10 +107,7 @@ export default function Search({
     } else if (e.key === "Enter") {
       if (selectedIndex >= 0) {
         e.preventDefault();
-
-        setFilter((prev) => ({ ...prev, q: orders[selectedIndex].mrn }));
-        setShowDropdown(false);
-        setTimeout(async () => await fetchOrder(orders[selectedIndex].mrn), 220);
+        chooseBill(orders[selectedIndex]?.mrn);
       }
     } else if (e.key === "Escape") {
       setShowDropdown(false);
@@ -95,7 +116,7 @@ export default function Search({
 
   return (
     <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-      <div className="xl:col-span-1 bg-white border rounded-2xl p-4 shadow-sm shadow-slate-100 flex flex-col gap-3">
+      <div className="relative z-30 xl:col-span-1 bg-white border rounded-2xl p-4 shadow-sm shadow-slate-100 flex flex-col gap-3">
         <div className="text-sm font-medium text-slate-700 flex items-center gap-2">
           <span>Find Bill</span>
         </div>
@@ -106,7 +127,11 @@ export default function Search({
               className="pl-9 text-sm h-9 rounded-lg border-slate-300 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
               value={filter.q ?? ""}
               onFocus={() => setShowDropdown(true)}
-              onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+              onBlur={() => {
+                window.setTimeout(() => {
+                  if (!choosingRef.current) setShowDropdown(false);
+                }, 0);
+              }}
               onKeyDown={handleKeyDown}
               onChange={(e) => {
                 setFilter((prev) => ({ ...prev, q: e.target.value }))
@@ -114,24 +139,25 @@ export default function Search({
               }
               }
             />
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
               🔍
             </span>
 
             {showDropdown && orders.length > 0 && (
               <div
                 ref={dropdownRef}
-                className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border rounded-xl shadow-xl max-h-60 overflow-auto py-2 border-slate-200 animate-in fade-in zoom-in duration-200"
+                onMouseDown={(event) => event.preventDefault()}
+                className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border rounded-xl shadow-xl max-h-60 overflow-auto py-2 border-slate-200"
               >
                 {orders.map((item, index) => (
-                  <div
+                  <button
                     key={item._id}
-                    className={`px-4 py-2 cursor-pointer flex flex-col gap-1 transition-colors border-b border-slate-50 last:border-0 ${selectedIndex === index ? "bg-slate-100" : "hover:bg-slate-50"
+                    type="button"
+                    className={`w-full text-left px-4 py-2 cursor-pointer flex flex-col gap-1 transition-colors border-b border-slate-50 last:border-0 ${selectedIndex === index ? "bg-slate-100" : "hover:bg-slate-50"
                       }`}
-                    onClick={() => {
-                      setFilter((prev) => ({ ...prev, q: item.mrn }));
-                      setShowDropdown(false);
-                      setTimeout(() => fetchOrder(item.mrn), 0);
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      chooseBill(item.mrn);
                     }}
                   >
                     <div className="flex items-center justify-between">
@@ -155,12 +181,13 @@ export default function Search({
                         </div>
                       )}
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
           </div>
           <Button
+            type="button"
             className="h-9 rounded-lg bg-(--color-synapse-light) text-white px-4 text-xs font-medium shadow-md flex items-center gap-2 transition-all active:scale-95"
             onClick={() => fetchOrder()}
           >
@@ -191,10 +218,10 @@ export default function Search({
             <User className="w-3 h-3 text-(--color-synapse-light)" /> Patient
           </span>
           <span className="text-(--color-synapse-light) font-semibold text-sm leading-tight mt-1">
-            {order?.patient.name}
+            {order?.patient?.name || "—"}
           </span>
           <span className="text-[10px] font-semibold text-slate-400">
-            OP NO: {order?.patient.mrn}
+            OP NO: {order?.patient?.mrn || "—"}
           </span>
         </div>
         <div className="flex flex-col">
@@ -202,10 +229,10 @@ export default function Search({
             <Stethoscope className="w-3 h-3 text-(--color-synapse-light)" /> Doctor
           </span>
           <span className="text-slate-900 font-medium text-sm leading-tight mt-1">
-            Dr. {order?.doctor.name}
+            Dr. {order?.doctor?.name || "—"}
           </span>
           <span className="text-[10px] font-semibold text-slate-400">
-            {order?.doctor.specialization}
+            {order?.doctor?.specialization || "—"}
           </span>
         </div>
         <div className="flex flex-col">
@@ -213,7 +240,7 @@ export default function Search({
             <CreditCard className="w-3 h-3 text-orange-500" /> Payment
           </span>
           <span className="text-slate-900 font-medium text-sm leading-tight mt-1">
-            UPI
+            {paymentSummary(order)}
           </span>
         </div>
         <div className="flex flex-col">
@@ -222,7 +249,7 @@ export default function Search({
           </span>
           <span className="text-emerald-700 font-bold text-lg leading-tight mt-1">
             {formatINR(
-              order?.items.reduce((sum, item) => sum + pharmacyLineMoney(item).net, 0) ?? 0
+              order?.items?.reduce((sum, item) => sum + pharmacyLineMoney(item).net, 0) ?? 0
             )}
           </span>
           <span className="text-[10px] font-semibold text-slate-400">incl. GST</span>

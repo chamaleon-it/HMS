@@ -45,7 +45,7 @@ export default function Header() {
       { key: "therapy", label: "Therapy", link: "/dashboard/doctor/therapy/" },
       { key: "procedure", label: "Procedure", link: "/dashboard/doctor/procedure/" },
     ]) ||
-    (user?.role === "Pharmacy" && [
+    ((user?.role === "Pharmacy" || user?.role === "Pharmacy Wholesaler") && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy/" },
       { key: "inventory", label: "Inventory", link: "/dashboard/pharmacy/inventory/" },
       { key: "purchase-entry", label: "Purchase Entry", link: "/dashboard/pharmacy/purchase-entry/" },
@@ -55,10 +55,7 @@ export default function Header() {
       { key: "return", label: "Return", link: "/dashboard/pharmacy/return/" },
       // { key: "purchase", label: "Purchase", link: "/dashboard/pharmacy/purchase/" },
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy/billing/" },
-    ]) ||
-    (user?.role === "Pharmacy Wholesaler" && [
-      { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy-wholesaler" },
-      { key: "billing", label: "Billing", link: "/dashboard/pharmacy-wholesaler/billing/" },
+      { key: "certificate", label: "Certificate", link: "/dashboard/pharmacy/certificate/" },
     ]) ||
     (user?.role === "Reception" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/reception/" },

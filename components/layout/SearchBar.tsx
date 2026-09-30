@@ -107,9 +107,9 @@ export default function SearchBar() {
           data-testid="search-input"
           className="w-full rounded-2xl border border-slate-200 bg-white/90 pl-10 pr-4 py-2.5 text-sm shadow-sm outline-none placeholder:text-slate-400 hover:border-slate-300 focus:border-(--color-synapse-light) focus:ring-2 focus:ring-indigo-200"
         />
-        {isOpen && Boolean(data?.data.length) && (
+        {isOpen && Boolean(data?.data?.length) && (
           <div className="absolute right-0 w-75 sm:w-100 lg:w-112.5 top-12 border rounded-xl bg-white p-1.5 space-y-1.5 z-50 shadow-lg max-h-100 overflow-y-auto">
-            {data?.data.map((p, index) => (
+            {data?.data?.map((p, index) => (
               <Link
                 href={generateLink(p._id)}
                 className={`block rounded-2xl transition-all ${focusedIndex === index ? 'ring-2 ring-(--color-synapse-light) ring-offset-1' : ''}`}

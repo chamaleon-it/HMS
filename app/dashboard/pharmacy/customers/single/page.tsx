@@ -558,7 +558,7 @@ const CustomerPageContent: React.FC = () => {
                                         </div>
                                     )}
                                     <div className="flex flex-wrap gap-2 mt-3 text-[11px]">
-                                        {customer?.billing.length === 0 && (
+                                        {customer?.billing?.length === 0 && (
                                             <span className="px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
                                                 No purchase history yet
                                             </span>

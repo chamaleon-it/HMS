@@ -155,7 +155,7 @@ export function PatientCard({
               <ActionButton
                 variant="outline"
                 onClick={() => {
-                  const targetRoute = user?.name.toLowerCase().includes("ali") || user?.username?.toLowerCase().includes("ali")
+                  const targetRoute = user?.name?.toLowerCase().includes("ali") || user?.username?.toLowerCase().includes("ali")
                     ? "consulting-2"
                     : "consulting";
                   router.push(`/dashboard/doctor/${targetRoute}/?id=${a._id}`);

@@ -24,8 +24,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { OrderType } from "./interface";
 import { sanitizeOrderUpdatePayload } from "@/lib/sanitizeOrderPayload";
-import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney } from "@/lib/pharmacyReceiptLine";
+import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney, unselectedOversellWarnings, OversellWarning } from "@/lib/pharmacyReceiptLine";
 import { isOutsideOrderLine, withConsultationLines } from "@/lib/pharmacyOutsideMedicine";
+import OversellWarningDialog from "./OversellWarningDialog";
 import { fAge, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import toast from "react-hot-toast";
@@ -253,21 +254,12 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         return price * (Number(it.quantity) || 0);
     };
 
-    const missingBatch = (items: { isCustom?: boolean; referralName?: string; quantity?: number; batchNumber?: string; name?: { name?: string } | null }[]) =>
-        items.filter((it) => !isOutsideOrderLine(it) && (Number(it.quantity) || 0) > 0 && isPlaceholderBatchNumber(it.batchNumber));
-
-    const batchRequiredMessage = (items: { name?: { name?: string } | null }[]) => {
-        const names = items.map((it) => it.name?.name || "medicine").join(", ");
-        return `Select a batch for ${names} before completing the order.`;
-    };
+    const [openOversell, setOpenOversell] = useState(false);
+    const [oversellLines, setOversellLines] = useState<OversellWarning[]>([]);
+    const oversellAction = useRef<"complete" | "payment" | null>(null);
 
     const handleCompleteOrderDirect = async () => {
         if (!updatePayload || !localOrder) return;
-        const missing = missingBatch(updatePayload.items);
-        if (missing.length) {
-            toast.error(batchRequiredMessage(missing));
-            return;
-        }
         if (updatePayload.items.some((m) => (m.quantity || 0) === 0)) {
             toast.error("Quantity cannot be 0");
             return;
@@ -298,13 +290,17 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         }
     };
 
-    const handleCompleteOrder = async () => {
+    const handleCompleteOrder = async (options?: { skipOversell?: boolean }) => {
         if (!updatePayload) return;
 
-        const missing = missingBatch(updatePayload.items);
-        if (missing.length) {
-            toast.error(batchRequiredMessage(missing));
-            return;
+        if (!options?.skipOversell) {
+            const warnings = unselectedOversellWarnings(updatePayload.items);
+            if (warnings.length) {
+                oversellAction.current = "complete";
+                setOversellLines(warnings);
+                setOpenOversell(true);
+                return;
+            }
         }
 
         if (updatePayload.status?.toLowerCase() !== "completed") {
@@ -368,14 +364,8 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         setPendingAction("complete");
     };
 
-    const handlePaymentUpdate = async () => {
+    const applyPaymentUpdate = async () => {
         if (!updatePayload) return;
-
-        const missing = missingBatch(updatePayload.items);
-        if (missing.length) {
-            toast.error(batchRequiredMessage(missing));
-            return;
-        }
 
         const payload = {
             orderId: updatePayload._id,
@@ -386,7 +376,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
         if (paymentMethod === "UPI" || paymentMethod === "Cash") {
             payload.paymentStatus = "Paid";
-            payload.paidAmount = (updatePayload?.items.reduce((acc, it) => acc + lineAmount(it), 0) - (updatePayload?.discount || 0)) || 0;
+            payload.paidAmount = ((updatePayload?.items ?? []).reduce((acc, it) => acc + lineAmount(it), 0) - (updatePayload?.discount || 0)) || 0;
         } else {
             payload.paymentStatus = "Partial";
             payload.paidAmount = Number(amountPaid);
@@ -408,12 +398,50 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
                 if (paymentMethod === "UPI" || paymentMethod === "Cash") {
                     // Trigger completion and printing
-                    await handleCompleteOrder();
+                    await handleCompleteOrder({ skipOversell: true });
                 }
             }
         } catch (error) {
             console.log(error)
         }
+    };
+
+    const handlePaymentUpdate = async () => {
+        if (!updatePayload) return;
+        const warnings = unselectedOversellWarnings(updatePayload.items);
+        if (warnings.length) {
+            oversellAction.current = "payment";
+            setOversellLines(warnings);
+            setOpenOversell(true);
+            return;
+        }
+        await applyPaymentUpdate();
+    };
+
+    const confirmOversell = () => {
+        const action = oversellAction.current;
+        oversellAction.current = null;
+        setOpenOversell(false);
+        if (action === "payment") {
+            void applyPaymentUpdate();
+            return;
+        }
+        void handleCompleteOrder({ skipOversell: true });
+    };
+
+    const declineOversell = () => {
+        const indexes = new Set(oversellLines.map((line) => line.index));
+        oversellAction.current = null;
+        setOpenOversell(false);
+        setUpdatePayload((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                items: prev.items.map((item, index) =>
+                    indexes.has(index) ? { ...item, quantity: 0 } : item,
+                ),
+            };
+        });
     };
 
     if (!localOrder || !updatePayload) return null;
@@ -436,7 +464,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                     <UpdatePrescriptionCard
                         setData={setUpdatePayload as React.Dispatch<React.SetStateAction<OrderType>>}
                         data={updatePayload}
-                        allergies={order?.patient.allergies}
+                        allergies={order?.patient?.allergies}
                     />
 
 
@@ -471,6 +499,17 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
                 </div>
 
+
+                <OversellWarningDialog
+                    open={openOversell}
+                    lines={oversellLines}
+                    onOpenChange={(next) => {
+                        setOpenOversell(next);
+                        if (!next) oversellAction.current = null;
+                    }}
+                    onConfirm={confirmOversell}
+                    onDecline={declineOversell}
+                />
 
                 <AlertDialog open={openPrintConfirm} onOpenChange={setOpenPrintConfirm}>
                     <AlertDialogContent>
