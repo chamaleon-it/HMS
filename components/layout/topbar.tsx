@@ -55,6 +55,7 @@ export default function Header() {
       { key: "return", label: "Return", link: "/dashboard/pharmacy/return/" },
       // { key: "purchase", label: "Purchase", link: "/dashboard/pharmacy/purchase/" },
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy/billing/" },
+      { key: "certificate", label: "Certificate", link: "/dashboard/pharmacy/certificate/" },
     ]) ||
     (user?.role === "Reception" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/reception/" },
