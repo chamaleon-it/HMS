@@ -3,8 +3,12 @@ import { toPng } from "html-to-image";
 import toast from "react-hot-toast";
 
 /**
- * Generates an exact multi-page A4 PDF from the rendered prescription DOM using jsPDF and html-to-image.
+ * Generates an exact multi-page A5 PDF from the rendered prescription DOM using jsPDF and html-to-image.
+ * Pages are laid out at A4 proportions and scaled onto the A5 sheet.
  */
+const A5_WIDTH_MM = 148;
+const A5_PAGE_HEIGHT_MM = Number(((297 * A5_WIDTH_MM) / 210).toFixed(2));
+
 export async function generateConsultationPdf(): Promise<jsPDF | null> {
   const pageElements = document.querySelectorAll(".a4-print-page");
   if (!pageElements || pageElements.length === 0) {
@@ -14,7 +18,7 @@ export async function generateConsultationPdf(): Promise<jsPDF | null> {
   const pdf = new jsPDF({
     orientation: "portrait",
     unit: "mm",
-    format: "a4",
+    format: "a5",
     compress: true,
   });
 
@@ -42,10 +46,10 @@ export async function generateConsultationPdf(): Promise<jsPDF | null> {
     pageEl.style.position = originalPosition;
 
     if (i > 0) {
-      pdf.addPage("a4", "portrait");
+      pdf.addPage("a5", "portrait");
     }
 
-    pdf.addImage(dataUrl, "PNG", 0, 0, 210, 297, undefined, "FAST");
+    pdf.addImage(dataUrl, "PNG", 0, 0, A5_WIDTH_MM, A5_PAGE_HEIGHT_MM, undefined, "FAST");
   }
 
   return pdf;

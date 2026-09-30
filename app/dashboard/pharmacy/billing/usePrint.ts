@@ -75,11 +75,11 @@ export default function usePrint({ onAfterPrint }: { onAfterPrint?: () => void }
             const pdf = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
-                format: 'a4',
+                format: 'a5',
             });
 
             const imgProps = pdf.getImageProperties(dataUrl);
-            const pdfWidth = pdf.internal.pageSize.getWidth(); // 210mm
+            const pdfWidth = pdf.internal.pageSize.getWidth(); // 148mm
             const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
             // Add image to PDF
