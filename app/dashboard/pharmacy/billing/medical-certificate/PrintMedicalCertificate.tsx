@@ -157,8 +157,8 @@ export default function PrintMedicalCertificate({
         </div>
 
         <PrintFooter
-          hospitalAddress="Old Rajana Theatre Bld, Opp. MSN Apartments, Koottanad"
-          hospitalPhone="8505030406, 8606030406"
+          hospitalAddress="Old Rajama Theatre Rd, Opp. MSN Appartments, Koottanad"
+          hospitalPhone="8505030406, 6282803887"
         />
       </article>
     </div>,
