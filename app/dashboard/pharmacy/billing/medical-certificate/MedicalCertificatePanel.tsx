@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
-import { Printer, ScrollText, Search } from "lucide-react";
+import { Plus, Printer, Search } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { fAge } from "@/lib/fDateAndTime";
@@ -17,6 +17,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import PatientSelection from "../PatientSelection";
 import {
   formatCertificateDate,
@@ -65,9 +72,22 @@ const emptyForm = (): FormState => ({
 const fieldClass =
   "h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/20";
 
-export default function MedicalCertificatePanel() {
+export default function MedicalCertificatePanel({
+  createOpen,
+  onCreateOpenChange,
+}: {
+  createOpen?: boolean;
+  onCreateOpenChange?: (open: boolean) => void;
+} = {}) {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const dialogOpen = createOpen ?? internalOpen;
+  const setDialogOpen = (open: boolean) => {
+    if (!open) setForm(emptyForm());
+    if (onCreateOpenChange) onCreateOpenChange(open);
+    else setInternalOpen(open);
+  };
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -216,6 +236,7 @@ export default function MedicalCertificatePanel() {
       });
       toast.success("Medical certificate saved.");
       setForm(emptyForm());
+      setDialogOpen(false);
       setPage(1);
       await mutate();
     } catch (error: unknown) {
@@ -234,19 +255,20 @@ export default function MedicalCertificatePanel() {
 
   return (
     <div className="flex flex-col gap-5 print:hidden">
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white">
+          <DialogHeader>
+            <DialogTitle>Create certificate</DialogTitle>
+            <DialogDescription>
+              Fill the patient, rest period, and doctor. The certificate is saved to the list and can be printed.
+            </DialogDescription>
+          </DialogHeader>
       <form
         onSubmit={submit}
-        className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+        className="pt-2"
       >
-        <div className="mb-4 flex items-center gap-2">
-          <ScrollText className="h-4 w-4 text-(--color-synapse-light)" />
-          <h2 className="text-sm font-semibold text-slate-900">
-            New medical certificate
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <div className="space-y-1.5 xl:col-span-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="space-y-1.5 md:col-span-2">
             <Label>Find patient</Label>
             <PatientSelection
               value={form.patientId}
@@ -303,7 +325,7 @@ export default function MedicalCertificatePanel() {
             </select>
           </div>
 
-          <div className="space-y-1.5 md:col-span-2 xl:col-span-3">
+          <div className="space-y-1.5 md:col-span-2">
             <Label htmlFor="cert-reason">Reason</Label>
             <Input
               id="cert-reason"
@@ -404,6 +426,8 @@ export default function MedicalCertificatePanel() {
           </Button>
         </div>
       </form>
+        </DialogContent>
+      </Dialog>
 
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
@@ -415,6 +439,17 @@ export default function MedicalCertificatePanel() {
               {total} saved {total === 1 ? "certificate" : "certificates"}
             </p>
           </div>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {!onCreateOpenChange && (
+              <Button
+                type="button"
+                onClick={() => setDialogOpen(true)}
+                className="bg-(--color-synapse-light) hover:bg-(--color-synapse-light)/90 text-white rounded-xl gap-2 font-semibold shadow-xs cursor-pointer text-xs"
+              >
+                <Plus className="h-4 w-4" />
+                Create Certificate
+              </Button>
+            )}
           <div className="relative w-full max-w-xs">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
             <Input
@@ -423,6 +458,7 @@ export default function MedicalCertificatePanel() {
               placeholder="Search patient, doctor, or reason"
               className="h-9 pl-8"
             />
+          </div>
           </div>
         </div>
 
