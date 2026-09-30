@@ -120,6 +120,8 @@ export default function DoctorProfile() {
                       ? "/dashboard/reception/settings"
                       : user?.role === "Admin"
                       ? "/dashboard/admin/settings"
+                      : user?.role === "Accountant"
+                      ? "/dashboard/accountant/"
                       : "/dashboard/doctor/settings"
                   }
                   className="flex items-center gap-1"
