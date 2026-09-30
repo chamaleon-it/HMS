@@ -5,7 +5,6 @@ import { createPortal } from "react-dom";
 import {
   PrintFooter,
   PrintHeader,
-  PrintWatermark,
 } from "@/components/print/PrintHeader";
 import {
   certificatePronouns,
@@ -97,7 +96,13 @@ export default function PrintMedicalCertificate({
         }}
       />
       <article className="certificate-sheet relative flex flex-col bg-white text-black">
-        <PrintWatermark />
+        <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
+          <img
+            src="/logo.png"
+            alt=""
+            className="h-[8cm] w-[8cm] object-contain opacity-10 grayscale"
+          />
+        </div>
         <div className="relative z-10 flex min-h-0 flex-1 flex-col">
         <PrintHeader
           logoUrl="/print/logo.png"
