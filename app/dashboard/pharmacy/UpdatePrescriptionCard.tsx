@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import UpdateMedicine from "./UpdateMedicine";
 import { formatINR } from "@/lib/fNumber";
 import BatchSelector from "./BatchSelector";
-import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney } from "@/lib/pharmacyReceiptLine";
+import { batchSalePrice, lineSaleBatch, positiveMoney } from "@/lib/pharmacyReceiptLine";
 import { isOutsideOrderLine, outsideDrugLabel } from "@/lib/pharmacyOutsideMedicine";
 import {
   PRESCRIPTION_DOSAGE_OPTIONS,
@@ -437,22 +437,17 @@ const ComboboxInput = ({
 };
 
 function batchRow(item: Item) {
+  if (isOutsideOrderLine(item)) {
+    return { selected: undefined, picked: false, price: 0, available: undefined as number | undefined };
+  }
   const batches = (item.name as { batches?: any[] } | undefined)?.batches || [];
   const batchNumber = (item as { batchNumber?: string }).batchNumber;
-  const selected = chosenBatch(batches, batchNumber);
-  const picked = Boolean(selected) || !isPlaceholderBatchNumber(batchNumber);
+  const selected = lineSaleBatch(batches, batchNumber, Number(item.quantity) || 0);
   const price = selected
-    ? batchSalePrice(selected)
-    : picked
-      ? positiveMoney((item as { unitPrice?: number }).unitPrice)
-      : 0;
-  const lineStock = (item as { availableQuantity?: number }).availableQuantity;
-  const available = selected
-    ? Number(selected.quantity ?? 0)
-    : picked && lineStock != null
-      ? Number(lineStock)
-      : undefined;
-  return { selected, picked, price, available };
+    ? batchSalePrice(selected) || positiveMoney((item as { unitPrice?: number }).unitPrice)
+    : 0;
+  const available = selected ? Number(selected.quantity ?? 0) : undefined;
+  return { selected, picked: Boolean(selected), price, available };
 }
 
 const QuantityInput = ({

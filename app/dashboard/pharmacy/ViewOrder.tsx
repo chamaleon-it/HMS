@@ -24,7 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { OrderType } from "./interface";
 import { sanitizeOrderUpdatePayload } from "@/lib/sanitizeOrderPayload";
-import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney, unselectedOversellWarnings, OversellWarning } from "@/lib/pharmacyReceiptLine";
+import { batchSalePrice, lineSaleBatch, positiveMoney, unselectedOversellWarnings, OversellWarning } from "@/lib/pharmacyReceiptLine";
 import { isOutsideOrderLine, withConsultationLines } from "@/lib/pharmacyOutsideMedicine";
 import OversellWarningDialog from "./OversellWarningDialog";
 import { fAge, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
@@ -221,12 +221,9 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
     const lineAmount = (it: { isCustom?: boolean; referralName?: string; quantity?: number; unitPrice?: number; batchNumber?: string; name?: { unitPrice?: number; batches?: { batchNumber?: string; unitPrice?: number; saleRate?: number; mrp?: number; packing?: number }[] } | null }) => {
         if (isOutsideOrderLine(it)) return 0;
-        const batches = it.name?.batches || [];
-        const selected = chosenBatch(batches, it.batchNumber);
-        if (!selected && isPlaceholderBatchNumber(it.batchNumber)) return 0;
-        const price = selected
-            ? batchSalePrice(selected) || positiveMoney(it.unitPrice)
-            : positiveMoney(it.unitPrice);
+        const selected = lineSaleBatch(it.name?.batches, it.batchNumber, it.quantity);
+        if (!selected) return 0;
+        const price = batchSalePrice(selected) || positiveMoney(it.unitPrice);
         return price * (Number(it.quantity) || 0);
     };
 
