@@ -42,7 +42,6 @@ import { format } from "date-fns";
 import { Calendar as ShadcnCalendar } from "@/components/ui/calendar";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
-import TherapistSelection from "./TherapistSelection";
 import TreatmentSchedulePicker from "@/components/shared/treatment/TreatmentSchedulePicker";
 import {
   Command,
@@ -85,9 +84,6 @@ export default function NewTreatment({
       code?: string;
     }[]
   >([]);
-  const [therapistId, setTherapistId] = useState("");
-  const [therapistName, setTherapistName] = useState("");
-
   // Multi-session dates list
   const [treatmentDates, setTreatmentDates] = useState<string[]>([
     new Date().toISOString().split("T")[0],
@@ -281,11 +277,6 @@ export default function NewTreatment({
       return;
     }
 
-    if (!therapistName || therapistName.trim() === "") {
-      toast.error("Therapist assignment is mandatory");
-      return;
-    }
-
     if (treatmentDates.length === 0) {
       toast.error("Please select at least one treatment date");
       return;
@@ -300,8 +291,6 @@ export default function NewTreatment({
         type: treatmentType,
         category: treatmentType,
         items: selectedItems,
-        therapist: therapistId || null,
-        therapistName,
         treatmentDate: new Date(treatmentDates[0]),
         treatmentDates: treatmentDates.map((d) => new Date(d)),
         notes,
@@ -447,10 +436,7 @@ export default function NewTreatment({
             </div>
           </div>
 
-          {/* Section 2: Treatment Category & Therapist Selection */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1">
-            {/* Category Toggle */}
-            <div className="space-y-2">
+          <div className="space-y-2 pt-1">
               <Label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
                 <Layers className="h-3.5 w-3.5 text-synapse-light" />
                 <span>Treatment Category</span>
@@ -487,19 +473,6 @@ export default function NewTreatment({
                   Procedure
                 </button>
               </div>
-            </div>
-
-            {/* Mandatory Therapist Selection */}
-            <div className="space-y-2">
-              <TherapistSelection
-                value={therapistId}
-                onChange={(id, name) => {
-                  setTherapistId(id);
-                  setTherapistName(name);
-                }}
-                required={true}
-              />
-            </div>
           </div>
 
           {/* Section 3: Treatment Items Multi-Select from Master Catalog */}
