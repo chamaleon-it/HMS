@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import UpdateMedicine from "./UpdateMedicine";
 import { formatINR } from "@/lib/fNumber";
 import BatchSelector from "./BatchSelector";
-import { batchSalePrice, lineSaleBatch, positiveMoney } from "@/lib/pharmacyReceiptLine";
+import { batchSalePrice, clampOrderDiscount, discountFromPercent, discountPercent, lineSaleBatch, positiveMoney } from "@/lib/pharmacyReceiptLine";
 import { isOutsideOrderLine, outsideDrugLabel } from "@/lib/pharmacyOutsideMedicine";
 import {
   PRESCRIPTION_DOSAGE_OPTIONS,
@@ -99,6 +99,13 @@ export default function UpdatePrescriptionCard({
     if (!row.picked) return sum;
     return sum + (item.quantity || 0) * row.price;
   }, 0);
+
+  const discount = clampOrderDiscount(data.discount, subTotal);
+
+  useEffect(() => {
+    if ((Number(data.discount) || 0) === discount) return;
+    setData((prev) => ({ ...prev, discount }));
+  }, [data.discount, discount, setData]);
 
   useEffect(() => {
     if (data.items.length > 0) {
@@ -325,6 +332,29 @@ export default function UpdatePrescriptionCard({
             <span>{formatINR(subTotal)}</span>
           </div>
 
+          <DiscountField
+            label="Discount (₹)"
+            value={discount}
+            disabled={data.status === "Completed"}
+            onCommit={(raw) =>
+              setData((prev) => ({
+                ...prev,
+                discount: clampOrderDiscount(raw, subTotal),
+              }))
+            }
+          />
+          <DiscountField
+            label="Discount (%)"
+            suffix="%"
+            value={discountPercent(discount, subTotal)}
+            disabled={data.status === "Completed" || subTotal <= 0}
+            onCommit={(raw) =>
+              setData((prev) => ({
+                ...prev,
+                discount: discountFromPercent(raw, subTotal),
+              }))
+            }
+          />
 
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Amount Paid</span>
@@ -333,14 +363,62 @@ export default function UpdatePrescriptionCard({
 
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Amount Due</span>
-            <span className="text-red-600">{formatINR((subTotal - (data.discount || 0)) - (data.paidAmount ?? 0))}</span>
+            <span className="text-red-600">{formatINR((subTotal - discount) - (data.paidAmount ?? 0))}</span>
           </div>
 
           <div className="flex justify-between text-md font-semibold text-slate-800 border-t pt-2">
             <span>Grand Total</span>
-            <span>{formatINR(subTotal - (data.discount || 0))}</span>
+            <span>{formatINR(subTotal - discount)}</span>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function DiscountField({
+  label,
+  value,
+  disabled,
+  suffix,
+  onCommit,
+}: {
+  label: string;
+  value: number;
+  disabled?: boolean;
+  suffix?: string;
+  onCommit: (raw: string) => void;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const canonical = value === 0 ? "" : String(parseFloat(value.toFixed(2)));
+  const shown = draft ?? canonical;
+
+  useEffect(() => {
+    if (draft == null || draft === "" || draft.endsWith(".")) return;
+    if (Number(draft) !== value) setDraft(null);
+  }, [draft, value]);
+
+  return (
+    <div className="flex justify-between items-center gap-3 text-sm text-slate-600">
+      <span>{label}</span>
+      <div className="flex items-center gap-1">
+        <input
+          type="text"
+          inputMode="decimal"
+          disabled={disabled}
+          value={shown}
+          placeholder="0"
+          onFocus={() => setDraft(shown)}
+          onChange={(e) => {
+            const raw = e.target.value;
+            if (raw !== "" && !/^\d*\.?\d*$/.test(raw)) return;
+            setDraft(raw);
+            onCommit(raw);
+          }}
+          onBlur={() => setDraft(null)}
+          className="w-20 text-right bg-white border border-slate-200 rounded-md px-2 py-1 text-sm font-medium text-slate-800 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 disabled:bg-transparent disabled:border-transparent disabled:px-0"
+        />
+        {suffix ? <span className="text-xs text-slate-500">{suffix}</span> : null}
       </div>
     </div>
   );
