@@ -46,8 +46,10 @@ export default function ProcessTreatment({
   const parsedAmount = amountInput.trim() === "" ? NaN : Number(amountInput);
   const subtotal = Number.isFinite(parsedAmount) ? Math.max(0, parsedAmount) : 0;
   const netPayable = Math.max(0, subtotal - discount);
-  const totalPaid = (cash || 0) + (card || 0) + (upi || 0);
-  const remainingDue = Math.max(0, netPayable - totalPaid);
+  const roundRupee = (value: number) => Math.round((Number(value) || 0) * 100) / 100;
+  const splitTotal = roundRupee((cash || 0) + (card || 0) + (upi || 0));
+  const splitMatches = splitTotal === roundRupee(netPayable);
+  const amountEntered = amountInput.trim() !== "" && Number.isFinite(parsedAmount);
 
   const applySplit = (
     net: number,
@@ -111,6 +113,11 @@ export default function ProcessTreatment({
 
     if (amountInput.trim() === "" || !Number.isFinite(parsedAmount) || parsedAmount < 0) {
       toast.error("Enter the session amount");
+      return;
+    }
+
+    if (!splitMatches) {
+      toast.error("Cash, Card, and UPI must equal the session amount.");
       return;
     }
 
@@ -312,11 +319,10 @@ export default function ProcessTreatment({
             </div>
           </div>
 
-          {/* Remaining Due Status */}
-          {remainingDue > 0 && (
-            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center justify-between font-semibold">
-              <span>Unpaid / Due Balance:</span>
-              <span className="text-sm font-bold">{formatINR(remainingDue)}</span>
+          {amountEntered && !splitMatches && (
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">
+              Cash, Card, and UPI must equal the session amount ({formatINR(netPayable)}).
+              The current split is {formatINR(splitTotal)}.
             </div>
           )}
 

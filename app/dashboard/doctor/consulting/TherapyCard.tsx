@@ -6,7 +6,6 @@ import { DataType } from "./interface";
 import { Check, ChevronsUpDown, X, Layers, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import useSWR from "swr";
-import { formatINR } from "@/lib/fNumber";
 import {
   Command,
   CommandEmpty,
@@ -26,7 +25,6 @@ import TreatmentSchedulePicker from "@/components/shared/treatment/TreatmentSche
 export interface SubTherapyOption {
   _id: string;
   name: string;
-  price: number;
   code?: string;
   description?: string;
   status: string;
@@ -36,7 +34,6 @@ export interface SubTherapyOption {
 export interface TherapyOption {
   _id: string;
   name: string;
-  price?: number;
   code?: string;
   description?: string;
   hasSubTherapies?: boolean;
@@ -50,7 +47,6 @@ export interface FlatTherapyOption {
   displayName: string;
   parentName?: string | null;
   parentId?: string | null;
-  price: number;
   code?: string | null;
   isSub: boolean;
 }
@@ -99,7 +95,6 @@ export default function TherapyCard({ data, setData, className }: Props) {
               displayName: `${t.name} → ${st.name}`,
               parentName: t.name,
               parentId: t._id,
-              price: st.price || 0,
               code: st.code || t.code || null,
               isSub: true,
             });
@@ -112,7 +107,6 @@ export default function TherapyCard({ data, setData, className }: Props) {
           displayName: t.name,
           parentName: null,
           parentId: null,
-          price: t.price || 0,
           code: t.code || null,
           isSub: false,
         });
@@ -146,12 +140,6 @@ export default function TherapyCard({ data, setData, className }: Props) {
 
   const selectedIds = getSelectedIds();
 
-  // Calculate Total Price of selected therapies
-  const totalPrice = selectedIds.reduce((sum, id) => {
-    const matched = flatOptions.find((opt) => opt.id === id);
-    return sum + (matched?.price || 0);
-  }, 0);
-
   const updateTherapyData = (updatedIds: string[]) => {
     // Build structured therapy objects for the consultation state
     const structured = updatedIds.map((id) => {
@@ -162,7 +150,6 @@ export default function TherapyCard({ data, setData, className }: Props) {
           subTherapyId: matched.isSub ? matched.id : null,
           name: matched.name,
           parentName: matched.parentName || null,
-          price: matched.price,
           code: matched.code || null,
         };
       }
@@ -201,14 +188,6 @@ export default function TherapyCard({ data, setData, className }: Props) {
           <Activity className="h-4 w-4 text-emerald-600" />
           Therapy
         </CardTitle>
-        {selectedIds.length > 0 && (
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-full text-xs font-bold shadow-2xs">
-            <span>Total Price:</span>
-            <span className="text-emerald-700 text-sm">
-              {formatINR(totalPrice)}
-            </span>
-          </div>
-        )}
       </CardHeader>
 
       <CardContent className="space-y-4">
@@ -295,9 +274,6 @@ export default function TherapyCard({ data, setData, className }: Props) {
                                   )}
                                 </div>
                               </div>
-                              <span className="font-bold text-xs text-emerald-700">
-                                {formatINR(thr.price || 0)}
-                              </span>
                             </CommandItem>
                           </CommandGroup>
                         );
@@ -359,9 +335,6 @@ export default function TherapyCard({ data, setData, className }: Props) {
                                       )}
                                     </div>
                                   </div>
-                                  <span className="font-bold text-xs text-teal-700">
-                                    {formatINR(sub.price)}
-                                  </span>
                                 </CommandItem>
                               );
                             })}
@@ -382,7 +355,6 @@ export default function TherapyCard({ data, setData, className }: Props) {
             {selectedIds.map((id) => {
               const matched = flatOptions.find((opt) => opt.id === id);
               const displayName = matched ? matched.displayName : id;
-              const displayPrice = matched ? formatINR(matched.price) : "";
 
               return (
                 <span
@@ -390,11 +362,6 @@ export default function TherapyCard({ data, setData, className }: Props) {
                   className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-800 shadow-2xs"
                 >
                   <span>{displayName}</span>
-                  {displayPrice && (
-                    <span className="text-emerald-600 text-[11px]">
-                      ({displayPrice})
-                    </span>
-                  )}
                   <button
                     type="button"
                     onClick={() => handleRemoveTag(id)}

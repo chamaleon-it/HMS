@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/tooltip";
 import useSWR from "swr";
 import api from "@/lib/axios";
-import { formatINR } from "@/lib/fNumber";
 import { fDate } from "@/lib/fDateAndTime";
 import PharmacyHeader from "@/app/dashboard/pharmacy/components/PharmacyHeader";
 import { TableSkeleton } from "@/app/dashboard/pharmacy/components/PharmacySkeleton";
@@ -76,7 +75,6 @@ import { Card, CardContent } from "@/components/ui/card";
 export interface SubProcedureItem {
   _id: string;
   name: string;
-  price: number;
   code?: string;
   description?: string;
   status: string;
@@ -86,7 +84,6 @@ export interface SubProcedureItem {
 export interface ProcedureItem {
   _id: string;
   name: string;
-  price?: number;
   code?: string;
   description?: string;
   hasSubProcedures?: boolean;
@@ -622,9 +619,6 @@ export default function ProcedurePage() {
                       Type / Hierarchy
                     </TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3 px-4">
-                      Price (₹)
-                    </TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3 px-4">
                       Status
                     </TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3 px-4">
@@ -710,15 +704,6 @@ export default function ProcedurePage() {
                               </Badge>
                             )}
                           </TableCell>
-                          <TableCell className="py-3 font-bold text-slate-900">
-                            {hasSubs ? (
-                              <span className="text-xs font-semibold text-slate-500 italic">
-                                Varies by sub-procedure
-                              </span>
-                            ) : (
-                              formatINR(item.price || 0)
-                            )}
-                          </TableCell>
                           <TableCell className="py-3">
                             <Badge
                               className={
@@ -789,7 +774,7 @@ export default function ProcedurePage() {
                         {/* Expandable Sub-procedures Row */}
                         {hasSubs && isExpanded && (
                           <TableRow className="bg-slate-50/70 hover:bg-slate-50/90 border-b border-slate-200/80">
-                            <TableCell colSpan={8} className="p-0">
+                            <TableCell colSpan={7} className="p-0">
                               <div className="py-3 px-6 pl-14 bg-linear-to-b from-indigo-50/40 to-slate-50/60 border-y border-indigo-100/60 space-y-2">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-800">
@@ -823,9 +808,6 @@ export default function ProcedurePage() {
                                           Description
                                         </TableHead>
                                         <TableHead className="py-2 px-3 text-xs">
-                                          Price
-                                        </TableHead>
-                                        <TableHead className="py-2 px-3 text-xs">
                                           Status
                                         </TableHead>
                                         <TableHead className="py-2 px-3 text-xs text-right pr-4">
@@ -847,9 +829,6 @@ export default function ProcedurePage() {
                                           </TableCell>
                                           <TableCell className="py-2 px-3 text-xs text-slate-500 max-w-xs truncate">
                                             {sub.description || "—"}
-                                          </TableCell>
-                                          <TableCell className="py-2 px-3 font-bold text-slate-900 text-xs">
-                                            {formatINR(sub.price)}
                                           </TableCell>
                                           <TableCell className="py-2 px-3">
                                             <Badge

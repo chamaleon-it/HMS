@@ -367,13 +367,10 @@ export default function TreatmentTimelineModal({
                               {(sess.items || []).map((it, iIdx) => (
                                 <div
                                   key={iIdx}
-                                  className="flex items-center justify-between text-slate-800"
+                                  className="text-slate-800"
                                 >
                                   <span className="font-semibold truncate pr-2">
                                     {it.name}
-                                  </span>
-                                  <span className="font-bold text-slate-700">
-                                    {formatINR(it.total || it.unitPrice * (it.quantity || 1))}
                                   </span>
                                 </div>
                               ))}

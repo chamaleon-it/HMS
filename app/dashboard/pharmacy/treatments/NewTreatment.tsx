@@ -40,7 +40,6 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar as ShadcnCalendar } from "@/components/ui/calendar";
-import { formatINR } from "@/lib/fNumber";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
 import TherapistSelection from "./TherapistSelection";
@@ -186,7 +185,6 @@ export default function NewTreatment({
                 parentName: t.name,
                 therapyId: t._id,
                 subTherapyId: st._id,
-                price: Number(st.price) || 0,
                 code: st.code || t.code || null,
               });
             }
@@ -199,7 +197,6 @@ export default function NewTreatment({
             parentName: null,
             therapyId: t._id,
             subTherapyId: null,
-            price: Number(t.price) || 0,
             code: t.code || null,
           });
         }
@@ -217,7 +214,6 @@ export default function NewTreatment({
                 parentName: p.name,
                 procedureId: p._id,
                 subProcedureId: sp._id,
-                price: Number(sp.price) || 0,
                 code: sp.code || p.code || null,
               });
             }
@@ -230,7 +226,6 @@ export default function NewTreatment({
             parentName: null,
             procedureId: p._id,
             subProcedureId: null,
-            price: Number(p.price) || 0,
             code: p.code || null,
           });
         }
@@ -265,9 +260,9 @@ export default function NewTreatment({
           procedureId: opt.procedureId,
           subProcedureId: opt.subProcedureId || undefined,
           code: opt.code || undefined,
-          unitPrice: opt.price || 0,
+          unitPrice: 0,
           quantity: 1,
-          total: opt.price || 0,
+          total: 0,
         },
       ]);
     }
@@ -276,13 +271,6 @@ export default function NewTreatment({
   const handleRemoveItem = (index: number) => {
     setSelectedItems((prev) => prev.filter((_, idx) => idx !== index));
   };
-
-  const perSessionTotal = useMemo(() => {
-    const subtotal = selectedItems.reduce((sum, it) => sum + it.total, 0);
-    return Math.max(0, subtotal - discount);
-  }, [selectedItems, discount]);
-
-  const totalCoursePrice = perSessionTotal * treatmentDates.length;
 
   const selectedPatient = (patientsData?.data || []).find((p) => p._id === patientId);
   const selectedDoctor = (doctorsData?.data || []).find((d) => d._id === doctorId);
@@ -531,11 +519,6 @@ export default function NewTreatment({
                 <span>Select {treatmentType} Items</span>
                 <span className="text-rose-500">*</span>
               </Label>
-              {selectedItems.length > 0 && (
-                <span className="text-xs font-bold text-emerald-700">
-                  Per-Session Price: {formatINR(selectedItems.reduce((s, i) => s + i.total, 0))}
-                </span>
-              )}
             </div>
 
             <Popover open={catalogOpen} onOpenChange={setCatalogOpen}>
@@ -596,9 +579,6 @@ export default function NewTreatment({
                                 {opt.displayName}
                               </span>
                             </div>
-                            <span className="font-bold text-xs text-emerald-700 shrink-0">
-                              {formatINR(opt.price)}
-                            </span>
                           </CommandItem>
                         );
                       })}
@@ -620,9 +600,6 @@ export default function NewTreatment({
                       <span className="font-semibold text-slate-800 text-xs">{item.name}</span>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                      <span className="font-bold text-slate-700 text-xs">
-                        {formatINR(item.total)}
-                      </span>
                       <button
                         type="button"
                         onClick={() => handleRemoveItem(idx)}
@@ -669,24 +646,6 @@ export default function NewTreatment({
               />
             </div>
           </div>
-
-          {/* Grand Total Course Summary */}
-          {selectedItems.length > 0 && (
-            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-between text-xs">
-              <div className="flex flex-col">
-                <span className="font-semibold text-emerald-950 text-xs">Total Treatment Course</span>
-                <span className="text-[10.5px] text-emerald-700">
-                  {treatmentDates.length} {treatmentDates.length === 1 ? "Session" : "Sessions"} • {formatINR(perSessionTotal)} per session
-                </span>
-              </div>
-              <div className="text-right">
-                <span className="font-extrabold text-emerald-900 text-lg block">
-                  {formatINR(totalCoursePrice)}
-                </span>
-                <span className="text-[10px] text-emerald-600">Billed per session when completed</span>
-              </div>
-            </div>
-          )}
 
           {/* Footer Actions */}
           <DialogFooter className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">

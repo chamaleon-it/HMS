@@ -449,11 +449,6 @@ export default function Treatments({
                 const isProcedure = treatment.type === "Procedure" || treatment.category === "Procedure";
                 const isPendingOrActive = treatment.status === "Pending" || treatment.status === "In-Progress";
 
-                const itemsTotal = (treatment.items || []).reduce(
-                  (acc, it) => acc + (it.total || it.unitPrice * (it.quantity || 1) || 0),
-                  0
-                );
-
                 const primaryItem = treatment.items?.[0];
                 const otherItemsCount = (treatment.items?.length || 1) - 1;
 
@@ -559,7 +554,7 @@ export default function Treatments({
 
                     {/* Cost */}
                     <TableCell className="text-right font-bold text-xs text-slate-900 whitespace-nowrap">
-                      {formatINR(treatment.paidAmount || itemsTotal)}
+                      {treatment.paidAmount > 0 ? formatINR(treatment.paidAmount) : "—"}
                     </TableCell>
 
                     {/* Status */}

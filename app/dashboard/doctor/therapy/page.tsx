@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/tooltip";
 import useSWR from "swr";
 import api from "@/lib/axios";
-import { formatINR } from "@/lib/fNumber";
 import { fDate } from "@/lib/fDateAndTime";
 import PharmacyHeader from "@/app/dashboard/pharmacy/components/PharmacyHeader";
 import { TableSkeleton } from "@/app/dashboard/pharmacy/components/PharmacySkeleton";
@@ -76,7 +75,6 @@ import { Card, CardContent } from "@/components/ui/card";
 export interface SubTherapyItem {
   _id: string;
   name: string;
-  price: number;
   code?: string;
   description?: string;
   status: string;
@@ -86,7 +84,6 @@ export interface SubTherapyItem {
 export interface TherapyItem {
   _id: string;
   name: string;
-  price?: number;
   code?: string;
   description?: string;
   hasSubTherapies?: boolean;
@@ -573,9 +570,6 @@ export default function TherapyPage() {
                   <TableHead className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Status
                   </TableHead>
-                  <TableHead className="text-xs font-bold text-slate-600 uppercase tracking-wider text-right">
-                    Price
-                  </TableHead>
                   <TableHead className="w-28 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">
                     Actions
                   </TableHead>
@@ -584,14 +578,14 @@ export default function TherapyPage() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="p-0">
-                      <TableSkeleton columns={7} rows={6} />
+                    <TableCell colSpan={6} className="p-0">
+                      <TableSkeleton columns={6} rows={6} />
                     </TableCell>
                   </TableRow>
                 ) : therapies.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={7}
+                      colSpan={6}
                       className="text-center py-12 text-slate-400 text-sm"
                     >
                       <Activity className="h-8 w-8 mx-auto text-slate-300 mb-2" />
@@ -687,16 +681,6 @@ export default function TherapyPage() {
                             </Badge>
                           </TableCell>
 
-                          <TableCell className="text-right font-bold text-xs text-slate-800">
-                            {hasSubs ? (
-                              <span className="text-xs font-semibold text-slate-400 italic">
-                                Varies by sub-therapy
-                              </span>
-                            ) : (
-                              formatINR(item.price || 0)
-                            )}
-                          </TableCell>
-
                           <TableCell>
                             <div className="flex items-center justify-center gap-1">
                               {hasSubs && (
@@ -748,7 +732,7 @@ export default function TherapyPage() {
                         {/* Nested Sub-Therapies Accordion View */}
                         {hasSubs && isExpanded && (
                           <TableRow className="bg-slate-50/50 hover:bg-slate-50/60 border-b border-slate-200">
-                            <TableCell colSpan={7} className="py-2.5 px-6">
+                            <TableCell colSpan={6} className="py-2.5 px-6">
                               <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs space-y-2">
                                 <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
                                   <div className="flex items-center gap-2">
@@ -793,9 +777,6 @@ export default function TherapyPage() {
                                           <th className="py-1.5 text-left w-24">
                                             Status
                                           </th>
-                                          <th className="py-1.5 text-right w-28">
-                                            Price
-                                          </th>
                                           <th className="py-1.5 text-center w-20">
                                             Actions
                                           </th>
@@ -827,9 +808,6 @@ export default function TherapyPage() {
                                               >
                                                 {st.status}
                                               </Badge>
-                                            </td>
-                                            <td className="py-1.5 text-right font-bold text-slate-700">
-                                              {formatINR(st.price)}
                                             </td>
                                             <td className="py-1.5 text-center">
                                               <div className="flex items-center justify-center gap-1">
