@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { fDate } from "@/lib/fDateAndTime";
+import { printHomeOrPlaceAddress } from "@/lib/formatPatientAddress";
 import {
   PrintHeader,
   PrintPatientStrip,
@@ -175,6 +176,7 @@ export default function PrintTreatmentTimeline({ timelineData }: Props) {
           sex={sexStr}
           date={formattedPrescriptionDate}
           opNo={opNumber}
+          address={printHomeOrPlaceAddress(patient)}
         />
 
         {/* 3. MAIN BODY SECTION */}
