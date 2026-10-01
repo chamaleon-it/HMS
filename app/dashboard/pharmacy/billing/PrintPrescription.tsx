@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { fDateandTime, fAge } from "@/lib/fDateAndTime";
 import { OrderType } from "../interface";
 import { isOutsideOrderLine, outsideDrugLabel } from "@/lib/pharmacyOutsideMedicine";
-import { printHomeOrPlaceAddress } from "@/lib/formatPatientAddress";
+import { printHomeOrPlaceAddress, printPatientPhone } from "@/lib/formatPatientAddress";
 import {
     PrintHeader,
     PrintPatientStrip,
@@ -191,6 +191,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                             date={formattedDate}
                             opNo={opNumber}
                             address={printHomeOrPlaceAddress(patient)}
+                            phone={printPatientPhone(patient)}
                         />
 
                         {/* MAIN BODY */}

@@ -4,6 +4,7 @@ import { fDateOnly, fDateandTime, fAge } from "@/lib/fDateAndTime";
 import useGetTest from "@/data/useGetTest";
 import { formatINR } from "@/lib/fNumber";
 import configuration from "@/config/configuration";
+import { printPatientPhone } from "@/lib/formatPatientAddress";
 import {
     PrintHeader,
     PrintPatientStrip,
@@ -178,6 +179,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                     sex={sexStr}
                     date={formattedDate}
                     opNo={opNumber}
+                    phone={printPatientPhone(patient)}
                 />
 
                 {/* 3. MAIN BODY SECTION */}

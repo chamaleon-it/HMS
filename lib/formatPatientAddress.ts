@@ -44,6 +44,17 @@ export function printHomeOrPlaceAddress(patient?: object | null): string {
   return addressField(patient, "addressLine2");
 }
 
+/** Phone number stored at patient registration. */
+export function printPatientPhone(patient?: object | null): string {
+  if (!patient) return "";
+  const record = patient as Record<string, unknown>;
+  for (const key of ["phoneNumber", "phone"]) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return "";
+}
+
 /** Keep the printed patient, filling home/place from a fuller record when needed. */
 export function patientWithPrintAddress<T extends object>(
   patient: T | null | undefined,

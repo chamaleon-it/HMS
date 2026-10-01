@@ -156,6 +156,8 @@ export interface PrintPatientStripProps {
   opNo?: string;
   /** Home address, or place address when home is empty. Omit when both are blank. */
   address?: string;
+  /** Registration phone. Omit the line when empty. */
+  phone?: string;
   className?: string;
 }
 
@@ -166,6 +168,7 @@ export function PrintPatientStrip({
   date,
   opNo,
   address,
+  phone,
   className,
 }: PrintPatientStripProps) {
   let displayDate = (date || "").trim();
@@ -182,6 +185,7 @@ export function PrintPatientStrip({
   }
 
   const displayAddress = (address || "").trim();
+  const displayPhone = (phone || "").trim();
 
   return (
     <div
@@ -231,6 +235,14 @@ export function PrintPatientStrip({
           <span className="text-slate-800 shrink-0">Address:</span>
           <span className="font-semibold text-black text-[13.5px] border-b border-dotted border-slate-500 flex-1 px-1 min-h-5 leading-normal truncate">
             {displayAddress}
+          </span>
+        </div>
+      ) : null}
+      {displayPhone ? (
+        <div className="flex items-center gap-2 mt-1 min-w-0">
+          <span className="text-slate-800 shrink-0">Phone:</span>
+          <span className="font-semibold text-black text-[13.5px] border-b border-dotted border-slate-500 flex-1 px-1 min-h-5 leading-normal truncate">
+            {displayPhone}
           </span>
         </div>
       ) : null}
