@@ -38,7 +38,22 @@ import ViewOrder from "./ViewOrder";
 import { PaginationBar } from "./components/PaginationBar";
 import { Dispatch, SetStateAction } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { printHomeOrPlaceAddress, printPatientPhone } from "@/lib/formatPatientAddress";
 import { useDrafts } from "./DraftContext";
+
+function PlacePhone({ patient }: { patient?: object | null }) {
+  const address = printHomeOrPlaceAddress(patient);
+  const phone = printPatientPhone(patient);
+  if (!address && !phone) {
+    return <span className="text-slate-400">—</span>;
+  }
+  return (
+    <>
+      {address ? <div className="font-medium text-slate-900 wrap-break-word">{address}</div> : null}
+      {phone ? <div className="text-[11px] text-slate-500">{phone}</div> : null}
+    </>
+  );
+}
 
 export default function OrderTable({
   orders,
@@ -377,6 +392,7 @@ export default function OrderTable({
             </TableHead>
             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">RX ID</TableHead>
             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Patient</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Place / Phone</TableHead>
             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-center">Items</TableHead>
             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-center">Priority</TableHead>
             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-center">Status</TableHead>
@@ -424,6 +440,11 @@ export default function OrderTable({
                   )}
                 </div>
                 {r.status !== "Draft" && <div className="text-[11px] text-slate-500">({r?.patient?.mrn})</div>}
+              </TableCell>
+              <TableCell className="py-3 cursor-pointer max-w-[240px]"
+                onClick={() => handleRowClick(r)}
+              >
+                <PlacePhone patient={r?.patient} />
               </TableCell>
               <TableCell className="py-3 text-center cursor-pointer"
                 onClick={() => handleRowClick(r)}

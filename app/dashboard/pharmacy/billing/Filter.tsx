@@ -92,6 +92,7 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
     params.set("activeDate", filter.activeDate);
     params.set("page", "1");
     params.set("limit", "100000");
+    params.set("sort", "asc");
 
     const res = await api.get(`/billing?${params.toString()}`);
     let exportData = res.data?.data ?? [];

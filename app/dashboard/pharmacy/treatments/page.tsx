@@ -85,6 +85,7 @@ export default function TreatmentsPage() {
   if (searchQuery.trim()) params.set("q", searchQuery.trim());
   params.set("startDate", sd.toISOString());
   params.set("endDate", ed.toISOString());
+  params.set("sort", "asc");
 
   const { data: treatmentsData, mutate: mutateTreatments, isLoading } = useSWR<{
     data: TreatmentOrderType[];
