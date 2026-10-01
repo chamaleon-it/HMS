@@ -102,6 +102,7 @@ export default function BillingPage() {
 
   params.set("page", String(filter.page));
   params.set("limit", String(filter.limit));
+  params.set("sort", "asc");
 
   const { data: billingData, mutate: billingMutate, isLoading: isLoadingBilling } = useSWR<{
     message: string;
