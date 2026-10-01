@@ -113,12 +113,44 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     const [amountPaid, setAmountPaid] = useState("");
     const [referenceNumber, setReferenceNumber] = useState("");
     const mergedOrderId = useRef<string | null>(null);
+    const loadedSplit = useRef<{ orderId: string; cash: number; card: number; upi: number } | null>(null);
+
+    const withSavedSplit = (next: OrderType | null): OrderType | null => {
+        const saved = loadedSplit.current;
+        if (!next || !saved || saved.orderId !== next._id) return next;
+        return { ...next, cash: saved.cash, card: saved.card, upi: saved.upi, paidAmount: saved.cash + saved.card + saved.upi };
+    };
 
     useEffect(() => {
-        setLocalOrder(order);
-        setUpdatePayload(order);
+        if (loadedSplit.current && loadedSplit.current.orderId !== order?._id) {
+            loadedSplit.current = null;
+        }
+        setLocalOrder(withSavedSplit(order));
+        setUpdatePayload(withSavedSplit(order));
         mergedOrderId.current = null;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [order]);
+
+    // The list does not carry the payment split, so read it from the order record and its bill.
+    const { data: savedOrder } = useSWR<{ data: { _id: string; cash?: number; card?: number; upi?: number } }>(
+        open && order?.mrn ? `/pharmacy/orders/single?q=${encodeURIComponent(order.mrn)}` : null,
+        { revalidateOnFocus: false },
+    );
+
+    useEffect(() => {
+        const saved = savedOrder?.data;
+        if (!saved || !order?._id || saved._id !== order._id) return;
+        if (loadedSplit.current?.orderId === order._id) return;
+        loadedSplit.current = {
+            orderId: order._id,
+            cash: Number(saved.cash) || 0,
+            card: Number(saved.card) || 0,
+            upi: Number(saved.upi) || 0,
+        };
+        setLocalOrder((prev) => withSavedSplit(prev));
+        setUpdatePayload((prev) => withSavedSplit(prev));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [savedOrder?.data, order?._id]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -214,9 +246,10 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         if (!order?._id || !patientConsultings?.data) return;
         if (mergedOrderId.current === order._id) return;
         mergedOrderId.current = order._id;
-        const merged = withConsultationLines(order, patientConsultings.data);
+        const merged = withSavedSplit(withConsultationLines(order, patientConsultings.data));
         setLocalOrder(merged);
         setUpdatePayload(merged);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [order, patientConsultings?.data]);
 
     const lineAmount = (it: { isCustom?: boolean; referralName?: string; quantity?: number; unitPrice?: number; batchNumber?: string; name?: { unitPrice?: number; batches?: { batchNumber?: string; unitPrice?: number; saleRate?: number; mrp?: number; packing?: number }[] } | null }) => {

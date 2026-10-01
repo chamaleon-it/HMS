@@ -8,6 +8,9 @@ export interface OrderType {
     status: string;
     discount: number;
     paidAmount: number;
+    cash?: number;
+    card?: number;
+    upi?: number;
     paymentStatus: "Paid" | "Pending" | "Partial";
     assignedTo: null;
     createdAt?: Date;

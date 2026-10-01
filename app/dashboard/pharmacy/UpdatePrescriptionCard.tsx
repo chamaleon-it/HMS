@@ -10,7 +10,17 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import UpdateMedicine from "./UpdateMedicine";
 import { formatINR } from "@/lib/fNumber";
 import BatchSelector from "./BatchSelector";
-import { batchSalePrice, clampOrderDiscount, discountFromPercent, discountPercent, lineSaleBatch, positiveMoney } from "@/lib/pharmacyReceiptLine";
+import {
+  batchSalePrice,
+  clampOrderDiscount,
+  clampPaymentSplit,
+  discountFromPercent,
+  discountPercent,
+  lineSaleBatch,
+  positiveMoney,
+  roundMoney,
+  splitTotal,
+} from "@/lib/pharmacyReceiptLine";
 import { isOutsideOrderLine, outsideDrugLabel } from "@/lib/pharmacyOutsideMedicine";
 import {
   PRESCRIPTION_DOSAGE_OPTIONS,
@@ -101,11 +111,33 @@ export default function UpdatePrescriptionCard({
   }, 0);
 
   const discount = clampOrderDiscount(data.discount, subTotal);
+  const grandTotal = roundMoney(subTotal - discount);
+  const split = clampPaymentSplit(data, grandTotal);
+  const amountPaid = splitTotal(split);
+  const amountDue = roundMoney(grandTotal - amountPaid);
 
   useEffect(() => {
-    if ((Number(data.discount) || 0) === discount) return;
-    setData((prev) => ({ ...prev, discount }));
-  }, [data.discount, discount, setData]);
+    const same =
+      (Number(data.discount) || 0) === discount &&
+      positiveMoney(data.cash) === split.cash &&
+      positiveMoney(data.card) === split.card &&
+      positiveMoney(data.upi) === split.upi &&
+      (Number(data.paidAmount) || 0) === amountPaid;
+    if (same) return;
+    setData((prev) => ({ ...prev, discount, ...split, paidAmount: amountPaid }));
+  }, [data.discount, data.cash, data.card, data.upi, data.paidAmount, discount, split.cash, split.card, split.upi, amountPaid, setData]);
+
+  const setSplitField = (key: "cash" | "card" | "upi", raw: string) => {
+    setData((prev) => {
+      const others = roundMoney(
+        splitTotal({ ...prev, [key]: 0 }),
+      );
+      const room = Math.max(0, roundMoney(grandTotal - others));
+      const value = Math.min(positiveMoney(raw), room);
+      const next = { ...prev, [key]: roundMoney(value) };
+      return { ...next, paidAmount: splitTotal(next) };
+    });
+  };
 
   useEffect(() => {
     if (data.items.length > 0) {
@@ -326,7 +358,30 @@ export default function UpdatePrescriptionCard({
       <div className="p-4 border-t bg-slate-50 flex flex-col gap-3 rounded-b-lg">
         {data.status !== "Completed" && <UpdateMedicine addMedicineRow={addMedicineRow} />}
 
-        <div className="flex flex-col gap-2 mt-2 w-full max-w-xs ml-auto border-t pt-2">
+        <div className="flex flex-col sm:flex-row sm:justify-end sm:items-start gap-6 mt-2 w-full border-t pt-2">
+        <div className="flex flex-col gap-2 w-full max-w-xs">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">Payment</div>
+          <DiscountField
+            label="Cash (₹)"
+            value={split.cash}
+            disabled={data.status === "Completed"}
+            onCommit={(raw) => setSplitField("cash", raw)}
+          />
+          <DiscountField
+            label="Card (₹)"
+            value={split.card}
+            disabled={data.status === "Completed"}
+            onCommit={(raw) => setSplitField("card", raw)}
+          />
+          <DiscountField
+            label="UPI (₹)"
+            value={split.upi}
+            disabled={data.status === "Completed"}
+            onCommit={(raw) => setSplitField("upi", raw)}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2 w-full max-w-xs">
           <div className="flex justify-between text-sm text-slate-600">
             <span>Sub Total</span>
             <span>{formatINR(subTotal)}</span>
@@ -358,18 +413,19 @@ export default function UpdatePrescriptionCard({
 
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Amount Paid</span>
-            <span>{formatINR(data.paidAmount ?? 0)}</span>
+            <span>{formatINR(amountPaid)}</span>
           </div>
 
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Amount Due</span>
-            <span className="text-red-600">{formatINR((subTotal - discount) - (data.paidAmount ?? 0))}</span>
+            <span className="text-red-600">{formatINR(amountDue)}</span>
           </div>
 
           <div className="flex justify-between text-md font-semibold text-slate-800 border-t pt-2">
             <span>Grand Total</span>
-            <span>{formatINR(subTotal - discount)}</span>
+            <span>{formatINR(grandTotal)}</span>
           </div>
+        </div>
         </div>
       </div>
     </div>
