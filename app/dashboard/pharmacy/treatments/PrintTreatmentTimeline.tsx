@@ -145,17 +145,8 @@ export default function PrintTreatmentTimeline({ timelineData }: Props) {
           ? samePrescription
           : [rootTreatment, ...samePrescription]
         : [rootTreatment];
-    const fromTreatments = procedureSummary(sources);
-    if (fromTreatments) return fromTreatments;
-
-    const fromPrescription = [
-      ...(timelineData?.prescribedTherapies || []),
-      ...(timelineData?.prescribedProcedures || []),
-    ];
-    const names: string[] = [];
-    fromPrescription.forEach((name) => pushUnique(names, name));
-    return names.join(", ");
-  }, [consultingId, relatedTreatments, rootTreatment, timelineData]);
+    return procedureSummary(sources);
+  }, [consultingId, relatedTreatments, rootTreatment]);
 
   if (!timelineData || !mounted || !rootTreatment) return null;
 
