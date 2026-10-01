@@ -99,7 +99,6 @@ export interface ProcedureItem {
 interface TempSubProc {
   _id?: string;
   name: string;
-  price: string;
   code: string;
   description: string;
   status: string;
@@ -130,7 +129,6 @@ export default function ProcedurePage() {
 
   // Form Field States (Main Procedure)
   const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("Active");
@@ -139,7 +137,6 @@ export default function ProcedurePage() {
 
   // Sub-procedure form fields
   const [subName, setSubName] = useState("");
-  const [subPrice, setSubPrice] = useState("");
   const [subCode, setSubCode] = useState("");
   const [subDescription, setSubDescription] = useState("");
   const [subStatus, setSubStatus] = useState("Active");
@@ -184,7 +181,6 @@ export default function ProcedurePage() {
   const handleOpenCreate = () => {
     setEditingProcedure(null);
     setName("");
-    setPrice("");
     setCode("");
     setDescription("");
     setStatus("Active");
@@ -198,7 +194,6 @@ export default function ProcedurePage() {
   const handleOpenEdit = (item: ProcedureItem) => {
     setEditingProcedure(item);
     setName(item.name || "");
-    setPrice(item.price !== undefined ? String(item.price) : "");
     setCode(item.code || "");
     setDescription(item.description || "");
     setStatus(item.status || "Active");
@@ -212,7 +207,6 @@ export default function ProcedurePage() {
         item.subProcedures.map((sp) => ({
           _id: sp._id,
           name: sp.name,
-          price: String(sp.price),
           code: sp.code || "",
           description: sp.description || "",
           status: sp.status || "Active",
@@ -232,7 +226,6 @@ export default function ProcedurePage() {
       ...prev,
       {
         name: "",
-        price: "",
         code: "",
         description: "",
         status: "Active",
@@ -264,15 +257,6 @@ export default function ProcedurePage() {
       return;
     }
 
-    let numPrice = 0;
-    if (!hasSubProcedures) {
-      numPrice = parseFloat(price);
-      if (isNaN(numPrice) || numPrice < 0) {
-        setErrorMsg("Please enter a valid non-negative price.");
-        return;
-      }
-    }
-
     // Validate sub-procedures if enabled
     let validatedSubProcedures: any[] = [];
     if (hasSubProcedures) {
@@ -287,17 +271,9 @@ export default function ProcedurePage() {
           setErrorMsg(`Sub-procedure #${i + 1} requires a name.`);
           return;
         }
-        const p = parseFloat(sp.price);
-        if (isNaN(p) || p < 0) {
-          setErrorMsg(
-            `Sub-procedure "${sp.name}" requires a valid non-negative price.`
-          );
-          return;
-        }
         validatedSubProcedures.push({
           ...(sp._id ? { _id: sp._id } : {}),
           name: sp.name.trim(),
-          price: p,
           code: sp.code.trim() || undefined,
           description: sp.description.trim() || undefined,
           status: sp.status || "Active",
@@ -312,7 +288,6 @@ export default function ProcedurePage() {
       name: name.trim(),
       code: code.trim() || undefined,
       description: description.trim() || undefined,
-      price: !hasSubProcedures ? numPrice : 0,
       hasSubProcedures,
       subProcedures: hasSubProcedures ? validatedSubProcedures : [],
       status,
@@ -365,7 +340,6 @@ export default function ProcedurePage() {
     setParentForSub(parent);
     setEditingSubProcedure(null);
     setSubName("");
-    setSubPrice("");
     setSubCode("");
     setSubDescription("");
     setSubStatus("Active");
@@ -381,7 +355,6 @@ export default function ProcedurePage() {
     setParentForSub(parent);
     setEditingSubProcedure(sub);
     setSubName(sub.name);
-    setSubPrice(String(sub.price));
     setSubCode(sub.code || "");
     setSubDescription(sub.description || "");
     setSubStatus(sub.status || "Active");
@@ -397,18 +370,11 @@ export default function ProcedurePage() {
       setErrorMsg("Sub-procedure name is required.");
       return;
     }
-    const numP = parseFloat(subPrice);
-    if (isNaN(numP) || numP < 0) {
-      setErrorMsg("Please enter a valid non-negative price.");
-      return;
-    }
-
     setIsSubmitting(true);
     setErrorMsg(null);
 
     const subPayload = {
       name: subName.trim(),
-      price: numP,
       code: subCode.trim() || undefined,
       description: subDescription.trim() || undefined,
       status: subStatus,
@@ -486,7 +452,7 @@ export default function ProcedurePage() {
           {/* Procedure Header */}
           <PharmacyHeader
             title="Procedure Management"
-            subtitle="Manage clinical procedures, hierarchical sub-procedures, and pricing"
+            subtitle="Manage clinical procedures and hierarchical sub-procedures"
           >
             <div className="flex items-center gap-3">
               <Button
@@ -971,7 +937,7 @@ export default function ProcedurePage() {
               </DialogTitle>
               <DialogDescription className="text-slate-500 text-sm">
                 {editingProcedure
-                  ? "Update procedure details, hierarchy, and pricing."
+                  ? "Update procedure details and hierarchy."
                   : "Enter details to create a new procedure or parent procedure."}
               </DialogDescription>
             </DialogHeader>
@@ -1071,29 +1037,7 @@ export default function ProcedurePage() {
                 />
               </div>
 
-              {/* Standalone Price input */}
-              {!hasSubProcedures ? (
-                <div className="space-y-1.5">
-                  <Label
-                    htmlFor="procPrice"
-                    className="text-xs font-semibold text-slate-700"
-                  >
-                    Price (₹) <span className="text-rose-500">*</span>
-                  </Label>
-                  <Input
-                    id="procPrice"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="e.g. 500"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    required
-                    className="rounded-xl border-slate-200 text-sm"
-                  />
-                </div>
-              ) : (
-                /* Dynamic Sub-procedure Builder */
+              {hasSubProcedures && (
                 <div className="space-y-3 pt-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
@@ -1134,7 +1078,7 @@ export default function ProcedurePage() {
                           </div>
 
                           <div className="grid grid-cols-12 gap-2">
-                            <div className="col-span-6">
+                            <div className="col-span-8">
                               <Input
                                 placeholder="Name (e.g. pr3.1)*"
                                 value={sp.name}
@@ -1145,25 +1089,7 @@ export default function ProcedurePage() {
                                 className="h-8 text-xs bg-white rounded-lg"
                               />
                             </div>
-                            <div className="col-span-3">
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                placeholder="Price (₹)*"
-                                value={sp.price}
-                                onChange={(e) =>
-                                  handleUpdateTempSub(
-                                    idx,
-                                    "price",
-                                    e.target.value
-                                  )
-                                }
-                                required
-                                className="h-8 text-xs bg-white rounded-lg"
-                              />
-                            </div>
-                            <div className="col-span-3">
+                            <div className="col-span-4">
                               <Input
                                 placeholder="Code (opt)"
                                 value={sp.code}
@@ -1253,42 +1179,20 @@ export default function ProcedurePage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label
-                    htmlFor="subPrice"
-                    className="text-xs font-semibold text-slate-700"
-                  >
-                    Price (₹) <span className="text-rose-500">*</span>
-                  </Label>
-                  <Input
-                    id="subPrice"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="e.g. 300"
-                    value={subPrice}
-                    onChange={(e) => setSubPrice(e.target.value)}
-                    required
-                    className="rounded-xl border-slate-200 text-sm"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label
-                    htmlFor="subCode"
-                    className="text-xs font-semibold text-slate-700"
-                  >
-                    Code (Optional)
-                  </Label>
-                  <Input
-                    id="subCode"
-                    placeholder="e.g. PR-003-1"
-                    value={subCode}
-                    onChange={(e) => setSubCode(e.target.value)}
-                    className="rounded-xl border-slate-200 text-sm"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="subCode"
+                  className="text-xs font-semibold text-slate-700"
+                >
+                  Code (Optional)
+                </Label>
+                <Input
+                  id="subCode"
+                  placeholder="e.g. PR-003-1"
+                  value={subCode}
+                  onChange={(e) => setSubCode(e.target.value)}
+                  className="rounded-xl border-slate-200 text-sm"
+                />
               </div>
 
               <div className="space-y-1.5">
