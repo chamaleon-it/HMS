@@ -90,4 +90,6 @@ export interface TimelineDataType {
   totalSpend: number;
   patient: TreatmentPatientType | null;
   doctor: TreatmentDoctorType | null;
+  prescribedTherapies?: string[];
+  prescribedProcedures?: string[];
 }

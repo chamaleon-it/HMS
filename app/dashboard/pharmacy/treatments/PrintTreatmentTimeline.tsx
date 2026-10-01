@@ -145,8 +145,17 @@ export default function PrintTreatmentTimeline({ timelineData }: Props) {
           ? samePrescription
           : [rootTreatment, ...samePrescription]
         : [rootTreatment];
-    return procedureSummary(sources);
-  }, [consultingId, relatedTreatments, rootTreatment]);
+    const fromTreatments = procedureSummary(sources);
+    if (fromTreatments) return fromTreatments;
+
+    const fromPrescription = [
+      ...(timelineData?.prescribedTherapies || []),
+      ...(timelineData?.prescribedProcedures || []),
+    ];
+    const names: string[] = [];
+    fromPrescription.forEach((name) => pushUnique(names, name));
+    return names.join(", ");
+  }, [consultingId, relatedTreatments, rootTreatment, timelineData]);
 
   if (!timelineData || !mounted || !rootTreatment) return null;
 
@@ -288,9 +297,11 @@ export default function PrintTreatmentTimeline({ timelineData }: Props) {
                   ? `Prescribed By: Dr. ${doctorName.toUpperCase()} (${doctorSpec})`
                   : "Prescribed Outpatient Service"}
               </p>
-              <p className="text-[10.5px] text-slate-700 font-semibold">
-                Procedure : {procedureLine}
-              </p>
+              {procedureLine ? (
+                <p className="text-[10.5px] text-slate-700 font-semibold">
+                  Procedure : {procedureLine}
+                </p>
+              ) : null}
             </div>
             <div className="text-right space-y-0.5">
               <div className="inline-flex items-center gap-1.5 bg-synapse-light text-white px-3 py-0.5 rounded-full font-bold text-[10px] tracking-wider uppercase">
