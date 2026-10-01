@@ -241,15 +241,6 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded text-xs font-medium">HSN: {item.hsnCode}</span>
           </div>
         </div>
-
-        <div className="flex flex-col items-end gap-1">
-          <div className="h-10 bg-white border border-slate-200 rounded-md p-1 flex items-center justify-center shadow-sm">
-            <div className="w-32 h-full bg-[repeating-linear-gradient(90deg,black_0px,black_1px,transparent_1px,transparent_3px)] opacity-80" />
-          </div>
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-medium">
-            <span className="font-mono tracking-wider">{item.sku}</span>
-          </div>
-        </div>
       </div>
 
       {/* Stock / Status - REPLACED BY NEW SALES CARDS SECTION BELOW, REMOVING OLD STOCK CARDS IF REDUNDANT, BUT USER ASKED FOR ALL UI IMPROVEMENT. LET'S KEEP STOCK BUT MODERNIZE IT OR MERGE WITH DETAILS. Let's make it a compact stat row below header */}
