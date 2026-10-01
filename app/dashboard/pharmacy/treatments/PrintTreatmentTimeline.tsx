@@ -2,81 +2,14 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import useSWR from "swr";
-import { fDateandTime, fDate } from "@/lib/fDateAndTime";
-import { formatINR } from "@/lib/fNumber";
+import { fDate } from "@/lib/fDateAndTime";
 import {
   PrintHeader,
   PrintPatientStrip,
   PrintWatermark,
   PrintFooter,
 } from "@/components/print/PrintHeader";
-import {
-  TimelineDataType,
-  TreatmentItemType,
-  TreatmentOrderType,
-} from "./interface";
-
-function recordId(value: unknown): string {
-  if (!value) return "";
-  if (typeof value === "string") return value;
-  if (typeof value === "object" && value !== null && "_id" in value) {
-    const id = (value as { _id?: unknown })._id;
-    return id ? String(id) : "";
-  }
-  return "";
-}
-
-function isProcedureTreatment(treatment: {
-  type?: string;
-  category?: string;
-}): boolean {
-  return (
-    treatment.type === "Procedure" ||
-    treatment.category?.toLowerCase() === "procedure"
-  );
-}
-
-function isRootTreatment(treatment: { parentTreatment?: unknown }): boolean {
-  return !recordId(treatment.parentTreatment);
-}
-
-/**
- * Names to print for one prescribed item.
- * A sub-therapy or sub-procedure is listed after its parent when the treatment uses one.
- */
-function prescribedItemNames(item: TreatmentItemType): string[] {
-  const name = (item.name || "").trim();
-  const parent = (item.parentName || "").trim();
-  const usesSub = Boolean(item.subTherapyId || item.subProcedureId || parent);
-
-  if (!usesSub) return name ? [name] : [];
-
-  let sub = name;
-  if (parent) {
-    const prefix = `${parent} - `;
-    if (name.toLowerCase().startsWith(prefix.toLowerCase())) {
-      sub = name.slice(prefix.length).trim();
-    }
-  }
-
-  const names: string[] = [];
-  if (parent) names.push(parent);
-  if (sub && sub.toLowerCase() !== parent.toLowerCase()) names.push(sub);
-  if (!names.length && name) names.push(name);
-  return names;
-}
-
-function itemIsProcedure(
-  item: TreatmentItemType,
-  treatment: TreatmentOrderType,
-): boolean {
-  const hasTherapy = Boolean(item.therapyId || item.subTherapyId);
-  const hasProcedure = Boolean(item.procedureId || item.subProcedureId);
-  if (hasProcedure && !hasTherapy) return true;
-  if (hasTherapy && !hasProcedure) return false;
-  return isProcedureTreatment(treatment);
-}
+import { TimelineDataType, TreatmentOrderType } from "./interface";
 
 function pushUnique(list: string[], value: string) {
   const next = value.trim();
@@ -87,23 +20,15 @@ function pushUnique(list: string[], value: string) {
   list.push(next);
 }
 
-/** Therapies first, then procedures, from this treatment and its prescription. */
+/** Names on this treatment only, in the order they appear on the row. */
 function procedureSummary(treatments: TreatmentOrderType[]): string {
-  const therapies: string[] = [];
-  const procedures: string[] = [];
-  const ordered = [...treatments].sort(
-    (a, b) => Number(isProcedureTreatment(a)) - Number(isProcedureTreatment(b)),
-  );
-
-  for (const treatment of ordered) {
+  const names: string[] = [];
+  for (const treatment of treatments) {
     for (const item of treatment.items || []) {
-      const labels = prescribedItemNames(item);
-      const target = itemIsProcedure(item, treatment) ? procedures : therapies;
-      labels.forEach((label) => pushUnique(target, label));
+      pushUnique(names, item.name || "");
     }
   }
-
-  return [...therapies, ...procedures].join(", ");
+  return names.join(", ");
 }
 
 interface Props {
@@ -120,37 +45,16 @@ export default function PrintTreatmentTimeline({ timelineData }: Props) {
 
   const rootTreatment = timelineData?.rootTreatment;
   const patient = timelineData?.patient;
-  const consultingId = recordId(rootTreatment?.consulting);
-  const patientId = patient?._id || recordId(rootTreatment?.patient);
-
-  const { data: relatedTreatments } = useSWR<{
-    data: TreatmentOrderType[];
-  }>(
-    consultingId && patientId
-      ? `/treatment?patient=${patientId}&limit=200`
-      : null,
-    { revalidateOnFocus: false },
-  );
+  const sessions = timelineData?.sessions || [];
 
   const procedureLine = useMemo(() => {
     if (!rootTreatment) return "";
-    const samePrescription = (relatedTreatments?.data || []).filter(
-      (treatment) =>
-        isRootTreatment(treatment) &&
-        recordId(treatment.consulting) === consultingId,
-    );
-    const sources =
-      samePrescription.length > 0
-        ? samePrescription.some((treatment) => treatment._id === rootTreatment._id)
-          ? samePrescription
-          : [rootTreatment, ...samePrescription]
-        : [rootTreatment];
-    return procedureSummary(sources);
-  }, [consultingId, relatedTreatments, rootTreatment]);
+    return procedureSummary([rootTreatment, ...sessions]);
+  }, [rootTreatment, sessions]);
 
   if (!timelineData || !mounted || !rootTreatment) return null;
 
-  const { sessions = [], doctor } = timelineData;
+  const { doctor } = timelineData;
 
   const isProcedure =
     rootTreatment?.type === "Procedure" ||
