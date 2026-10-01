@@ -13,6 +13,7 @@ import BatchSelector from "./BatchSelector";
 import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney } from "@/lib/pharmacyReceiptLine";
 import { isOutsideOrderLine, outsideDrugLabel } from "@/lib/pharmacyOutsideMedicine";
 import {
+  PRESCRIPTION_DURATION_OPTIONS,
   PRESCRIPTION_FREQUENCY_OPTIONS,
   frequencySetsQuantityToOne,
 } from "@/lib/prescriptionFrequency";
@@ -272,14 +273,7 @@ export default function UpdatePrescriptionCard({
                     value={m.duration}
                     disabled={data.status === "Completed"}
                     onChange={(val) => updateField(i, "duration", val)}
-                    options={[
-                      "3 days",
-                      "5 days",
-                      "7 days",
-                      "10 days",
-                      "14 days",
-                      "28 days",
-                    ]}
+                    options={PRESCRIPTION_DURATION_OPTIONS}
                   />
                 </td>
                 <td className="p-2 align-middle text-sm text-slate-600">

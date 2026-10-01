@@ -4,10 +4,28 @@ export const PRESCRIPTION_FREQUENCY_OPTIONS = [
   "0-1-1",
   "1-0-0",
   "0-0-1",
-  "2-0-2",
   "1oz-0-1oz",
   "1sp-0-1sp",
   "SOS",
+];
+
+/** Shared duration list for doctor and pharmacy prescription dropdowns. */
+export const PRESCRIPTION_DURATION_OPTIONS = [
+  "3 days",
+  "5 days",
+  "6 days",
+  "7 days",
+  "9 days",
+  "10 days",
+  "12 days",
+  "14 days",
+  "15 days",
+  "21 days",
+  "24 days",
+  "28 days",
+  "30 days",
+  "45 days",
+  "60 days",
 ];
 
 const TABLET_UNITS: Record<string, number> = {
@@ -16,23 +34,20 @@ const TABLET_UNITS: Record<string, number> = {
   "2 tab": 2,
 };
 
-const DURATION_DAYS: Record<string, number> = {
-  "3 days": 3,
-  "5 days": 5,
-  "7 days": 7,
-  "10 days": 10,
-  "14 days": 14,
-  "28 days": 28,
-};
+const DURATION_DAYS: Record<string, number> = Object.fromEntries(
+  PRESCRIPTION_DURATION_OPTIONS.map((label) => [
+    label,
+    Number.parseInt(label, 10),
+  ]),
+);
 
-/** Doses per day for morning-noon-night patterns. 2-0-2 is morning 2, noon 0, night 2. */
+/** Doses per day for morning-noon-night patterns. */
 const DOSES_PER_DAY: Record<string, number> = {
   "1-0-1": 2,
   "1-1-1": 3,
   "0-1-1": 2,
   "1-0-0": 1,
   "0-0-1": 1,
-  "2-0-2": 4,
 };
 
 export function frequencySetsQuantityToOne(frequency: string): boolean {

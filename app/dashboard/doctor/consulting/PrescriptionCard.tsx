@@ -26,6 +26,7 @@ import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {
+  PRESCRIPTION_DURATION_OPTIONS,
   PRESCRIPTION_FREQUENCY_OPTIONS,
   derivedTabletQuantity,
   frequencySetsQuantityToOne,
@@ -474,14 +475,7 @@ export default function PrescriptionCard({
 
                     <div className="col-span-1">
                       <LabeledCombobox
-                        options={[
-                          "3 days",
-                          "5 days",
-                          "7 days",
-                          "10 days",
-                          "14 days",
-                          "28 days",
-                        ]}
+                        options={PRESCRIPTION_DURATION_OPTIONS}
                         label="Duration"
                         value={m.duration}
                         onChange={(e) => updateField(i, "duration", e)}

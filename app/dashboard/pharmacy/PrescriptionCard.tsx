@@ -20,6 +20,7 @@ import {
 import { formatINR } from "@/lib/fNumber";
 import { batchUnitPrice } from "@/lib/pharmacyReceiptLine";
 import {
+  PRESCRIPTION_DURATION_OPTIONS,
   PRESCRIPTION_FREQUENCY_OPTIONS,
   derivedTabletQuantity,
   frequencySetsQuantityToOne,
@@ -273,14 +274,7 @@ export default function PrescriptionCard({
 
                 <div>
                   <LabeledCombobox
-                    options={[
-                      "3 days",
-                      "5 days",
-                      "7 days",
-                      "10 days",
-                      "14 days",
-                      "28 days",
-                    ]}
+                    options={PRESCRIPTION_DURATION_OPTIONS}
                     label="Dur"
                     value={m.duration}
                     onChange={(e) => updateField(i, "duration", e)}
