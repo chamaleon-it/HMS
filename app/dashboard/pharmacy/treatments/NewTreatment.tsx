@@ -83,9 +83,6 @@ export default function NewTreatment({
       subProcedureId?: string;
       parentName?: string;
       code?: string;
-      unitPrice: number;
-      quantity: number;
-      total: number;
     }[]
   >([]);
   const [therapistId, setTherapistId] = useState("");
@@ -97,7 +94,6 @@ export default function NewTreatment({
   ]);
 
   const [notes, setNotes] = useState("");
-  const [discount, setDiscount] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Search & Catalog popover state
@@ -260,9 +256,6 @@ export default function NewTreatment({
           procedureId: opt.procedureId,
           subProcedureId: opt.subProcedureId || undefined,
           code: opt.code || undefined,
-          unitPrice: 0,
-          quantity: 1,
-          total: 0,
         },
       ]);
     }
@@ -312,7 +305,6 @@ export default function NewTreatment({
         treatmentDate: new Date(treatmentDates[0]),
         treatmentDates: treatmentDates.map((d) => new Date(d)),
         notes,
-        discount,
       });
 
       toast.success(
@@ -327,7 +319,6 @@ export default function NewTreatment({
       setSelectedItems([]);
       setTreatmentDates([new Date().toISOString().split("T")[0]]);
       setNotes("");
-      setDiscount(0);
       onSuccess?.();
     } catch (err: any) {
       console.error("Error creating treatment:", err);
@@ -621,30 +612,16 @@ export default function NewTreatment({
             onChange={setTreatmentDates}
           />
 
-          {/* Section 5: Discount & Notes */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1">
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-700">Per-Session Discount (₹)</Label>
-              <Input
-                type="number"
-                min="0"
-                value={discount || ""}
-                onChange={(e) => setDiscount(Number(e.target.value) || 0)}
-                placeholder="0"
-                className="h-11 rounded-xl border-slate-200 text-xs"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-700">
-                Treatment Notes / Instructions
-              </Label>
-              <Input
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Add clinical instructions or session notes..."
-                className="h-11 rounded-xl border-slate-200 text-xs"
-              />
-            </div>
+          <div className="space-y-2 pt-1">
+            <Label className="text-xs font-semibold text-slate-700">
+              Treatment Notes / Instructions
+            </Label>
+            <Input
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add clinical instructions or session notes..."
+              className="h-11 rounded-xl border-slate-200 text-xs"
+            />
           </div>
 
           {/* Footer Actions */}
