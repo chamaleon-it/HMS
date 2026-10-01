@@ -37,14 +37,36 @@ export default function ProcessTreatment({
   const [card, setCard] = useState<number>(0);
   const [upi, setUpi] = useState<number>(0);
   const [discount, setDiscount] = useState<number>(0);
+  const [amountInput, setAmountInput] = useState("");
+  const [payMode, setPayMode] = useState<"cash" | "card" | "upi" | "custom">("cash");
   const [therapistId, setTherapistId] = useState("");
   const [therapistName, setTherapistName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const subtotal = (treatment?.items || []).reduce((sum, it) => sum + it.total, 0);
+  const parsedAmount = amountInput.trim() === "" ? NaN : Number(amountInput);
+  const subtotal = Number.isFinite(parsedAmount) ? Math.max(0, parsedAmount) : 0;
   const netPayable = Math.max(0, subtotal - discount);
   const totalPaid = (cash || 0) + (card || 0) + (upi || 0);
   const remainingDue = Math.max(0, netPayable - totalPaid);
+
+  const applySplit = (
+    net: number,
+    mode: "cash" | "card" | "upi" | "custom",
+  ) => {
+    if (mode === "card") {
+      setCash(0);
+      setCard(net);
+      setUpi(0);
+    } else if (mode === "upi") {
+      setCash(0);
+      setCard(0);
+      setUpi(net);
+    } else if (mode === "cash") {
+      setCash(net);
+      setCard(0);
+      setUpi(0);
+    }
+  };
 
   useEffect(() => {
     if (treatment) {
@@ -57,8 +79,9 @@ export default function ProcessTreatment({
       setTherapistId(tId);
       setTherapistName(treatment.therapistName || "");
       setDiscount(treatment.discount || 0);
-      const initialNet = Math.max(0, (treatment.items || []).reduce((s, i) => s + i.total, 0) - (treatment.discount || 0));
-      setCash(initialNet);
+      setAmountInput("");
+      setPayMode("cash");
+      setCash(0);
       setCard(0);
       setUpi(0);
     }
@@ -67,19 +90,15 @@ export default function ProcessTreatment({
   if (!treatment) return null;
 
   const handleQuickPay = (method: "cash" | "card" | "upi") => {
-    if (method === "cash") {
-      setCash(netPayable);
-      setCard(0);
-      setUpi(0);
-    } else if (method === "card") {
-      setCash(0);
-      setCard(netPayable);
-      setUpi(0);
-    } else if (method === "upi") {
-      setCash(0);
-      setCard(0);
-      setUpi(netPayable);
-    }
+    setPayMode(method);
+    applySplit(netPayable, method);
+  };
+
+  const handleAmountChange = (raw: string) => {
+    setAmountInput(raw);
+    const next = raw.trim() === "" ? 0 : Math.max(0, Number(raw) || 0);
+    const net = Math.max(0, next - discount);
+    if (payMode !== "custom") applySplit(net, payMode);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,6 +109,11 @@ export default function ProcessTreatment({
       return;
     }
 
+    if (amountInput.trim() === "" || !Number.isFinite(parsedAmount) || parsedAmount < 0) {
+      toast.error("Enter the session amount");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       let primaryMethod = "Cash";
@@ -97,6 +121,7 @@ export default function ProcessTreatment({
       else if (upi > cash && upi > card) primaryMethod = "UPI";
 
       const res = await api.post(`/treatment/${treatment._id}/process`, {
+        amount: subtotal,
         cash,
         card,
         upi,
@@ -178,6 +203,25 @@ export default function ProcessTreatment({
             />
           </div>
 
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold text-slate-700">
+              Session amount (₹) <span className="text-rose-500">*</span>
+            </Label>
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              required
+              placeholder="Enter amount for this session"
+              value={amountInput}
+              onChange={(e) => handleAmountChange(e.target.value)}
+              className="h-11 rounded-xl border-slate-200 text-sm"
+            />
+            <p className="text-[11px] text-slate-500">
+              Charge depends on the duration and the procedure. Cash, card, and UPI split against this amount.
+            </p>
+          </div>
+
           {/* Financial Breakdown Cards */}
           <div className="grid grid-cols-3 gap-3 text-center pt-1">
             <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
@@ -233,7 +277,10 @@ export default function ProcessTreatment({
                 type="number"
                 min="0"
                 value={cash || ""}
-                onChange={(e) => setCash(Number(e.target.value) || 0)}
+                onChange={(e) => {
+                  setPayMode("custom");
+                  setCash(Number(e.target.value) || 0);
+                }}
                 className="h-11 rounded-xl border-slate-200 text-xs"
               />
             </div>
@@ -243,7 +290,10 @@ export default function ProcessTreatment({
                 type="number"
                 min="0"
                 value={card || ""}
-                onChange={(e) => setCard(Number(e.target.value) || 0)}
+                onChange={(e) => {
+                  setPayMode("custom");
+                  setCard(Number(e.target.value) || 0);
+                }}
                 className="h-11 rounded-xl border-slate-200 text-xs"
               />
             </div>
@@ -253,7 +303,10 @@ export default function ProcessTreatment({
                 type="number"
                 min="0"
                 value={upi || ""}
-                onChange={(e) => setUpi(Number(e.target.value) || 0)}
+                onChange={(e) => {
+                  setPayMode("custom");
+                  setUpi(Number(e.target.value) || 0);
+                }}
                 className="h-11 rounded-xl border-slate-200 text-xs"
               />
             </div>
