@@ -13,8 +13,10 @@ import BatchSelector from "./BatchSelector";
 import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney } from "@/lib/pharmacyReceiptLine";
 import { isOutsideOrderLine, outsideDrugLabel } from "@/lib/pharmacyOutsideMedicine";
 import {
+  PRESCRIPTION_DOSAGE_OPTIONS,
   PRESCRIPTION_DURATION_OPTIONS,
   PRESCRIPTION_FREQUENCY_OPTIONS,
+  dosageSetsQuantityToOne,
   frequencySetsQuantityToOne,
 } from "@/lib/prescriptionFrequency";
 import {
@@ -234,8 +236,13 @@ export default function UpdatePrescriptionCard({
                     label="Dosage"
                     value={m.dosage}
                     disabled={data.status === "Completed"}
-                    onChange={(val) => updateField(i, "dosage", val)}
-                    options={["½ tab", "1 tab", "2 tab", "5 ml", "10 ml", "20 ml"]}
+                    onChange={(val) => {
+                      updateField(i, "dosage", val);
+                      if (dosageSetsQuantityToOne(val)) {
+                        updateField(i, "quantity", 1);
+                      }
+                    }}
+                    options={PRESCRIPTION_DOSAGE_OPTIONS}
                   />
                 </td>
                 <td className="p-3 align-middle">

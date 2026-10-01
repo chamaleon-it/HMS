@@ -4,10 +4,24 @@ export const PRESCRIPTION_FREQUENCY_OPTIONS = [
   "0-1-1",
   "1-0-0",
   "0-0-1",
+  "L/A",
   "1oz-0-1oz",
   "1sp-0-1sp",
   "SOS",
 ];
+
+/** Shared dosage list for doctor, pharmacy, and reception prescription dropdowns. */
+export const PRESCRIPTION_DOSAGE_OPTIONS = [
+  "½ tab",
+  "1 tab",
+  "2 tab",
+  "1",
+  "5 ml",
+  "10 ml",
+  "20 ml",
+];
+
+const QUANTITY_ONE_DOSAGES = new Set(["1", "5 ml", "10 ml", "20 ml"]);
 
 /** Shared duration list for doctor and pharmacy prescription dropdowns. */
 export const PRESCRIPTION_DURATION_OPTIONS = [
@@ -50,13 +64,46 @@ const DOSES_PER_DAY: Record<string, number> = {
   "0-0-1": 1,
 };
 
+export function dosageSetsQuantityToOne(dosage: string): boolean {
+  return QUANTITY_ONE_DOSAGES.has(dosage);
+}
+
 export function frequencySetsQuantityToOne(frequency: string): boolean {
-  return frequency === "1oz-0-1oz" || frequency === "1sp-0-1sp";
+  return (
+    frequency === "1oz-0-1oz" ||
+    frequency === "1sp-0-1sp" ||
+    frequency === "L/A"
+  );
+}
+
+/** ml, plain "1", ounce, spoon, and L/A keep quantity at 1 instead of a tablet total. */
+export function selectionKeepsQuantityAtOne(
+  dosage: string,
+  frequency: string,
+): boolean {
+  return dosageSetsQuantityToOne(dosage) || frequencySetsQuantityToOne(frequency);
+}
+
+/**
+ * True only on the change that enters a quantity-1 dosage or frequency.
+ * Later edits to quantity stay as the user left them.
+ */
+export function selectionJustSetQuantityToOne(
+  previous: { dosage: string; frequency: string },
+  next: { dosage: string; frequency: string },
+): boolean {
+  const dosageEntered =
+    dosageSetsQuantityToOne(next.dosage) && previous.dosage !== next.dosage;
+  const frequencyEntered =
+    frequencySetsQuantityToOne(next.frequency) &&
+    previous.frequency !== next.frequency;
+  return dosageEntered || frequencyEntered;
 }
 
 /**
  * Tablet quantity = dosage units × days × doses per day.
- * Null when dosage or frequency is not a numeric pattern (including ounce, spoon, and SOS).
+ * Null when dosage or frequency is not a numeric tablet pattern
+ * (including ml, plain "1", ounce, spoon, L/A, and SOS).
  */
 export function derivedTabletQuantity(
   dosage: string,

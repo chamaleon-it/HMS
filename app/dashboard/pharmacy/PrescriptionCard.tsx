@@ -20,10 +20,12 @@ import {
 import { formatINR } from "@/lib/fNumber";
 import { batchUnitPrice } from "@/lib/pharmacyReceiptLine";
 import {
+  PRESCRIPTION_DOSAGE_OPTIONS,
   PRESCRIPTION_DURATION_OPTIONS,
   PRESCRIPTION_FREQUENCY_OPTIONS,
   derivedTabletQuantity,
-  frequencySetsQuantityToOne,
+  selectionJustSetQuantityToOne,
+  selectionKeepsQuantityAtOne,
 } from "@/lib/prescriptionFrequency";
 
 // ------------------ Types ------------------
@@ -225,14 +227,7 @@ export default function PrescriptionCard({
               <>
                 <div>
                   <LabeledCombobox
-                    options={[
-                      "½ tab",
-                      "1 tab",
-                      "2 tab",
-                      "5 ml",
-                      "10 ml",
-                      "20 ml",
-                    ]}
+                    options={PRESCRIPTION_DOSAGE_OPTIONS}
                     label="Dosage"
                     value={m.dosage}
                     onChange={(e) => updateField(i, "dosage", e)}
@@ -412,14 +407,15 @@ const QuantityInput = ({
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
   inputRef?: React.RefObject<HTMLInputElement>;
 }) => {
-  const seenFrequency = useRef(m.frequency);
+  const seenSelection = useRef({ dosage: m.dosage, frequency: m.frequency });
 
   useEffect(() => {
-    const previousFrequency = seenFrequency.current;
-    seenFrequency.current = m.frequency;
+    const previous = seenSelection.current;
+    const next = { dosage: m.dosage, frequency: m.frequency };
+    seenSelection.current = next;
 
-    if (frequencySetsQuantityToOne(m.frequency)) {
-      if (previousFrequency !== m.frequency) {
+    if (selectionKeepsQuantityAtOne(next.dosage, next.frequency)) {
+      if (selectionJustSetQuantityToOne(previous, next)) {
         if (m.batchNumber && 1 > m.availableQuantity) {
           setOpenWarning(true);
         }
