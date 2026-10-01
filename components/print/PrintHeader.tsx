@@ -154,6 +154,8 @@ export interface PrintPatientStripProps {
   sex?: string;
   date?: string;
   opNo?: string;
+  /** Home address, or place address when home is empty. Omit when both are blank. */
+  address?: string;
   className?: string;
 }
 
@@ -163,6 +165,7 @@ export function PrintPatientStrip({
   sex,
   date,
   opNo,
+  address,
   className,
 }: PrintPatientStripProps) {
   let displayDate = (date || "").trim();
@@ -178,47 +181,59 @@ export function PrintPatientStrip({
     }
   }
 
+  const displayAddress = (address || "").trim();
+
   return (
     <div
       className={cn(
-        "px-6 py-1.5 flex items-center justify-between border-b border-slate-700 text-[13px] font-bold text-black bg-white font-montserrat",
+        "px-6 py-1.5 border-b border-slate-700 text-[13px] font-bold text-black bg-white font-montserrat",
         className
       )}
     >
-      <div className="flex items-center gap-6 flex-1 pr-4">
-        <div className="flex items-center gap-2 flex-1 min-w-44">
-          <span className="text-slate-800">Name:</span>
-          <span className="font-semibold text-black text-[13.5px] border-b border-dotted border-slate-500 flex-1 px-1 min-h-5 leading-normal truncate">
-            {name || ""}
-          </span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-6 flex-1 pr-4">
+          <div className="flex items-center gap-2 flex-1 min-w-44">
+            <span className="text-slate-800">Name:</span>
+            <span className="font-semibold text-black text-[13.5px] border-b border-dotted border-slate-500 flex-1 px-1 min-h-5 leading-normal truncate">
+              {name || ""}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 w-24">
+            <span className="text-slate-800">Age:</span>
+            <span className="font-semibold text-black text-[13.5px] border-b border-dotted border-slate-500 flex-1 text-center min-h-5 leading-normal">
+              {age || "____"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 w-20">
+            <span className="text-slate-800">Sex:</span>
+            <span className="font-semibold text-black text-[13.5px] border-b border-dotted border-slate-500 flex-1 text-center min-h-5 leading-normal">
+              {sex || "____"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 w-32">
+            <span className="text-slate-800">Date:</span>
+            <span className="font-semibold text-black text-[13.5px] border-b border-dotted border-slate-500 flex-1 text-center min-h-5 leading-normal">
+              {displayDate || "__________"}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-2 w-24">
-          <span className="text-slate-800">Age:</span>
-          <span className="font-semibold text-black text-[13.5px] border-b border-dotted border-slate-500 flex-1 text-center min-h-5 leading-normal">
-            {age || "____"}
-          </span>
-        </div>
-        <div className="flex items-center gap-2 w-20">
-          <span className="text-slate-800">Sex:</span>
-          <span className="font-semibold text-black text-[13.5px] border-b border-dotted border-slate-500 flex-1 text-center min-h-5 leading-normal">
-            {sex || "____"}
-          </span>
-        </div>
-        <div className="flex items-center gap-2 w-32">
-          <span className="text-slate-800">Date:</span>
-          <span className="font-semibold text-black text-[13.5px] border-b border-dotted border-slate-500 flex-1 text-center min-h-5 leading-normal">
-            {displayDate || "__________"}
-          </span>
-        </div>
-      </div>
 
-      {/* OP No Pill Box */}
-      <div className="border border-slate-700 rounded-full px-3.5 py-0.5 text-xs font-semibold whitespace-nowrap bg-white shadow-xs">
-        <span className="text-slate-700">OP No: </span>
-        <span className="min-w-14 inline-block text-slate-900 tracking-wider font-extrabold">
-          {opNo || "...................."}
-        </span>
+        {/* OP No Pill Box */}
+        <div className="border border-slate-700 rounded-full px-3.5 py-0.5 text-xs font-semibold whitespace-nowrap bg-white shadow-xs">
+          <span className="text-slate-700">OP No: </span>
+          <span className="min-w-14 inline-block text-slate-900 tracking-wider font-extrabold">
+            {opNo || "...................."}
+          </span>
+        </div>
       </div>
+      {displayAddress ? (
+        <div className="flex items-center gap-2 mt-1 min-w-0">
+          <span className="text-slate-800 shrink-0">Address:</span>
+          <span className="font-semibold text-black text-[13.5px] border-b border-dotted border-slate-500 flex-1 px-1 min-h-5 leading-normal truncate">
+            {displayAddress}
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 }
