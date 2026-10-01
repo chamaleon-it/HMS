@@ -12,6 +12,7 @@ import {
     PrintFooter,
 } from "@/components/print/PrintHeader";
 import { presentPharmacyReceiptLine } from "@/lib/pharmacyReceiptLine";
+import { printHomeOrPlaceAddress, printPatientPhone } from "@/lib/formatPatientAddress";
 import { getBillType } from "@/lib/billTypeUtils";
 
 interface PrintReceiptProps {
@@ -46,6 +47,8 @@ interface PrintReceiptProps {
         dob?: string | Date;
         age?: string | number;
         address?: string;
+        addressLine1?: string | null;
+        addressLine2?: string | null;
     } | null;
     invoiceDetails?: {
         prefix: string;
@@ -220,6 +223,8 @@ export default function PrintReceipt({
                     sex={sexStr}
                     date={formattedDate}
                     opNo={opNumber}
+                    address={printHomeOrPlaceAddress(patient)}
+                    phone={printPatientPhone(patient)}
                 />
 
                 {/* 3. MAIN BODY SECTION */}

@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { fDateandTime, fDate } from "@/lib/fDateAndTime";
-import { formatINR } from "@/lib/fNumber";
+import { fDate } from "@/lib/fDateAndTime";
+import { printHomeOrPlaceAddress, printPatientPhone } from "@/lib/formatPatientAddress";
 import {
   PrintHeader,
   PrintPatientStrip,
@@ -11,6 +11,26 @@ import {
   PrintFooter,
 } from "@/components/print/PrintHeader";
 import { TimelineDataType, TreatmentOrderType } from "./interface";
+
+function pushUnique(list: string[], value: string) {
+  const next = value.trim();
+  if (!next) return;
+  if (list.some((existing) => existing.toLowerCase() === next.toLowerCase())) {
+    return;
+  }
+  list.push(next);
+}
+
+/** Names on this treatment only, in the order they appear on the row. */
+function procedureSummary(treatments: TreatmentOrderType[]): string {
+  const names: string[] = [];
+  for (const treatment of treatments) {
+    for (const item of treatment.items || []) {
+      pushUnique(names, item.name || "");
+    }
+  }
+  return names.join(", ");
+}
 
 interface Props {
   timelineData: TimelineDataType | null;
@@ -24,9 +44,18 @@ export default function PrintTreatmentTimeline({ timelineData }: Props) {
     setMounted(true);
   }, []);
 
-  if (!timelineData || !mounted) return null;
+  const rootTreatment = timelineData?.rootTreatment;
+  const patient = timelineData?.patient;
+  const sessions = timelineData?.sessions || [];
 
-  const { rootTreatment, sessions = [], patient, doctor } = timelineData;
+  const procedureLine = useMemo(() => {
+    if (!rootTreatment) return "";
+    return procedureSummary([rootTreatment, ...sessions]);
+  }, [rootTreatment, sessions]);
+
+  if (!timelineData || !mounted || !rootTreatment) return null;
+
+  const { doctor } = timelineData;
 
   const isProcedure =
     rootTreatment?.type === "Procedure" ||
@@ -147,6 +176,8 @@ export default function PrintTreatmentTimeline({ timelineData }: Props) {
           sex={sexStr}
           date={formattedPrescriptionDate}
           opNo={opNumber}
+          address={printHomeOrPlaceAddress(patient)}
+          phone={printPatientPhone(patient)}
         />
 
         {/* 3. MAIN BODY SECTION */}
@@ -164,6 +195,11 @@ export default function PrintTreatmentTimeline({ timelineData }: Props) {
                   ? `Prescribed By: Dr. ${doctorName.toUpperCase()} (${doctorSpec})`
                   : "Prescribed Outpatient Service"}
               </p>
+              {procedureLine ? (
+                <p className="text-[10.5px] text-slate-700 font-semibold">
+                  Procedure : {procedureLine}
+                </p>
+              ) : null}
             </div>
             <div className="text-right space-y-0.5">
               <div className="inline-flex items-center gap-1.5 bg-synapse-light text-white px-3 py-0.5 rounded-full font-bold text-[10px] tracking-wider uppercase">

@@ -32,8 +32,6 @@ import api from "@/lib/axios";
 import toast from "react-hot-toast";
 import TherapistSelection from "./TherapistSelection";
 import { TreatmentOrderType } from "./interface";
-import { formatINR } from "@/lib/fNumber";
-
 interface Props {
   treatment: TreatmentOrderType | null;
   open: boolean;
@@ -140,11 +138,6 @@ export default function EditTreatment({
                 MRN: {treatment.patient?.mrn || "—"} • Doctor: {treatment.doctorName || "Self"}
               </span>
             </div>
-            <span className="text-sm font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-xl border border-emerald-200">
-              Total: {formatINR(
-                (treatment.items || []).reduce((s, i) => s + i.total, 0) - discount
-              )}
-            </span>
           </div>
 
           {/* Mandatory Therapist Change */}

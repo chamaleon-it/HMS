@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { formatINR } from "@/lib/fNumber";
 import { fDateOnly, fDateandTime, fAge } from "@/lib/fDateAndTime";
 import configuration from "@/config/configuration";
+import { printPatientPhone } from "@/lib/formatPatientAddress";
 import {
     PrintHeader,
     PrintPatientStrip,
@@ -190,6 +191,7 @@ export default function PrintReceipt({
                     sex={sexStr}
                     date={formattedDate}
                     opNo={opNumber}
+                    phone={printPatientPhone(patient)}
                 />
 
                 {/* 3. MAIN BODY SECTION */}

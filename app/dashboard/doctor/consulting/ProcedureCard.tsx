@@ -6,7 +6,6 @@ import { DataType } from "./interface";
 import { Check, ChevronsUpDown, X, Layers, Stethoscope } from "lucide-react";
 import { cn } from "@/lib/utils";
 import useSWR from "swr";
-import { formatINR } from "@/lib/fNumber";
 import {
   Command,
   CommandEmpty,
@@ -26,7 +25,6 @@ import TreatmentSchedulePicker from "@/components/shared/treatment/TreatmentSche
 export interface SubProcedureOption {
   _id: string;
   name: string;
-  price: number;
   code?: string;
   description?: string;
   status: string;
@@ -36,7 +34,6 @@ export interface SubProcedureOption {
 export interface ProcedureOption {
   _id: string;
   name: string;
-  price?: number;
   code?: string;
   description?: string;
   hasSubProcedures?: boolean;
@@ -50,7 +47,6 @@ export interface FlatProcedureOption {
   displayName: string;
   parentName?: string | null;
   parentId?: string | null;
-  price: number;
   code?: string | null;
   isSub: boolean;
 }
@@ -99,7 +95,6 @@ export default function ProcedureCard({ data, setData, className }: Props) {
               displayName: `${p.name} → ${sp.name}`,
               parentName: p.name,
               parentId: p._id,
-              price: sp.price || 0,
               code: sp.code || p.code || null,
               isSub: true,
             });
@@ -112,7 +107,6 @@ export default function ProcedureCard({ data, setData, className }: Props) {
           displayName: p.name,
           parentName: null,
           parentId: null,
-          price: p.price || 0,
           code: p.code || null,
           isSub: false,
         });
@@ -146,12 +140,6 @@ export default function ProcedureCard({ data, setData, className }: Props) {
 
   const selectedIds = getSelectedIds();
 
-  // Calculate Total Price of selected procedures
-  const totalPrice = selectedIds.reduce((sum, id) => {
-    const matched = flatOptions.find((opt) => opt.id === id);
-    return sum + (matched?.price || 0);
-  }, 0);
-
   const updateProcedureData = (updatedIds: string[]) => {
     // Build structured procedure objects for the consultation state
     const structured = updatedIds.map((id) => {
@@ -162,7 +150,6 @@ export default function ProcedureCard({ data, setData, className }: Props) {
           subProcedureId: matched.isSub ? matched.id : null,
           name: matched.name,
           parentName: matched.parentName || null,
-          price: matched.price,
           code: matched.code || null,
         };
       }
@@ -201,12 +188,6 @@ export default function ProcedureCard({ data, setData, className }: Props) {
           <Stethoscope className="h-4 w-4 text-blue-600" />
           Procedure
         </CardTitle>
-        {selectedIds.length > 0 && (
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200 text-blue-800 rounded-full text-xs font-bold shadow-2xs">
-            <span>Total Price:</span>
-            <span className="text-blue-700 text-sm">{formatINR(totalPrice)}</span>
-          </div>
-        )}
       </CardHeader>
 
       <CardContent className="space-y-4">
@@ -293,9 +274,6 @@ export default function ProcedureCard({ data, setData, className }: Props) {
                                   )}
                                 </div>
                               </div>
-                              <span className="font-bold text-xs text-blue-700">
-                                {formatINR(proc.price || 0)}
-                              </span>
                             </CommandItem>
                           </CommandGroup>
                         );
@@ -357,9 +335,6 @@ export default function ProcedureCard({ data, setData, className }: Props) {
                                       )}
                                     </div>
                                   </div>
-                                  <span className="font-bold text-xs text-indigo-700">
-                                    {formatINR(sub.price)}
-                                  </span>
                                 </CommandItem>
                               );
                             })}
@@ -380,7 +355,6 @@ export default function ProcedureCard({ data, setData, className }: Props) {
             {selectedIds.map((id) => {
               const matched = flatOptions.find((opt) => opt.id === id);
               const displayName = matched ? matched.displayName : id;
-              const displayPrice = matched ? formatINR(matched.price) : "";
 
               return (
                 <span
@@ -388,11 +362,6 @@ export default function ProcedureCard({ data, setData, className }: Props) {
                   className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-800 shadow-2xs"
                 >
                   <span>{displayName}</span>
-                  {displayPrice && (
-                    <span className="text-blue-600 text-[11px]">
-                      ({displayPrice})
-                    </span>
-                  )}
                   <button
                     type="button"
                     onClick={() => handleRemoveTag(id)}

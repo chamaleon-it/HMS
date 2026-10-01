@@ -31,7 +31,7 @@ import PrintReceipt from "../../PrintReceipt";
 import PharmacyHeader from "../../components/PharmacyHeader";
 import { useDrafts } from "../../DraftContext";
 import { hasMedicineItems, isMedicineItem, isPharmacyBill } from "@/lib/billTypeUtils";
-import { formatPatientAddress } from "@/lib/formatPatientAddress";
+import { formatPatientAddress, patientWithPrintAddress } from "@/lib/formatPatientAddress";
 import { pharmacyLineMoney, presentPharmacyReceiptLine } from "@/lib/pharmacyReceiptLine";
 
 function visitNet(items: { total?: number; unitPrice?: number; quantity?: number; gst?: number; name?: any }[] = []) {
@@ -284,7 +284,10 @@ const CustomerPageContent: React.FC = () => {
                 fetchedOrder = {
                     _id: visit._id,
                     mrn: visit.mrn || "ORD-00000",
-                    patient: (visit.patient && typeof visit.patient === 'object') ? visit.patient : (customer?.patient || null),
+                    patient: patientWithPrintAddress(
+                        (visit.patient && typeof visit.patient === 'object') ? visit.patient : null,
+                        customer?.patient,
+                    ),
                     doctor: typeof rawDoc === 'object' ? rawDoc : null,
                     doctorName: docName,
                     createdAt: visit.createdAt || new Date().toISOString(),
@@ -296,6 +299,13 @@ const CustomerPageContent: React.FC = () => {
                         food: it.food || 'After Food'
                     }))
                 } as any;
+            }
+
+            if (fetchedOrder) {
+                fetchedOrder = {
+                    ...fetchedOrder,
+                    patient: patientWithPrintAddress(fetchedOrder.patient, customer?.patient) ?? fetchedOrder.patient,
+                };
             }
 
             if (fetchedOrder?.patient?._id) {
@@ -395,9 +405,10 @@ const CustomerPageContent: React.FC = () => {
                 ? (rawDoctor.name ? `Dr. ${rawDoctor.name}` : "N/A")
                 : (typeof rawDoctor === "string" && rawDoctor.trim() !== "" ? rawDoctor : "N/A");
 
-            const patientObj = bill.patient && typeof bill.patient === "object"
-                ? bill.patient
-                : (customer?.patient || null);
+            const patientObj = patientWithPrintAddress(
+                bill.patient && typeof bill.patient === "object" ? bill.patient : null,
+                customer?.patient,
+            );
 
             setPrintBill({
                 patient: patientObj,

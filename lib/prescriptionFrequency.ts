@@ -4,10 +4,42 @@ export const PRESCRIPTION_FREQUENCY_OPTIONS = [
   "0-1-1",
   "1-0-0",
   "0-0-1",
-  "2-0-2",
+  "L/A",
   "1oz-0-1oz",
   "1sp-0-1sp",
   "SOS",
+];
+
+/** Shared dosage list for doctor, pharmacy, and reception prescription dropdowns. */
+export const PRESCRIPTION_DOSAGE_OPTIONS = [
+  "½ tab",
+  "1 tab",
+  "2 tab",
+  "1",
+  "5 ml",
+  "10 ml",
+  "20 ml",
+];
+
+const QUANTITY_ONE_DOSAGES = new Set(["1", "5 ml", "10 ml", "20 ml"]);
+
+/** Shared duration list for doctor and pharmacy prescription dropdowns. */
+export const PRESCRIPTION_DURATION_OPTIONS = [
+  "3 days",
+  "5 days",
+  "6 days",
+  "7 days",
+  "9 days",
+  "10 days",
+  "12 days",
+  "14 days",
+  "15 days",
+  "21 days",
+  "24 days",
+  "28 days",
+  "30 days",
+  "45 days",
+  "60 days",
 ];
 
 const TABLET_UNITS: Record<string, number> = {
@@ -16,32 +48,62 @@ const TABLET_UNITS: Record<string, number> = {
   "2 tab": 2,
 };
 
-const DURATION_DAYS: Record<string, number> = {
-  "3 days": 3,
-  "5 days": 5,
-  "7 days": 7,
-  "10 days": 10,
-  "14 days": 14,
-  "28 days": 28,
-};
+const DURATION_DAYS: Record<string, number> = Object.fromEntries(
+  PRESCRIPTION_DURATION_OPTIONS.map((label) => [
+    label,
+    Number.parseInt(label, 10),
+  ]),
+);
 
-/** Doses per day for morning-noon-night patterns. 2-0-2 is morning 2, noon 0, night 2. */
+/** Doses per day for morning-noon-night patterns. */
 const DOSES_PER_DAY: Record<string, number> = {
   "1-0-1": 2,
   "1-1-1": 3,
   "0-1-1": 2,
   "1-0-0": 1,
   "0-0-1": 1,
-  "2-0-2": 4,
 };
 
+export function dosageSetsQuantityToOne(dosage: string): boolean {
+  return QUANTITY_ONE_DOSAGES.has(dosage);
+}
+
 export function frequencySetsQuantityToOne(frequency: string): boolean {
-  return frequency === "1oz-0-1oz" || frequency === "1sp-0-1sp";
+  return (
+    frequency === "1oz-0-1oz" ||
+    frequency === "1sp-0-1sp" ||
+    frequency === "L/A"
+  );
+}
+
+/** ml, plain "1", ounce, spoon, and L/A keep quantity at 1 instead of a tablet total. */
+export function selectionKeepsQuantityAtOne(
+  dosage: string,
+  frequency: string,
+): boolean {
+  return dosageSetsQuantityToOne(dosage) || frequencySetsQuantityToOne(frequency);
+}
+
+/**
+ * True only on the change that enters a quantity-1 dosage or frequency.
+ * Later edits to quantity stay as the user left them.
+ */
+export function selectionJustSetQuantityToOne(
+  previous: { dosage: string; frequency: string },
+  next: { dosage: string; frequency: string },
+): boolean {
+  const dosageEntered =
+    dosageSetsQuantityToOne(next.dosage) && previous.dosage !== next.dosage;
+  const frequencyEntered =
+    frequencySetsQuantityToOne(next.frequency) &&
+    previous.frequency !== next.frequency;
+  return dosageEntered || frequencyEntered;
 }
 
 /**
  * Tablet quantity = dosage units × days × doses per day.
- * Null when dosage or frequency is not a numeric pattern (including ounce, spoon, and SOS).
+ * Null when dosage or frequency is not a numeric tablet pattern
+ * (including ml, plain "1", ounce, spoon, L/A, and SOS).
  */
 export function derivedTabletQuantity(
   dosage: string,

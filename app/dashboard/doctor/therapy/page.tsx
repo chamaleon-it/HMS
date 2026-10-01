@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/tooltip";
 import useSWR from "swr";
 import api from "@/lib/axios";
-import { formatINR } from "@/lib/fNumber";
 import { fDate } from "@/lib/fDateAndTime";
 import PharmacyHeader from "@/app/dashboard/pharmacy/components/PharmacyHeader";
 import { TableSkeleton } from "@/app/dashboard/pharmacy/components/PharmacySkeleton";
@@ -76,7 +75,6 @@ import { Card, CardContent } from "@/components/ui/card";
 export interface SubTherapyItem {
   _id: string;
   name: string;
-  price: number;
   code?: string;
   description?: string;
   status: string;
@@ -86,7 +84,6 @@ export interface SubTherapyItem {
 export interface TherapyItem {
   _id: string;
   name: string;
-  price?: number;
   code?: string;
   description?: string;
   hasSubTherapies?: boolean;
@@ -99,7 +96,6 @@ export interface TherapyItem {
 interface TempSubTherapy {
   _id?: string;
   name: string;
-  price: string;
   code: string;
   description: string;
   status: string;
@@ -130,7 +126,6 @@ export default function TherapyPage() {
 
   // Form Field States (Main Therapy)
   const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("Active");
@@ -139,7 +134,6 @@ export default function TherapyPage() {
 
   // Sub-Therapy form fields
   const [subName, setSubName] = useState("");
-  const [subPrice, setSubPrice] = useState("");
   const [subCode, setSubCode] = useState("");
   const [subDescription, setSubDescription] = useState("");
   const [subStatus, setSubStatus] = useState("Active");
@@ -185,7 +179,6 @@ export default function TherapyPage() {
   const handleOpenCreate = () => {
     setEditingTherapy(null);
     setName("");
-    setPrice("");
     setCode("");
     setDescription("");
     setStatus("Active");
@@ -199,7 +192,6 @@ export default function TherapyPage() {
   const handleOpenEdit = (item: TherapyItem) => {
     setEditingTherapy(item);
     setName(item.name || "");
-    setPrice(item.price !== undefined ? String(item.price) : "");
     setCode(item.code || "");
     setDescription(item.description || "");
     setStatus(item.status || "Active");
@@ -213,7 +205,6 @@ export default function TherapyPage() {
         item.subTherapies.map((st) => ({
           _id: st._id,
           name: st.name,
-          price: String(st.price),
           code: st.code || "",
           description: st.description || "",
           status: st.status || "Active",
@@ -233,7 +224,6 @@ export default function TherapyPage() {
       ...prev,
       {
         name: "",
-        price: "",
         code: "",
         description: "",
         status: "Active",
@@ -265,15 +255,6 @@ export default function TherapyPage() {
       return;
     }
 
-    let numPrice = 0;
-    if (!hasSubTherapies) {
-      numPrice = parseFloat(price);
-      if (isNaN(numPrice) || numPrice < 0) {
-        setErrorMsg("Please enter a valid price for the standalone therapy.");
-        return;
-      }
-    }
-
     // Validate sub-therapies if enabled
     const validatedSubTherapies = [];
     if (hasSubTherapies) {
@@ -290,17 +271,9 @@ export default function TherapyPage() {
           setErrorMsg(`Sub-therapy #${i + 1} name is required.`);
           return;
         }
-        const p = parseFloat(st.price);
-        if (isNaN(p) || p < 0) {
-          setErrorMsg(
-            `Sub-therapy #${i + 1} ("${st.name}") must have a valid non-negative price.`
-          );
-          return;
-        }
         validatedSubTherapies.push({
           ...(st._id ? { _id: st._id } : {}),
           name: st.name.trim(),
-          price: p,
           code: st.code.trim() || undefined,
           description: st.description.trim() || undefined,
           status: st.status || "Active",
@@ -315,7 +288,6 @@ export default function TherapyPage() {
       name: name.trim(),
       code: code.trim() || undefined,
       description: description.trim() || undefined,
-      price: !hasSubTherapies ? numPrice : 0,
       hasSubTherapies,
       subTherapies: hasSubTherapies ? validatedSubTherapies : [],
       status,
@@ -368,7 +340,6 @@ export default function TherapyPage() {
     setParentForSub(parent);
     setEditingSubTherapy(null);
     setSubName("");
-    setSubPrice("");
     setSubCode("");
     setSubDescription("");
     setSubStatus("Active");
@@ -384,7 +355,6 @@ export default function TherapyPage() {
     setParentForSub(parent);
     setEditingSubTherapy(sub);
     setSubName(sub.name);
-    setSubPrice(String(sub.price));
     setSubCode(sub.code || "");
     setSubDescription(sub.description || "");
     setSubStatus(sub.status || "Active");
@@ -400,18 +370,11 @@ export default function TherapyPage() {
       setErrorMsg("Sub-therapy name is required.");
       return;
     }
-    const numP = parseFloat(subPrice);
-    if (isNaN(numP) || numP < 0) {
-      setErrorMsg("Please enter a valid non-negative price.");
-      return;
-    }
-
     setIsSubmitting(true);
     setErrorMsg(null);
 
     const subPayload = {
       name: subName.trim(),
-      price: numP,
       code: subCode.trim() || undefined,
       description: subDescription.trim() || undefined,
       status: subStatus,
@@ -489,7 +452,7 @@ export default function TherapyPage() {
           {/* Therapy Header */}
           <PharmacyHeader
             title="Therapy Management"
-            subtitle="Manage clinical therapies, hierarchical sub-therapies, and pricing"
+            subtitle="Manage clinical therapies and hierarchical sub-therapies"
           >
             <div className="flex items-center gap-3">
               <Button
@@ -607,9 +570,6 @@ export default function TherapyPage() {
                   <TableHead className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     Status
                   </TableHead>
-                  <TableHead className="text-xs font-bold text-slate-600 uppercase tracking-wider text-right">
-                    Price
-                  </TableHead>
                   <TableHead className="w-28 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">
                     Actions
                   </TableHead>
@@ -618,14 +578,14 @@ export default function TherapyPage() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="p-0">
-                      <TableSkeleton columns={7} rows={6} />
+                    <TableCell colSpan={6} className="p-0">
+                      <TableSkeleton columns={6} rows={6} />
                     </TableCell>
                   </TableRow>
                 ) : therapies.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={7}
+                      colSpan={6}
                       className="text-center py-12 text-slate-400 text-sm"
                     >
                       <Activity className="h-8 w-8 mx-auto text-slate-300 mb-2" />
@@ -721,16 +681,6 @@ export default function TherapyPage() {
                             </Badge>
                           </TableCell>
 
-                          <TableCell className="text-right font-bold text-xs text-slate-800">
-                            {hasSubs ? (
-                              <span className="text-xs font-semibold text-slate-400 italic">
-                                Varies by sub-therapy
-                              </span>
-                            ) : (
-                              formatINR(item.price || 0)
-                            )}
-                          </TableCell>
-
                           <TableCell>
                             <div className="flex items-center justify-center gap-1">
                               {hasSubs && (
@@ -782,7 +732,7 @@ export default function TherapyPage() {
                         {/* Nested Sub-Therapies Accordion View */}
                         {hasSubs && isExpanded && (
                           <TableRow className="bg-slate-50/50 hover:bg-slate-50/60 border-b border-slate-200">
-                            <TableCell colSpan={7} className="py-2.5 px-6">
+                            <TableCell colSpan={6} className="py-2.5 px-6">
                               <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs space-y-2">
                                 <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
                                   <div className="flex items-center gap-2">
@@ -827,9 +777,6 @@ export default function TherapyPage() {
                                           <th className="py-1.5 text-left w-24">
                                             Status
                                           </th>
-                                          <th className="py-1.5 text-right w-28">
-                                            Price
-                                          </th>
                                           <th className="py-1.5 text-center w-20">
                                             Actions
                                           </th>
@@ -861,9 +808,6 @@ export default function TherapyPage() {
                                               >
                                                 {st.status}
                                               </Badge>
-                                            </td>
-                                            <td className="py-1.5 text-right font-bold text-slate-700">
-                                              {formatINR(st.price)}
                                             </td>
                                             <td className="py-1.5 text-center">
                                               <div className="flex items-center justify-center gap-1">
@@ -923,8 +867,7 @@ export default function TherapyPage() {
                 {editingTherapy ? "Edit Therapy" : "Add New Therapy"}
               </DialogTitle>
               <DialogDescription className="text-xs text-slate-500">
-                Configure therapy details, standalone pricing, or nested
-                sub-therapies.
+                Configure therapy details or nested sub-therapies.
               </DialogDescription>
             </DialogHeader>
 
@@ -999,8 +942,7 @@ export default function TherapyPage() {
                       Has Sub-Therapies?
                     </Label>
                     <p className="text-[11px] text-slate-500">
-                      Enable if this therapy contains multiple sub-types with
-                      individual pricing.
+                      Enable if this therapy contains multiple sub-types.
                     </p>
                   </div>
                   <Switch
@@ -1009,25 +951,7 @@ export default function TherapyPage() {
                   />
                 </div>
 
-                {/* Standalone Price if NO sub-therapies */}
-                {!hasSubTherapies ? (
-                  <div className="pt-2 border-t border-slate-200 space-y-1.5">
-                    <Label className="text-xs font-bold text-slate-700">
-                      Standalone Therapy Price (₹){" "}
-                      <span className="text-rose-500">*</span>
-                    </Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      required
-                      placeholder="e.g. 500"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      className="rounded-xl border-slate-200 text-xs focus:ring-2 focus:ring-emerald-100 max-w-xs"
-                    />
-                  </div>
-                ) : (
+                {hasSubTherapies && (
                   /* Dynamic Sub-Therapies Builder inside Main Modal */
                   <div className="pt-2 border-t border-slate-200 space-y-3">
                     <div className="flex items-center justify-between">
@@ -1071,23 +995,12 @@ export default function TherapyPage() {
                               </button>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                               <Input
                                 placeholder="Sub-therapy name *"
                                 value={st.name}
                                 onChange={(e) =>
                                   handleUpdateTempSub(idx, "name", e.target.value)
-                                }
-                                className="rounded-lg text-xs h-8 border-slate-200"
-                              />
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                placeholder="Price (₹) *"
-                                value={st.price}
-                                onChange={(e) =>
-                                  handleUpdateTempSub(idx, "price", e.target.value)
                                 }
                                 className="rounded-lg text-xs h-8 border-slate-200"
                               />
@@ -1177,34 +1090,16 @@ export default function TherapyPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-700">
-                    Price (₹) <span className="text-rose-500">*</span>
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    required
-                    placeholder="e.g. 350"
-                    value={subPrice}
-                    onChange={(e) => setSubPrice(e.target.value)}
-                    className="rounded-xl border-slate-200 text-xs focus:ring-2 focus:ring-emerald-100"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <Label className="text-xs font-bold text-slate-700">
-                    Code
-                  </Label>
-                  <Input
-                    placeholder="e.g. TH-DN"
-                    value={subCode}
-                    onChange={(e) => setSubCode(e.target.value)}
-                    className="rounded-xl border-slate-200 text-xs focus:ring-2 focus:ring-emerald-100"
-                  />
-                </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-bold text-slate-700">
+                  Code
+                </Label>
+                <Input
+                  placeholder="e.g. TH-DN"
+                  value={subCode}
+                  onChange={(e) => setSubCode(e.target.value)}
+                  className="rounded-xl border-slate-200 text-xs focus:ring-2 focus:ring-emerald-100"
+                />
               </div>
 
               <div className="space-y-1">

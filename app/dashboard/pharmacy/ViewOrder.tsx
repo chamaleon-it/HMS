@@ -24,7 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { OrderType } from "./interface";
 import { sanitizeOrderUpdatePayload } from "@/lib/sanitizeOrderPayload";
-import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney, unselectedOversellWarnings, OversellWarning } from "@/lib/pharmacyReceiptLine";
+import { batchSalePrice, lineSaleBatch, positiveMoney, unselectedOversellWarnings, OversellWarning } from "@/lib/pharmacyReceiptLine";
 import { isOutsideOrderLine, withConsultationLines } from "@/lib/pharmacyOutsideMedicine";
 import OversellWarningDialog from "./OversellWarningDialog";
 import { fAge, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
@@ -45,25 +45,6 @@ interface Props {
     autoGenerateBill: boolean;
     handlePrintBill: (order: OrderType) => void;
     printingOrderId?: string | null;
-}
-
-function Barcode({ value }: { value: string }) {
-    const bars = Array.from(value || "").map(
-        (ch, i) => ((ch.charCodeAt(0) + i) % 7) + 2
-    );
-    const totalW = bars.reduce((a, b) => a + b + 1, 0);
-    let x = 0;
-    return (
-        <svg width={totalW} height={48} className="bg-white">
-            {bars.map((w, i) => {
-                const rect = (
-                    <rect key={i} x={x} y={0} width={w} height={48} fill="#000" />
-                );
-                x += w + 1;
-                return rect;
-            })}
-        </svg>
-    );
 }
 
 function OrderHeader({ order }: { order: OrderType }) {
@@ -101,27 +82,22 @@ function OrderHeader({ order }: { order: OrderType }) {
             </div>
 
             {/* Bill card */}
-            <div className="border rounded-lg p-3 flex items-center justify-between">
-                <div>
-                    <div className="text-xs text-slate-600">
-                        Date:{" "}
-                        <span className="font-medium">
-                            {fDateandTime(order?.createdAt)}
-                        </span>
-                    </div>
-                    <div className="text-xs text-slate-600">
-                        RX ID: <span className="font-medium">{order?.mrn}</span>
-                    </div>
-                    <div className="mt-2 text-xs text-slate-500">
-                        Doctor: {order?.doctor?.name} • Specialization:{" "}
-                        {order?.doctor?.specialization}
-                    </div>
-                    <div className="text-xs text-slate-600">
-                        Accountant in charge: <span className="font-medium">{accountantDisplay}</span>
-                    </div>
+            <div className="border rounded-lg p-3">
+                <div className="text-xs text-slate-600">
+                    Date:{" "}
+                    <span className="font-medium">
+                        {fDateandTime(order?.createdAt)}
+                    </span>
                 </div>
-                <div className="ml-3 bg-white p-1 rounded border">
-                    <Barcode value={order?.mrn ?? ""} />
+                <div className="text-xs text-slate-600">
+                    RX ID: <span className="font-medium">{order?.mrn}</span>
+                </div>
+                <div className="mt-2 text-xs text-slate-500">
+                    Doctor: {order?.doctor?.name} • Specialization:{" "}
+                    {order?.doctor?.specialization}
+                </div>
+                <div className="text-xs text-slate-600">
+                    Accountant in charge: <span className="font-medium">{accountantDisplay}</span>
                 </div>
             </div>
         </div>
@@ -245,12 +221,9 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
     const lineAmount = (it: { isCustom?: boolean; referralName?: string; quantity?: number; unitPrice?: number; batchNumber?: string; name?: { unitPrice?: number; batches?: { batchNumber?: string; unitPrice?: number; saleRate?: number; mrp?: number; packing?: number }[] } | null }) => {
         if (isOutsideOrderLine(it)) return 0;
-        const batches = it.name?.batches || [];
-        const selected = chosenBatch(batches, it.batchNumber);
-        if (!selected && isPlaceholderBatchNumber(it.batchNumber)) return 0;
-        const price = selected
-            ? batchSalePrice(selected) || positiveMoney(it.unitPrice)
-            : positiveMoney(it.unitPrice);
+        const selected = lineSaleBatch(it.name?.batches, it.batchNumber, it.quantity);
+        if (!selected) return 0;
+        const price = batchSalePrice(selected) || positiveMoney(it.unitPrice);
         return price * (Number(it.quantity) || 0);
     };
 

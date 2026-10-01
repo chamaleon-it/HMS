@@ -5,9 +5,12 @@ import Medicine from "./Medicine";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import {
+  PRESCRIPTION_DOSAGE_OPTIONS,
+  PRESCRIPTION_DURATION_OPTIONS,
   PRESCRIPTION_FREQUENCY_OPTIONS,
   derivedTabletQuantity,
-  frequencySetsQuantityToOne,
+  selectionJustSetQuantityToOne,
+  selectionKeepsQuantityAtOne,
 } from "@/lib/prescriptionFrequency";
 
 // ------------------ Types ------------------
@@ -94,14 +97,7 @@ export default function PrescriptionCard({
               {showAllFields && <>
                 <div className="col-span-1">
                   <LabeledCombobox
-                    options={[
-                      "½ tab",
-                      "1 tab",
-                      "2 tab",
-                      "5 ml",
-                      "10 ml",
-                      "20 ml",
-                    ]}
+                    options={PRESCRIPTION_DOSAGE_OPTIONS}
                     label="Dosage"
                     value={m.dosage}
                     onChange={(e) => updateField(i, "dosage", e)}
@@ -134,14 +130,7 @@ export default function PrescriptionCard({
 
                 <div className="col-span-2">
                   <LabeledCombobox
-                    options={[
-                      "3 days",
-                      "5 days",
-                      "7 days",
-                      "10 days",
-                      "14 days",
-                      "28 days",
-                    ]}
+                    options={PRESCRIPTION_DURATION_OPTIONS}
                     label="Duration"
                     value={m.duration}
                     onChange={(e) => updateField(i, "duration", e)}
@@ -192,14 +181,15 @@ export default function PrescriptionCard({
 
 
 const QuantityInput = ({ updateField, i, m }: { updateField: (idx: number, key: keyof Medicine, val: string | number) => void, i: number, m: Medicine }) => {
-  const seenFrequency = useRef(m.frequency);
+  const seenSelection = useRef({ dosage: m.dosage, frequency: m.frequency });
 
   useEffect(() => {
-    const previousFrequency = seenFrequency.current;
-    seenFrequency.current = m.frequency;
+    const previous = seenSelection.current;
+    const next = { dosage: m.dosage, frequency: m.frequency };
+    seenSelection.current = next;
 
-    if (frequencySetsQuantityToOne(m.frequency)) {
-      if (previousFrequency !== m.frequency) {
+    if (selectionKeepsQuantityAtOne(next.dosage, next.frequency)) {
+      if (selectionJustSetQuantityToOne(previous, next)) {
         updateField(i, "quantity", 1);
       }
       return;

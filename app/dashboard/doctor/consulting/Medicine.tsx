@@ -13,7 +13,13 @@ interface Medicine {
   quantity: number;
 }
 
-type Item = { _id: string; name: string; generic: string; quantity: number };
+type Item = {
+  _id: string;
+  name: string;
+  generic: string;
+  quantity: number;
+  status?: string;
+};
 type ItemsApi = { message: string; data: Item[] };
 type ItemApi = { message: string; data: Item };
 
@@ -58,7 +64,7 @@ export default function MedicineField({
     q: string;
     page: number;
   }>({
-    limit: 5,
+    limit: 20,
     q: "",
     page: 1,
   });
@@ -116,7 +122,10 @@ export default function MedicineField({
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  const items = data?.data ?? [];
+  const items = (data?.data ?? []).filter((it) => {
+    const status = String(it.status || "Active").toLowerCase();
+    return status === "active";
+  });
   const cleanQuery = filter.q.trim();
 
   const handleSelectInventory = (item: Item) => {

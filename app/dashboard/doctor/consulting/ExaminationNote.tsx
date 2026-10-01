@@ -747,7 +747,7 @@ export default function ExaminationNote({
                 Sleep
               </span>
               <div className="flex flex-wrap gap-1.5">
-                {["Sound Sleep", "Disturbed Sleep", "Normal"].map((opt) => {
+                {["Normal", "Disturbed Sleep", "Insomnia"].map((opt) => {
                   const active = selectedSleep === opt;
                   return (
                     <label
@@ -900,7 +900,7 @@ export default function ExaminationNote({
                 Appetite
               </span>
               <div className="flex flex-wrap gap-1.5">
-                {["Normal", "Poor"].map((opt) => {
+                {["Normal", "Poor", "Bulimia"].map((opt) => {
                   const active = selectedAppetite === opt;
                   return (
                     <label

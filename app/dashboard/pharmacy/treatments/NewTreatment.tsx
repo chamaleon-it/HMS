@@ -40,10 +40,8 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar as ShadcnCalendar } from "@/components/ui/calendar";
-import { formatINR } from "@/lib/fNumber";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
-import TherapistSelection from "./TherapistSelection";
 import TreatmentSchedulePicker from "@/components/shared/treatment/TreatmentSchedulePicker";
 import {
   Command,
@@ -84,21 +82,14 @@ export default function NewTreatment({
       subProcedureId?: string;
       parentName?: string;
       code?: string;
-      unitPrice: number;
-      quantity: number;
-      total: number;
     }[]
   >([]);
-  const [therapistId, setTherapistId] = useState("");
-  const [therapistName, setTherapistName] = useState("");
-
   // Multi-session dates list
   const [treatmentDates, setTreatmentDates] = useState<string[]>([
     new Date().toISOString().split("T")[0],
   ]);
 
   const [notes, setNotes] = useState("");
-  const [discount, setDiscount] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Search & Catalog popover state
@@ -186,7 +177,6 @@ export default function NewTreatment({
                 parentName: t.name,
                 therapyId: t._id,
                 subTherapyId: st._id,
-                price: Number(st.price) || 0,
                 code: st.code || t.code || null,
               });
             }
@@ -199,7 +189,6 @@ export default function NewTreatment({
             parentName: null,
             therapyId: t._id,
             subTherapyId: null,
-            price: Number(t.price) || 0,
             code: t.code || null,
           });
         }
@@ -217,7 +206,6 @@ export default function NewTreatment({
                 parentName: p.name,
                 procedureId: p._id,
                 subProcedureId: sp._id,
-                price: Number(sp.price) || 0,
                 code: sp.code || p.code || null,
               });
             }
@@ -230,7 +218,6 @@ export default function NewTreatment({
             parentName: null,
             procedureId: p._id,
             subProcedureId: null,
-            price: Number(p.price) || 0,
             code: p.code || null,
           });
         }
@@ -265,9 +252,6 @@ export default function NewTreatment({
           procedureId: opt.procedureId,
           subProcedureId: opt.subProcedureId || undefined,
           code: opt.code || undefined,
-          unitPrice: opt.price || 0,
-          quantity: 1,
-          total: opt.price || 0,
         },
       ]);
     }
@@ -276,13 +260,6 @@ export default function NewTreatment({
   const handleRemoveItem = (index: number) => {
     setSelectedItems((prev) => prev.filter((_, idx) => idx !== index));
   };
-
-  const perSessionTotal = useMemo(() => {
-    const subtotal = selectedItems.reduce((sum, it) => sum + it.total, 0);
-    return Math.max(0, subtotal - discount);
-  }, [selectedItems, discount]);
-
-  const totalCoursePrice = perSessionTotal * treatmentDates.length;
 
   const selectedPatient = (patientsData?.data || []).find((p) => p._id === patientId);
   const selectedDoctor = (doctorsData?.data || []).find((d) => d._id === doctorId);
@@ -300,11 +277,6 @@ export default function NewTreatment({
       return;
     }
 
-    if (!therapistName || therapistName.trim() === "") {
-      toast.error("Therapist assignment is mandatory");
-      return;
-    }
-
     if (treatmentDates.length === 0) {
       toast.error("Please select at least one treatment date");
       return;
@@ -319,12 +291,9 @@ export default function NewTreatment({
         type: treatmentType,
         category: treatmentType,
         items: selectedItems,
-        therapist: therapistId || null,
-        therapistName,
         treatmentDate: new Date(treatmentDates[0]),
         treatmentDates: treatmentDates.map((d) => new Date(d)),
         notes,
-        discount,
       });
 
       toast.success(
@@ -339,7 +308,6 @@ export default function NewTreatment({
       setSelectedItems([]);
       setTreatmentDates([new Date().toISOString().split("T")[0]]);
       setNotes("");
-      setDiscount(0);
       onSuccess?.();
     } catch (err: any) {
       console.error("Error creating treatment:", err);
@@ -468,10 +436,7 @@ export default function NewTreatment({
             </div>
           </div>
 
-          {/* Section 2: Treatment Category & Therapist Selection */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1">
-            {/* Category Toggle */}
-            <div className="space-y-2">
+          <div className="space-y-2 pt-1">
               <Label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
                 <Layers className="h-3.5 w-3.5 text-synapse-light" />
                 <span>Treatment Category</span>
@@ -508,19 +473,6 @@ export default function NewTreatment({
                   Procedure
                 </button>
               </div>
-            </div>
-
-            {/* Mandatory Therapist Selection */}
-            <div className="space-y-2">
-              <TherapistSelection
-                value={therapistId}
-                onChange={(id, name) => {
-                  setTherapistId(id);
-                  setTherapistName(name);
-                }}
-                required={true}
-              />
-            </div>
           </div>
 
           {/* Section 3: Treatment Items Multi-Select from Master Catalog */}
@@ -531,11 +483,6 @@ export default function NewTreatment({
                 <span>Select {treatmentType} Items</span>
                 <span className="text-rose-500">*</span>
               </Label>
-              {selectedItems.length > 0 && (
-                <span className="text-xs font-bold text-emerald-700">
-                  Per-Session Price: {formatINR(selectedItems.reduce((s, i) => s + i.total, 0))}
-                </span>
-              )}
             </div>
 
             <Popover open={catalogOpen} onOpenChange={setCatalogOpen}>
@@ -596,9 +543,6 @@ export default function NewTreatment({
                                 {opt.displayName}
                               </span>
                             </div>
-                            <span className="font-bold text-xs text-emerald-700 shrink-0">
-                              {formatINR(opt.price)}
-                            </span>
                           </CommandItem>
                         );
                       })}
@@ -620,9 +564,6 @@ export default function NewTreatment({
                       <span className="font-semibold text-slate-800 text-xs">{item.name}</span>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                      <span className="font-bold text-slate-700 text-xs">
-                        {formatINR(item.total)}
-                      </span>
                       <button
                         type="button"
                         onClick={() => handleRemoveItem(idx)}
@@ -644,49 +585,17 @@ export default function NewTreatment({
             onChange={setTreatmentDates}
           />
 
-          {/* Section 5: Discount & Notes */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1">
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-700">Per-Session Discount (₹)</Label>
-              <Input
-                type="number"
-                min="0"
-                value={discount || ""}
-                onChange={(e) => setDiscount(Number(e.target.value) || 0)}
-                placeholder="0"
-                className="h-11 rounded-xl border-slate-200 text-xs"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-semibold text-slate-700">
-                Treatment Notes / Instructions
-              </Label>
-              <Input
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Add clinical instructions or session notes..."
-                className="h-11 rounded-xl border-slate-200 text-xs"
-              />
-            </div>
+          <div className="space-y-2 pt-1">
+            <Label className="text-xs font-semibold text-slate-700">
+              Treatment Notes / Instructions
+            </Label>
+            <Input
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add clinical instructions or session notes..."
+              className="h-11 rounded-xl border-slate-200 text-xs"
+            />
           </div>
-
-          {/* Grand Total Course Summary */}
-          {selectedItems.length > 0 && (
-            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-between text-xs">
-              <div className="flex flex-col">
-                <span className="font-semibold text-emerald-950 text-xs">Total Treatment Course</span>
-                <span className="text-[10.5px] text-emerald-700">
-                  {treatmentDates.length} {treatmentDates.length === 1 ? "Session" : "Sessions"} • {formatINR(perSessionTotal)} per session
-                </span>
-              </div>
-              <div className="text-right">
-                <span className="font-extrabold text-emerald-900 text-lg block">
-                  {formatINR(totalCoursePrice)}
-                </span>
-                <span className="text-[10px] text-emerald-600">Billed per session when completed</span>
-              </div>
-            </div>
-          )}
 
           {/* Footer Actions */}
           <DialogFooter className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">

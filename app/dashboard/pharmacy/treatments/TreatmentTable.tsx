@@ -49,7 +49,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { formatINR } from "@/lib/fNumber";
 import { fDate, fDateandTime } from "@/lib/fDateAndTime";
 import { PaginationBar } from "@/app/dashboard/pharmacy/components/PaginationBar";
 import { TreatmentOrderType } from "./interface";
@@ -165,9 +164,6 @@ export default function TreatmentTable({
                 const isCompleted = treatment.status === "Completed";
                 const isBilled =
                   treatment.billingStatus === "Billed" || treatment.billingStatus === "Paid";
-                const totalAmount =
-                  (treatment.items || []).reduce((s, i) => s + i.total, 0) -
-                  (treatment.discount || 0);
 
                 return (
                   <TableRow
@@ -219,9 +215,6 @@ export default function TreatmentTable({
                             </span>
                           ))}
                         </div>
-                        <span className="text-[11px] text-slate-500 font-bold">
-                          {formatINR(totalAmount)}
-                        </span>
                       </div>
                     </TableCell>
 

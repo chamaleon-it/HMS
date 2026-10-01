@@ -10,10 +10,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import UpdateMedicine from "./UpdateMedicine";
 import { formatINR } from "@/lib/fNumber";
 import BatchSelector from "./BatchSelector";
-import { batchSalePrice, chosenBatch, isPlaceholderBatchNumber, positiveMoney } from "@/lib/pharmacyReceiptLine";
+import { batchSalePrice, clampOrderDiscount, discountFromPercent, discountPercent, lineSaleBatch, positiveMoney } from "@/lib/pharmacyReceiptLine";
 import { isOutsideOrderLine, outsideDrugLabel } from "@/lib/pharmacyOutsideMedicine";
 import {
+  PRESCRIPTION_DOSAGE_OPTIONS,
+  PRESCRIPTION_DURATION_OPTIONS,
   PRESCRIPTION_FREQUENCY_OPTIONS,
+  dosageSetsQuantityToOne,
   frequencySetsQuantityToOne,
 } from "@/lib/prescriptionFrequency";
 import {
@@ -96,6 +99,13 @@ export default function UpdatePrescriptionCard({
     if (!row.picked) return sum;
     return sum + (item.quantity || 0) * row.price;
   }, 0);
+
+  const discount = clampOrderDiscount(data.discount, subTotal);
+
+  useEffect(() => {
+    if ((Number(data.discount) || 0) === discount) return;
+    setData((prev) => ({ ...prev, discount }));
+  }, [data.discount, discount, setData]);
 
   useEffect(() => {
     if (data.items.length > 0) {
@@ -233,8 +243,13 @@ export default function UpdatePrescriptionCard({
                     label="Dosage"
                     value={m.dosage}
                     disabled={data.status === "Completed"}
-                    onChange={(val) => updateField(i, "dosage", val)}
-                    options={["½ tab", "1 tab", "2 tab", "5 ml", "10 ml", "20 ml"]}
+                    onChange={(val) => {
+                      updateField(i, "dosage", val);
+                      if (dosageSetsQuantityToOne(val)) {
+                        updateField(i, "quantity", 1);
+                      }
+                    }}
+                    options={PRESCRIPTION_DOSAGE_OPTIONS}
                   />
                 </td>
                 <td className="p-3 align-middle">
@@ -272,14 +287,7 @@ export default function UpdatePrescriptionCard({
                     value={m.duration}
                     disabled={data.status === "Completed"}
                     onChange={(val) => updateField(i, "duration", val)}
-                    options={[
-                      "3 days",
-                      "5 days",
-                      "7 days",
-                      "10 days",
-                      "14 days",
-                      "28 days",
-                    ]}
+                    options={PRESCRIPTION_DURATION_OPTIONS}
                   />
                 </td>
                 <td className="p-2 align-middle text-sm text-slate-600">
@@ -324,6 +332,29 @@ export default function UpdatePrescriptionCard({
             <span>{formatINR(subTotal)}</span>
           </div>
 
+          <DiscountField
+            label="Discount (₹)"
+            value={discount}
+            disabled={data.status === "Completed"}
+            onCommit={(raw) =>
+              setData((prev) => ({
+                ...prev,
+                discount: clampOrderDiscount(raw, subTotal),
+              }))
+            }
+          />
+          <DiscountField
+            label="Discount (%)"
+            suffix="%"
+            value={discountPercent(discount, subTotal)}
+            disabled={data.status === "Completed" || subTotal <= 0}
+            onCommit={(raw) =>
+              setData((prev) => ({
+                ...prev,
+                discount: discountFromPercent(raw, subTotal),
+              }))
+            }
+          />
 
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Amount Paid</span>
@@ -332,14 +363,62 @@ export default function UpdatePrescriptionCard({
 
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Amount Due</span>
-            <span className="text-red-600">{formatINR((subTotal - (data.discount || 0)) - (data.paidAmount ?? 0))}</span>
+            <span className="text-red-600">{formatINR((subTotal - discount) - (data.paidAmount ?? 0))}</span>
           </div>
 
           <div className="flex justify-between text-md font-semibold text-slate-800 border-t pt-2">
             <span>Grand Total</span>
-            <span>{formatINR(subTotal - (data.discount || 0))}</span>
+            <span>{formatINR(subTotal - discount)}</span>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function DiscountField({
+  label,
+  value,
+  disabled,
+  suffix,
+  onCommit,
+}: {
+  label: string;
+  value: number;
+  disabled?: boolean;
+  suffix?: string;
+  onCommit: (raw: string) => void;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const canonical = value === 0 ? "" : String(parseFloat(value.toFixed(2)));
+  const shown = draft ?? canonical;
+
+  useEffect(() => {
+    if (draft == null || draft === "" || draft.endsWith(".")) return;
+    if (Number(draft) !== value) setDraft(null);
+  }, [draft, value]);
+
+  return (
+    <div className="flex justify-between items-center gap-3 text-sm text-slate-600">
+      <span>{label}</span>
+      <div className="flex items-center gap-1">
+        <input
+          type="text"
+          inputMode="decimal"
+          disabled={disabled}
+          value={shown}
+          placeholder="0"
+          onFocus={() => setDraft(shown)}
+          onChange={(e) => {
+            const raw = e.target.value;
+            if (raw !== "" && !/^\d*\.?\d*$/.test(raw)) return;
+            setDraft(raw);
+            onCommit(raw);
+          }}
+          onBlur={() => setDraft(null)}
+          className="w-20 text-right bg-white border border-slate-200 rounded-md px-2 py-1 text-sm font-medium text-slate-800 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 disabled:bg-transparent disabled:border-transparent disabled:px-0"
+        />
+        {suffix ? <span className="text-xs text-slate-500">{suffix}</span> : null}
       </div>
     </div>
   );
@@ -436,22 +515,17 @@ const ComboboxInput = ({
 };
 
 function batchRow(item: Item) {
+  if (isOutsideOrderLine(item)) {
+    return { selected: undefined, picked: false, price: 0, available: undefined as number | undefined };
+  }
   const batches = (item.name as { batches?: any[] } | undefined)?.batches || [];
   const batchNumber = (item as { batchNumber?: string }).batchNumber;
-  const selected = chosenBatch(batches, batchNumber);
-  const picked = Boolean(selected) || !isPlaceholderBatchNumber(batchNumber);
+  const selected = lineSaleBatch(batches, batchNumber, Number(item.quantity) || 0);
   const price = selected
-    ? batchSalePrice(selected)
-    : picked
-      ? positiveMoney((item as { unitPrice?: number }).unitPrice)
-      : 0;
-  const lineStock = (item as { availableQuantity?: number }).availableQuantity;
-  const available = selected
-    ? Number(selected.quantity ?? 0)
-    : picked && lineStock != null
-      ? Number(lineStock)
-      : undefined;
-  return { selected, picked, price, available };
+    ? batchSalePrice(selected) || positiveMoney((item as { unitPrice?: number }).unitPrice)
+    : 0;
+  const available = selected ? Number(selected.quantity ?? 0) : undefined;
+  return { selected, picked: Boolean(selected), price, available };
 }
 
 const QuantityInput = ({
