@@ -111,6 +111,7 @@ export default function ItemTable({
                   onSort={handleSort}
                 />
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Sold Quantity</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Total Value (₹)</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Purchase Rate</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Unit Price (₹)</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">MRP (₹)</TableHead>
@@ -166,6 +167,17 @@ export default function ItemTable({
                   <TableCell className="py-3 font-medium text-slate-700">
                     {item.soldQuantity ?? 0}
                   </TableCell>
+                  {(() => {
+                    const latestBatch = item.batches && item.batches.length > 0 ? item.batches[item.batches.length - 1] : undefined;
+                    const uPrice = latestBatch?.unitPrice ?? (item as any).unitPrice ?? 0;
+                    const totalValue = (item.quantity ?? 0) * uPrice;
+                    
+                    return (
+                      <TableCell className="py-3 text-xs font-semibold text-slate-800">
+                        {formatINR(totalValue)}
+                      </TableCell>
+                    );
+                  })()}
                   {(() => {
                     const latestBatch = item.batches && item.batches.length > 0 ? item.batches[item.batches.length - 1] : undefined;
                     const pPrice = latestBatch?.purchasePrice ?? (item as any).purchasePrice ?? 0;

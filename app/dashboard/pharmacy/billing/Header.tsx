@@ -1,4 +1,4 @@
-import { PlusCircle, ReceiptIndianRupee, ChevronDown, Check, User2, UserCheck, ScrollText } from 'lucide-react';
+import { PlusCircle, ReceiptIndianRupee, ChevronDown, Check, User2, UserCheck } from 'lucide-react';
 import React, { useMemo, useState, useRef, useEffect } from 'react'
 import useSWR from 'swr';
 import { FilterType } from './page';
@@ -7,11 +7,11 @@ import PharmacyHeader from '../components/PharmacyHeader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { PatientVisitorToggle } from '@/components/dashboard/billing/PatientModeToggle';
-import { isDoctorAssignee, mergeTherapyAssignees, TherapyAssignee } from '@/lib/therapyAssignees';
+import { isDoctorAssignee, mergeTherapyAssignees, TherapyAssignee, isActiveAssignee } from '@/lib/therapyAssignees';
 
 interface PropsType {
-  tab: "all" | "new" | "certificate";
-  setTab: (v: "all" | "new" | "certificate") => void;
+  tab: "all" | "new";
+  setTab: (v: "all" | "new") => void;
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   billing: {
@@ -52,9 +52,26 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
   }>("/employee?role=Doctor&status=active");
 
   const doctors = useMemo(() => {
-    const list = [...new Set(billing.map(b => b.doctor))].filter(Boolean);
-    return list.sort();
-  }, [billing]);
+    const normalizeName = (value: unknown): string => {
+      if (!value) return '';
+      if (typeof value === 'string') return value.trim();
+      if (typeof value === 'object') {
+        const maybeName = (value as { name?: string }).name;
+        return String(maybeName || '').trim();
+      }
+      return String(value).trim();
+    };
+
+    const employeeDoctors = (doctorEmployeeResponse?.data ?? [])
+      .filter((person) => isActiveAssignee(person))
+      .map((person) => normalizeName(person.name))
+      .filter(Boolean);
+
+    const billDoctors = [...new Set(billing.map(b => normalizeName(b.doctor)))]
+      .filter(Boolean);
+
+    return [...new Set([...employeeDoctors, ...billDoctors])].sort((a, b) => a.localeCompare(b));
+  }, [billing, doctorEmployeeResponse]);
 
   const therapists = useMemo(() => {
     const people = mergeTherapyAssignees(
@@ -105,203 +122,197 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
   return (
     <PharmacyHeader
       title="Billing"
-      subtitle={
-        tab === "certificate"
-          ? "Create, save, and print medical certificates"
-          : "Search, filter & review billing history"
-      }
+      subtitle="Search, filter & review billing history"
     >
-      {tab !== "certificate" && (
-      <>
-      <div className="relative" ref={dropdownRef}>
-        <button
-          onClick={() => setIsDoctorOpen(!isDoctorOpen)}
-          className={cn(
-            "flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all border cursor-pointer font-medium",
-            filter.doctor.length > 0
-              ? "bg-synapse-light/10 border-synapse-light/30 text-(--color-synapse-light) shadow-sm"
-              : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-          )}
-          type="button"
-        >
-          <User2 size={14} className={cn(filter.doctor.length > 0 ? "text-(--color-synapse-light)" : "text-slate-400")} />
-          <span>
-            {filter.doctor.length === 0
-              ? "All Doctors"
-              : filter.doctor.length === 1
-                ? filter.doctor[0]
-                : `${filter.doctor.length} Doctors Selected`}
-          </span>
-          <ChevronDown size={14} className={cn("transition-transform duration-200", isDoctorOpen && "rotate-180")} />
-        </button>
-
-        <AnimatePresence>
-          {isDoctorOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 8, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8, scale: 0.95 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
-              className="absolute left-0 z-50 mt-2 w-56 rounded-2xl border border-slate-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5"
-            >
-              <button
-                onClick={() => {
-                  clearDoctors();
-                  setIsDoctorOpen(false);
-                }}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-              >
-                <span className="font-medium">All Doctors</span>
-                {filter.doctor.length === 0 && <Check size={16} className="text-(--color-synapse-light)" />}
-              </button>
-
-              <div className="my-1.5 h-px bg-slate-100" />
-
-              <div className="max-h-60 overflow-y-auto scrollbar-hide">
-                {doctors.length === 0 ? (
-                  <div className="px-3 py-4 text-center text-xs text-slate-400">
-                    No doctors found
-                  </div>
-                ) : (
-                  doctors.map(doctor => (
-                    <button
-                      key={doctor}
-                      onClick={() => toggleDoctor(doctor)}
-                      className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-                    >
-                      <span className="truncate">{doctor}</span>
-                      {filter.doctor.includes(doctor) && <Check size={16} className="text-(--color-synapse-light)" />}
-                    </button>
-                  ))
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      <div className="relative" ref={therapistRef}>
-        <button
-          onClick={() => setIsTherapistOpen(!isTherapistOpen)}
-          className={cn(
-            "flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all border cursor-pointer font-medium",
-            filter.therapist
-              ? "bg-synapse-light/10 border-synapse-light/30 text-(--color-synapse-light) shadow-sm"
-              : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-          )}
-          type="button"
-        >
-          <UserCheck size={14} className={cn(filter.therapist ? "text-(--color-synapse-light)" : "text-slate-400")} />
-          <span>{filter.therapist || "All Therapists"}</span>
-          <ChevronDown size={14} className={cn("transition-transform duration-200", isTherapistOpen && "rotate-180")} />
-        </button>
-
-        <AnimatePresence>
-          {isTherapistOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 8, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8, scale: 0.95 }}
-              transition={{ duration: 0.15, ease: "easeOut" }}
-              className="absolute left-0 z-50 mt-2 w-56 rounded-2xl border border-slate-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5"
-            >
-              <button
-                onClick={() => {
-                  setFilter((prev) => ({ ...prev, therapist: "", page: 1 }));
-                  setIsTherapistOpen(false);
-                }}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-              >
-                <span className="font-medium">All Therapists</span>
-                {!filter.therapist && <Check size={16} className="text-(--color-synapse-light)" />}
-              </button>
-
-              <div className="my-1.5 h-px bg-slate-100" />
-
-              <div className="max-h-60 overflow-y-auto scrollbar-hide">
-                {therapists.length === 0 ? (
-                  <div className="px-3 py-4 text-center text-xs text-slate-400">
-                    No therapists or doctors found
-                  </div>
-                ) : (
-                  therapists.map((therapist) => (
-                    <button
-                      key={therapist._id || therapist.name}
-                      onClick={() => {
-                        setFilter((prev) => ({ ...prev, therapist: therapist.name, page: 1 }));
-                        setIsTherapistOpen(false);
-                      }}
-                      className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
-                    >
-                      <span className="truncate">{therapist.name}</span>
-                      <span className="flex items-center gap-2 shrink-0">
-                        {isDoctorAssignee(therapist) && (
-                          <span className="text-[10px] font-semibold uppercase tracking-wide text-sky-600">Doctor</span>
-                        )}
-                        {filter.therapist === therapist.name && <Check size={16} className="text-(--color-synapse-light)" />}
-                      </span>
-                    </button>
-                  ))
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      <div className="relative inline-flex items-center gap-1 text-sm bg-slate-50 border border-slate-200 rounded-full p-1 dark:bg-slate-800/50 dark:border-slate-700">
-        {[
-          { key: "all", label: "All Types" },
-          { key: "therapy", label: "Therapy" },
-          { key: "procedure", label: "Procedure" },
-          { key: "reception", label: "Reception" },
-          { key: "other", label: "Other" },
-        ].map(({ key, label }) => {
-          const active = (filter.billType || "all") === key;
-          return (
+      {tab === "all" ? (
+        <>
+          <div className="relative" ref={dropdownRef}>
             <button
-              key={key}
-              onClick={() => setFilter((prev) => ({ ...prev, billType: key, page: 1 }))}
+              onClick={() => setIsDoctorOpen(!isDoctorOpen)}
               className={cn(
-                "relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all duration-300 ease-in-out cursor-pointer font-bold tracking-tight",
-                active ? "bg-(--color-synapse-light) text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+                "flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all border cursor-pointer font-medium",
+                filter.doctor.length > 0
+                  ? "bg-synapse-light/10 border-synapse-light/30 text-(--color-synapse-light) shadow-sm"
+                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
               )}
               type="button"
             >
-              {label}
+              <User2 size={14} className={cn(filter.doctor.length > 0 ? "text-(--color-synapse-light)" : "text-slate-400")} />
+              <span>
+                {filter.doctor.length === 0
+                  ? "All Doctors"
+                  : filter.doctor.length === 1
+                    ? filter.doctor[0]
+                    : `${filter.doctor.length} Doctors Selected`}
+              </span>
+              <ChevronDown size={14} className={cn("transition-transform duration-200", isDoctorOpen && "rotate-180")} />
             </button>
-          );
-        })}
-      </div>
 
-      <BillingStatusFilter
-        currentStatus={filter.status || "all"}
-        setStatus={(status) => setFilter((prev) => ({ ...prev, status }))}
-      />
+            <AnimatePresence>
+              {isDoctorOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                  className="absolute left-0 z-50 mt-2 w-56 rounded-2xl border border-slate-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5"
+                >
+                  <button
+                    onClick={() => {
+                      clearDoctors();
+                      setIsDoctorOpen(false);
+                    }}
+                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                  >
+                    <span className="font-medium">All Doctors</span>
+                    {filter.doctor.length === 0 && <Check size={16} className="text-(--color-synapse-light)" />}
+                  </button>
 
-      {tab === "all" && (
-        <PatientVisitorToggle
-          value={filter.patientVisitor || "all"}
-          onChange={(patientVisitor) =>
-            setFilter((prev) => ({ ...prev, patientVisitor, page: 1 }))
-          }
-          layoutId="pharmacy-billing-patient-visitor"
-        />
-      )}
-      </>
-      )}
+                  <div className="my-1.5 h-px bg-slate-100" />
+
+                  <div className="max-h-60 overflow-y-auto scrollbar-hide">
+                    {doctors.length === 0 ? (
+                      <div className="px-3 py-4 text-center text-xs text-slate-400">
+                        No doctors found
+                      </div>
+                    ) : (
+                      doctors.map(doctor => (
+                        <button
+                          key={doctor}
+                          onClick={() => toggleDoctor(doctor)}
+                          className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <span className="truncate">{doctor}</span>
+                          {filter.doctor.includes(doctor) && <Check size={16} className="text-(--color-synapse-light)" />}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="relative" ref={therapistRef}>
+            <button
+              onClick={() => setIsTherapistOpen(!isTherapistOpen)}
+              className={cn(
+                "flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all border cursor-pointer font-medium",
+                filter.therapist
+                  ? "bg-synapse-light/10 border-synapse-light/30 text-(--color-synapse-light) shadow-sm"
+                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              )}
+              type="button"
+            >
+              <UserCheck size={14} className={cn(filter.therapist ? "text-(--color-synapse-light)" : "text-slate-400")} />
+              <span>{filter.therapist || "All Therapists"}</span>
+              <ChevronDown size={14} className={cn("transition-transform duration-200", isTherapistOpen && "rotate-180")} />
+            </button>
+
+            <AnimatePresence>
+              {isTherapistOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                  className="absolute left-0 z-50 mt-2 w-56 rounded-2xl border border-slate-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5"
+                >
+                  <button
+                    onClick={() => {
+                      setFilter((prev) => ({ ...prev, therapist: "", page: 1 }));
+                      setIsTherapistOpen(false);
+                    }}
+                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                  >
+                    <span className="font-medium">All Therapists</span>
+                    {!filter.therapist && <Check size={16} className="text-(--color-synapse-light)" />}
+                  </button>
+
+                  <div className="my-1.5 h-px bg-slate-100" />
+
+                  <div className="max-h-60 overflow-y-auto scrollbar-hide">
+                    {therapists.length === 0 ? (
+                      <div className="px-3 py-4 text-center text-xs text-slate-400">
+                        No therapists or doctors found
+                      </div>
+                    ) : (
+                      therapists.map((therapist) => (
+                        <button
+                          key={therapist._id || therapist.name}
+                          onClick={() => {
+                            setFilter((prev) => ({ ...prev, therapist: therapist.name, page: 1 }));
+                            setIsTherapistOpen(false);
+                          }}
+                          className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+                        >
+                          <span className="truncate">{therapist.name}</span>
+                          <span className="flex items-center gap-2 shrink-0">
+                            {isDoctorAssignee(therapist) && (
+                              <span className="text-[10px] font-semibold uppercase tracking-wide text-sky-600">Doctor</span>
+                            )}
+                            {filter.therapist === therapist.name && <Check size={16} className="text-(--color-synapse-light)" />}
+                          </span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="relative inline-flex items-center gap-1 text-sm bg-slate-50 border border-slate-200 rounded-full p-1 dark:bg-slate-800/50 dark:border-slate-700">
+            {[
+              { key: "all", label: "All Types" },
+              { key: "therapy", label: "Therapy" },
+              { key: "procedure", label: "Procedure" },
+              { key: "other", label: "Other" },
+            ].map(({ key, label }) => {
+              const active = (filter.billType || "all") === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => setFilter((prev) => ({ ...prev, billType: key, page: 1 }))}
+                  className={cn(
+                    "relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all duration-300 ease-in-out cursor-pointer font-bold tracking-tight",
+                    active ? "bg-(--color-synapse-light) text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+                  )}
+                  type="button"
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          <BillingStatusFilter
+            currentStatus={filter.status || "all"}
+            setStatus={(status) => setFilter((prev) => ({ ...prev, status }))}
+          />
+
+          {tab === "all" && (
+            <PatientVisitorToggle
+              value={filter.patientVisitor || "all"}
+              onChange={(patientVisitor) =>
+                setFilter((prev) => ({ ...prev, patientVisitor, page: 1 }))
+              }
+              layoutId="pharmacy-billing-patient-visitor"
+            />
+          )}
+        </>
+      ) : null}
 
       <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 print:hidden w-fit">
         {[
           { key: "all", label: "All Bills", icon: ReceiptIndianRupee },
           { key: "new", label: "Create Bill", icon: PlusCircle },
-          { key: "certificate", label: "Medical Certificate", icon: ScrollText },
         ].map(({ key, label, icon: Icon }) => {
           const active = tab === key;
           return (
             <button
               key={key}
-              onClick={() => setTab(key as "all" | "new" | "certificate")}
+              onClick={() => setTab(key as "all" | "new")}
               className={
                 "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer font-medium " +
                 (active ? "text-white" : "text-slate-600 hover:bg-slate-50")

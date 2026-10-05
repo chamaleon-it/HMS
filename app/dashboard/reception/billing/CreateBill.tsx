@@ -219,7 +219,7 @@ export default function CreateBill({
       return;
     }
     try {
-      const response = await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
+      const response = await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || null }), {
         loading: "We are generating this bill.",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
@@ -247,7 +247,7 @@ export default function CreateBill({
       return;
     }
     try {
-      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
+      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || null }), {
         loading: "Saving bill...",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
