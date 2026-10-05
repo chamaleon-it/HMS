@@ -124,7 +124,7 @@ export default function MedicineField({
 
   const items = (data?.data ?? []).filter((it) => {
     const status = String(it.status || "Active").toLowerCase();
-    return status === "active";
+    return status === "active" && it.quantity > 0;
   });
   const cleanQuery = filter.q.trim();
 

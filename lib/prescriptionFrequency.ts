@@ -8,6 +8,8 @@ export const PRESCRIPTION_FREQUENCY_OPTIONS = [
   "1oz-0-1oz",
   "1sp-0-1sp",
   "SOS",
+  "Weakly 1s",
+  "weekly 3's",
 ];
 
 /** Shared dosage list for doctor, pharmacy, and reception prescription dropdowns. */
@@ -19,9 +21,10 @@ export const PRESCRIPTION_DOSAGE_OPTIONS = [
   "5 ml",
   "10 ml",
   "20 ml",
+  "30 ml",
 ];
 
-const QUANTITY_ONE_DOSAGES = new Set(["1", "5 ml", "10 ml", "20 ml"]);
+const QUANTITY_ONE_DOSAGES = new Set(["1", "5 ml", "10 ml", "20 ml", "30 ml"]);
 
 /** Shared duration list for doctor and pharmacy prescription dropdowns. */
 export const PRESCRIPTION_DURATION_OPTIONS = [
