@@ -13,8 +13,16 @@ import DateTimePicker from "./DateTimePicker";
 import PatientSelection from "./PatientSelection";
 import Select from "./AppointmentSelect";
 import BlankPrescription from "./BlankPrescription";
+import AppointmentPaymentFields from "./AppointmentPaymentFields";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
+import { positiveMoney } from "@/lib/pharmacyReceiptLine";
+import {
+  AppointmentPayment,
+  EMPTY_APPOINTMENT_PAYMENT,
+  resolveAppointmentPayment,
+  samePayment,
+} from "@/lib/appointmentPayment";
 const METHODS = ["In clinic", "Video", "Phone"] as const;
 
 export function CreateAppointmentForm({
@@ -74,6 +82,7 @@ export function CreateAppointmentForm({
       _id: string;
       name: string;
       email: string;
+      consultationFee?: number;
     }[];
     message: string;
   }>("/users/doctors", {
@@ -155,6 +164,20 @@ export function CreateAppointmentForm({
 
   const values = watch();
 
+  // Payment collected at booking; only sent when creating, not when editing.
+  const [payment, setPayment] = useState<AppointmentPayment>(EMPTY_APPOINTMENT_PAYMENT);
+  const consultationFee = positiveMoney(
+    doctorsData?.data?.find((d) => d._id === values.doctor)?.consultationFee,
+  );
+
+  // A doctor change can lower the fee, so re-cap what was already entered.
+  useEffect(() => {
+    setPayment((prev) => {
+      const next = resolveAppointmentPayment(prev, consultationFee);
+      return samePayment(prev, next) ? prev : next;
+    });
+  }, [consultationFee]);
+
   const { data: profile } = useSWR<{
     data: {
       pharmacy: {
@@ -198,6 +221,7 @@ export function CreateAppointmentForm({
       }
       const payload = {
         ...data,
+        ...resolveAppointmentPayment(payment, consultationFee),
         ...(walkIn ? { isArrived: true, isWalkIn: true } : {}),
       };
       const res = await toast.promise(api.post("/appointments", payload), {
@@ -227,6 +251,7 @@ export function CreateAppointmentForm({
               type: "New",
               isPaid: "false",
             });
+            setPayment(EMPTY_APPOINTMENT_PAYMENT);
 
             setTimeout(() => {
               window.print();
@@ -247,6 +272,7 @@ export function CreateAppointmentForm({
         type: "New",
         isPaid: "false",
       });
+      setPayment(EMPTY_APPOINTMENT_PAYMENT);
       onClose();
       if (mutate) {
         mutate();
@@ -410,6 +436,16 @@ export function CreateAppointmentForm({
                 </p>
               )}
             </div>
+
+            {!appointment?._id && (
+              <div className="sm:col-span-2">
+                <AppointmentPaymentFields
+                  consultationFee={consultationFee}
+                  value={payment}
+                  onChange={setPayment}
+                />
+              </div>
+            )}
 
             <div className="sm:col-span-2">
               <Label>Reason / Notes</Label>
