@@ -45,6 +45,37 @@ export default function InventoryPage() {
     allowNegativeStock: false,
   };
 
+  const { data: statsData, isLoading: isLoadingStats } = useSWR<{
+    message: string;
+    data: {
+      totalInventoryValue: number;
+      lowStockCount: number;
+      outOfStockCount: number;
+      topMoving: Array<{
+        _id: string;
+        name: string;
+        totalQuantity: number;
+        itemValue: number;
+        soldQuantity: number;
+      }>;
+      lowestMoving: Array<{
+        _id: string;
+        name: string;
+        totalQuantity: number;
+        itemValue: number;
+        soldQuantity: number;
+      }>;
+    };
+  }>(`/pharmacy/items/statistics/dashboard?lowStockThreshold=${pharmacyInventory.lowStockThreshold}`);
+
+  const stats = statsData?.data ?? {
+    totalInventoryValue: 0,
+    lowStockCount: 0,
+    outOfStockCount: 0,
+    topMoving: [],
+    lowestMoving: [],
+  };
+
   const [filter, setFilter] = useState<FilterType>({
     page: 1,
     limit: 10,
@@ -103,6 +134,131 @@ export default function InventoryPage() {
               }`}
           >
             <Header handleAdd={handleAdd} items={items} lowStockCount={lowStockCount} slowMovingCount={slowMovingCount} setFilter={setFilter} lowStockItemsView={filter.lowStockItemsView} slowMovingItemsView={filter.slowMovingItemsView} />
+
+            {/* Inventory Dashboard Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              {/* Total Inventory Value Card */}
+              <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-600">Total Inventory Value</p>
+                    <p className="text-xs text-slate-400 mt-1">All items</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-blue-700">
+                      ₹{(stats.totalInventoryValue ?? 0).toLocaleString('en-IN', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Low Stock Alert Card - Clickable */}
+              <div
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    lowStockItemsView: !prev.lowStockItemsView,
+                    slowMovingItemsView: false,
+                    page: 1,
+                  }))
+                }
+                className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                  filter.lowStockItemsView
+                    ? "bg-red-50 border-red-400 shadow-md"
+                    : "bg-white border-red-200 hover:shadow-sm"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-600">Low Stock Alert</p>
+                    <p className="text-xs text-slate-400 mt-1">Below threshold</p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-3xl font-bold ${filter.lowStockItemsView ? "text-red-700" : "text-red-600"}`}>
+                      {stats.lowStockCount ?? 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Out of Stock Card */}
+              <div className="p-4 rounded-xl bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-600">Out of Stock</p>
+                    <p className="text-xs text-slate-400 mt-1">Quantity = 0</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-3xl font-bold text-orange-600">
+                      {stats.outOfStockCount ?? 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Top Moving Items Card - Clickable */}
+              <div
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    topMovingItemsView: !prev.topMovingItemsView,
+                    slowMovingItemsView: false,
+                    lowStockItemsView: false,
+                    page: 1,
+                  }))
+                }
+                className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                  filter.topMovingItemsView
+                    ? "bg-green-50 border-green-400 shadow-md"
+                    : "bg-white border-green-200 hover:shadow-sm"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-600">Top Moving</p>
+                    <p className="text-xs text-slate-400 mt-1">Highest sales</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-3xl font-bold text-green-600">
+                      {stats.topMoving?.length ?? 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lowest Moving Items Card - Clickable */}
+              <div
+                onClick={() =>
+                  setFilter((prev) => ({
+                    ...prev,
+                    slowMovingItemsView: !prev.slowMovingItemsView,
+                    topMovingItemsView: false,
+                    lowStockItemsView: false,
+                    page: 1,
+                  }))
+                }
+                className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                  filter.slowMovingItemsView
+                    ? "bg-amber-50 border-amber-400 shadow-md"
+                    : "bg-white border-amber-200 hover:shadow-sm"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-600">Slow Moving</p>
+                    <p className="text-xs text-slate-400 mt-1">Lowest sales</p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-3xl font-bold ${filter.slowMovingItemsView ? "text-amber-700" : "text-amber-600"}`}>
+                      {stats.lowestMoving?.length ?? 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <ItemFilter filter={filter} setFilter={setFilter} />
 

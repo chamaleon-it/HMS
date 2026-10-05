@@ -11,16 +11,12 @@ import { ChevronDownIcon, Search } from "lucide-react";
 import React, { useState } from "react";
 import DateFilter from "./DateFilter";
 
+// "All" still lists every status, including deleted visits.
 export const STATUSES = [
   "Upcoming",
   "Consulted",
-  "Observation",
-  "Completed",
   "Not show",
-  "Admit",
-  "Test",
   "All",
-  "Deleted"
 ] as const;
 
 

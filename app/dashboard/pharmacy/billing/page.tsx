@@ -12,8 +12,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Filters from "./Filter";
 import { endOfDay, startOfDay, subDays } from "date-fns";
 import Statistics from "./Statistics";
-import MedicalCertificatePanel from "./medical-certificate/MedicalCertificatePanel";
-
 import { getBillType } from "@/lib/billTypeUtils";
 import { DateRange } from "react-day-picker";
 import type { PatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
@@ -35,7 +33,7 @@ export interface FilterType {
 }
 
 export default function BillingPage() {
-  const [tab, setTab] = useState<"all" | "new" | "certificate">("all");
+  const [tab, setTab] = useState<"all" | "new">("all");
   const [filter, setFilter] = useState<FilterType>({
     q: null,
     status: "",
@@ -194,7 +192,7 @@ export default function BillingPage() {
             <Tabs
               defaultValue="all"
               className="flex-1 overflow-hidden"
-              onValueChange={(e) => setTab(e as "all" | "new" | "certificate")}
+              onValueChange={(e) => setTab(e as "all" | "new")}
               value={tab}
             >
               <TabsContent value="all">
@@ -223,9 +221,6 @@ export default function BillingPage() {
                 ) : (
                   <CreateBill billingMutate={billingMutate} pharmacyBilling={pharmacyBilling} />
                 )}
-              </TabsContent>
-              <TabsContent value="certificate">
-                <MedicalCertificatePanel />
               </TabsContent>
             </Tabs>
           </div>

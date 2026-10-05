@@ -144,7 +144,9 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     </TableCell>
                     <TableCell className="py-3">
                       <div className="font-medium truncate text-slate-900">
-                        {typeof b.doctor === 'object' ? (b.doctor as any)?.name : b.doctor}
+                        {typeof b.doctor === 'object'
+                          ? ((b.doctor as any)?.name || "Self")
+                          : (b.doctor === "Self" || b.doctor === "self" || b.doctor === "-" || !b.doctor ? "Self" : b.doctor)}
                       </div>
 
                     </TableCell>

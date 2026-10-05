@@ -92,6 +92,7 @@ export interface FilterType {
   supplier?: string;
   lowStockItemsView: boolean;
   slowMovingItemsView?: boolean;
+  topMovingItemsView?: boolean;
   sortBy?: "createdAt" | "quantity" | "soldQuantity";
   orderBy?: "desc" | "asc";
 }
