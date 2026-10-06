@@ -23,6 +23,10 @@ import {
   resolveAppointmentPayment,
   samePayment,
 } from "@/lib/appointmentPayment";
+import {
+  appointmentPaymentPanel,
+  formatConsultationValidUntil,
+} from "@/lib/consultationCharge";
 const METHODS = ["In clinic", "Video", "Phone"] as const;
 
 export function CreateAppointmentForm({
@@ -169,6 +173,29 @@ export function CreateAppointmentForm({
   const consultationFee = positiveMoney(
     doctorsData?.data?.find((d) => d._id === values.doctor)?.consultationFee,
   );
+  const chargeKey =
+    !appointment?._id && values.patient && values.doctor && values.date
+      ? `/appointments/consultation-charge?patient=${encodeURIComponent(values.patient)}&doctor=${encodeURIComponent(values.doctor)}&date=${encodeURIComponent(values.date)}`
+      : null;
+  const {
+    data: chargePreview,
+    error: chargeError,
+    isLoading: chargeLoading,
+  } = useSWR<{
+    data: {
+      charge: boolean;
+      validUntil?: string;
+      consultationFee?: number;
+    };
+  }>(chargeKey);
+  const paymentPanel = appointmentPaymentPanel({
+    ready: Boolean(chargeKey),
+    charge: chargeLoading ? null : chargePreview?.data?.charge,
+    failed: Boolean(chargeError),
+  });
+  const validUntilLabel = formatConsultationValidUntil(
+    chargePreview?.data?.validUntil,
+  );
 
   // A doctor change can lower the fee, so re-cap what was already entered.
   useEffect(() => {
@@ -221,7 +248,9 @@ export function CreateAppointmentForm({
       }
       const payload = {
         ...data,
-        ...resolveAppointmentPayment(payment, consultationFee),
+        ...(paymentPanel === "fields"
+          ? resolveAppointmentPayment(payment, consultationFee)
+          : EMPTY_APPOINTMENT_PAYMENT),
         ...(walkIn ? { isArrived: true, isWalkIn: true } : {}),
       };
       const res = await toast.promise(api.post("/appointments", payload), {
@@ -437,13 +466,28 @@ export function CreateAppointmentForm({
               )}
             </div>
 
-            {!appointment?._id && (
+            {!appointment?._id && paymentPanel === "fields" && (
               <div className="sm:col-span-2">
                 <AppointmentPaymentFields
                   consultationFee={consultationFee}
                   value={payment}
                   onChange={setPayment}
                 />
+              </div>
+            )}
+            {!appointment?._id && paymentPanel === "checking" && (
+              <div className="sm:col-span-2">
+                <p className="text-sm text-muted-foreground">
+                  Checking consultation validity…
+                </p>
+              </div>
+            )}
+            {!appointment?._id && paymentPanel === "free" && (
+              <div className="sm:col-span-2">
+                <p className="text-sm text-emerald-700">
+                  No payment. This patient&apos;s consultation is still valid
+                  {validUntilLabel ? ` until ${validUntilLabel}` : ""}.
+                </p>
               </div>
             )}
 

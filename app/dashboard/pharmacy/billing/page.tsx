@@ -12,7 +12,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Filters from "./Filter";
 import { endOfDay, startOfDay, subDays } from "date-fns";
 import Statistics from "./Statistics";
-import { getBillType } from "@/lib/billTypeUtils";
+import { matchesPharmacyBillingTypeFilter, pharmacyBillingTypeQueryParam } from "@/lib/billTypeUtils";
+import { billDoctorLabel } from "@/lib/billDoctor";
 import { DateRange } from "react-day-picker";
 import type { PatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
 import { getStoredPatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
@@ -67,8 +68,9 @@ export default function BillingPage() {
     params.set("method", filter.method);
   }
 
-  if (filter.billType && filter.billType !== "all") {
-    params.set("billType", filter.billType);
+  const billTypeQuery = pharmacyBillingTypeQueryParam(filter.billType);
+  if (billTypeQuery) {
+    params.set("billType", billTypeQuery);
   }
 
   if (filter.patientVisitor && filter.patientVisitor !== "all") {
@@ -101,6 +103,7 @@ export default function BillingPage() {
   params.set("page", String(filter.page));
   params.set("limit", String(filter.limit));
   params.set("sort", "asc");
+  params.set("userRole", "pharmacy");
 
   const { data: billingData, mutate: billingMutate, isLoading: isLoadingBilling } = useSWR<{
     message: string;
@@ -137,8 +140,7 @@ export default function BillingPage() {
     let list = allBilling;
     if (filter.doctor.length > 0) {
       list = list.filter(b => {
-        const docName = typeof b.doctor === "object" ? (b.doctor as { name?: string })?.name : b.doctor;
-        return filter.doctor.includes(docName || "");
+        return filter.doctor.includes(billDoctorLabel(b));
       });
     }
     if (filter.therapist) {
@@ -147,9 +149,7 @@ export default function BillingPage() {
         (b) => String(b.therapistName || "").trim().toLowerCase() === wanted,
       );
     }
-    if (filter.billType && filter.billType !== "all") {
-      list = list.filter(b => getBillType(b) === filter.billType);
-    }
+    list = list.filter((b) => matchesPharmacyBillingTypeFilter(b, filter.billType));
     return list;
   }, [allBilling, filter.doctor, filter.therapist, filter.billType]);
 
@@ -187,7 +187,7 @@ export default function BillingPage() {
           className="min-h-[calc(100vh-67px)] w-full p-5 text-slate-900 dark:text-slate-100"
         >
           <div className="flex flex-col gap-5">
-            <Header tab={tab} setTab={setTab} filter={filter} setFilter={setFilter} billing={allBilling} />
+            <Header tab={tab} setTab={setTab} filter={filter} setFilter={setFilter} billing={billing} />
 
             <Tabs
               defaultValue="all"
