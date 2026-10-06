@@ -142,13 +142,7 @@ export type PharmacyPageBillKind = "pharmacy" | "procedure" | "hidden";
  * Pharmacy = a medicine sale (or a pharmacy-role sale) that is not a reception fee.
  * Reception fees, empty bills, and unrelated non-medicine bills are hidden.
  */
-export function pharmacyPageBillKind(bill: {
-  note?: string;
-  items?: { name?: unknown }[];
-  transactionType?: string;
-  user?: { role?: string };
-  creator?: { role?: string };
-} | null | undefined): PharmacyPageBillKind {
+export function pharmacyPageBillKind(bill: any | null | undefined): PharmacyPageBillKind {
   if (!bill) return "hidden";
   const type = getBillType(bill);
   if (type === "therapy" || type === "procedure") return "procedure";
@@ -195,13 +189,7 @@ export function pharmacyBillingTypeQueryParam(
   return filter;
 }
 
-export function pharmacyBillingBadge(bill: {
-  note?: string;
-  items?: { name?: unknown }[];
-  transactionType?: string;
-  user?: { role?: string };
-  creator?: { role?: string };
-}): { label: string; className: string } {
+export function pharmacyBillingBadge(bill: any): { label: string; className: string } {
   if (pharmacyPageBillKind(bill) === "pharmacy") {
     return {
       label: "Pharmacy",
