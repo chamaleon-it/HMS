@@ -5,6 +5,7 @@ import Filters from "./Filter";
 import { formatINR, getDecimal } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { FilterType } from "../page";
+import { billDoctorLabel } from "@/lib/billDoctor";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -141,7 +142,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     </TableCell>
                     <TableCell className="py-3">
                       <div className="font-medium truncate text-slate-900">
-                        {typeof b.doctor === 'object' ? (b.doctor as any)?.name : b.doctor}
+                        {billDoctorLabel(b) || "—"}
                       </div>
                     </TableCell>
                     <TableCell className="py-3">
@@ -261,7 +262,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             card: printBill.card,
             upi: printBill.upi,
             discount: printBill.discount,
-            doctor: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.name : (printBill.doctor === "Self" ? "" : printBill.doctor),
+            doctor: billDoctorLabel(printBill),
             department: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.specialization : (printBill as any).department,
           }}
           patient={printBill.patient as any}

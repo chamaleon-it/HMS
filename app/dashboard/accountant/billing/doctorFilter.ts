@@ -1,15 +1,8 @@
+import { billDoctorLabel } from "@/lib/billDoctor";
+
 /** Name shown in the accountant billing Doctor column. */
 export function billDoctorName(doctor: unknown): string {
-  if (doctor == null) return "";
-  if (typeof doctor === "string") {
-    const name = doctor.trim();
-    if (!name || name === "-" || name.toLowerCase() === "self") return "";
-    return name;
-  }
-  if (typeof doctor === "object" && "name" in doctor) {
-    return billDoctorName((doctor as { name?: unknown }).name);
-  }
-  return "";
+  return billDoctorLabel({ doctor });
 }
 
 function doctorKey(name: string): string {
@@ -41,7 +34,7 @@ export function doctorFilterOptions(
     if (doctor?.name) add(doctor.name);
   }
   for (const bill of bills ?? []) {
-    const name = billDoctorName(bill.doctor);
+    const name = billDoctorLabel(bill);
     if (name) add(name);
   }
 
