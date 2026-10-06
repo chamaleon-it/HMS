@@ -63,6 +63,71 @@ export function getBillType(b: {
   return "other";
 }
 
+const THERAPY_MARK =
+  /therapy|acupuncture|panchakarma|cupping|moxibustion|varmam|physio|kizhi|massage|treatment/i;
+const PROCEDURE_MARK = /procedure/i;
+
+export function itemDisplayName(item: { name?: unknown } | null | undefined): string {
+  if (!item || item.name == null) return "";
+  if (typeof item.name === "string") return item.name;
+  if (typeof item.name === "object" && item.name && "name" in item.name) {
+    return String((item.name as { name?: unknown }).name ?? "");
+  }
+  return String(item.name);
+}
+
+/**
+ * Procedure and therapy charges use the bill line amount.
+ * A line counts when its name is a procedure or therapy, or when the bill note
+ * is the only marker (session bills store "Therapy Session" / "Procedure Session"
+ * on the note and the amount on the line).
+ */
+export function isProcedureOrTherapyLine(
+  bill: { note?: string; items?: { name?: unknown }[] } | null | undefined,
+  item: { name?: unknown } | null | undefined,
+): boolean {
+  const name = itemDisplayName(item);
+  if (THERAPY_MARK.test(name) || PROCEDURE_MARK.test(name)) return true;
+
+  const note = String(bill?.note || "");
+  if (!THERAPY_MARK.test(note) && !PROCEDURE_MARK.test(note)) return false;
+
+  const namedOnAnotherLine = (bill?.items || []).some((line) => {
+    const lineName = itemDisplayName(line);
+    return THERAPY_MARK.test(lineName) || PROCEDURE_MARK.test(lineName);
+  });
+  return !namedOnAnotherLine;
+}
+
+/** Pharmacy billing pills: All Type, Pharmacy (not therapy/procedure), Procedure (both). */
+export function matchesPharmacyBillingTypeFilter(
+  bill: {
+    note?: string;
+    items?: { name: string }[];
+    transactionType?: string;
+  },
+  billType: string | null | undefined,
+): boolean {
+  const filter = billType || "all";
+  if (filter === "all") return true;
+  const type = getBillType(bill);
+  const treatment = type === "therapy" || type === "procedure";
+  if (filter === "pharmacy") return !treatment;
+  if (filter === "procedure") return treatment;
+  return type === filter;
+}
+
+/** Query value understood by the billing API. Procedure on this page is therapy + procedure. */
+export function pharmacyBillingTypeQueryParam(
+  billType: string | null | undefined,
+): string | null {
+  const filter = billType || "all";
+  if (filter === "all") return null;
+  if (filter === "pharmacy") return "pharmacy";
+  if (filter === "procedure") return "treatment";
+  return filter;
+}
+
 export function getBillTypeBadgeProps(type: "therapy" | "procedure" | "reception" | "other") {
   switch (type) {
     case "therapy":

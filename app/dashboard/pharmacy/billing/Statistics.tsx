@@ -2,15 +2,15 @@ import { useMemo } from "react";
 import { formatINR, getDecimal } from "@/lib/fNumber";
 import {
     Receipt,
-    UserRound,
     Pill,
     Syringe,
-    Wallet,
     AlertCircle,
-    Stethoscope
+    Banknote,
+    CreditCard,
+    Smartphone,
 } from "lucide-react";
-import useSWR from "swr";
 import { pharmacyLineMoney } from "@/lib/pharmacyReceiptLine";
+import { isProcedureOrTherapyLine, itemDisplayName } from "@/lib/billTypeUtils";
 
 interface StatisticsProps {
     billing: {
@@ -22,6 +22,7 @@ interface StatisticsProps {
         card: number;
         upi: number;
         discount: number;
+        note?: string;
         items: {
             name: string;
             total: number;
@@ -39,45 +40,39 @@ interface StatisticsProps {
 }
 
 export default function Statistics({ billing }: StatisticsProps) {
-    const { data: billingItemsResponse } = useSWR<{ data: { item: string }[] }>("/billing/billing_items");
-    const billingItems = billingItemsResponse?.data ?? [];
-
-
     const {
         totalBills,
-        consultingFee,
         procedureFee,
         pharmacyFee,
-        paidAmount,
         dueAmount,
-        totalConsultation
+        cashTotal,
+        cardTotal,
+        upiTotal,
     } = useMemo(() => {
-        let consult = 0;
         let procItemsSum = 0;
         let pharm = 0;
-        let paid = 0;
         let due = 0;
-        let totalConsultation = 0;
-
-        const billingItemNames = new Set(billingItems.map(i => i.item));
+        let cashTotal = 0;
+        let cardTotal = 0;
+        let upiTotal = 0;
 
         billing.forEach(bill => {
             const isReturn = bill.transactionType === "Return";
             const multiplier = isReturn ? -1 : 1;
 
-            paid += ((bill.cash || 0) + (bill.card || 0) + (bill.upi || 0)) * multiplier;
+            cashTotal += (bill.cash || 0) * multiplier;
+            cardTotal += (bill.card || 0) * multiplier;
+            upiTotal += (bill.upi || 0) * multiplier;
 
             let billTotal = 0;
             bill.items.forEach(item => {
                 const itemTotal = pharmacyLineMoney(item).net * multiplier;
                 billTotal += itemTotal;
+                const name = itemDisplayName(item).toLowerCase();
 
-                if (item.name.toLowerCase().includes("consultation")) {
-                    consult += itemTotal;
-                    totalConsultation += multiplier;
-                } else if (billingItemNames.has(item.name)) {
+                if (isProcedureOrTherapyLine(bill, item)) {
                     procItemsSum += itemTotal;
-                } else {
+                } else if (!name.includes("consultation")) {
                     pharm += itemTotal;
                 }
             });
@@ -88,14 +83,14 @@ export default function Statistics({ billing }: StatisticsProps) {
 
         return {
             totalBills: billing.length,
-            consultingFee: consult,
             procedureFee: procItemsSum,
             pharmacyFee: pharm,
-            paidAmount: paid,
             dueAmount: due,
-            totalConsultation: totalConsultation
+            cashTotal,
+            cardTotal,
+            upiTotal,
         };
-    }, [billing, billingItems]);
+    }, [billing]);
 
     const stats = useMemo(() => [
         {
@@ -107,26 +102,6 @@ export default function Statistics({ billing }: StatisticsProps) {
             iconColor: "text-(--color-synapse-light)/70",
             textColor: "text-blue-800/70",
             headingColor: "text-blue-900"
-        },
-        {
-            label: "Total Consultations",
-            value: totalConsultation,
-            icon: UserRound,
-            bg: "bg-synapse-light/10/50",
-            border: "border-[var(--color-synapse-light)]/20",
-            iconColor: "text-(--color-synapse-light)/70",
-            textColor: "text-(--color-synapse-light)/70",
-            headingColor: "text-(--color-synapse-light)"
-        },
-        {
-            label: "Consulting Fees",
-            value: formatINR(consultingFee),
-            icon: UserRound,
-            bg: "bg-synapse-light/10/50",
-            border: "border-[var(--color-synapse-light)]/20",
-            iconColor: "text-(--color-synapse-light)/70",
-            textColor: "text-(--color-synapse-light)/70",
-            headingColor: "text-(--color-synapse-light)"
         },
         {
             label: "Pharmacy Sales",
@@ -149,6 +124,36 @@ export default function Statistics({ billing }: StatisticsProps) {
             headingColor: "text-amber-900"
         },
         {
+            label: "Cash",
+            value: formatINR(cashTotal),
+            icon: Banknote,
+            bg: "bg-teal-50/50",
+            border: "border-teal-100",
+            iconColor: "text-teal-600/70",
+            textColor: "text-teal-800/70",
+            headingColor: "text-teal-900"
+        },
+        {
+            label: "Card",
+            value: formatINR(cardTotal),
+            icon: CreditCard,
+            bg: "bg-violet-50/50",
+            border: "border-violet-100",
+            iconColor: "text-violet-600/70",
+            textColor: "text-violet-800/70",
+            headingColor: "text-violet-900"
+        },
+        {
+            label: "UPI",
+            value: formatINR(upiTotal),
+            icon: Smartphone,
+            bg: "bg-sky-50/50",
+            border: "border-sky-100",
+            iconColor: "text-sky-600/70",
+            textColor: "text-sky-800/70",
+            headingColor: "text-sky-900"
+        },
+        {
             label: "Due Amount",
             value: formatINR(dueAmount),
             icon: AlertCircle,
@@ -158,12 +163,12 @@ export default function Statistics({ billing }: StatisticsProps) {
             textColor: "text-rose-800/70",
             headingColor: "text-rose-900"
         }
-    ], [totalBills, consultingFee, pharmacyFee, procedureFee, paidAmount, dueAmount]);
+    ], [totalBills, pharmacyFee, procedureFee, dueAmount, cashTotal, cardTotal, upiTotal]);
 
 
     return (
 
-        <div className="grid grid-cols-6 gap-3 pb-3">
+        <div className="grid grid-cols-2 gap-3 pb-3 sm:grid-cols-4 xl:grid-cols-7">
 
             {stats.map((stat, index) => (
                 <div

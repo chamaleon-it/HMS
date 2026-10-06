@@ -12,7 +12,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Filters from "./Filter";
 import { endOfDay, startOfDay, subDays } from "date-fns";
 import Statistics from "./Statistics";
-import { getBillType } from "@/lib/billTypeUtils";
+import { matchesPharmacyBillingTypeFilter, pharmacyBillingTypeQueryParam } from "@/lib/billTypeUtils";
 import { DateRange } from "react-day-picker";
 import type { PatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
 import { getStoredPatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
@@ -67,8 +67,9 @@ export default function BillingPage() {
     params.set("method", filter.method);
   }
 
-  if (filter.billType && filter.billType !== "all") {
-    params.set("billType", filter.billType);
+  const billTypeQuery = pharmacyBillingTypeQueryParam(filter.billType);
+  if (billTypeQuery) {
+    params.set("billType", billTypeQuery);
   }
 
   if (filter.patientVisitor && filter.patientVisitor !== "all") {
@@ -148,7 +149,7 @@ export default function BillingPage() {
       );
     }
     if (filter.billType && filter.billType !== "all") {
-      list = list.filter(b => getBillType(b) === filter.billType);
+      list = list.filter((b) => matchesPharmacyBillingTypeFilter(b, filter.billType));
     }
     return list;
   }, [allBilling, filter.doctor, filter.therapist, filter.billType]);
