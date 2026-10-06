@@ -17,6 +17,7 @@ import {
   getStoredPatientVisitorFilter,
   PatientVisitorToggle,
 } from "@/components/dashboard/billing/PatientModeToggle";
+import { billMatchesDoctor } from "./doctorFilter";
 
 export interface FilterType {
   q: null | string;
@@ -127,10 +128,7 @@ export default function AdminBillingPage() {
   const allBilling = billingData?.data ?? [];
   const billing = useMemo(() => {
     if (filter.doctor.length === 0) return allBilling;
-    return allBilling.filter((b) => {
-      const docName = typeof b.doctor === "object" ? b.doctor?.name : b.doctor;
-      return filter.doctor.includes(docName);
-    });
+    return allBilling.filter((b) => billMatchesDoctor(b.doctor, filter.doctor));
   }, [allBilling, filter.doctor]);
 
   const total = billingData?.total ?? 0;
@@ -155,7 +153,7 @@ export default function AdminBillingPage() {
 
             <div className="flex-1 overflow-hidden mt-0">
               <Statistics billing={billing} />
-              <Filters filter={filter} setFilter={setFilter} billing={billing} />
+              <Filters filter={filter} setFilter={setFilter} billing={allBilling} />
 
               {isLoadingBilling ? (
                 <TableSkeleton rows={10} columns={6} />

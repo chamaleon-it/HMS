@@ -21,6 +21,7 @@ import { fDateandTime } from "@/lib/fDateAndTime";
 import { getDecimal } from "@/lib/fNumber";
 import { startOfDay, endOfDay, subDays } from "date-fns";
 import { generateBillingReportPdf } from "@/lib/generateBillingReportPdf";
+import { billMatchesDoctor, doctorFilterOptions } from "../doctorFilter";
 
 interface PropsType {
   filter: FilterType;
@@ -33,7 +34,7 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
   const { data: doctorsResponse } = useSWR<{ data: { _id: string; name: string }[] }>("/admin/doctors");
-  const doctors = doctorsResponse?.data ?? [];
+  const doctors = doctorFilterOptions(doctorsResponse?.data, billing);
 
   const handleReset = () => {
     setFilter({
@@ -97,10 +98,7 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
     let exportData = res.data?.data ?? [];
 
     if (filter.doctor && filter.doctor.length > 0) {
-      exportData = exportData.filter((b: any) => {
-        const docName = typeof b.doctor === "object" ? b.doctor?.name : b.doctor;
-        return filter.doctor.includes(docName);
-      });
+      exportData = exportData.filter((b: any) => billMatchesDoctor(b.doctor, filter.doctor));
     }
     return { exportData, sd, ed };
   };
@@ -300,7 +298,7 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
         {/* Doctor Filter */}
         <div className="space-y-2 min-w-45">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
-            Doctor
+            Doctors
           </label>
           <div className="flex items-center gap-2">
             <Select
@@ -325,9 +323,9 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
                     Doctor
                   </SelectLabel>
                   <SelectItem value="all">All Doctors</SelectItem>
-                  {doctors.map((doc) => (
-                    <SelectItem key={doc._id} value={doc.name}>
-                      {doc.name}
+                  {doctors.map((name) => (
+                    <SelectItem key={name} value={name}>
+                      {name}
                     </SelectItem>
                   ))}
                 </SelectGroup>
