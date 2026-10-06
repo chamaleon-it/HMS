@@ -14,14 +14,18 @@ import { Button } from "@/components/ui/button";
 import DateRangeFilter from "@/components/dashboard/billing/DateRangeFilter";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
-import useSWR from "swr";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { getDecimal } from "@/lib/fNumber";
 import { startOfDay, endOfDay, subDays } from "date-fns";
 import { generateBillingReportPdf } from "@/lib/generateBillingReportPdf";
-import { billMatchesDoctor, doctorFilterOptions } from "../doctorFilter";
+import { billMatchesDoctor } from "../doctorFilter";
+import {
+  matchesAccountantStatus,
+  matchesAccountantTherapist,
+  matchesAccountantType,
+} from "../accountantBilling";
 
 interface PropsType {
   filter: FilterType;
@@ -29,12 +33,9 @@ interface PropsType {
   billing?: any[];
 }
 
-export default function Filters({ filter, setFilter, billing }: PropsType) {
+export default function Filters({ filter, setFilter }: PropsType) {
   const [isExporting, setIsExporting] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
-
-  const { data: doctorsResponse } = useSWR<{ data: { _id: string; name: string }[] }>("/admin/doctors");
-  const doctors = doctorFilterOptions(doctorsResponse?.data, billing);
 
   const handleReset = () => {
     setFilter({
@@ -47,6 +48,8 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
       page: 1,
       limit: 10,
       doctor: [],
+      therapist: "",
+      billType: "all",
       patientVisitor: "all",
     });
   };
@@ -81,7 +84,6 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
   const fetchExportData = async () => {
     const params = new URLSearchParams();
     if (filter.q && filter.q.trim()) params.set("q", filter.q.trim());
-    if (filter.status && filter.status !== "all") params.set("status", filter.status);
     if (filter.method && filter.method !== "all") params.set("method", filter.method);
     if (filter.patientVisitor && filter.patientVisitor !== "all") {
       params.set("patientVisitor", filter.patientVisitor);
@@ -97,9 +99,12 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
     const res = await api.get(`/admin/billing?${params.toString()}`);
     let exportData = res.data?.data ?? [];
 
-    if (filter.doctor && filter.doctor.length > 0) {
-      exportData = exportData.filter((b: any) => billMatchesDoctor(b.doctor, filter.doctor));
-    }
+    exportData = exportData.filter((b: any) =>
+      billMatchesDoctor(b.doctor, filter.doctor) &&
+      matchesAccountantTherapist(b, filter.therapist) &&
+      matchesAccountantType(b, filter.billType) &&
+      matchesAccountantStatus(b, filter.status)
+    );
     return { exportData, sd, ed };
   };
 
@@ -292,45 +297,6 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
                 <X className="h-3.5 w-3.5" />
               </button>
             )}
-          </div>
-        </div>
-
-        {/* Doctor Filter */}
-        <div className="space-y-2 min-w-45">
-          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
-            Doctors
-          </label>
-          <div className="flex items-center gap-2">
-            <Select
-              value={filter.doctor[0] || "all"}
-              onValueChange={(value) =>
-                setFilter((prev) => ({
-                  ...prev,
-                  doctor: value === "all" ? [] : [value],
-                  page: 1,
-                }))
-              }
-            >
-              <SelectTrigger className="h-10! bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all">
-                <div className="flex items-center gap-2">
-                  <FilterIcon className="h-4 w-4 text-slate-400" />
-                  <SelectValue placeholder="Select doctor" />
-                </div>
-              </SelectTrigger>
-              <SelectContent className="rounded-lg border-slate-200 shadow-xl max-h-64">
-                <SelectGroup>
-                  <SelectLabel className="text-[10px] uppercase tracking-wider text-slate-400">
-                    Doctor
-                  </SelectLabel>
-                  <SelectItem value="all">All Doctors</SelectItem>
-                  {doctors.map((name) => (
-                    <SelectItem key={name} value={name}>
-                      {name}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
           </div>
         </div>
 
