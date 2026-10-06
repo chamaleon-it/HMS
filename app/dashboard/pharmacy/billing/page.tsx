@@ -102,6 +102,7 @@ export default function BillingPage() {
   params.set("page", String(filter.page));
   params.set("limit", String(filter.limit));
   params.set("sort", "asc");
+  params.set("userRole", "pharmacy");
 
   const { data: billingData, mutate: billingMutate, isLoading: isLoadingBilling } = useSWR<{
     message: string;
@@ -148,9 +149,7 @@ export default function BillingPage() {
         (b) => String(b.therapistName || "").trim().toLowerCase() === wanted,
       );
     }
-    if (filter.billType && filter.billType !== "all") {
-      list = list.filter((b) => matchesPharmacyBillingTypeFilter(b, filter.billType));
-    }
+    list = list.filter((b) => matchesPharmacyBillingTypeFilter(b, filter.billType));
     return list;
   }, [allBilling, filter.doctor, filter.therapist, filter.billType]);
 
@@ -188,7 +187,7 @@ export default function BillingPage() {
           className="min-h-[calc(100vh-67px)] w-full p-5 text-slate-900 dark:text-slate-100"
         >
           <div className="flex flex-col gap-5">
-            <Header tab={tab} setTab={setTab} filter={filter} setFilter={setFilter} billing={allBilling} />
+            <Header tab={tab} setTab={setTab} filter={filter} setFilter={setFilter} billing={billing} />
 
             <Tabs
               defaultValue="all"

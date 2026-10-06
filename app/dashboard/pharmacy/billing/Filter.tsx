@@ -94,12 +94,13 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
     params.set("page", "1");
     params.set("limit", "100000");
     params.set("sort", "asc");
+    params.set("userRole", "pharmacy");
 
     const res = await api.get(`/billing?${params.toString()}`);
     let exportData = res.data?.data ?? [];
 
     exportData = exportData.filter((b: any) => {
-      if (filter.billType && filter.billType !== "all" && !matchesPharmacyBillingTypeFilter(b, filter.billType)) {
+      if (!matchesPharmacyBillingTypeFilter(b, filter.billType)) {
         return false;
       }
       if (filter.doctor && filter.doctor.length > 0) {

@@ -99,33 +99,118 @@ export function isProcedureOrTherapyLine(
   return !namedOnAnotherLine;
 }
 
-/** Pharmacy billing pills: All Type, Pharmacy (not therapy/procedure), Procedure (both). */
+/**
+ * Reception fee content: consultation, registration, NCF, and the same
+ * item-name markers getBillType uses. Refund/Return alone is not enough —
+ * a medicine return is a pharmacy bill that getBillType still calls reception.
+ */
+export function isReceptionFeeBill(bill: {
+  note?: string;
+  items?: { name?: unknown }[];
+} | null | undefined): boolean {
+  if (!bill) return false;
+  const noteStr = String(bill.note || "").toLowerCase();
+  const itemNames = (bill.items || []).map((item) => itemDisplayName(item).toLowerCase());
+  if (
+    noteStr.includes("consultation") ||
+    noteStr.includes("reception") ||
+    noteStr.includes("registration") ||
+    noteStr.includes("ncf") ||
+    noteStr.includes("refund")
+  ) {
+    return true;
+  }
+  if (itemNames.length === 0) return true;
+  return itemNames.some(
+    (name) =>
+      name.includes("consultation") ||
+      name.includes("registration") ||
+      name.includes("ncf") ||
+      name.includes("refund") ||
+      name.includes("fee") ||
+      name.includes("opd") ||
+      name.includes("doctor") ||
+      name.includes("token"),
+  );
+}
+
+export type PharmacyPageBillKind = "pharmacy" | "procedure" | "hidden";
+
+/**
+ * Pharmacy billing page only.
+ * Procedure = therapy + procedure.
+ * Pharmacy = a medicine sale (or a pharmacy-role sale) that is not a reception fee.
+ * Reception fees, empty bills, and unrelated non-medicine bills are hidden.
+ */
+export function pharmacyPageBillKind(bill: {
+  note?: string;
+  items?: { name?: unknown }[];
+  transactionType?: string;
+  user?: { role?: string };
+  creator?: { role?: string };
+} | null | undefined): PharmacyPageBillKind {
+  if (!bill) return "hidden";
+  const type = getBillType(bill);
+  if (type === "therapy" || type === "procedure") return "procedure";
+  if (isReceptionFeeBill(bill)) return "hidden";
+  if (type === "reception" && !hasMedicineItems(bill.items)) return "hidden";
+  if (hasMedicineItems(bill.items)) return "pharmacy";
+  const role = String(bill.user?.role || bill.creator?.role || "").toLowerCase();
+  if (role.includes("pharmacy")) return "pharmacy";
+  return "hidden";
+}
+
+/** Pharmacy billing pills: All Type, Pharmacy, Procedure. Reception never matches. */
 export function matchesPharmacyBillingTypeFilter(
   bill: {
     note?: string;
-    items?: { name: string }[];
+    items?: { name?: string }[];
     transactionType?: string;
+    user?: { role?: string };
+    creator?: { role?: string };
   },
   billType: string | null | undefined,
 ): boolean {
+  const kind = pharmacyPageBillKind(bill);
+  if (kind === "hidden") return false;
   const filter = billType || "all";
   if (filter === "all") return true;
-  const type = getBillType(bill);
-  const treatment = type === "therapy" || type === "procedure";
-  if (filter === "pharmacy") return !treatment;
-  if (filter === "procedure") return treatment;
-  return type === filter;
+  if (filter === "pharmacy") return kind === "pharmacy";
+  if (filter === "procedure") return kind === "procedure";
+  return false;
 }
 
-/** Query value understood by the billing API. Procedure on this page is therapy + procedure. */
+/**
+ * Query value understood by the billing API.
+ * All Type is pharmacy sales plus procedure/therapy, with reception omitted.
+ * Procedure on this page is therapy + procedure.
+ */
 export function pharmacyBillingTypeQueryParam(
   billType: string | null | undefined,
 ): string | null {
   const filter = billType || "all";
-  if (filter === "all") return null;
+  if (filter === "all") return "counter";
   if (filter === "pharmacy") return "pharmacy";
   if (filter === "procedure") return "treatment";
   return filter;
+}
+
+export function pharmacyBillingBadge(bill: {
+  note?: string;
+  items?: { name?: unknown }[];
+  transactionType?: string;
+  user?: { role?: string };
+  creator?: { role?: string };
+}): { label: string; className: string } {
+  if (pharmacyPageBillKind(bill) === "pharmacy") {
+    return {
+      label: "Pharmacy",
+      className:
+        "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800",
+    };
+  }
+  const type = getBillType(bill);
+  return getBillTypeBadgeProps(type === "procedure" ? "procedure" : "therapy");
 }
 
 export function getBillTypeBadgeProps(type: "therapy" | "procedure" | "reception" | "other") {

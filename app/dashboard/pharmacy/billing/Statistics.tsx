@@ -10,7 +10,7 @@ import {
     Smartphone,
 } from "lucide-react";
 import { pharmacyLineMoney } from "@/lib/pharmacyReceiptLine";
-import { isProcedureOrTherapyLine, itemDisplayName } from "@/lib/billTypeUtils";
+import { isProcedureOrTherapyLine, itemDisplayName, pharmacyPageBillKind } from "@/lib/billTypeUtils";
 
 interface StatisticsProps {
     billing: {
@@ -55,8 +55,12 @@ export default function Statistics({ billing }: StatisticsProps) {
         let cashTotal = 0;
         let cardTotal = 0;
         let upiTotal = 0;
+        let visibleBills = 0;
 
         billing.forEach(bill => {
+            if (pharmacyPageBillKind(bill) === "hidden") return;
+            visibleBills += 1;
+
             const isReturn = bill.transactionType === "Return";
             const multiplier = isReturn ? -1 : 1;
 
@@ -67,13 +71,23 @@ export default function Statistics({ billing }: StatisticsProps) {
             let billTotal = 0;
             bill.items.forEach(item => {
                 const itemTotal = pharmacyLineMoney(item).net * multiplier;
-                billTotal += itemTotal;
                 const name = itemDisplayName(item).toLowerCase();
+                const receptionLine =
+                    name.includes("consultation") ||
+                    name.includes("registration") ||
+                    name.includes("ncf") ||
+                    name.includes("refund") ||
+                    name.includes("fee") ||
+                    name.includes("opd") ||
+                    name.includes("doctor") ||
+                    name.includes("token");
 
                 if (isProcedureOrTherapyLine(bill, item)) {
                     procItemsSum += itemTotal;
-                } else if (!name.includes("consultation")) {
+                    billTotal += itemTotal;
+                } else if (!receptionLine) {
                     pharm += itemTotal;
+                    billTotal += itemTotal;
                 }
             });
 
@@ -82,7 +96,7 @@ export default function Statistics({ billing }: StatisticsProps) {
         });
 
         return {
-            totalBills: billing.length,
+            totalBills: visibleBills,
             procedureFee: procItemsSum,
             pharmacyFee: pharm,
             dueAmount: due,
