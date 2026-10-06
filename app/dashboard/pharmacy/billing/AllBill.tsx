@@ -69,7 +69,7 @@ import api from "@/lib/axios";
 import PrintReceipt from "./PrintReceipt";
 import { PaginationBar } from "../components/PaginationBar";
 import { pharmacyLineMoney } from "@/lib/pharmacyReceiptLine";
-import { getBillType, getBillTypeBadgeProps } from "@/lib/billTypeUtils";
+import { getBillType, pharmacyBillingBadge } from "@/lib/billTypeUtils";
 import { cn } from "@/lib/utils";
 import { isDoctorAssignee, mergeTherapyAssignees, TherapyAssignee } from "@/lib/therapyAssignees";
 
@@ -185,8 +185,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       <div className="font-medium text-slate-900 flex items-center gap-1.5 flex-wrap">
                         <span>{b.mrn}</span>
                         {(() => {
-                          const type = getBillType(b);
-                          const badge = getBillTypeBadgeProps(type);
+                          const badge = pharmacyBillingBadge(b);
                           return (
                             <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border", badge.className)}>
                               {badge.label}
