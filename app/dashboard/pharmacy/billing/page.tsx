@@ -13,6 +13,7 @@ import Filters from "./Filter";
 import { endOfDay, startOfDay, subDays } from "date-fns";
 import Statistics from "./Statistics";
 import { matchesPharmacyBillingTypeFilter, pharmacyBillingTypeQueryParam } from "@/lib/billTypeUtils";
+import { billDoctorLabel } from "@/lib/billDoctor";
 import { DateRange } from "react-day-picker";
 import type { PatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
 import { getStoredPatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
@@ -139,8 +140,7 @@ export default function BillingPage() {
     let list = allBilling;
     if (filter.doctor.length > 0) {
       list = list.filter(b => {
-        const docName = typeof b.doctor === "object" ? (b.doctor as { name?: string })?.name : b.doctor;
-        return filter.doctor.includes(docName || "");
+        return filter.doctor.includes(billDoctorLabel(b));
       });
     }
     if (filter.therapist) {

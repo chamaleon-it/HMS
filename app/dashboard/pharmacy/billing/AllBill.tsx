@@ -72,6 +72,7 @@ import { pharmacyLineMoney } from "@/lib/pharmacyReceiptLine";
 import { getBillType, pharmacyBillingBadge } from "@/lib/billTypeUtils";
 import { cn } from "@/lib/utils";
 import { isDoctorAssignee, mergeTherapyAssignees, TherapyAssignee } from "@/lib/therapyAssignees";
+import { billDoctorLabel } from "@/lib/billDoctor";
 
 function billNet(items: { quantity?: number; unitPrice?: number; gst?: number; total?: number; name?: any; batchNumber?: string; expiryDate?: string | Date }[]) {
   return items.reduce((sum, item) => sum + pharmacyLineMoney(item).net, 0);
@@ -203,9 +204,8 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     </TableCell>
                     <TableCell className="py-3">
                       <div className="font-medium truncate text-slate-900">
-                        {typeof b.doctor === 'object' ? (b.doctor as any)?.name : b.doctor}
+                        {billDoctorLabel(b) || "—"}
                       </div>
-
                     </TableCell>
                     <TableCell className="py-3">
                       <TherapistNameCell name={b.therapistName} doctorNames={doctorNames} />
@@ -497,7 +497,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             card: printBill.card,
             upi: printBill.upi,
             discount: printBill.discount,
-            doctor: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.name : (printBill.doctor === "Self" ? "" : printBill.doctor),
+            doctor: billDoctorLabel(printBill),
             department: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.specialization : (printBill as any).department,
             note: printBill.note,
             inCharge: (printBill as { inCharge?: string }).inCharge,

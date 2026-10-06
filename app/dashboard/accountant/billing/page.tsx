@@ -15,6 +15,7 @@ import { DateRange } from "react-day-picker";
 import type { PatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
 import { getStoredPatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
 import { billMatchesDoctor } from "./doctorFilter";
+import { billDoctorLabel } from "@/lib/billDoctor";
 import {
   matchesAccountantStatus,
   matchesAccountantTherapist,
@@ -133,7 +134,7 @@ export default function AdminBillingPage() {
   const allBilling = billingData?.data ?? [];
   const billing = useMemo(() => {
     return allBilling.filter((b) =>
-      billMatchesDoctor(b.doctor, filter.doctor) &&
+      billMatchesDoctor(billDoctorLabel(b), filter.doctor) &&
       matchesAccountantTherapist(b, filter.therapist) &&
       matchesAccountantType(b, filter.billType) &&
       matchesAccountantStatus(b, filter.status)
