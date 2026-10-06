@@ -29,6 +29,7 @@ interface PropsType {
   total: number;
   billing: {
     doctor: string;
+    therapistName?: string;
     transactionType: "Return" | "Sale" | "Refund";
     roundOff: boolean;
     mrn: string;
@@ -59,6 +60,7 @@ interface PropsType {
   }[];
 }
 import PrintReceipt from "../../../pharmacy/billing/PrintReceipt";
+import { accountantPaymentStatus, billTherapistName } from "../accountantBilling";
 import { PaginationBar } from "../../../pharmacy/components/PaginationBar";
 
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
@@ -86,6 +88,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                 <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Date</TableHead>
                 <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Patient</TableHead>
                 <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Doctor</TableHead>
+                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Therapist</TableHead>
                 <TableHead className="py-2.5 text-center text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Payment Method</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Total</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Round off</TableHead>
@@ -99,7 +102,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             <TableBody>
               {billing.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={12} className="py-20 text-center">
+                  <TableCell colSpan={13} className="py-20 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center dark:bg-slate-800">
                         <Search className="h-6 w-6 text-slate-300" />
@@ -140,7 +143,11 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       <div className="font-medium truncate text-slate-900">
                         {typeof b.doctor === 'object' ? (b.doctor as any)?.name : b.doctor}
                       </div>
-
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <div className="font-medium truncate text-slate-900">
+                        {billTherapistName(b) || "—"}
+                      </div>
                     </TableCell>
                     <TableCell className="py-3 text-center">
                       <div className="flex items-center justify-center gap-1 flex-wrap">
@@ -175,31 +182,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       )}
                     </TableCell>
                     <TableCell className="py-3 text-center">
-                      <StatusPill
-                        s={(() => {
-                          if (b.transactionType === "Refund" || b.items?.some((i: any) => i.name?.toLowerCase().includes("refund"))) {
-                            return "Refund";
-                          }
-                          if (b.transactionType === "Return") {
-                            return "Return";
-                          }
-                          const itemsTotal = b.items.reduce(
-                            (sum, i) => sum + (i.total ?? 0),
-                            0
-                          );
-                          const roundOffAmount = b.roundOff ? getDecimal(itemsTotal) : 0;
-                          const netTotal = itemsTotal - roundOffAmount;
-                          const totalPaid = (b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0) + (b.discount ?? 0);
-
-                          if (netTotal - totalPaid <= 0.01) {
-                            return "Paid";
-                          }
-                          if (totalPaid <= 0.01) {
-                            return "Unpaid";
-                          }
-                          return "Partial";
-                        })()}
-                      />
+                      <StatusPill s={accountantPaymentStatus(b)} />
                     </TableCell>
                     <TableCell className="py-3 pr-4">
                       <div className="flex justify-end items-center gap-1">
@@ -228,7 +211,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             {billing.length > 0 && (
               <TableFooter className="sticky bottom-0 z-10 bg-emerald-50 font-extrabold text-[15px] text-slate-900 border-t-2 border-slate-300 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                 <TableRow className="hover:bg-emerald-50 bg-emerald-50">
-                  <TableCell colSpan={6} className="py-4 px-4 text-right uppercase tracking-wider text-sm font-black text-slate-800">
+                  <TableCell colSpan={7} className="py-4 px-4 text-right uppercase tracking-wider text-sm font-black text-slate-800">
                     Total
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums">

@@ -13,10 +13,14 @@ import Statistics from "./components/Statistics";
 import AllBill from "./components/AllBill";
 import { DateRange } from "react-day-picker";
 import type { PatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
+import { getStoredPatientVisitorFilter } from "@/components/dashboard/billing/PatientModeToggle";
+import { billMatchesDoctor } from "./doctorFilter";
 import {
-  getStoredPatientVisitorFilter,
-  PatientVisitorToggle,
-} from "@/components/dashboard/billing/PatientModeToggle";
+  matchesAccountantStatus,
+  matchesAccountantTherapist,
+  matchesAccountantType,
+} from "./accountantBilling";
+import BillingToolbar from "./components/BillingToolbar";
 
 export interface FilterType {
   q: null | string;
@@ -28,6 +32,8 @@ export interface FilterType {
   page: number;
   limit: number;
   doctor: string[];
+  therapist: string;
+  billType: string;
   patientVisitor: PatientVisitorFilter;
 }
 
@@ -42,6 +48,8 @@ export default function AdminBillingPage() {
     page: 1,
     limit: 10,
     doctor: [],
+    therapist: "",
+    billType: "all",
     patientVisitor: "all",
   });
 
@@ -56,10 +64,6 @@ export default function AdminBillingPage() {
 
   if (filter.q && filter.q.trim()) {
     params.set("q", filter.q.trim());
-  }
-
-  if (filter.status && filter.status !== "all") {
-    params.set("status", filter.status);
   }
 
   if (filter.method && filter.method !== "all") {
@@ -119,19 +123,22 @@ export default function AdminBillingPage() {
         name: string;
         mrn: string;
       };
-      transactionType: "Return" | "Sale";
+      transactionType: "Return" | "Sale" | "Refund";
       doctor: string | any;
+      therapistName?: string;
+      note?: string;
     }[];
   }>(`/admin/billing?${params.toString()}`);
 
   const allBilling = billingData?.data ?? [];
   const billing = useMemo(() => {
-    if (filter.doctor.length === 0) return allBilling;
-    return allBilling.filter((b) => {
-      const docName = typeof b.doctor === "object" ? b.doctor?.name : b.doctor;
-      return filter.doctor.includes(docName);
-    });
-  }, [allBilling, filter.doctor]);
+    return allBilling.filter((b) =>
+      billMatchesDoctor(b.doctor, filter.doctor) &&
+      matchesAccountantTherapist(b, filter.therapist) &&
+      matchesAccountantType(b, filter.billType) &&
+      matchesAccountantStatus(b, filter.status)
+    );
+  }, [allBilling, filter.doctor, filter.therapist, filter.billType, filter.status]);
 
   const total = billingData?.total ?? 0;
 
@@ -144,18 +151,12 @@ export default function AdminBillingPage() {
               title="Billing Management"
               subtitle="View and manage hospital-wide billing and collections."
             >
-              <PatientVisitorToggle
-                value={filter.patientVisitor || "all"}
-                onChange={(patientVisitor) =>
-                  setFilter((prev) => ({ ...prev, patientVisitor, page: 1 }))
-                }
-                layoutId="admin-billing-patient-visitor"
-              />
+              <BillingToolbar filter={filter} setFilter={setFilter} billing={allBilling} />
             </AdminHeader>
 
             <div className="flex-1 overflow-hidden mt-0">
               <Statistics billing={billing} />
-              <Filters filter={filter} setFilter={setFilter} billing={billing} />
+              <Filters filter={filter} setFilter={setFilter} billing={allBilling} />
 
               {isLoadingBilling ? (
                 <TableSkeleton rows={10} columns={6} />
