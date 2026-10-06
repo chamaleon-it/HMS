@@ -264,10 +264,9 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
 
           <div className="relative inline-flex items-center gap-1 text-sm bg-slate-50 border border-slate-200 rounded-full p-1 dark:bg-slate-800/50 dark:border-slate-700">
             {[
-              { key: "all", label: "All Types" },
-              { key: "therapy", label: "Therapy" },
+              { key: "all", label: "All Type" },
+              { key: "pharmacy", label: "Pharmacy" },
               { key: "procedure", label: "Procedure" },
-              { key: "other", label: "Other" },
             ].map(({ key, label }) => {
               const active = (filter.billType || "all") === key;
               return (

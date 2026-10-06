@@ -20,7 +20,7 @@ import { fDateandTime } from "@/lib/fDateAndTime";
 import { getDecimal } from "@/lib/fNumber";
 import { startOfDay, endOfDay, subDays } from "date-fns";
 import { generateBillingReportPdf } from "@/lib/generateBillingReportPdf";
-import { getBillType } from "@/lib/billTypeUtils";
+import { matchesPharmacyBillingTypeFilter, pharmacyBillingTypeQueryParam } from "@/lib/billTypeUtils";
 
 interface PropsType {
   filter: FilterType;
@@ -81,7 +81,8 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
     if (filter.q && filter.q.trim()) params.set("q", filter.q.trim());
     if (filter.status && filter.status !== "all") params.set("status", filter.status);
     if (filter.method && filter.method !== "all") params.set("method", filter.method);
-    if (filter.billType && filter.billType !== "all") params.set("billType", filter.billType);
+    const billTypeQuery = pharmacyBillingTypeQueryParam(filter.billType);
+    if (billTypeQuery) params.set("billType", billTypeQuery);
     if (filter.patientVisitor && filter.patientVisitor !== "all") {
       params.set("patientVisitor", filter.patientVisitor);
     }
@@ -98,7 +99,7 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
     let exportData = res.data?.data ?? [];
 
     exportData = exportData.filter((b: any) => {
-      if (filter.billType && filter.billType !== "all" && getBillType(b) !== filter.billType) {
+      if (filter.billType && filter.billType !== "all" && !matchesPharmacyBillingTypeFilter(b, filter.billType)) {
         return false;
       }
       if (filter.doctor && filter.doctor.length > 0) {
