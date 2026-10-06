@@ -12,7 +12,7 @@ export type AccountantPaymentStatus = "Paid" | "Partial" | "Unpaid" | "Refund" |
 
 type BillLike = {
   note?: string;
-  items?: { name?: unknown; total?: number }[];
+  items?: { name?: string; total?: number }[];
   transactionType?: string;
   user?: { role?: string };
   creator?: { role?: string };
@@ -25,7 +25,7 @@ type BillLike = {
 };
 
 /** Procedure is therapy plus procedure. Pharmacy is a medicine sale. Reception is the front desk. */
-export function accountantBillKind(bill: BillLike | null | undefined): AccountantBillKind {
+export function accountantBillKind(bill: any | null | undefined): AccountantBillKind {
   if (!bill) return "other";
   const type = getBillType(bill);
   if (type === "therapy" || type === "procedure") return "procedure";
