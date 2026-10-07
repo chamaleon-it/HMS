@@ -25,9 +25,11 @@ import { isOutsideOrderLine, outsideDrugLabel } from "@/lib/pharmacyOutsideMedic
 import {
   PRESCRIPTION_DOSAGE_OPTIONS,
   PRESCRIPTION_DURATION_OPTIONS,
+  PRESCRIPTION_FOOD_OPTIONS,
   PRESCRIPTION_FREQUENCY_OPTIONS,
   dosageSetsQuantityToOne,
   frequencySetsQuantityToOne,
+  prescriptionChoiceLabel,
 } from "@/lib/prescriptionFrequency";
 import {
   AlertDialog,
@@ -287,7 +289,7 @@ export default function UpdatePrescriptionCard({
                 <td className="p-3 align-middle">
                   <ComboboxInput
                     label="Frequency"
-                    value={m.frequency}
+                    value={prescriptionChoiceLabel(m.frequency)}
                     disabled={data.status === "Completed"}
                     onChange={(val) => {
                       updateField(i, "frequency", val);
@@ -301,16 +303,10 @@ export default function UpdatePrescriptionCard({
                 <td className="p-3 align-middle">
                   <ComboboxInput
                     label="Food"
-                    value={m.food}
+                    value={prescriptionChoiceLabel(m.food)}
                     disabled={data.status === "Completed"}
                     onChange={(val) => updateField(i, "food", val)}
-                    options={[
-                      "After food",
-                      "Before food",
-                      "With food",
-                      "Empty stomach",
-                      "Anytime",
-                    ]}
+                    options={PRESCRIPTION_FOOD_OPTIONS}
                   />
                 </td>
                 <td className="p-3 align-middle">

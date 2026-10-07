@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { fDate, fDateandTime } from "@/lib/fDateAndTime";
+import { prescriptionChoiceLabel } from "@/lib/prescriptionFrequency";
 import {
     Activity,
     Calendar,
@@ -619,8 +620,8 @@ export default function ConsultationDetails({
                                                         )}
                                                     </p>
                                                     <p className="text-xs text-muted-foreground mt-1">
-                                                        {m.frequency ?? "—"} • {m.duration ?? "—"} •{" "}
-                                                        {m.food ?? "—"}
+                                                        {prescriptionChoiceLabel(m.frequency) || "—"} • {m.duration ?? "—"} •{" "}
+                                                        {prescriptionChoiceLabel(m.food) || "—"}
                                                     </p>
                                                 </div>
                                                 <Badge variant="outline" className="mt-2 sm:mt-0">

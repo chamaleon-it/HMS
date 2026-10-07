@@ -9,6 +9,7 @@ import useGetPanels from "@/data/useGetPanels";
 import useGetTherapy from "@/data/useGetTherapy";
 import useGetProcedure from "@/data/useGetProcedure";
 import { getFormattedInvestigationNames, getFormattedTherapyNames, getFormattedProcedureNames } from "@/lib/investigationUtils";
+import { prescriptionChoiceLabel } from "@/lib/prescriptionFrequency";
 
 import {
   PrintHeader,
@@ -795,10 +796,10 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                             {m.dosage || "—"}
                           </td>
                           <td className="py-1 px-2 text-center font-black text-synapse-light text-[12px]">
-                            {m.frequency || "—"}
+                            {prescriptionChoiceLabel(m.frequency) || "—"}
                           </td>
                           <td className="py-1 px-2 text-center font-semibold text-slate-700 text-[12px]">
-                            {m.food || "—"}
+                            {prescriptionChoiceLabel(m.food) || "—"}
                           </td>
                           <td className="py-1 px-2 text-center font-bold text-slate-800 text-[12px]">
                             {m.duration || "—"}

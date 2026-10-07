@@ -108,7 +108,7 @@ export interface Consultations {
     bowelMovement?: string;
     urineMovement?: string;
     appetite?: string;
-    digestiveSystem?: string;
+    digestiveSystem?: string | string[] | null;
   };
   therapy?: string;
   therapyNotes?: string;

@@ -16,6 +16,7 @@ import {
   getFormattedTherapyNames,
 } from "@/lib/investigationUtils";
 import { useAuth } from "@/auth/context/auth-context";
+import { prescriptionChoiceLabel } from "@/lib/prescriptionFrequency";
 
 interface DischargeSummaryPrintProps {
   ip: any;
@@ -127,8 +128,8 @@ export default function DischargeSummaryPrint({
         allMedicines.push({
           name: medName,
           dosage: it.dosage || "As directed",
-          frequency: it.frequency || "—",
-          food: it.food || "—",
+          frequency: prescriptionChoiceLabel(it.frequency) || "—",
+          food: prescriptionChoiceLabel(it.food) || "—",
           duration: it.duration || "—",
           quantity: it.quantity || 1,
         });
@@ -143,8 +144,8 @@ export default function DischargeSummaryPrint({
         allMedicines.push({
           name: medName,
           dosage: m.dosage || "As directed",
-          frequency: m.frequency || "—",
-          food: m.food || "—",
+          frequency: prescriptionChoiceLabel(m.frequency) || "—",
+          food: prescriptionChoiceLabel(m.food) || "—",
           duration: m.duration || "—",
           quantity: m.quantity || 1,
         });

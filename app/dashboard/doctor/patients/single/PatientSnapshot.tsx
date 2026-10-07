@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import { fDate } from "@/lib/fDateAndTime";
+import { prescriptionChoiceLabel } from "@/lib/prescriptionFrequency";
 import { ConsultationType, PatientType } from "./interface";
 
 export default function PatientSnapshot({
@@ -239,7 +240,7 @@ export default function PatientSnapshot({
                   )}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  Frequancy: {m.frequency} · Duration: {m.duration} · Since{" "}
+                  Frequancy: {prescriptionChoiceLabel(m.frequency)} · Duration: {m.duration} · Since{" "}
                   {fDate(consult[0]?.createdAt)}
                 </div>
               </div>

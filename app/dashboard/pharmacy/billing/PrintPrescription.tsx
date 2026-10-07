@@ -6,6 +6,7 @@ import { fDateandTime, fAge } from "@/lib/fDateAndTime";
 import { OrderType } from "../interface";
 import { isOutsideOrderLine, outsideDrugLabel } from "@/lib/pharmacyOutsideMedicine";
 import { printHomeOrPlaceAddress, printPatientPhone } from "@/lib/formatPatientAddress";
+import { prescriptionChoiceLabel } from "@/lib/prescriptionFrequency";
 import {
     PrintHeader,
     PrintPatientStrip,
@@ -262,10 +263,10 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                                                         )}
                                                     </td>
                                                     <td className="py-2 px-2 text-center font-semibold text-slate-900">{m.dosage || "—"}</td>
-                                                    <td className="py-2 px-2 text-center font-bold text-synapse-light">{m.frequency || "—"}</td>
+                                                    <td className="py-2 px-2 text-center font-bold text-synapse-light">{prescriptionChoiceLabel(m.frequency) || "—"}</td>
                                                     <td className="py-2 px-2 text-center font-semibold text-slate-900">{m.duration || "—"}</td>
                                                     <td className="py-2 px-2 text-xs font-semibold text-slate-700 italic">
-                                                        {m.food || "—"}
+                                                        {prescriptionChoiceLabel(m.food) || "—"}
                                                     </td>
                                                 </tr>
                                             );
