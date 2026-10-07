@@ -10,9 +10,15 @@ import React, {
   useState,
 } from "react";
 import { DataType } from "./interface";
-import { EllipsisVertical } from "lucide-react";
+import { Check, EllipsisVertical } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import {
+  DIGESTIVE_OPTIONS,
+  digestiveSelectionFromStored,
+  digestiveSystemForSave,
+  toggleDigestiveSelection,
+} from "@/lib/digestiveSystem";
 
 import {
   DndContext,
@@ -247,7 +253,7 @@ export default function ExaminationNote({
   const [selectedBowel, setSelectedBowel] = useState<string>("");
   const [selectedUrine, setSelectedUrine] = useState<string>("");
   const [selectedAppetite, setSelectedAppetite] = useState<string>("");
-  const [selectedDigestive, setSelectedDigestive] = useState<string>("");
+  const [selectedDigestive, setSelectedDigestive] = useState<string[]>([]);
 
   useEffect(() => {
     if (data.medicalParameters) {
@@ -255,7 +261,11 @@ export default function ExaminationNote({
       if (data.medicalParameters.bowelMovement) setSelectedBowel(data.medicalParameters.bowelMovement);
       if (data.medicalParameters.urineMovement) setSelectedUrine(data.medicalParameters.urineMovement);
       if (data.medicalParameters.appetite) setSelectedAppetite(data.medicalParameters.appetite);
-      if (data.medicalParameters.digestiveSystem) setSelectedDigestive(data.medicalParameters.digestiveSystem);
+      if (data.medicalParameters.digestiveSystem) {
+        setSelectedDigestive(
+          digestiveSelectionFromStored(data.medicalParameters.digestiveSystem),
+        );
+      }
     }
   }, [data.medicalParameters]);
 
@@ -264,7 +274,7 @@ export default function ExaminationNote({
     bowel: string,
     urine: string,
     appetite: string,
-    digestive: string
+    digestive: string[]
   ) => {
     setData((prev) => ({
       ...prev,
@@ -273,7 +283,7 @@ export default function ExaminationNote({
         bowelMovement: bowel || null,
         urineMovement: urine || null,
         appetite: appetite || null,
-        digestiveSystem: digestive || null,
+        digestiveSystem: digestiveSystemForSave(digestive),
       },
     }));
   };
@@ -303,7 +313,7 @@ export default function ExaminationNote({
   };
 
   const handleDigestiveToggle = (option: string) => {
-    const nextVal = selectedDigestive === option ? "" : option;
+    const nextVal = toggleDigestiveSelection(selectedDigestive, option);
     setSelectedDigestive(nextVal);
     updateMedicalParameters(selectedSleep, selectedBowel, selectedUrine, selectedAppetite, nextVal);
   };
@@ -951,8 +961,8 @@ export default function ExaminationNote({
                 Digestive System
               </span>
               <div className="flex flex-wrap gap-1.5">
-                {["Normal", "Bloating", "APD", "GERD"].map((opt) => {
-                  const active = selectedDigestive === opt;
+                {DIGESTIVE_OPTIONS.map((opt) => {
+                  const active = selectedDigestive.includes(opt);
                   return (
                     <label
                       key={opt}
@@ -965,8 +975,7 @@ export default function ExaminationNote({
                       )}
                     >
                       <input
-                        type="radio"
-                        name="medparam-digestive"
+                        type="checkbox"
                         value={opt}
                         checked={active}
                         onChange={() => handleDigestiveToggle(opt)}
@@ -974,15 +983,15 @@ export default function ExaminationNote({
                       />
                       <span
                         className={cn(
-                          "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
+                          "flex items-center justify-center w-4 h-4 rounded-[4px] border-2 transition-all duration-200 shrink-0",
                           active
                             ? "border-emerald-500 bg-emerald-500"
                             : "border-slate-300 bg-white group-hover:border-emerald-300"
                         )}
                       >
-                        <span
+                        <Check
                           className={cn(
-                            "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
+                            "w-3 h-3 text-white transition-all duration-200",
                             active ? "scale-100 opacity-100" : "scale-0 opacity-0"
                           )}
                         />

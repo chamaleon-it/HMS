@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import React from "react";
 import { fDate } from "@/lib/fDateAndTime";
 import { ConsultationType } from "./interface";
+import { prescriptionChoiceLabel } from "@/lib/prescriptionFrequency";
 
 export default function Med({consult}:{consult:ConsultationType[]}) {
 
@@ -33,7 +34,7 @@ export default function Med({consult}:{consult:ConsultationType[]}) {
               )}
             </div>
             <div className="text-xs text-muted-foreground">
-              Frequancy: {m.frequency} · Duration: {m.duration} · Since{" "}
+              Frequancy: {prescriptionChoiceLabel(m.frequency)} · Duration: {m.duration} · Since{" "}
               {fDate(consult[0]?.createdAt)}
             </div>
           </div>

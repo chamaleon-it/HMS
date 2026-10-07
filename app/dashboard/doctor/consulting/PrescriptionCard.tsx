@@ -28,8 +28,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import {
   PRESCRIPTION_DOSAGE_OPTIONS,
   PRESCRIPTION_DURATION_OPTIONS,
+  PRESCRIPTION_FOOD_OPTIONS,
   PRESCRIPTION_FREQUENCY_OPTIONS,
   derivedTabletQuantity,
+  prescriptionChoiceLabel,
   selectionJustSetQuantityToOne,
   selectionKeepsQuantityAtOne,
 } from "@/lib/prescriptionFrequency";
@@ -78,12 +80,12 @@ const TemplateMedicinesList = ({ medicines }: { medicines: Medicine[] }) => {
             )}
             {med.frequency && (
               <span className="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-medium">
-                {med.frequency}
+                {prescriptionChoiceLabel(med.frequency)}
               </span>
             )}
             {med.food && (
               <span className="px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800 font-medium">
-                {med.food}
+                {prescriptionChoiceLabel(med.food)}
               </span>
             )}
             {med.duration && (
@@ -448,22 +450,16 @@ export default function PrescriptionCard({
                       <LabeledCombobox
                         options={PRESCRIPTION_FREQUENCY_OPTIONS}
                         label="Frequency"
-                        value={m.frequency}
+                        value={prescriptionChoiceLabel(m.frequency)}
                         onChange={(e) => updateField(i, "frequency", e)}
                       />
                     </div>
 
                     <div className="col-span-1">
                       <LabeledCombobox
-                        options={[
-                          "After food",
-                          "Before food",
-                          "With food",
-                          "Empty stomach",
-                          "Anytime",
-                        ]}
+                        options={PRESCRIPTION_FOOD_OPTIONS}
                         label="Food"
-                        value={m.food}
+                        value={prescriptionChoiceLabel(m.food)}
                         onChange={(e) => updateField(i, "food", e)}
                       />
                     </div>
@@ -586,7 +582,7 @@ export default function PrescriptionCard({
                           <span
                             key={idx}
                             className="inline-flex items-center gap-1.5 text-[11px] font-medium bg-slate-50 border border-slate-200/80 text-slate-700 px-2 py-0.8 rounded-lg truncate max-w-full"
-                            title={`${m.referralName || m.name} (${m.dosage}, ${m.frequency})`}
+                            title={`${m.referralName || m.name} (${m.dosage}, ${prescriptionChoiceLabel(m.frequency)})`}
                           >
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                             <span className="truncate">{m.referralName || m.name}</span>
@@ -856,7 +852,7 @@ export default function PrescriptionCard({
                         className="border border-slate-200 bg-white rounded-lg p-1.5 text-xs col-span-2 focus:outline-none focus:border-emerald-500"
                       />
                       <input
-                        value={m.frequency}
+                        value={prescriptionChoiceLabel(m.frequency)}
                         onChange={(e) =>
                           updateEditField(idx, "frequency", e.target.value)
                         }
@@ -864,7 +860,7 @@ export default function PrescriptionCard({
                         className="border border-slate-200 bg-white rounded-lg p-1.5 text-xs col-span-2 focus:outline-none focus:border-emerald-500"
                       />
                       <input
-                        value={m.food}
+                        value={prescriptionChoiceLabel(m.food)}
                         onChange={(e) =>
                           updateEditField(idx, "food", e.target.value)
                         }

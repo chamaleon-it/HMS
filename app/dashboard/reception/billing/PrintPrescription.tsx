@@ -11,6 +11,7 @@ import {
     PrintSignature,
     PrintFooter,
 } from "@/components/print/PrintHeader";
+import { prescriptionChoiceLabel } from "@/lib/prescriptionFrequency";
 
 interface PrintPrescriptionProps {
     order: OrderType | null;
@@ -242,10 +243,10 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                                                         )}
                                                     </td>
                                                     <td className="py-2 px-2 text-center font-semibold text-slate-900">{m.dosage || "—"}</td>
-                                                    <td className="py-2 px-2 text-center font-bold text-synapse-light">{m.frequency || "—"}</td>
+                                                    <td className="py-2 px-2 text-center font-bold text-synapse-light">{prescriptionChoiceLabel(m.frequency) || "—"}</td>
                                                     <td className="py-2 px-2 text-center font-semibold text-slate-900">{m.duration || "—"}</td>
                                                     <td className="py-2 px-2 text-xs font-semibold text-slate-700 italic">
-                                                        {m.food || "—"}
+                                                        {prescriptionChoiceLabel(m.food) || "—"}
                                                     </td>
                                                 </tr>
                                             );

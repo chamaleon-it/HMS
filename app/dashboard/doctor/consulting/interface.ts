@@ -51,7 +51,7 @@ export interface DataType {
     bowelMovement: null | string;
     urineMovement: null | string;
     appetite: null | string;
-    digestiveSystem: null | string;
+    digestiveSystem: null | string | string[];
   };
   therapy: null | string | string[] | any;
   therapyDates?: string[];
