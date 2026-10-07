@@ -2,6 +2,10 @@ import React from "react";
 import { DataType } from "./interface";
 import { Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  appendConsultationNote,
+  removeConsultationNote,
+} from "@/lib/appendConsultationNote";
 
 interface OptionButtonProps {
   value: string;
@@ -31,20 +35,22 @@ const OptionButton: React.FC<OptionButtonProps> = ({
   const isSelected = selectedValues.includes(value);
 
   const handleClick = () => {
-    setSelectedValues((prev) => {
-      const newData = prev.includes(value)
-        ? prev.filter((x) => x !== value)
-        : [...prev, value];
-
-      setData((prevData: DataType) => ({
+    const selecting = !selectedValues.includes(value);
+    setSelectedValues((prev) =>
+      selecting ? [...prev, value] : prev.filter((item) => item !== value)
+    );
+    setData((prevData: DataType) => {
+      const current = prevData.consultationNotes[fieldName];
+      const next = selecting
+        ? appendConsultationNote(current, value)
+        : removeConsultationNote(current, value);
+      return {
         ...prevData,
         consultationNotes: {
           ...prevData.consultationNotes,
-          [fieldName]: newData.join(", "),
+          [fieldName]: next || null,
         },
-      }));
-
-      return newData;
+      };
     });
   };
 
@@ -54,17 +60,16 @@ const OptionButton: React.FC<OptionButtonProps> = ({
       [fieldName]: prev[fieldName].filter((e) => e !== value),
     }));
 
-    setSelectedValues((prev) => {
-      const newData = prev.filter((x) => x !== value);
-      setData((prevData: DataType) => ({
-        ...prevData,
-        consultationNotes: {
-          ...prevData.consultationNotes,
-          [fieldName]: newData.join(", "),
-        },
-      }));
-      return newData;
-    });
+    setSelectedValues((prev) => prev.filter((item) => item !== value));
+    setData((prevData: DataType) => ({
+      ...prevData,
+      consultationNotes: {
+        ...prevData.consultationNotes,
+        [fieldName]:
+          removeConsultationNote(prevData.consultationNotes[fieldName], value) ||
+          null,
+      },
+    }));
   };
 
   return (

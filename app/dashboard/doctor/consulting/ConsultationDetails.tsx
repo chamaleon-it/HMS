@@ -24,18 +24,50 @@ import {
     UserCheck,
 } from "lucide-react";
 import React from "react";
-import { Consultations } from "./History";
 import useGetTest from "@/data/useGetTest";
 import useGetPanels from "@/data/useGetPanels";
 import useGetTherapy from "@/data/useGetTherapy";
 import useGetProcedure from "@/data/useGetProcedure";
 import { getFormattedInvestigationNames, getFormattedTherapyNames, getFormattedProcedureNames } from "@/lib/investigationUtils";
+import { Consultations, Test } from "./History";
 
 interface ConsultationDetailsProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     selectedRow: Consultations | null;
     onClose: () => void;
+}
+
+function storedText(value: unknown): string | null {
+    if (value == null) return null;
+    if (typeof value === "number") return String(value);
+    if (typeof value === "string") {
+        const trimmed = value.trim();
+        return trimmed ? trimmed : null;
+    }
+    if (Array.isArray(value)) {
+        const parts = value
+            .map((item) => storedText(item))
+            .filter((item): item is string => Boolean(item));
+        return parts.length ? parts.join(", ") : null;
+    }
+    return null;
+}
+
+function filledRows(rows: { label: string; value: unknown }[]) {
+    return rows.flatMap((row) => {
+        const text = storedText(row.value);
+        return text ? [{ label: row.label, text }] : [];
+    });
+}
+
+function investigationLabel(
+    test: Test,
+    tests: Parameters<typeof getFormattedInvestigationNames>[1],
+    panels: Parameters<typeof getFormattedInvestigationNames>[2],
+) {
+    const names = getFormattedInvestigationNames(test, tests, panels);
+    return names.length ? names.join(", ") : null;
 }
 
 export default function ConsultationDetails({
@@ -55,6 +87,28 @@ export default function ConsultationDetails({
         selectedRow.consultationType === "acupuncture" ||
         Boolean(selectedRow.acupunctureAssessment) ||
         Boolean(selectedRow.chiefComplaints);
+
+    const parameterRows = filledRows([
+        { label: "Sleep", value: selectedRow.medicalParameters?.sleep },
+        { label: "Bowel Movement", value: selectedRow.medicalParameters?.bowelMovement },
+        { label: "Urine Movement", value: selectedRow.medicalParameters?.urineMovement },
+        { label: "Appetite", value: selectedRow.medicalParameters?.appetite },
+        { label: "Digestive System", value: selectedRow.medicalParameters?.digestiveSystem },
+    ]);
+    const historyRows = filledRows([
+        { label: "RS", value: selectedRow.examinationNote?.rs },
+        { label: "CVS", value: selectedRow.examinationNote?.cvs },
+        { label: "P/A", value: selectedRow.examinationNote?.pa },
+        { label: "CNS", value: selectedRow.examinationNote?.cns },
+        { label: "L/E", value: selectedRow.examinationNote?.le },
+    ]);
+    const otherNotes = storedText(selectedRow.examinationNote?.otherNotes);
+    const therapyNames = storedText(getFormattedTherapyNames(selectedRow.therapy, therapies));
+    const therapyNotes = storedText(selectedRow.therapyNotes);
+    const procedureNames = storedText(getFormattedProcedureNames(selectedRow.procedure, procedures));
+    const procedureNotes = storedText(selectedRow.procedureNotes);
+    const advice = storedText(selectedRow.advice);
+    const orderedTests = Array.isArray(selectedRow.test) ? selectedRow.test : [];
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -190,8 +244,7 @@ export default function ConsultationDetails({
                                 {(selectedRow.acupunctureExamination?.tenderness ||
                                     selectedRow.acupunctureExamination?.rom ||
                                     selectedRow.acupunctureExamination?.posture ||
-                                    selectedRow.acupunctureExamination?.specialFindings ||
-                                    selectedRow.examinationNote?.otherNotes) && (
+                                    selectedRow.acupunctureExamination?.specialFindings) && (
                                         <>
                                             <Separator className="my-3" />
                                             <div className="space-y-2 text-xs">
@@ -206,9 +259,6 @@ export default function ConsultationDetails({
                                                 )}
                                                 {selectedRow.acupunctureExamination?.specialFindings && (
                                                     <p><span className="font-semibold text-slate-700">Special Findings:</span> {selectedRow.acupunctureExamination.specialFindings}</p>
-                                                )}
-                                                {selectedRow.examinationNote?.otherNotes && (
-                                                    <p className="bg-muted/30 p-2 rounded-md"><span className="font-semibold text-slate-700">Other Notes:</span> {selectedRow.examinationNote.otherNotes}</p>
                                                 )}
                                             </div>
                                         </>
@@ -392,6 +442,70 @@ export default function ConsultationDetails({
                         </Card>
                     )}
 
+                    <Card className="shadow-sm border-muted-200">
+                        <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
+                            <div className="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
+                                <Activity className="w-5 h-5" />
+                            </div>
+                            <CardTitle className="text-base font-semibold">
+                                Medical Parameters
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {parameterRows.length > 0 ? (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    {parameterRows.map((row) => (
+                                        <VitalItem key={row.label} label={row.label} value={row.text} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <EmptyState text="No medical parameters recorded" />
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card className="shadow-sm border-muted-200">
+                        <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
+                            <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
+                                <FileText className="w-5 h-5" />
+                            </div>
+                            <CardTitle className="text-base font-semibold">
+                                Medical History
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {historyRows.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {historyRows.map((row) => (
+                                        <NoteSection key={row.label} title={row.label} content={row.text} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <EmptyState text="No medical history recorded" />
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card className="shadow-sm border-muted-200">
+                        <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
+                            <div className="p-2 bg-slate-100 text-slate-700 rounded-lg">
+                                <ClipboardList className="w-5 h-5" />
+                            </div>
+                            <CardTitle className="text-base font-semibold">
+                                Other Notes
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            {otherNotes ? (
+                                <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+                                    {otherNotes}
+                                </p>
+                            ) : (
+                                <EmptyState text="No other notes" />
+                            )}
+                        </CardContent>
+                    </Card>
+
                     {/* Clinical Notes (Standard) */}
                     {(selectedRow.consultationNotes?.presentHistory ||
                         selectedRow.consultationNotes?.pastHistory ||
@@ -423,55 +537,57 @@ export default function ConsultationDetails({
                             </Card>
                         )}
 
-                    {(selectedRow.therapy || selectedRow.therapyNotes) && (
-                        <Card className="shadow-sm border-muted-200">
-                            <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
-                                <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
-                                    <Activity className="w-5 h-5" />
-                                </div>
-                                <CardTitle className="text-base font-semibold">
-                                    Therapy & Notes
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-2">
-                                {Boolean(getFormattedTherapyNames(selectedRow.therapy, therapies)) && (
-                                    <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
-                                        <span className="font-semibold text-slate-900">Therapy:</span> {getFormattedTherapyNames(selectedRow.therapy, therapies)}
-                                    </p>
-                                )}
-                                {selectedRow.therapyNotes && (
-                                    <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
-                                        <span className="font-semibold text-slate-900">Therapy Notes:</span> {selectedRow.therapyNotes}
-                                    </p>
-                                )}
-                            </CardContent>
-                        </Card>
-                    )}
+                    <Card className="shadow-sm border-muted-200">
+                        <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
+                            <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
+                                <Activity className="w-5 h-5" />
+                            </div>
+                            <CardTitle className="text-base font-semibold">
+                                Therapy
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                            {therapyNames && (
+                                <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+                                    <span className="font-semibold text-slate-900">Therapy:</span> {therapyNames}
+                                </p>
+                            )}
+                            {therapyNotes && (
+                                <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+                                    <span className="font-semibold text-slate-900">Notes:</span> {therapyNotes}
+                                </p>
+                            )}
+                            {!therapyNames && !therapyNotes && (
+                                <EmptyState text="No therapy recorded" />
+                            )}
+                        </CardContent>
+                    </Card>
 
-                    {(selectedRow.procedure || selectedRow.procedureNotes) && (
-                        <Card className="shadow-sm border-muted-200">
-                            <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
-                                <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
-                                    <Stethoscope className="w-5 h-5" />
-                                </div>
-                                <CardTitle className="text-base font-semibold">
-                                    Procedure & Notes
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-2">
-                                {Boolean(getFormattedProcedureNames(selectedRow.procedure, procedures)) && (
-                                    <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
-                                        <span className="font-semibold text-slate-900">Procedure:</span> {getFormattedProcedureNames(selectedRow.procedure, procedures)}
-                                    </p>
-                                )}
-                                {selectedRow.procedureNotes && (
-                                    <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
-                                        <span className="font-semibold text-slate-900">Procedure Notes:</span> {selectedRow.procedureNotes}
-                                    </p>
-                                )}
-                            </CardContent>
-                        </Card>
-                    )}
+                    <Card className="shadow-sm border-muted-200">
+                        <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
+                            <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                                <Stethoscope className="w-5 h-5" />
+                            </div>
+                            <CardTitle className="text-base font-semibold">
+                                Procedure
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                            {procedureNames && (
+                                <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+                                    <span className="font-semibold text-slate-900">Procedure:</span> {procedureNames}
+                                </p>
+                            )}
+                            {procedureNotes && (
+                                <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+                                    <span className="font-semibold text-slate-900">Notes:</span> {procedureNotes}
+                                </p>
+                            )}
+                            {!procedureNames && !procedureNotes && (
+                                <EmptyState text="No procedure recorded" />
+                            )}
+                        </CardContent>
+                    </Card>
 
                     {/* Medicines & Tests Row */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -482,7 +598,7 @@ export default function ConsultationDetails({
                                     <Pill className="w-5 h-5" />
                                 </div>
                                 <CardTitle className="text-base font-semibold">
-                                    Prescribed Medicines
+                                    Prescriptions
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="flex-1">
@@ -527,20 +643,20 @@ export default function ConsultationDetails({
                                         <FlaskConical className="w-5 h-5" />
                                     </div>
                                     <CardTitle className="text-base font-semibold">
-                                        Lab Tests
+                                        Lab & Imaging
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    {selectedRow.test && selectedRow.test.length > 0 ? (
+                                    {orderedTests.length > 0 ? (
                                         <ul className="space-y-3">
-                                            {selectedRow.test.map((t, i) => (
+                                            {orderedTests.map((t, i) => (
                                                 <li
-                                                    key={i}
+                                                    key={t._id ?? i}
                                                     className="flex items-start gap-3 p-3 rounded-lg bg-muted/30"
                                                 >
                                                     <div className="flex-1">
                                                         <p className="font-medium text-sm">
-                                                            {getFormattedInvestigationNames(t, tests, panels).join(", ") || "—"}
+                                                            {investigationLabel(t, tests, panels) || "—"}
                                                         </p>
                                                         <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                                                             <span>
@@ -567,13 +683,13 @@ export default function ConsultationDetails({
                                         <ClipboardList className="w-5 h-5" />
                                     </div>
                                     <CardTitle className="text-base font-semibold">
-                                        Advice & Follow-Up
+                                        Clinical Advice & Patient Instructions
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-2 text-sm">
-                                    {selectedRow.advice && (
+                                    {advice && (
                                         <p className="whitespace-pre-wrap leading-relaxed text-slate-800">
-                                            <span className="font-semibold">Advice:</span> {selectedRow.advice}
+                                            {advice}
                                         </p>
                                     )}
                                     {(selectedRow.followUp || selectedRow.followUpDetails?.nextAppt) && (
@@ -591,7 +707,7 @@ export default function ConsultationDetails({
                                             <span className="font-semibold">Additional Notes:</span> {selectedRow.followUpDetails.additionalNotes}
                                         </p>
                                     )}
-                                    {!selectedRow.advice && !selectedRow.followUp && !selectedRow.followUpDetails?.nextAppt && !selectedRow.followUpDetails?.additionalNotes && (
+                                    {!advice && !selectedRow.followUp && !selectedRow.followUpDetails?.nextAppt && !storedText(selectedRow.followUpDetails?.feedback) && !storedText(selectedRow.followUpDetails?.additionalNotes) && (
                                         <EmptyState text="No advice given" />
                                     )}
                                 </CardContent>
