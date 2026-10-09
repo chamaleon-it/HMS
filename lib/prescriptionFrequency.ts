@@ -9,7 +9,7 @@ export const PRESCRIPTION_FREQUENCY_OPTIONS = [
   "1sp-0-1sp",
   "SOS",
   "Weekly 1's",
-  "weekly 3's",
+  "Weekly 3's",
 ];
 
 /** Food timing choices. "Bed Time" replaces the older "With food" label. */
@@ -32,6 +32,7 @@ const PRESCRIPTION_LABEL_ALIASES: Record<string, string> = {
   "weakly 1's": "Weekly 1's",
   "With food": "Bed Time",
   "with food": "Bed Time",
+  "weekly 3's": "Weekly 3's",
 };
 
 export function prescriptionChoiceLabel(
