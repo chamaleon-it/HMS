@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { DataType } from "./interface";
@@ -47,14 +47,23 @@ export default function ConsultationNotes({
   const [pastHistory, setPastHistory] = useState<string[]>([]);
   const [diagnosis, setDiagnosis] = useState<string[]>([]);
 
+  const seededPastHistory = useRef(false);
   useEffect(() => {
-    setData((prev) => ({
-      ...prev,
-      consultationNotes: {
-        ...prev.consultationNotes,
-        pastHistory: consulting[0]?.consultationNotes?.pastHistory ?? null,
-      },
-    }));
+    if (seededPastHistory.current || consulting.length === 0) return;
+    seededPastHistory.current = true;
+    const previous = consulting[0]?.consultationNotes?.pastHistory ?? null;
+    if (!previous) return;
+    setData((prev) => {
+      const current = prev.consultationNotes.pastHistory;
+      if (current && current !== "No records") return prev;
+      return {
+        ...prev,
+        consultationNotes: {
+          ...prev.consultationNotes,
+          pastHistory: previous,
+        },
+      };
+    });
   }, [consulting, setData]);
 
   const [values, setValues] = useState<{
@@ -451,12 +460,31 @@ function LabeledTextarea({
   minRows = 4,
 }: LabeledTextareaProps) {
   const minHeight = Math.max(56, minRows * 24);
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const lastEmitted = useRef(value);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || value === lastEmitted.current) return;
+    const selection = el.selectionStart ?? value.length;
+    const wasTyping = document.activeElement === el;
+    el.value = value;
+    lastEmitted.current = value;
+    if (wasTyping) {
+      const cursor = Math.min(selection, value.length);
+      el.setSelectionRange(cursor, cursor);
+    }
+  }, [value]);
 
   return (
     <div className="relative w-full">
       <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        ref={ref}
+        defaultValue={value}
+        onChange={(e) => {
+          lastEmitted.current = e.target.value;
+          onChange(e.target.value);
+        }}
         placeholder=" "
         style={{ minHeight }}
         className="peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"

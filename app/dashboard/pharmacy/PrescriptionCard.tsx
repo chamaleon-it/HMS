@@ -22,8 +22,10 @@ import { batchUnitPrice } from "@/lib/pharmacyReceiptLine";
 import {
   PRESCRIPTION_DOSAGE_OPTIONS,
   PRESCRIPTION_DURATION_OPTIONS,
+  PRESCRIPTION_FOOD_OPTIONS,
   PRESCRIPTION_FREQUENCY_OPTIONS,
   derivedTabletQuantity,
+  prescriptionChoiceLabel,
   selectionJustSetQuantityToOne,
   selectionKeepsQuantityAtOne,
 } from "@/lib/prescriptionFrequency";
@@ -241,7 +243,7 @@ export default function PrescriptionCard({
                   <LabeledCombobox
                     options={PRESCRIPTION_FREQUENCY_OPTIONS}
                     label="Freq"
-                    value={m.frequency}
+                    value={prescriptionChoiceLabel(m.frequency)}
                     onChange={(e) => updateField(i, "frequency", e)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleEnterOnDrug(i);
@@ -251,15 +253,9 @@ export default function PrescriptionCard({
 
                 <div>
                   <LabeledCombobox
-                    options={[
-                      "After food",
-                      "Before food",
-                      "With food",
-                      "Empty stomach",
-                      "Anytime",
-                    ]}
+                    options={PRESCRIPTION_FOOD_OPTIONS}
                     label="Food"
-                    value={m.food}
+                    value={prescriptionChoiceLabel(m.food)}
                     onChange={(e) => updateField(i, "food", e)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleEnterOnDrug(i);

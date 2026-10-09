@@ -8,9 +8,38 @@ export const PRESCRIPTION_FREQUENCY_OPTIONS = [
   "1oz-0-1oz",
   "1sp-0-1sp",
   "SOS",
-  "Weakly 1s",
+  "Weekly 1's",
   "weekly 3's",
 ];
+
+/** Food timing choices. "Bed Time" replaces the older "With food" label. */
+export const PRESCRIPTION_FOOD_OPTIONS = [
+  "After food",
+  "Before food",
+  "Bed Time",
+  "Empty stomach",
+  "Anytime",
+];
+
+/**
+ * Stored prescription text that should still display under the current label.
+ * The saved value is left unchanged until someone picks the new option.
+ */
+const PRESCRIPTION_LABEL_ALIASES: Record<string, string> = {
+  "Weakly 1s": "Weekly 1's",
+  "Weakly 1's": "Weekly 1's",
+  "weakly 1s": "Weekly 1's",
+  "weakly 1's": "Weekly 1's",
+  "With food": "Bed Time",
+  "with food": "Bed Time",
+};
+
+export function prescriptionChoiceLabel(
+  stored: string | null | undefined,
+): string {
+  if (!stored) return "";
+  return PRESCRIPTION_LABEL_ALIASES[stored] ?? stored;
+}
 
 /** Shared dosage list for doctor, pharmacy, and reception prescription dropdowns. */
 export const PRESCRIPTION_DOSAGE_OPTIONS = [

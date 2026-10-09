@@ -63,9 +63,131 @@ export function getBillType(b: {
   return "other";
 }
 
-const THERAPY_MARK =
-  /therapy|acupuncture|panchakarma|cupping|moxibustion|varmam|physio|kizhi|massage|treatment/i;
-const PROCEDURE_MARK = /procedure/i;
+/** Generated when a therapy or procedure session is billed. Not a free-text note. */
+const THERAPY_SESSION_NOTE = /^\s*therapy\s+session\s+#\s*\d+\s*$/i;
+const PROCEDURE_SESSION_NOTE = /^\s*procedure\s+session\s+#\s*\d+\s*$/i;
+
+/**
+ * Whole service names. Words such as therapy, massage, treatment, and
+ * procedure are intentionally absent: a medicine name that merely contains
+ * them is still a medicine.
+ */
+const THERAPY_SERVICE_NAMES = new Set([
+  "acupuncture",
+  "panchakarma",
+  "cupping",
+  "hijama",
+  "moxibustion",
+  "varmam",
+  "varma",
+  "physio",
+  "physiotherapy",
+  "kizhi",
+  "elakizhi",
+  "podikizhi",
+  "njavarakizhi",
+  "abhyangam",
+  "abhyanga",
+  "shirodhara",
+  "takradhara",
+  "ksheeradhara",
+  "dhara",
+  "vasti",
+  "basti",
+  "kativasti",
+  "januvasti",
+  "greevavasti",
+  "matravasti",
+  "nasya",
+  "nasyam",
+  "raktamokshana",
+  "udvarthanam",
+  "udvartana",
+  "pizhichil",
+  "thalam",
+  "talam",
+  "lepanam",
+  "lepa",
+  "tarpanam",
+  "tarpana",
+  "pichu",
+  "karna poorana",
+  "karnapooranam",
+  "fasad",
+  "agni karma",
+  "agnikarma",
+  "steam bath",
+  "swedana",
+  "swedanam",
+]);
+
+function serviceKey(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** A stocked medicine line, even when its product name contains a service word. */
+export function isStockedMedicine(item: {
+  name?: unknown;
+  batchNumber?: unknown;
+  expiryDate?: unknown;
+  generic?: unknown;
+} | null | undefined): boolean {
+  if (!item) return false;
+  const name = item.name;
+  if (name && typeof name === "object" && ("_id" in name || "name" in name)) {
+    return true;
+  }
+  if (String(item.batchNumber || "").trim()) return true;
+  if (item.expiryDate) return true;
+  if (String(item.generic || "").trim()) return true;
+  return false;
+}
+
+export function sessionServiceKind(note: unknown): "therapy" | "procedure" | null {
+  const text = String(note || "");
+  if (THERAPY_SESSION_NOTE.test(text)) return "therapy";
+  if (PROCEDURE_SESSION_NOTE.test(text)) return "procedure";
+  return null;
+}
+
+export function isRealTherapyLine(item: { name?: unknown; batchNumber?: unknown; expiryDate?: unknown; generic?: unknown } | null | undefined): boolean {
+  if (!item || isStockedMedicine(item)) return false;
+  return THERAPY_SERVICE_NAMES.has(serviceKey(itemDisplayName(item)));
+}
+
+export function isRealProcedureLine(item: { name?: unknown; batchNumber?: unknown; expiryDate?: unknown; generic?: unknown } | null | undefined): boolean {
+  if (!item || isStockedMedicine(item)) return false;
+  return serviceKey(itemDisplayName(item)) === "procedure";
+}
+
+/**
+ * Therapy or procedure for the pharmacy billing page.
+ * A session note counts only with a non-medicine line. A medicine whose name
+ * or the bill note merely contains therapy, massage, treatment, or procedure
+ * is not a service. When both a real service and a medicine are present, the
+ * service wins: therapy first, then procedure.
+ */
+export function pharmacyServiceKind(bill: {
+  note?: string;
+  items?: { name?: unknown; batchNumber?: unknown; expiryDate?: unknown; generic?: unknown }[];
+} | null | undefined): "therapy" | "procedure" | null {
+  if (!bill) return null;
+  const items = Array.isArray(bill.items) ? bill.items : [];
+  const session = sessionServiceKind(bill.note);
+  const therapyLine = items.some((item) => isRealTherapyLine(item));
+  const procedureLine = items.some((item) => isRealProcedureLine(item));
+  const sessionLine = items.some(
+    (item) => itemDisplayName(item) && !isStockedMedicine(item),
+  );
+
+  if (therapyLine || (session === "therapy" && sessionLine)) return "therapy";
+  if (procedureLine || (session === "procedure" && sessionLine)) return "procedure";
+  return null;
+}
 
 export function itemDisplayName(item: { name?: unknown } | null | undefined): string {
   if (!item || item.name == null) return "";
@@ -78,25 +200,20 @@ export function itemDisplayName(item: { name?: unknown } | null | undefined): st
 
 /**
  * Procedure and therapy charges use the bill line amount.
- * A line counts when its name is a procedure or therapy, or when the bill note
- * is the only marker (session bills store "Therapy Session" / "Procedure Session"
- * on the note and the amount on the line).
+ * A stocked medicine is never a service line. A session bill stores
+ * "Therapy Session #n" or "Procedure Session #n" and puts the amount on the
+ * non-medicine line. A product name that merely contains therapy, massage,
+ * treatment, or procedure is not a service.
  */
 export function isProcedureOrTherapyLine(
   bill: { note?: string; items?: { name?: unknown }[] } | null | undefined,
-  item: { name?: unknown } | null | undefined,
+  item: { name?: unknown; batchNumber?: unknown; expiryDate?: unknown; generic?: unknown } | null | undefined,
 ): boolean {
-  const name = itemDisplayName(item);
-  if (THERAPY_MARK.test(name) || PROCEDURE_MARK.test(name)) return true;
-
-  const note = String(bill?.note || "");
-  if (!THERAPY_MARK.test(note) && !PROCEDURE_MARK.test(note)) return false;
-
-  const namedOnAnotherLine = (bill?.items || []).some((line) => {
-    const lineName = itemDisplayName(line);
-    return THERAPY_MARK.test(lineName) || PROCEDURE_MARK.test(lineName);
-  });
-  return !namedOnAnotherLine;
+  if (!item || isStockedMedicine(item)) return false;
+  if (!pharmacyServiceKind(bill)) return false;
+  if (isRealTherapyLine(item) || isRealProcedureLine(item)) return true;
+  if (!sessionServiceKind(bill?.note)) return false;
+  return Boolean(itemDisplayName(item));
 }
 
 /**
@@ -136,19 +253,35 @@ export function isReceptionFeeBill(bill: {
 
 export type PharmacyPageBillKind = "pharmacy" | "procedure" | "hidden";
 
+function hasNamedProduct(bill: { items?: { name?: unknown }[] } | null | undefined): boolean {
+  return (bill?.items || []).some((item) => {
+    const name = itemDisplayName(item);
+    if (!name) return false;
+    if (isRealTherapyLine(item) || isRealProcedureLine(item)) return false;
+    return true;
+  });
+}
+
 /**
  * Pharmacy billing page only.
- * Procedure = therapy + procedure.
- * Pharmacy = a medicine sale (or a pharmacy-role sale) that is not a reception fee.
+ * Procedure = a real therapy or procedure (session note or exact service line).
+ * Pharmacy = a medicine sale, including a product whose name contains
+ * therapy, massage, treatment, or procedure.
+ * A bill with both a medicine and a real service stays therapy or procedure.
  * Reception fees, empty bills, and unrelated non-medicine bills are hidden.
  */
 export function pharmacyPageBillKind(bill: any | null | undefined): PharmacyPageBillKind {
   if (!bill) return "hidden";
-  const type = getBillType(bill);
-  if (type === "therapy" || type === "procedure") return "procedure";
+  if (pharmacyServiceKind(bill)) return "procedure";
+  if ((bill.items || []).some((item: { name?: unknown }) => isStockedMedicine(item))) {
+    return "pharmacy";
+  }
   if (isReceptionFeeBill(bill)) return "hidden";
-  if (type === "reception" && !hasMedicineItems(bill.items)) return "hidden";
-  if (hasMedicineItems(bill.items)) return "pharmacy";
+  const type = getBillType(bill);
+  if (type === "reception" && !hasMedicineItems(bill.items) && !hasNamedProduct(bill)) {
+    return "hidden";
+  }
+  if (hasMedicineItems(bill.items) || hasNamedProduct(bill)) return "pharmacy";
   const role = String(bill.user?.role || bill.creator?.role || "").toLowerCase();
   if (role.includes("pharmacy")) return "pharmacy";
   return "hidden";
@@ -190,6 +323,10 @@ export function pharmacyBillingTypeQueryParam(
 }
 
 export function pharmacyBillingBadge(bill: any): { label: string; className: string } {
+  const service = pharmacyServiceKind(bill);
+  if (service === "therapy" || service === "procedure") {
+    return getBillTypeBadgeProps(service);
+  }
   if (pharmacyPageBillKind(bill) === "pharmacy") {
     return {
       label: "Pharmacy",
@@ -197,8 +334,7 @@ export function pharmacyBillingBadge(bill: any): { label: string; className: str
         "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800",
     };
   }
-  const type = getBillType(bill);
-  return getBillTypeBadgeProps(type === "procedure" ? "procedure" : "therapy");
+  return getBillTypeBadgeProps("other");
 }
 
 export function getBillTypeBadgeProps(type: "therapy" | "procedure" | "reception" | "other") {

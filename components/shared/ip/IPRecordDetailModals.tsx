@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { sanitizeLabHtml } from "@/lib/sanitize-lab-html";
+import { prescriptionChoiceLabel } from "@/lib/prescriptionFrequency";
 import {
   FlaskConical,
   Pill,
@@ -464,8 +465,8 @@ export const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> =
                           <td className="p-3 text-gray-400 font-medium">{idx + 1}</td>
                           <td className="p-3 font-semibold text-gray-900">{itemName}</td>
                           <td className="p-3 text-gray-600">{it.dosage || "-"}</td>
-                          <td className="p-3 text-gray-600">{it.frequency || "-"}</td>
-                          <td className="p-3 text-gray-600">{it.food || "-"}</td>
+                          <td className="p-3 text-gray-600">{prescriptionChoiceLabel(it.frequency) || "-"}</td>
+                          <td className="p-3 text-gray-600">{prescriptionChoiceLabel(it.food) || "-"}</td>
                           <td className="p-3 text-right font-bold text-gray-900">
                             {it.quantity}
                           </td>
@@ -923,8 +924,8 @@ export const ConsultationDetailModal: React.FC<ConsultationDetailModalProps> = (
                           <td className="p-3 text-gray-400 font-medium">{idx + 1}</td>
                           <td className="p-3 font-semibold text-gray-900">{itemName}</td>
                           <td className="p-3 text-gray-600">{it.dosage || "-"}</td>
-                          <td className="p-3 text-gray-600">{it.frequency || "-"}</td>
-                          <td className="p-3 text-gray-600">{it.food || "-"}</td>
+                          <td className="p-3 text-gray-600">{prescriptionChoiceLabel(it.frequency) || "-"}</td>
+                          <td className="p-3 text-gray-600">{prescriptionChoiceLabel(it.food) || "-"}</td>
                           <td className="p-3 text-gray-600">{it.duration || "-"}</td>
                           <td className="p-3 text-right font-bold text-gray-900">{it.quantity}</td>
                         </tr>

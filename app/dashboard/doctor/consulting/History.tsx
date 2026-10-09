@@ -108,7 +108,7 @@ export interface Consultations {
     bowelMovement?: string;
     urineMovement?: string;
     appetite?: string;
-    digestiveSystem?: string;
+    digestiveSystem?: string | string[] | null;
   };
   therapy?: string;
   therapyNotes?: string;
@@ -206,6 +206,7 @@ export interface ExaminationNote {
   cvs: string;
   pa: string;
   cns: string;
+  le?: string;
   otherNotes: string;
   _id: string;
   tempUnit: string;
@@ -244,8 +245,11 @@ export interface Patient {
 
 export interface Test {
   name: {
-    name: string
+    name: string;
+    type?: "Lab" | "Imaging" | string;
+    code?: string;
   }[];
+  panels?: string[];
   date: Date;
   lab: string;
   slot: string;

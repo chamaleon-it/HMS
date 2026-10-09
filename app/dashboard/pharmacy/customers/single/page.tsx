@@ -1032,7 +1032,7 @@ const CustomerPageContent: React.FC = () => {
                                                         className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
                                                         asChild
                                                     >
-                                                        <Link href={selectedVisit.mrn ? `/dashboard/pharmacy/return/?mrn=${selectedVisit.mrn}` : `#`}>
+                                                        <Link href={selectedVisit.mrn ? `/dashboard/pharmacy/return/new/?mrn=${selectedVisit.mrn}` : `#`}>
                                                             Return
                                                         </Link>
                                                     </Button>
