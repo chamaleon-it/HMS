@@ -23,6 +23,7 @@ import Drawer from "@/components/ui/drawer";
 import { AddSupplier } from "./AddSupplier";
 import { EditSupplier } from "./EditSupplier";
 import { RecordPaymentModal } from "./RecordPaymentModal";
+import { PaymentHistoryModal } from "./PaymentHistoryModal";
 import { Supplier } from "./interface";
 import useSWR from "swr";
 import api from "@/lib/axios";
@@ -35,6 +36,7 @@ const SuppliersPage: React.FC = () => {
     const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
     const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
     const [paymentSupplier, setPaymentSupplier] = useState<Supplier | null>(null);
+    const [historySupplier, setHistorySupplier] = useState<Supplier | null>(null);
 
     const { data: suppliers = [], error, isLoading, mutate } = useSWR<Supplier[]>("/suppliers", fetcher);
     const [sortBy, setSortBy] = useState<keyof Supplier | null>(null);
@@ -254,6 +256,17 @@ const SuppliersPage: React.FC = () => {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
+                                                    data-testid="supplier-payment-history"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setHistorySupplier(supplier);
+                                                    }}
+                                                >
+                                                    Payment History
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         setSelectedSupplier(supplier);
@@ -287,6 +300,12 @@ const SuppliersPage: React.FC = () => {
                 open={!!paymentSupplier}
                 onClose={() => setPaymentSupplier(null)}
                 onRecorded={() => mutate()}
+            />
+
+            <PaymentHistoryModal
+                supplier={historySupplier}
+                open={!!historySupplier}
+                onClose={() => setHistorySupplier(null)}
             />
 
             <Drawer
