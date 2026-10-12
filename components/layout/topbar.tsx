@@ -17,6 +17,8 @@ import api from "@/lib/axios";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { labelWithCount } from "@/lib/pharmacyNavCounts";
+import { usePharmacyNavCounts } from "@/hooks/usePharmacyNavCounts";
 
 export default function Header() {
   const [openCreate, setOpenCreate] = useState(false);
@@ -28,6 +30,13 @@ export default function Header() {
 
   const { user } = useAuth();
   const pathname = usePathname();
+  const { ordersCount, treatmentsCount, markOrdersSeen, markTreatmentsSeen } =
+    usePharmacyNavCounts(user?.role, pathname);
+  const itemLabel = (key: string, label: string) => {
+    if (key === "dashboard") return labelWithCount(label, ordersCount);
+    if (key === "treatments") return labelWithCount(label, treatmentsCount);
+    return label;
+  };
   const { data: tallyStatus, mutate: refreshTallyStatus } = useSWR<{
     data: { connected?: boolean; host?: string; port?: number };
   }>(user?.role === "Accountant" || user?.role === "Admin" ? "/tally/status" : null, {
@@ -187,7 +196,7 @@ export default function Header() {
                         />
                       )}
                       <span className="relative z-10 flex items-center gap-2">
-                        {item.label}
+                        {itemLabel(item.key, item.label)}
                       </span>
                     </span>
                     <div className="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
@@ -210,6 +219,10 @@ export default function Header() {
                   <Link
                     key={item.key}
                     href={item.link || "#"}
+                    onClick={() => {
+                      if (item.key === "dashboard") markOrdersSeen();
+                      if (item.key === "treatments") markTreatmentsSeen();
+                    }}
                     className={
                       "relative flex items-center rounded-full px-4 py-1.5 transition cursor-pointer font-medium shrink-0 " +
                       (isActive ? "text-white" : "text-slate-600 hover:bg-slate-50")
@@ -223,7 +236,7 @@ export default function Header() {
                       />
                     )}
                     <span className="relative z-10 flex items-center gap-2">
-                      {item.label}
+                      {itemLabel(item.key, item.label)}
                     </span>
                   </Link>
                 );
