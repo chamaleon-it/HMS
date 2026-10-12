@@ -1,7 +1,12 @@
 import React, { useState } from "react";
-import { Mail } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import configuration from "@/config/configuration";
 import { cn } from "@/lib/utils";
+
+/** Clinic phone printed on the header and the footer Booking No. */
+function resolveClinicPhone(explicit?: string) {
+  return explicit || configuration().hospitalPhone || "8505030406";
+}
 
 export interface PrintHeaderProps {
   logoUrl?: string;
@@ -41,6 +46,7 @@ export function PrintHeader({
   const ytHandle = socialHandles?.youtube || "bhumi wellness";
   const igHandle = socialHandles?.instagram || "bhumi_wellness_";
   const emailHandle = socialHandles?.email || hospitalEmail;
+  const clinicPhone = resolveClinicPhone(propHospitalPhone);
 
   return (
     <div
@@ -80,6 +86,10 @@ export function PrintHeader({
           <div className="flex items-center gap-2 text-xs font-semibold tracking-wide">
             <Mail className="w-3.5 h-3.5 text-white shrink-0" />
             <span className="truncate">{emailHandle}</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs font-semibold tracking-wide">
+            <Phone className="w-3.5 h-3.5 text-white shrink-0" />
+            <span className="truncate">{clinicPhone}</span>
           </div>
         </div>
       ) : (
@@ -376,8 +386,7 @@ export function PrintFooter({
     hospitalAddress ||
     configuration().hospitalAddress ||
     "Old Rajana Theatre Bld, Opp. MSN Apartments, Koottanad";
-  const phone =
-    hospitalPhone || configuration().hospitalPhone || "8505030406";
+  const phone = resolveClinicPhone(hospitalPhone);
 
   return (
     <div
