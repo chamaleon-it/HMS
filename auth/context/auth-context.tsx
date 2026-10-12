@@ -27,7 +27,7 @@ type AuthContextValue = {
   user: User | null;
   isAuthenticated: boolean;
   setUser: (user: User | null, token?: string | null) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   loading: boolean;
 };
 
@@ -52,9 +52,15 @@ export function AuthProvider({
     [state]
   );
 
-  const logout = useCallback(() => {
-    setState({ user: null });
-    tokenStore.clear();
+  const logout = useCallback(async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch {
+      // Clear this device's credentials even if the server cannot be reached.
+    } finally {
+      setState({ user: null });
+      tokenStore.clear();
+    }
   }, []);
 
   const getUser = useCallback(async () => {

@@ -65,7 +65,7 @@ export default function CreateBill({
   }>(defaultPayload);
 
   const registerPatient = useCallback(async () => {
-    router.push("/dashboard/doctor/patients#register");
+    router.push("/dashboard/lab/patients");
   }, [router]);
 
   const addItem = useCallback(

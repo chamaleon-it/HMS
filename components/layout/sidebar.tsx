@@ -18,9 +18,9 @@ import {
   ReceiptText,
   FileBarChart,
   Banknote,
-  Stethoscope,
   UserCheck,
   ClipboardList,
+  UserPlus,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -70,20 +70,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
 
     ]
   }[] =
-    (user?.role === "Doctor" && [
-      {
-        key: "dashboard",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        link: "/dashboard/doctor/",
-      },
-      {
-        key: "patients",
-        label: "Patients",
-        icon: Users2,
-        link: "/dashboard/doctor/patients/",
-      },
-    ]) ||
     (user?.role === "Pharmacy" && [
       {
         key: "dashboard",
@@ -197,8 +183,14 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
       {
         key: "doctor",
         label: "Doctor",
-        icon: Stethoscope,
+        icon: Users2,
         link: "/dashboard/admin/doctor/",
+      },
+      {
+        key: "accounts",
+        label: "User Accounts",
+        icon: UserPlus,
+        link: "/dashboard/admin/accounts/",
       },
       {
         key: "staff",
@@ -313,7 +305,7 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
           {!collapsed && (
             <div className="leading-tight">
               <div className="text-xs font-medium text-slate-800">
-                {user?.role === "Doctor" && "Dr."} {user?.name}
+                {user?.name}
               </div>
               <div className="text-xs text-slate-500">{user?.role}</div>
             </div>
@@ -335,7 +327,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
 
 const settingsLinks: Record<string, string> = {
   Pharmacy: "/dashboard/pharmacy/settings/",
-  Doctor: "/dashboard/doctor/settings/",
   Lab: "/dashboard/lab/settings/",
   Admin: "/dashboard/admin/settings/",
   "Super Admin": "/dashboard/admin/settings/",

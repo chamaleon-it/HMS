@@ -52,9 +52,6 @@ export default function LoginPage() {
     if (!isAuthenticated || !user?.role) return;
 
     switch (user.role) {
-      case "Doctor":
-        router.replace("/dashboard/doctor");
-        break;
       case "Pharmacy":
         router.replace("/dashboard/pharmacy");
         break;
@@ -194,15 +191,11 @@ export default function LoginPage() {
                     </svg>
                   </div>
                   <h2 className="text-xl md:text-2xl font-semibold text-slate-900">
-                    Check your email
+                    Contact your administrator
                   </h2>
                   <p className="mt-2 text-slate-600 max-w-sm mx-auto">
-                    We emailed a secure reset link. It expires in 15 minutes. If
-                    it doesn&apos;t arrive, check spam or{" "}
-                    <button className="underline text-(--brand) hover:text-(--brand-dark)">
-                      resend
-                    </button>
-                    .
+                    Password reset is not configured yet. Please contact your
+                    administrator for help restoring access.
                   </p>
                   <button
                     onClick={() => setView("login")}

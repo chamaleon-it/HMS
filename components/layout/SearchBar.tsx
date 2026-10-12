@@ -37,11 +37,8 @@ export default function SearchBar() {
   const generateLink = (id: string) => {
     if (user?.role === "Pharmacy") {
       return `/dashboard/pharmacy/customers/single?id=${id}`
-    } else if (user?.role === "Lab") {
-      return `/dashboard/lab/patients/single?id=${id}`
-    } else {
-      return `/dashboard/doctor/patients/single?id=${id}`
     }
+    return `/dashboard/lab/patients/single?id=${id}`
   }
 
   const router = useRouter();

@@ -21,11 +21,9 @@ export default function ForgotPassword({
 
   const forgotPassword = handleSubmit(async (data) => {
     try {
-      const { data: forgotPasswordData } = await toast.promise(
-        api.post("/users/forgot_password", data),
+      await toast.promise(api.post("/users/forgot_password", data),
         {
-          loading:
-            "Please wait while we send the reset link to your email address.",
+          loading: "Please wait...",
           success: ({ data }) => data.message,
           error: ({ response }) => response.data.message,
         }
@@ -44,7 +42,8 @@ export default function ForgotPassword({
         Reset your password
       </h2>
       <p className="mt-1 text-slate-500 text-sm">
-        Enter your account email &mdash; we&apos;ll send a secure reset link.
+        Password reset is not configured yet. Contact your administrator for
+        help restoring access.
       </p>
 
       <form className="mt-5 space-y-4" onSubmit={forgotPassword}>

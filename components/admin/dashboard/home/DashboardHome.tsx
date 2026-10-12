@@ -14,6 +14,7 @@ import {
   Truck,
   CreditCard,
   UserCheck,
+  UserPlus,
   FlaskConical,
   ClipboardList,
   ArrowRight,
@@ -44,6 +45,13 @@ export default function AdminDashboardHome() {
       href: "/dashboard/admin/doctor",
       icon: Stethoscope,
       color: "from-blue-600 to-indigo-600",
+    },
+    {
+      title: "User Accounts",
+      desc: "Create Pharmacy and Lab logins",
+      href: "/dashboard/admin/accounts",
+      icon: UserPlus,
+      color: "from-indigo-600 to-violet-600",
     },
     {
       title: "Unified Billing",

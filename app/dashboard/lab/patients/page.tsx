@@ -16,7 +16,7 @@ import LabHeader from "@/components/dashboard/lab/LabHeader";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
-import { Eye, Pencil } from "lucide-react";
+import { Eye, Pencil, UserPlus } from "lucide-react";
 import {
     Tooltip,
     TooltipContent,
@@ -91,10 +91,15 @@ const Patients: React.FC = () => {
                                 subtitle="Click a row to open full lab history for that Customers."
                             >
                             </LabHeader>
-                            <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
-                                Showing <span className="font-semibold">{patients.length}</span>{" "}
-                                of <span className="font-semibold">{total}</span>{" "}
-                                patients
+                            <div className="flex items-center gap-3">
+                                <Button onClick={() => setEditPatient({})}>
+                                    <UserPlus className="mr-2 h-4 w-4" /> Register Customer
+                                </Button>
+                                <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
+                                    Showing <span className="font-semibold">{patients.length}</span>{" "}
+                                    of <span className="font-semibold">{total}</span>{" "}
+                                    patients
+                                </div>
                             </div>
                         </div>
 
@@ -257,7 +262,7 @@ const Patients: React.FC = () => {
             >
                 <DialogContent className="max-w-3xl!">
                     <DialogHeader>
-                        <DialogTitle>Edit Patient</DialogTitle>
+                        <DialogTitle>{editPatient?._id ? "Edit Patient" : "Register Customer"}</DialogTitle>
                     </DialogHeader>
                     <RegisterPatient
                         onClose={() => setEditPatient(null)}

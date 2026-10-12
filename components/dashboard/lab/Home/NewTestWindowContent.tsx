@@ -57,6 +57,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
           date: submitDate.toISOString(),
           doctor: !payload.doctor || payload.doctor === "self" ? null : payload.doctor,
           technician: payload.technician || undefined,
+          discount: Math.min(grandTotal, Math.max(0, Number(payload.discount) || 0)),
         }),
         {
           loading: "Creating lab test order...",
@@ -124,6 +125,8 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
 
     return groupsTotal + panelsTotal + independentTestsTotal;
   }, [payload.groups, payload.panels, payload.test, panels, tests, groups]);
+  const discount = Math.min(grandTotal, Math.max(0, Number(payload.discount) || 0));
+  const netTotal = Math.max(0, grandTotal - discount);
 
   return (
     <div className="flex flex-col gap-6">
@@ -426,8 +429,24 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
       </Table>
 
       <div className="flex justify-between items-center mt-4">
-        <div className="text-lg font-semibold text-gray-700">
-          Grand Total: <span className="text-blue-600">{formatINR(grandTotal)}</span>
+        <div className="flex flex-wrap items-end gap-5">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`lab-discount-${draft.id}`} className="text-xs font-semibold text-slate-700">Discount (INR)</Label>
+            <input
+              id={`lab-discount-${draft.id}`}
+              type="number"
+              min="0"
+              max={grandTotal}
+              step="0.01"
+              value={payload.discount || ""}
+              onChange={(event) => setPayload((prev: any) => ({ ...prev, discount: Math.max(0, Number(event.target.value) || 0) }))}
+              className="h-9 w-36 rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+              placeholder="0"
+            />
+          </div>
+          <div className="text-lg font-semibold text-gray-700">
+            Grand Total: <span className="text-blue-600">{formatINR(netTotal)}</span>
+          </div>
         </div>
         <div className="flex gap-3">
           <Button

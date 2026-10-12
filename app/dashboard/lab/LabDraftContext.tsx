@@ -16,6 +16,7 @@ export interface LabDraft {
     priority: "Normal" | "Urgent";
     sampleType: string;
     status: string;
+    discount: number;
   };
   position: { x: number; y: number };
   zIndex: number;
@@ -92,6 +93,7 @@ export const LabDraftProvider: React.FC<{ children: React.ReactNode; userId: str
         priority: "Normal",
         sampleType: "Other",
         status: "Waiting For Result",
+        discount: 0,
         ...initialData
       },
       position: { x: 100 + drafts.length * 30, y: 100 + drafts.length * 30 },

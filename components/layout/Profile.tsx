@@ -64,7 +64,7 @@ export default function DoctorProfile() {
             </span>
             <span className="text-left">
               <span className="block text-[15px] font-semibold leading-tight">
-                {user?.role === "Doctor" && "Dr."} {user?.name}
+                {user?.name}
               </span>
               <span className="block text-xs text-slate-500 -mt-0.5">
                 {user?.specialization ?? user?.role}
@@ -94,7 +94,7 @@ export default function DoctorProfile() {
               </Avatar>
               <div className="leading-tight">
                 <div className="text-sm font-semibold">
-                  {user?.role === "Doctor" && "Dr."} {user?.name}
+                  {user?.name}
                 </div>
                 <div className="text-xs text-slate-500">
                   {user?.specialization}
@@ -111,7 +111,7 @@ export default function DoctorProfile() {
               <Button asChild variant={"ghost"} className="w-full text-left justify-start">
 
                 <Link
-                  href={`/dashboard/${user?.role === "Doctor" && "doctor" || user?.role === "Pharmacy" && "pharmacy" || user?.role === "Lab" && "lab" || (user?.role === "Admin" || user?.role === "Super Admin") && "admin" || "doctor"}/settings/`}
+                  href={`/dashboard/${user?.role === "Pharmacy" ? "pharmacy" : user?.role === "Lab" ? "lab" : "admin"}/settings/`}
                   className="flex items-center gap-1"
                 >
                   <Settings className="mr-1 h-4 w-4" /> Settings

@@ -1,13 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { Bell, Plus, Menu } from "lucide-react";
 import DoctorProfile from "./Profile";
-import { CreateAppointmentForm } from "@/components/doctor/appointments/CreateAppointmentForm";
-import Drawer from "../ui/drawer";
 import { useAuth } from "@/auth/context/auth-context";
 import SearchBar from "./SearchBar";
-import useSWR from "swr";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -20,18 +15,12 @@ interface TopNavItem {
 }
 
 export default function Header() {
-  const [openCreate, setOpenCreate] = useState(false);
-
   const { user } = useAuth();
   const pathname = usePathname();
 
   const isAdmin = user?.role === "Admin" || user?.role === "Super Admin";
 
   const items: TopNavItem[] =
-    (user?.role === "Doctor" && [
-      { key: "dashboard", label: "Dashboard", link: "/dashboard/doctor/" },
-      { key: "patients", label: "Patients", link: "/dashboard/doctor/patients/" },
-    ]) ||
     (user?.role === "Pharmacy" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy/" },
       { key: "appointments", label: "Appointments", link: "/dashboard/pharmacy/appointments/" },
@@ -57,6 +46,7 @@ export default function Header() {
       { key: "customers", label: "Customers", link: "/dashboard/admin/customers/" },
       { key: "billing", label: "Billing", link: "/dashboard/admin/billing/" },
       { key: "doctor", label: "Doctor", link: "/dashboard/admin/doctor/" },
+      { key: "accounts", label: "User Accounts", link: "/dashboard/admin/accounts/" },
       { key: "staff", label: "Staff", link: "/dashboard/admin/staff/" },
       { key: "lab-catalogue", label: "Lab Catalogue", link: "/dashboard/admin/lab-catalogue/" },
       { key: "lab-register", label: "Lab Register", link: "/dashboard/admin/lab-register/" },
@@ -171,14 +161,6 @@ export default function Header() {
             className="ml-4 flex items-center gap-3 sm:gap-4"
             data-testid="actions"
           >
-            {user?.role === "Doctor" && (
-              <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer"
-                onClick={() => setOpenCreate(true)}
-              >
-                <Plus className="h-4 w-4" /> New Appointment
-              </button>
-            )}
             {/* <button
               className="relative rounded-xl border border-slate-200 bg-white/90 p-2 shadow-sm transition hover:bg-slate-50 cursor-pointer"
               aria-label="Notifications"
@@ -197,19 +179,6 @@ export default function Header() {
           data-testid="header-divider"
         />
       </header>
-      {user?.role === "Doctor" && (
-        <div className="w-full overflow-hidden">
-          <Drawer
-            open={openCreate}
-            onClose={() => setOpenCreate(false)}
-            title="Create Appointment"
-          >
-            <CreateAppointmentForm
-              onClose={() => setOpenCreate(false)}
-            />
-          </Drawer>
-        </div>
-      )}
     </>
   );
 }
