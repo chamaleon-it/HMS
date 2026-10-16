@@ -64,7 +64,6 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
 
   const refs = {
     name: useRef<HTMLInputElement>(null),
-    mrn: useRef<HTMLInputElement>(null),
     phoneNumber: useRef<HTMLInputElement>(null),
     gender: useRef<HTMLButtonElement>(null),
     dob: useRef<HTMLButtonElement>(null),
@@ -177,7 +176,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               placeholder="Enter patient name"
               {...register("name")}
               ref={mergeRefs(refs.name, register("name").ref)}
-              onKeyDown={(e) => handleKeyDown(e, refs.mrn)}
+              onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
               onChange={(e) => {
                 const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
                   char.toUpperCase()
@@ -190,25 +189,6 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             )}
 
 
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Customer ID</Label>
-            <Input
-              placeholder="PID"
-              {...register("mrn")}
-              ref={mergeRefs(refs.mrn, register("mrn").ref)}
-              value={values.mrn ?? ""}
-              readOnly
-              disabled={!!patient?._id}
-              className="bg-zinc-50"
-              onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
-            />
-            {errors.mrn && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.mrn.message}
-              </p>
-            )}
           </div>
 
           <div className="grid gap-2 relative">

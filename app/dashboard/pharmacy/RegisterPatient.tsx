@@ -100,7 +100,6 @@ export function RegisterPatient({
 
   const refs = {
     name: useRef<HTMLInputElement>(null),
-    mrn: useRef<HTMLInputElement>(null),
     phoneNumber: useRef<HTMLInputElement>(null),
     gender: useRef<HTMLButtonElement>(null),
     weight: useRef<HTMLInputElement>(null),
@@ -236,7 +235,7 @@ export function RegisterPatient({
               placeholder="Enter patient name"
               {...register("name")}
               ref={mergeRefs(refs.name, register("name").ref)}
-              onKeyDown={(e) => handleKeyDown(e, refs.mrn)}
+              onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
               onChange={(e) => {
                 const capitalizedValue = e.target.value.replace(
                   /\b\w/g,
@@ -247,23 +246,6 @@ export function RegisterPatient({
             />
             {errors.name && (
               <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Customer ID</Label>
-            <Input
-              placeholder="PID"
-              {...register("mrn")}
-              ref={mergeRefs(refs.mrn, register("mrn").ref)}
-              value={values.mrn ?? ""}
-              readOnly
-              disabled={!!patient?._id}
-              className="bg-zinc-50"
-              onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
-            />
-            {errors.mrn && (
-              <p className="text-red-500 text-xs my-1">{errors.mrn.message}</p>
             )}
           </div>
 
