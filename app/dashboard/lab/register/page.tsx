@@ -36,7 +36,7 @@ export interface FilterType {
 
 export default function LabRegisterPage() {
   const [paymentBillId, setPaymentBillId] = useState<string | null>(null);
-  const [payment, setPayment] = useState({ cash: "", online: "", card: "", discount: "" });
+  const [payment, setPayment] = useState({ cash: "", online: "", card: "", discount: "", refund: "" });
   const [isSavingPayment, setIsSavingPayment] = useState(false);
   const [filter, setFilter] = useState<FilterType>({
     q: null,
@@ -83,6 +83,7 @@ export default function LabRegisterPage() {
       online: number;
       card?: number;
       discount: number;
+      refund?: number;
       items: {
         total: number;
         quantity: number;
@@ -107,6 +108,7 @@ export default function LabRegisterPage() {
       online: bill.online ? String(bill.online) : "",
       card: bill.card ? String(bill.card) : "",
       discount: bill.discount ? String(bill.discount) : "",
+      refund: bill.refund ? String(bill.refund) : "",
     });
   };
 
@@ -118,6 +120,7 @@ export default function LabRegisterPage() {
         online: Number(payment.online) || 0,
         card: Number(payment.card) || 0,
         discount: Number(payment.discount) || 0,
+        refund: Number(payment.refund) || 0,
       });
       toast.success("Payment updated successfully");
       setPaymentBillId(null);
@@ -132,18 +135,22 @@ export default function LabRegisterPage() {
   const activeBill = billing.find((bill) => bill._id === paymentBillId);
   const billSubtotal = activeBill?.items?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
   const recordedPaid = (activeBill?.cash || 0) + (activeBill?.online || 0) + (activeBill?.card || 0);
+  const recordedNetPaid = recordedPaid + (activeBill?.refund || 0);
   const enteredPaid = (Number(payment.cash) || 0) + (Number(payment.online) || 0) + (Number(payment.card) || 0);
+  const enteredRefund = Number(payment.refund) || 0;
+  const enteredNetPaid = enteredPaid + enteredRefund;
   const enteredDiscount = Number(payment.discount) || 0;
-  const dueBeforeEdit = Math.max(0, billSubtotal - (activeBill?.discount || 0) - recordedPaid);
-  const remainingDue = Math.max(0, billSubtotal - enteredDiscount - enteredPaid);
+  const dueBeforeEdit = Math.max(0, billSubtotal - (activeBill?.discount || 0) - recordedNetPaid);
+  const remainingDue = Math.max(0, billSubtotal - enteredDiscount - enteredNetPaid);
 
   const fillPaymentMethod = (field: "cash" | "online" | "card") => {
-    const totalToPay = Math.max(0, billSubtotal - enteredDiscount);
+    const totalToPay = Math.max(0, billSubtotal - enteredDiscount - enteredRefund);
     setPayment({
       cash: field === "cash" ? String(totalToPay) : "0",
       online: field === "online" ? String(totalToPay) : "0",
       card: field === "card" ? String(totalToPay) : "0",
       discount: payment.discount,
+      refund: payment.refund,
     });
   };
 
@@ -206,9 +213,9 @@ export default function LabRegisterPage() {
 
           <div className="bg-white/90 border rounded-2xl shadow-md shadow-slate-200 overflow-hidden">
             {isLoading ? (
-              <TableSkeleton rows={10} columns={11} />
+              <TableSkeleton rows={10} columns={12} />
             ) : (
-              <Table className="min-w-[1450px] text-sm" containerClassName="max-h-[calc(100vh-300px)] overflow-auto scrollbar-thin scrollbar-thumb-slate-200">
+              <Table className="min-w-[1600px] text-sm" containerClassName="max-h-[calc(100vh-300px)] overflow-auto scrollbar-thin scrollbar-thumb-slate-200">
                 <TableHeader className="bg-slate-700 sticky top-0 z-20 shadow-sm">
                   <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
                     <TableHead className="py-3 text-left pl-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Sl No</TableHead>
@@ -219,6 +226,7 @@ export default function LabRegisterPage() {
                     <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Payment</TableHead>
                     <TableHead className="py-3 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Total Bill</TableHead>
                     <TableHead className="py-3 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Discount</TableHead>
+                    <TableHead className="py-3 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Refund</TableHead>
                     <TableHead className="py-3 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Due</TableHead>
                     <TableHead className="py-3 text-center text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Payment Status</TableHead>
                     <TableHead className="py-3 text-center pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Action</TableHead>
@@ -227,7 +235,7 @@ export default function LabRegisterPage() {
                 <TableBody>
                   {billing.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={11} className="py-20 text-center">
+                      <TableCell colSpan={12} className="py-20 text-center">
                         <div className="flex flex-col items-center gap-2">
                           <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center dark:bg-slate-800">
                             <Search className="h-6 w-6 text-slate-300" />
@@ -246,8 +254,9 @@ export default function LabRegisterPage() {
                       {(() => {
                         const billTotal = b.items?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
                         const paidTotal = (b.cash || 0) + (b.online || 0) + (b.card || 0);
-                        const due = Math.max(0, billTotal - (b.discount || 0) - paidTotal);
-                        const paymentStatus = due === 0 ? "Paid" : paidTotal === 0 ? "Unpaid" : "Partially Paid";
+                        const netPaid = paidTotal + (b.refund || 0);
+                        const due = Math.max(0, billTotal - (b.discount || 0) - netPaid);
+                        const paymentStatus = due === 0 ? "Paid" : netPaid <= 0 ? "Unpaid" : "Partially Paid";
                         return (
                       <TableRow
                         className={idx % 2 === 0
@@ -271,7 +280,7 @@ export default function LabRegisterPage() {
                           </div>
                         </TableCell>
                         <TableCell className="py-3 text-right tabular-nums text-emerald-600 font-medium">
-                          {formatINR((b.cash || 0) + (b.online || 0) + (b.card || 0))}
+                          {formatINR(netPaid)}
                         </TableCell>
                         <TableCell className="py-3">
                           <div className="flex flex-wrap gap-1.5">
@@ -286,6 +295,9 @@ export default function LabRegisterPage() {
                         </TableCell>
                         <TableCell className="py-3 text-right pr-4 tabular-nums font-medium text-amber-700">
                           {formatINR(b.discount || 0)}
+                        </TableCell>
+                        <TableCell className="py-3 text-right pr-4 tabular-nums font-medium text-rose-600">
+                          {formatINR(b.refund || 0)}
                         </TableCell>
                         <TableCell className="py-3 text-right pr-4 tabular-nums font-semibold text-rose-600">
                           {formatINR(due)}
@@ -318,16 +330,17 @@ export default function LabRegisterPage() {
                 {billing.length > 0 && (
                   <TableFooter className="sticky bottom-0 z-10 bg-emerald-50 font-extrabold text-[15px] text-slate-900 border-t-2 border-slate-300 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                     <TableRow className="hover:bg-emerald-50 bg-emerald-50">
-                      <TableCell colSpan={4} className="py-3 px-4">
+                          <TableCell colSpan={4} className="py-3 px-4">
                         <div className="flex flex-wrap gap-1.5">
                           <span className="whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase text-emerald-700">Cash: {formatINR(billing.reduce((sum, bill) => sum + (bill.cash || 0), 0))}</span>
                           <span className="whitespace-nowrap rounded-full border border-violet-200 bg-violet-50 px-2 py-1 text-[10px] font-bold uppercase text-violet-700">UPI: {formatINR(billing.reduce((sum, bill) => sum + (bill.online || 0), 0))}</span>
                           <span className="whitespace-nowrap rounded-full border border-teal-200 bg-teal-50 px-2 py-1 text-[10px] font-bold uppercase text-teal-700">Card: {formatINR(billing.reduce((sum, bill) => sum + (bill.card || 0), 0))}</span>
                           <span className="whitespace-nowrap rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] font-bold uppercase text-amber-700">Discount: {formatINR(billing.reduce((sum, bill) => sum + (bill.discount || 0), 0))}</span>
+                          <span className="whitespace-nowrap rounded-full border border-rose-200 bg-rose-50 px-2 py-1 text-[10px] font-bold uppercase text-rose-700">Refund: {formatINR(billing.reduce((sum, bill) => sum + (bill.refund || 0), 0))}</span>
                         </div>
                       </TableCell>
                       <TableCell className="py-4 text-right tabular-nums text-emerald-700 font-black">
-                        {formatINR(billing.reduce((acc, b) => b.transactionType === "Return" ? acc - ((b.cash || 0) + (b.online || 0) + (b.card || 0)) : acc + (b.cash || 0) + (b.online || 0) + (b.card || 0), 0))}
+                        {formatINR(billing.reduce((acc, b) => acc + (b.cash || 0) + (b.online || 0) + (b.card || 0) + (b.refund || 0), 0))}
                       </TableCell>
                       <TableCell />
                       <TableCell className="py-4 text-right pr-4 tabular-nums text-slate-900 font-black">
@@ -338,12 +351,16 @@ export default function LabRegisterPage() {
                         {formatINR(billing.reduce((sum, bill) => sum + (bill.discount || 0), 0))}
                       </TableCell>
                       <TableCell className="py-4 text-right pr-4 font-black text-rose-600">
+                        {formatINR(billing.reduce((sum, bill) => sum + (bill.refund || 0), 0))}
+                      </TableCell>
+                      <TableCell className="py-4 text-right pr-4 font-black text-rose-600">
                         {formatINR(billing.reduce((sum, bill) => {
                           const total = bill.items?.reduce((itemsSum, item) => itemsSum + (item.total || 0), 0) || 0;
                           const paid = (bill.cash || 0) + (bill.online || 0) + (bill.card || 0);
-                          return sum + Math.max(0, total - (bill.discount || 0) - paid);
+                          return sum + Math.max(0, total - (bill.discount || 0) - paid + (bill.refund || 0));
                         }, 0))}
                       </TableCell>
+                      <TableCell />
                       <TableCell />
                       <TableCell />
                     </TableRow>
@@ -384,7 +401,7 @@ export default function LabRegisterPage() {
                 </div>
                 <div className="mt-5 grid grid-cols-3 divide-x rounded-2xl border border-slate-200 bg-white py-3 text-center shadow-sm">
                   <div><p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Total Bill</p><p className="mt-1 font-bold text-slate-900">{formatINR(billSubtotal)}</p></div>
-                  <div><p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-600">Recorded So Far</p><p className="mt-1 font-bold text-emerald-700">{formatINR(recordedPaid)}</p></div>
+                  <div><p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-600">Recorded So Far</p><p className="mt-1 font-bold text-emerald-700">{formatINR(recordedNetPaid)}</p></div>
                   <div><p className="text-[10px] font-semibold uppercase tracking-wide text-rose-500">Due Amount</p><p className="mt-1 font-bold text-rose-600">{formatINR(dueBeforeEdit)}</p></div>
                 </div>
               </div>
@@ -396,7 +413,7 @@ export default function LabRegisterPage() {
                     <Button type="button" variant="outline" className="h-7 rounded-lg border-emerald-200 bg-emerald-50 px-2 text-[10px] text-emerald-700" onClick={() => fillPaymentMethod("cash")}>All Cash</Button>
                     <Button type="button" variant="outline" className="h-7 rounded-lg border-violet-200 bg-violet-50 px-2 text-[10px] text-violet-700" onClick={() => fillPaymentMethod("online")}>All UPI</Button>
                     <Button type="button" variant="outline" className="h-7 rounded-lg border-teal-200 bg-teal-50 px-2 text-[10px] text-teal-700" onClick={() => fillPaymentMethod("card")}>All Card</Button>
-                    <Button type="button" variant="outline" className="h-7 rounded-lg border-slate-200 px-2 text-[10px] text-slate-500" onClick={() => setPayment({ cash: "0", online: "0", card: "0", discount: "0" })}><RotateCcw className="mr-1 h-3 w-3" />Clear</Button>
+                    <Button type="button" variant="outline" className="h-7 rounded-lg border-slate-200 px-2 text-[10px] text-slate-500" onClick={() => setPayment({ cash: "0", online: "0", card: "0", discount: "0", refund: "0" })}><RotateCcw className="mr-1 h-3 w-3" />Clear</Button>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -405,12 +422,14 @@ export default function LabRegisterPage() {
                     { label: "UPI", field: "online", Icon: Smartphone, tone: "violet" },
                     { label: "Card", field: "card", Icon: CreditCard, tone: "teal" },
                     { label: "Discount", field: "discount", Icon: BadgePercent, tone: "amber" },
+                    { label: "Refund", field: "refund", Icon: RotateCcw, tone: "rose" },
                   ] as const).map(({ label, field, Icon, tone }) => {
                     const colors = {
                       emerald: "border-emerald-200 bg-emerald-50/70 text-emerald-800",
                       violet: "border-violet-200 bg-violet-50/70 text-violet-800",
                       teal: "border-teal-200 bg-teal-50/70 text-teal-800",
                       amber: "border-amber-200 bg-amber-50/70 text-amber-800",
+                      rose: "border-rose-200 bg-rose-50/70 text-rose-800",
                     }[tone];
                     return (
                       <label key={field} className={`rounded-2xl border p-3 ${colors}`}>
@@ -423,10 +442,10 @@ export default function LabRegisterPage() {
                     );
                   })}
                 </div>
-                <p className="mt-2 text-[10px] leading-4 text-slate-500">Enter what the patient paid by each method. These amounts replace what is recorded on the bill.</p>
+                <p className="mt-2 text-[10px] leading-4 text-slate-500">Enter the amounts collected and any refund given. These values replace what is recorded on the bill.</p>
                 <div className="mt-4 space-y-1 rounded-2xl border border-slate-100 bg-white px-3 py-3 text-xs text-slate-600">
-                  <div className="flex justify-between"><span>Total Paid (Cash + UPI + Card)</span><span className="font-semibold text-emerald-700">{formatINR(enteredPaid)}</span></div>
-                  <div className="flex justify-between"><span>Change from recorded</span><span className={`font-semibold ${enteredPaid >= recordedPaid ? "text-emerald-700" : "text-rose-600"}`}>{enteredPaid >= recordedPaid ? "+" : "−"}{formatINR(Math.abs(enteredPaid - recordedPaid))}</span></div>
+                  <div className="flex justify-between"><span>Total Paid (Cash + UPI + Card + Refund)</span><span className="font-semibold text-emerald-700">{formatINR(enteredNetPaid)}</span></div>
+                  <div className="flex justify-between"><span>Change from recorded</span><span className={`font-semibold ${enteredNetPaid >= recordedNetPaid ? "text-emerald-700" : "text-rose-600"}`}>{enteredNetPaid >= recordedNetPaid ? "+" : "−"}{formatINR(Math.abs(enteredNetPaid - recordedNetPaid))}</span></div>
                   <div className="flex justify-between border-t border-slate-100 pt-1 font-bold text-slate-800"><span>Remaining Due</span><span className="text-emerald-700">{formatINR(remainingDue)}{remainingDue === 0 ? " (Fully Settled ✓)" : ""}</span></div>
                 </div>
               </div>
@@ -434,7 +453,7 @@ export default function LabRegisterPage() {
               <div className="flex justify-end gap-2 border-t border-slate-100 bg-white px-6 py-4">
                 <Button type="button" variant="outline" className="rounded-xl" onClick={() => setPaymentBillId(null)}>Cancel</Button>
                 <Button type="button" disabled={isSavingPayment} className="rounded-xl bg-emerald-600 text-white hover:bg-emerald-700" onClick={() => savePayment(activeBill._id)}>
-                  <CheckCircle2 className="mr-2 h-4 w-4" />{isSavingPayment ? "Saving…" : `Save Payment (${formatINR(enteredPaid)})`}
+                  <CheckCircle2 className="mr-2 h-4 w-4" />{isSavingPayment ? "Saving…" : `Save Payment (${formatINR(enteredNetPaid)})`}
                 </Button>
               </div>
             </>

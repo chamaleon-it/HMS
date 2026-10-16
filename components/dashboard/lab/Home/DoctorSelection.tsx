@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import useSWR from "swr";
-import { User2, X, Check } from "lucide-react";
+import { User2, UserRoundPlus, X, Check } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
@@ -112,7 +112,7 @@ const DoctorSelection: React.FC<Props> = ({
       <div className="relative">
         <input
           type="text"
-          placeholder="Search or type doctor name"
+          placeholder="Search or enter outside doctor name"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -141,7 +141,7 @@ const DoctorSelection: React.FC<Props> = ({
         )}
       </div>
 
-      {open && (filteredDoctors.length > 0 || isLoading) && (
+      {open && (filteredDoctors.length > 0 || isLoading || search.trim().length > 0) && (
         <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-slate-200 bg-white p-1 shadow-xl animate-in fade-in zoom-in-95 duration-150">
           {isLoading ? (
             <div className="p-3 text-center text-xs text-slate-400">
@@ -178,6 +178,30 @@ const DoctorSelection: React.FC<Props> = ({
                 )}
               </div>
             ))
+          )}
+          {!isLoading && search.trim().length > 0 && search.trim().toLowerCase() !== "self" && (
+            <>
+              {filteredDoctors.length > 0 && <div className="my-1 border-t border-slate-100" />}
+              <div
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  const externalName = search.trim();
+                  setValue(undefined);
+                  onNameChange?.(externalName);
+                  setSearch(externalName);
+                  setOpen(false);
+                }}
+                className="flex cursor-pointer items-center gap-3 rounded-lg p-2 text-emerald-800 transition-colors hover:bg-emerald-50"
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                  <UserRoundPlus className="h-4 w-4 text-emerald-700" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium">Use “{search.trim()}”</span>
+                  <span className="text-[10px] text-emerald-700/70">Outside doctor</span>
+                </div>
+              </div>
+            </>
           )}
         </div>
       )}

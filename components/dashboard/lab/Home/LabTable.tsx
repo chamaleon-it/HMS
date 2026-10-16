@@ -88,7 +88,8 @@ interface PropsTypes {
       _id: string;
       name: string;
       specialization: string | null;
-    };
+    } | null;
+    doctorName?: string;
     lab: {
       _id: string;
       name: string;
@@ -536,6 +537,10 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                           title={r.doctor.name}
                         >
                           Dr. {r.doctor.name}
+                        </span>
+                      ) : r?.doctorName && r.doctorName.toLowerCase() !== "self" ? (
+                        <span className="truncate max-w-25" title={r.doctorName}>
+                          {r.doctorName.toLowerCase().startsWith("dr.") ? r.doctorName : `Dr. ${r.doctorName}`}
                         </span>
                       ) : (
                         <span>Self</span>

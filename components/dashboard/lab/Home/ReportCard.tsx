@@ -33,6 +33,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
     const patient = report.patient;
     const doctor = report.doctor;
+    const referringDoctor = doctor?.name || report.doctorName;
+    const referringDoctorLabel = referringDoctor && referringDoctor.toLowerCase() !== "self"
+        ? (referringDoctor.toLowerCase().startsWith("dr.") ? referringDoctor : `Dr. ${referringDoctor}`)
+        : "Self";
 
     const content = (
         <div className="print-prescription hidden print:block bg-white text-black font-sans leading-tight overflow-visible">
@@ -510,7 +514,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                     <div className="flex flex-col space-y-1.5 text-[15px] text-black">
                                         <div className="flex items-start"><span className="w-32 font-medium">Name</span><span className="w-4 font-bold">:</span><span className="font-bold text-[16px] uppercase">{patient?.name || "Mohammed Rashid"}</span></div>
                                         <div className="flex items-start"><span className="w-32 font-medium">Age/ Gender</span><span className="w-4 font-bold">:</span><span className="font-medium">{patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "23"} / {patient?.gender || "Male"}</span></div>
-                                        <div className="flex items-start"><span className="w-32 font-medium">Ref. By.</span><span className="w-4 font-bold">:</span><span className="font-medium uppercase">{doctor?.name || "Self"}</span></div>
+                                        <div className="flex items-start"><span className="w-32 font-medium">Ref. By.</span><span className="w-4 font-bold">:</span><span className="font-medium uppercase">{referringDoctorLabel}</span></div>
                                     </div>
                                     <div className="flex flex-col space-y-1.5 text-[15px] text-black w-[40%]">
                                         <div className="flex items-start"><span className="w-28 font-medium">Reported</span><span className="w-4 font-bold">:</span><span className="font-medium">{report.createdAt && fDateandTime(report.createdAt).toLowerCase()}</span></div>
