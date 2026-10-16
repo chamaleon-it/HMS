@@ -71,7 +71,16 @@ export function RegisterPatient({
   };
 
   const { user } = useAuth();
-  const initialAge = ageFromDob(patient?.dateOfBirth);
+  const patientName = patient?.name;
+  const patientPhoneNumber = patient?.phoneNumber;
+  const patientDoctor = patient?.doctor;
+  const patientGender = patient?.gender;
+  const patientWeight = patient?.weight;
+  const patientMrn = patient?.mrn;
+  const patientDateOfBirth = patient?.dateOfBirth
+    ? new Date(patient.dateOfBirth).toISOString()
+    : "";
+  const initialAge = ageFromDob(patientDateOfBirth);
   const {
     register,
     handleSubmit,
@@ -82,15 +91,13 @@ export function RegisterPatient({
   } = useForm<RegisterPatientSchema>({
     resolver: zodResolver(registerPatientSchema),
     defaultValues: {
-      name: patient?.name || "",
-      phoneNumber: patient?.phoneNumber || "",
-      doctor: patient?.doctor || user?._id,
-      gender: patient?.gender,
-      weight: patient?.weight || "",
-      mrn: patient?.mrn || "",
-      dateOfBirth: patient?.dateOfBirth
-        ? new Date(patient.dateOfBirth).toISOString()
-        : "",
+      name: patientName || "",
+      phoneNumber: patientPhoneNumber || "",
+      doctor: patientDoctor || user?._id,
+      gender: patientGender,
+      weight: patientWeight || "",
+      mrn: patientMrn || "",
+      dateOfBirth: patientDateOfBirth,
       age: initialAge.age,
       month: initialAge.month,
     },
@@ -130,41 +137,10 @@ export function RegisterPatient({
   };
 
   useEffect(() => {
-    if (patient) {
-      const ages = ageFromDob(patient?.dateOfBirth);
-      reset({
-        name: patient?.name || "",
-        phoneNumber: patient?.phoneNumber || "",
-        doctor: patient?.doctor || user?._id,
-        gender: patient?.gender,
-        weight: patient?.weight || "",
-        mrn: patient?.mrn || "",
-        dateOfBirth: patient?.dateOfBirth
-          ? new Date(patient.dateOfBirth).toISOString()
-          : "",
-        age: ages.age,
-        month: ages.month,
-      });
-      return;
+    if (!patientDoctor && user?._id) {
+      setValue("doctor", user._id);
     }
-
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data } = await api.get<{ data: { pid: string } }>(
-          "/patients/next-pid"
-        );
-        if (!cancelled && data?.data?.pid) {
-          setValue("mrn", data.data.pid);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [patient, setValue, reset, user?._id]);
+  }, [patientDoctor, setValue, user?._id]);
 
   const createEditPatient = handleSubmit(async (data) => {
     // Omit clinical fields pharmacy no longer collects (kept for doctor/lab).

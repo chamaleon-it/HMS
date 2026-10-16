@@ -112,25 +112,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         allergies: patient?.allergies || "",
         mrn: patient?.mrn || "",
       });
-      return;
     }
-
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data } = await api.get<{ data: { pid: string } }>(
-          "/patients/next-pid"
-        );
-        if (!cancelled && data?.data?.pid) {
-          setValue("mrn", data.data.pid);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
   }, [patient, setValue, reset, user?._id]);
 
 
