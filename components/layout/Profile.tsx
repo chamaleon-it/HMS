@@ -8,11 +8,11 @@ import {
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ProtectedUploadAvatarImage } from "@/lib/protected-upload";
 import { ArchiveRestore, DatabaseBackup, LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/auth/context/auth-context";
-import configuration from "@/config/configuration";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import useSWR from "swr";
@@ -83,8 +83,8 @@ export default function DoctorProfile() {
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 ring-2 ring-white">
                 {user?.profilePic && (
-                  <AvatarImage
-                    src={configuration().backendUrl + user?.profilePic}
+                  <ProtectedUploadAvatarImage
+                    src={user.profilePic}
                     alt={user?.name}
                   />
                 )}

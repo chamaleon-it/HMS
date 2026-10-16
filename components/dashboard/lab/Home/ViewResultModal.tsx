@@ -2,6 +2,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from '@/components/ui/button';
 import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
 import { Activity, Clock, Eye, FileText, FlaskConical, User } from 'lucide-react';
+import { openProtectedUpload } from '@/lib/protected-upload';
+import toast from 'react-hot-toast';
 import {
     Table,
     TableBody,
@@ -35,7 +37,7 @@ interface Props {
             _id: string;
             name: string;
             specialization: string | null;
-        };
+        } | null;
         lab: {
             _id: string;
             name: string;
@@ -248,6 +250,10 @@ export default function ViewResultModal({ r }: Props) {
                                                                 href={test.value.toString()}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
+                                                                onClick={(event) => {
+                                                                    event.preventDefault();
+                                                                    void openProtectedUpload(String(test.value)).catch(() => toast.error('Could not open the report file.'));
+                                                                }}
                                                                 className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-blue-600 hover:text-blue-700 hover:border-blue-200 hover:shadow-sm transition-all"
                                                             >
                                                                 <FileText className="w-3.5 h-3.5" />

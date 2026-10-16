@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { openProtectedUpload } from "@/lib/protected-upload";
 import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon, LucideProps, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppShell from "@/components/layout/app-shell";
@@ -474,6 +475,10 @@ const CustomerContent: React.FC = () => {
                                         href={t.value?.toString()}
                                         target="_blank"
                                         rel="noopener noreferrer"
+                                        onClick={(event) => {
+                                          event.preventDefault();
+                                          if (t.value) void openProtectedUpload(t.value.toString()).catch(() => toast.error("Could not open the result file."));
+                                        }}
                                         className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
                                       >
                                         View Result

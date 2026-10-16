@@ -19,7 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ProtectedUploadAvatarImage, ProtectedUploadImage } from "@/lib/protected-upload";
 import {
   Dialog,
   DialogContent,
@@ -491,7 +492,7 @@ export default function AdminDoctorPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <Avatar className="w-14 h-14 rounded-2xl border-2 border-indigo-100 shadow-xs">
-                          <AvatarImage src={doc.profilePic || ""} alt={doc.name} />
+                          <ProtectedUploadAvatarImage src={doc.profilePic || ""} alt={doc.name} />
                           <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold text-lg rounded-2xl">
                             {doc.name?.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
@@ -752,7 +753,7 @@ export default function AdminDoctorPage() {
                     <Label className="font-medium">Doctor Photo</Label>
                     <div className="flex items-center gap-3">
                       {formProfilePic ? (
-                        <img
+                        <ProtectedUploadImage
                           src={formProfilePic}
                           alt="preview"
                           className="w-12 h-12 rounded-xl object-cover border"
@@ -777,7 +778,7 @@ export default function AdminDoctorPage() {
                     <Label className="font-medium">Digital Signature</Label>
                     <div className="flex items-center gap-3">
                       {formSignature ? (
-                        <img
+                        <ProtectedUploadImage
                           src={formSignature}
                           alt="sig"
                           className="h-10 w-24 object-contain border bg-white rounded p-1"

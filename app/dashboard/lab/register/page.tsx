@@ -253,8 +253,9 @@ export default function LabRegisterPage() {
                       <React.Fragment key={b._id}>
                       {(() => {
                         const billTotal = b.items?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
-                        const paidTotal = (b.cash || 0) + (b.online || 0) + (b.card || 0);
-                        const netPaid = paidTotal + (b.refund || 0);
+                        const cardAmount = b.card ?? 0;
+                        const paidTotal = (b.cash || 0) + (b.online || 0) + cardAmount;
+                        const netPaid = paidTotal - (b.refund || 0);
                         const due = Math.max(0, billTotal - (b.discount || 0) - netPaid);
                         const paymentStatus = due === 0 ? "Paid" : netPaid <= 0 ? "Unpaid" : "Partially Paid";
                         return (
@@ -285,9 +286,9 @@ export default function LabRegisterPage() {
                         <TableCell className="py-3">
                           <div className="flex flex-wrap gap-1.5">
                             {b.cash > 0 && <span className="whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700">Cash: {formatINR(b.cash)}</span>}
-                            {b.card > 0 && <span className="whitespace-nowrap rounded-full border border-teal-200 bg-teal-50 px-2 py-1 text-[11px] font-semibold text-teal-700">Card: {formatINR(b.card)}</span>}
+                            {cardAmount > 0 && <span className="whitespace-nowrap rounded-full border border-teal-200 bg-teal-50 px-2 py-1 text-[11px] font-semibold text-teal-700">Card: {formatINR(cardAmount)}</span>}
                             {b.online > 0 && <span className="whitespace-nowrap rounded-full border border-violet-200 bg-violet-50 px-2 py-1 text-[11px] font-semibold text-violet-700">UPI: {formatINR(b.online)}</span>}
-                            {(b.cash || 0) + (b.card || 0) + (b.online || 0) === 0 && <span className="text-xs text-slate-400">—</span>}
+                            {(b.cash || 0) + cardAmount + (b.online || 0) === 0 && <span className="text-xs text-slate-400">—</span>}
                           </div>
                         </TableCell>
                         <TableCell className="py-3 text-right pr-4 tabular-nums font-medium text-slate-900">
@@ -340,7 +341,7 @@ export default function LabRegisterPage() {
                         </div>
                       </TableCell>
                       <TableCell className="py-4 text-right tabular-nums text-emerald-700 font-black">
-                        {formatINR(billing.reduce((acc, b) => acc + (b.cash || 0) + (b.online || 0) + (b.card || 0) + (b.refund || 0), 0))}
+                        {formatINR(billing.reduce((acc, b) => acc + (b.cash || 0) + (b.online || 0) + (b.card || 0) - (b.refund || 0), 0))}
                       </TableCell>
                       <TableCell />
                       <TableCell className="py-4 text-right pr-4 tabular-nums text-slate-900 font-black">

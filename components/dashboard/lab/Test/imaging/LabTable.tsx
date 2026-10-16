@@ -4,6 +4,8 @@ import React from 'react'
 import ResultUpdate from './ResultUpdate';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { openProtectedUpload } from '@/lib/protected-upload';
+import toast from 'react-hot-toast';
 
 
 interface PropsTypes {
@@ -160,6 +162,10 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                                                     href={e?.value?.toString()}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
+                                                                    onClick={(event) => {
+                                                                        event.preventDefault();
+                                                                        void openProtectedUpload(String(e.value)).catch(() => toast.error('Could not open the result file.'));
+                                                                    }}
                                                                     className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
                                                                 >
                                                                     View Result

@@ -198,7 +198,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         submitInFlight.current = true;
         setSubmittingOrder(true);
         try {
-            await toast.promise(
+            const { data: completeResponse } = await toast.promise(
                 api.patch(`/pharmacy/orders/complete/${orderToComplete._id}`, {
                     items: orderItemsPayload(updatePayload),
                     discount: updatePayload.discount,
@@ -212,7 +212,9 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                     error: (error: any) => error?.response?.data?.message || "Could not complete the order",
                 }
             );
-            handlePrintBill(updatePayload);
+            if (completeResponse.data?.billNo && completeResponse.data.billNo !== '-') {
+                handlePrintBill(completeResponse.data);
+            }
             setOpen(false);
         } catch (error) {
             console.log(error);
@@ -255,7 +257,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         {updatingOrder ? "Updating..." : "Update Order"}
                     </Button>}
                     {
-                        autoGenerateBill ?
+                        localOrder.billNo && localOrder.billNo !== '-' ?
                             <Button
                                 variant="outline"
                                 disabled={!!printingOrderId}
@@ -266,14 +268,11 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                             >
                                 {printingOrderId === localOrder._id ? "Printing..." : "Print"}
                             </Button>
-                            : <Button
-                                variant="outline"
-                                asChild
-                            >
-                                <Link href={`/dashboard/pharmacy/billing?mrn=${localOrder.mrn}#new`}>
-                                    Print
-                                </Link>
-                            </Button>
+                            : localOrder.status === "Pending"
+                                ? <Button variant="outline" disabled>Print Bill</Button>
+                                : <Button variant="outline" asChild>
+                                    <Link href={`/dashboard/pharmacy/billing?mrn=${localOrder.mrn}#new`}>Print Bill</Link>
+                                </Button>
                     }
                     {localOrder.status === "Pending" && <Button disabled={submittingOrder || updatingOrder} onClick={() => handleCompleteOrder()}>Complete Order</Button>}
 

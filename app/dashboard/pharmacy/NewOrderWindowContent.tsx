@@ -81,10 +81,6 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
       // Since this is in a manager, we might need a broadcast or a global mutate.
       window.dispatchEvent(new CustomEvent('order-created'));
 
-      if (data.data.billNo === "-") {
-        router.push(`/dashboard/pharmacy/billing?mrn=${data.data.mrn}#new`)
-      }
-
     } catch (error) {
       // Handle error
     } finally {

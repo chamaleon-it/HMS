@@ -127,7 +127,7 @@ interface Props {
       _id: string;
       name: string;
       specialization: string | null;
-    };
+    } | null;
     lab: {
       _id: string;
       name: string;

@@ -537,7 +537,7 @@ export default function OrderTable({
                     Rx
                   </Button>
 
-                  {r.billNo != "-" ? (
+                  {r.billNo && r.billNo !== "-" ? (
                     <Button
                       variant="outline"
                       size="sm"
@@ -548,7 +548,7 @@ export default function OrderTable({
                       <Printer className="h-3.5 w-3.5" />
                       {printingOrderId === r._id ? "..." : "Bill"}
                     </Button>
-                  ) : (
+                  ) : r.status === "Completed" ? (
                     <Button
                       variant="outline"
                       size="sm"
@@ -559,6 +559,11 @@ export default function OrderTable({
                         <Printer className="h-3.5 w-3.5" />
                         Bill
                       </Link>
+                    </Button>
+                  ) : (
+                    <Button variant="outline" size="sm" disabled className="gap-2 h-8 text-xs">
+                      <Printer className="h-3.5 w-3.5" />
+                      Bill
                     </Button>
                   )}
                 </div>}
