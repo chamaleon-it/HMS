@@ -51,10 +51,19 @@ export interface IPharmacyItem {
   rackLocation?: string;
   soldQuantity?: number;
   soldHistory?: Array<{
+    _id?: string;
     date: Date | string;
     quantity: number;
     unitPrice: number;
     total: number;
+    orderId?: string;
+    orderNumber?: string;
+    billNumber?: string;
+    batchNumber?: string;
+    customerId?: string;
+    customerName?: string;
+    customerNumber?: string;
+    customerPhone?: string;
   }>;
   packing?: number;
   gst?: number;

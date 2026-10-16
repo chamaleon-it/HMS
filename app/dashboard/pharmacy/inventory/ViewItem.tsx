@@ -22,6 +22,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import TypableExpiryInput from "../purchase-entry/components/TypableExpiryInput";
 import { useAuth } from "@/auth/context/auth-context";
+import useSWR from "swr";
 
 
 
@@ -183,7 +184,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
     [mutate, onClose]
   );
 
-  const [activeTab, setActiveTab] = useState<"Batch History" | "Medicine History">("Batch History");
+  const [activeTab, setActiveTab] = useState<"Batch History" | "Medicine History" | "Sold History">("Batch History");
   const [pagination, setPagination] = useState({ page: 1, limit: 5 });
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
@@ -191,68 +192,74 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
   const tabs = useMemo(() => [
     { key: "Batch History", icon: Package },
     { key: "Medicine History", icon: History },
+    { key: "Sold History", icon: ShoppingCart },
   ], []);
+
+  const {
+    data: soldHistoryResponse,
+    error: soldHistoryError,
+    isLoading: isSoldHistoryLoading,
+    mutate: reloadSoldHistory,
+  } = useSWR<{ data: NonNullable<ItemType["soldHistory"]> }>(
+    activeTab === "Sold History" ? `/pharmacy/items/${item._id}/sold-history` : null,
+  );
+
+  const filteredSales = useMemo(() => {
+    const sales = activeTab === "Sold History"
+      ? soldHistoryResponse?.data || []
+      : item?.soldHistory || [];
+    if (!dateRange?.from) return sales;
+    return sales.filter((sale) => {
+      const date = new Date(sale.date);
+      if (Number.isNaN(date.getTime())) return false;
+      return date >= startOfDay(dateRange.from!) &&
+        (!dateRange.to || date <= endOfDay(dateRange.to));
+    });
+  }, [item?.soldHistory, soldHistoryResponse?.data, activeTab, dateRange]);
 
   const sortedData = useMemo(() => {
     if (activeTab === "Batch History") {
       return item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
-    } else {
-      let filtered = item?.soldHistory ? [...item.soldHistory] : [];
-      if (dateRange?.from) {
-        filtered = filtered.filter(h => {
-          const d = new Date(h.date);
-          if (dateRange.to) {
-            return d >= startOfDay(dateRange.from!) && d <= endOfDay(dateRange.to);
-          }
-          return d >= startOfDay(dateRange.from!);
-        });
-      }
-
-      // Grouping logic
-      const groups: Record<string, { date: Date, quantity: number, unitPrice: number, total: number }> = {};
-      filtered.forEach(h => {
-        const d = new Date(h.date);
-        const dateKey = format(d, "yyyy-MM-dd");
-        const price = h.unitPrice;
-        const key = `${dateKey}_${price}`;
-
-        if (groups[key]) {
-          groups[key].quantity += h.quantity;
-          groups[key].total += h.total;
-        } else {
-          groups[key] = {
-            date: d,
-            quantity: h.quantity,
-            unitPrice: price,
-            total: h.total
-          };
-        }
-      });
-
-      return Object.values(groups).sort((a, b) => b.date.getTime() - a.date.getTime());
     }
-  }, [item, activeTab, dateRange]);
+    if (activeTab === "Sold History") {
+      return [...filteredSales].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }
+
+    // Keep Medicine History aggregated while Sold History shows individual sales.
+    const groups: Record<string, { date: Date, quantity: number, unitPrice: number, total: number }> = {};
+    filteredSales.forEach(h => {
+      const d = new Date(h.date);
+      if (Number.isNaN(d.getTime())) return;
+      const dateKey = format(d, "yyyy-MM-dd");
+      const price = h.unitPrice;
+      const key = `${dateKey}_${price}`;
+
+      if (groups[key]) {
+        groups[key].quantity += h.quantity;
+        groups[key].total += h.total;
+      } else {
+        groups[key] = {
+          date: d,
+          quantity: h.quantity,
+          unitPrice: price,
+          total: h.total,
+        };
+      }
+    });
+
+    return Object.values(groups).sort((a, b) => b.date.getTime() - a.date.getTime());
+  }, [item?.batches, activeTab, filteredSales]);
 
   const salesStats = useMemo(() => {
-    if (activeTab !== "Medicine History") return null;
+    if (activeTab === "Batch History") return null;
+    if (activeTab === "Sold History" && (isSoldHistoryLoading || soldHistoryError || !soldHistoryResponse)) return null;
 
-    let filtered = item?.soldHistory ? [...item.soldHistory] : [];
-    if (dateRange?.from) {
-      filtered = filtered.filter(h => {
-        const d = new Date(h.date);
-        if (dateRange.to) {
-          return d >= startOfDay(dateRange.from!) && d <= endOfDay(dateRange.to);
-        }
-        return d >= startOfDay(dateRange.from!);
-      });
-    }
-
-    const totalQuantitySold = filtered.reduce((acc, h) => acc + h.quantity, 0);
-    const totalSales = filtered.reduce((acc, h) => acc + h.total, 0);
+    const totalQuantitySold = filteredSales.reduce((acc, h) => acc + (Number(h.quantity) || 0), 0);
+    const totalSales = filteredSales.reduce((acc, h) => acc + (Number(h.total) || 0), 0);
     const averageUnitPrice = totalQuantitySold > 0 ? totalSales / totalQuantitySold : 0;
 
     return { totalQuantitySold, totalSales, averageUnitPrice };
-  }, [item, activeTab, dateRange]);
+  }, [activeTab, filteredSales, isSoldHistoryLoading, soldHistoryError, soldHistoryResponse]);
 
 
   const paginatedData = useMemo(() => {
@@ -466,14 +473,14 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
       </div>
 
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 border-b border-slate-100">
-        <div className="relative inline-flex items-center gap-2 text-sm bg-slate-50 border border-slate-200 rounded-full p-1 shadow-xs">
+        <div className="relative inline-flex flex-wrap items-center gap-2 text-sm bg-slate-50 border border-slate-200 rounded-full p-1 shadow-xs">
           {tabs.map(({ key, icon: Icon }) => {
             const active = activeTab === key;
             return (
               <button
                 key={key}
                 onClick={() => {
-                  setActiveTab(key as any);
+                  setActiveTab(key as typeof activeTab);
                   setPagination({ page: 1, limit: 5 });
                 }}
 
@@ -499,7 +506,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
           })}
         </div>
 
-        {activeTab === "Medicine History" && (
+        {activeTab !== "Batch History" && (
           <div className="flex items-center gap-2">
             <Popover>
               <PopoverTrigger asChild>
@@ -561,7 +568,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
       </div>
 
       <div className="space-y-3">
-        {activeTab === "Medicine History" && salesStats && (
+        {activeTab !== "Batch History" && salesStats && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 shadow-sm">
               <div className="flex items-center gap-3">
@@ -593,7 +600,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                   <Banknote className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">Total Sales</p>
+                  <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">Gross Sales</p>
                   <p className="text-xl font-bold text-indigo-900">{formatINR(salesStats.totalSales)}</p>
                 </div>
               </div>
@@ -620,12 +627,22 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                       <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Qty</TableHead>
                       <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4 w-[120px] whitespace-nowrap">Action</TableHead>
                     </>
-                  ) : (
+                  ) : activeTab === "Medicine History" ? (
                     <>
                       <TableHead className="w-[200px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Sale Date</TableHead>
                       <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Quantity Sold</TableHead>
                       <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Unit Price</TableHead>
                       <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Total</TableHead>
+                    </>
+                  ) : (
+                    <>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4 whitespace-nowrap">Sold At</TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Customer</TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Order / Bill</TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Batch</TableHead>
+                      <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Quantity</TableHead>
+                      <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 whitespace-nowrap">Unit Price</TableHead>
+                      <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4 whitespace-nowrap">Gross Total</TableHead>
                     </>
                   )}
                 </TableRow>
@@ -633,10 +650,25 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               <TableBody>
                 {paginatedData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={activeTab === "Batch History" ? 11 : 4} className="text-center py-20 text-slate-400">
+                    <TableCell colSpan={activeTab === "Batch History" ? 11 : activeTab === "Sold History" ? 7 : 4} className="text-center py-20 text-slate-400">
                       <div className="flex flex-col items-center gap-2">
-                        {activeTab === "Batch History" ? <Barcode className="h-8 w-8 opacity-20" /> : <History className="h-8 w-8 opacity-20" />}
-                        <p className="font-bold uppercase tracking-widest text-[11px]">No {activeTab.toLowerCase()} found</p>
+                        {activeTab === "Sold History" && isSoldHistoryLoading ? (
+                          <Loader2 className="h-8 w-8 animate-spin" />
+                        ) : activeTab === "Batch History" ? (
+                          <Barcode className="h-8 w-8 opacity-20" />
+                        ) : (
+                          <History className="h-8 w-8 opacity-20" />
+                        )}
+                        <p className="font-bold uppercase tracking-widest text-[11px]">
+                          {activeTab === "Sold History" && isSoldHistoryLoading
+                            ? "Loading sold history"
+                            : soldHistoryError && activeTab === "Sold History"
+                              ? "Could not load sold history"
+                              : `No ${activeTab.toLowerCase()} found`}
+                        </p>
+                        {soldHistoryError && activeTab === "Sold History" && (
+                          <Button variant="outline" size="sm" onClick={() => reloadSoldHistory()}>Retry</Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -743,12 +775,31 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                             </div>
                           </TableCell>
                         </>
-                      ) : (
+                      ) : activeTab === "Medicine History" ? (
                         <>
                           <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(data.date)}</TableCell>
                           <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{data.quantity}</TableCell>
                           <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.unitPrice)}</TableCell>
                           <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.total)}</TableCell>
+                        </>
+                      ) : (
+                        <>
+                          <TableCell className="text-xs py-3 pl-4 text-slate-700 whitespace-nowrap">
+                            {Number.isNaN(new Date(data.date).getTime()) ? "Unavailable" : format(new Date(data.date), "dd MMM yyyy, hh:mm a")}
+                          </TableCell>
+                          <TableCell className="text-xs py-3 text-slate-700 min-w-[180px]">
+                            <div className="font-semibold">{data.customerName || "Unavailable"}</div>
+                            {data.customerNumber && <div className="text-slate-500">ID: {data.customerNumber}</div>}
+                            {data.customerPhone && <div className="text-slate-500">{data.customerPhone}</div>}
+                          </TableCell>
+                          <TableCell className="text-xs py-3 text-slate-700 whitespace-nowrap">
+                            <div>{data.orderNumber || "Unavailable"}</div>
+                            {data.billNumber && <div className="text-slate-500">Bill: {data.billNumber}</div>}
+                          </TableCell>
+                          <TableCell className="text-xs py-3 text-slate-700 whitespace-nowrap">{data.batchNumber || "—"}</TableCell>
+                          <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 tabular-nums">{data.quantity}</TableCell>
+                          <TableCell className="text-right text-xs py-3 tabular-nums whitespace-nowrap">{formatINR(Number(data.unitPrice) || 0)}</TableCell>
+                          <TableCell className="text-right text-xs py-3 pr-4 font-bold tabular-nums whitespace-nowrap">{formatINR(Number(data.total) || 0)}</TableCell>
                         </>
                       )}
                     </TableRow>
