@@ -32,7 +32,6 @@ interface Props {
     OrderMutate: () => void;
     autoGenerateBill: boolean;
     handlePrintBill: (order: OrderType) => void;
-    printingOrderId?: string | null;
 }
 
 function Barcode({ value }: { value: string }) {
@@ -114,7 +113,7 @@ function OrderHeader({ order }: { order: OrderType }) {
     );
 }
 
-export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGenerateBill, handlePrintBill, printingOrderId }: Props) {
+export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGenerateBill, handlePrintBill }: Props) {
     const [localOrder, setLocalOrder] = useState<OrderType | null>(order);
     const [updatePayload, setUpdatePayload] = useState<OrderType | null>(order);
     const [openPrintConfirm, setOpenPrintConfirm] = useState(false);
@@ -258,19 +257,13 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                     </Button>}
                     {
                         localOrder.billNo && localOrder.billNo !== '-' ?
-                            <Button
-                                variant="outline"
-                                disabled={!!printingOrderId}
-                                onClick={() => {
-                                    handlePrintBill(localOrder);
-                                    setOpen(false);
-                                }}
-                            >
-                                {printingOrderId === localOrder._id ? "Printing..." : "Print"}
+                            <Button variant="outline" onClick={() => {
+                                handlePrintBill(localOrder);
+                                setOpen(false);
+                            }}>
+                                Print Bill
                             </Button>
-                            : localOrder.status === "Pending"
-                                ? <Button variant="outline" disabled>Print Bill</Button>
-                                : <Button variant="outline" asChild>
+                            : <Button variant="outline" asChild>
                                     <Link href={`/dashboard/pharmacy/billing?mrn=${localOrder.mrn}#new`}>Print Bill</Link>
                                 </Button>
                     }

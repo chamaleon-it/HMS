@@ -80,6 +80,12 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
       // We might need to refresh the order table. 
       // Since this is in a manager, we might need a broadcast or a global mutate.
       window.dispatchEvent(new CustomEvent('order-created'));
+      const createdOrderMrn = data?.data?.mrn;
+      if (createdOrderMrn) {
+        router.push(`/dashboard/pharmacy/billing/?mrn=${encodeURIComponent(createdOrderMrn)}#new`);
+      } else {
+        router.push(`/dashboard/pharmacy/billing/?id=${encodeURIComponent(payload.patient)}#new`);
+      }
 
     } catch (error) {
       // Handle error

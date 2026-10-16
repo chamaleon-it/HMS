@@ -543,12 +543,12 @@ export default function OrderTable({
                       size="sm"
                       disabled={!!printingOrderId}
                       className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800"
-                      onClick={() => { handlePrintBill(r) }}
+                      onClick={() => handlePrintBill(r)}
                     >
                       <Printer className="h-3.5 w-3.5" />
-                      {printingOrderId === r._id ? "..." : "Bill"}
+                      {printingOrderId === r._id ? "Printing..." : "Print Bill"}
                     </Button>
-                  ) : r.status === "Completed" ? (
+                  ) : (
                     <Button
                       variant="outline"
                       size="sm"
@@ -559,11 +559,6 @@ export default function OrderTable({
                         <Printer className="h-3.5 w-3.5" />
                         Bill
                       </Link>
-                    </Button>
-                  ) : (
-                    <Button variant="outline" size="sm" disabled className="gap-2 h-8 text-xs">
-                      <Printer className="h-3.5 w-3.5" />
-                      Bill
                     </Button>
                   )}
                 </div>}
@@ -629,7 +624,6 @@ export default function OrderTable({
         OrderMutate={OrderMutate}
         autoGenerateBill={autoGenerateBill}
         handlePrintBill={handlePrintBill}
-        printingOrderId={printingOrderId}
       />
 
       {Boolean(printBill) && <PrintReceipt payload={printBill?.payload} invoiceDetails={printBill?.invoiceDetails} patient={printBill?.patient} />}
