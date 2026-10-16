@@ -35,7 +35,6 @@ export interface Item {
     food: string;
     duration: string;
     quantity: number;
-    isPacked: boolean;
     batchId?: string | null;
     batchNumber?: string | null;
     batchExpiryDate?: string | Date | null;

@@ -1,9 +1,11 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { DataType } from './interface';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface Draft {
   id: string;
+  clientRequestId: string;
   payload: DataType;
   position: { x: number; y: number };
   zIndex: number;
@@ -40,6 +42,7 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           const { hasAllergy: _h, ...draftRest } = d as any;
           return {
             ...draftRest,
+            clientRequestId: draftRest.clientRequestId || uuidv4(),
             payload: {
               ...payloadRest,
               doctor: null,
@@ -71,6 +74,7 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
     const newDraft: Draft = {
       id,
+      clientRequestId: uuidv4(),
       payload: {
         patient: "",
         doctor: null,

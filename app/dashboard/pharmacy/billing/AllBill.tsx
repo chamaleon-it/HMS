@@ -28,13 +28,16 @@ interface PropsType {
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   total: number;
   billing: {
-    doctor: string;
+    doctor: string | { _id: string; name: string };
     transactionType: "Return" | "Sale"
     mrn: string;
     _id: string;
     createdAt: Date;
     cash: number;
     online: number;
+    card?: number;
+    insurance?: number;
+    refund?: number;
     discount: number;
     items: {
       name: string;
@@ -53,6 +56,10 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import PrintReceipt from "./PrintReceipt";
 import { PaginationBar } from "../components/PaginationBar";
+
+const paidAmount = (bill: PropsType["billing"][number]) =>
+  (bill.cash || 0) + (bill.online || 0) + (bill.card || 0) +
+  (bill.insurance || 0) - (bill.refund || 0);
 
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
   const [isPaymentOpen, setIsPaymentOpen] = React.useState(false);
@@ -149,12 +156,12 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       {formatINR(b.discount)}
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-emerald-600 font-medium">
-                      {formatINR(b.cash + b.online)}
+                      {formatINR(paidAmount(b))}
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-rose-600 font-medium">
                       {formatINR(
                         b.items.reduce((a, b) => a + b.total, 0) -
-                        (b.cash + b.online + (b.discount ?? 0))
+                        (paidAmount(b) + (b.discount ?? 0))
                       )}
                     </TableCell>
                     <TableCell className="py-3 text-center">
@@ -164,7 +171,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                             (sum, i) => sum + i.total,
                             0
                           );
-                          const paid = b.cash + b.online + (b.discount ?? 0);
+                          const paid = paidAmount(b) + (b.discount ?? 0);
                           return b.transactionType === "Return" ? "Return" : total <= paid
                             ? "Paid"
                             : paid === 0
@@ -195,7 +202,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                         {b.items.reduce(
                           (sum, i) => sum + i.total,
                           0
-                        ) > b.cash + b.online + (b.discount ?? 0) ? (
+                        ) > paidAmount(b) + (b.discount ?? 0) ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
@@ -204,7 +211,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                                 className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                                 onClick={async () => {
                                   const due = b.items.reduce((a, b) => a + b.total, 0) -
-                                    (b.cash + b.online + (b.discount ?? 0))
+                                    (paidAmount(b) + (b.discount ?? 0))
                                   await toast.promise(api.patch(`/billing/mark_as_paid/${b._id}`, { amount: due }), {
                                     loading: "Marking as paid",
                                     success: "Marked as paid",
@@ -242,12 +249,12 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     {formatINR(billing.reduce((acc, b) => acc + (b.discount ?? 0), 0))}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums text-emerald-700 font-black">
-                    {formatINR(billing.reduce((acc, b) => b.transactionType === "Return" ? acc - b.cash : acc + b.cash + b.online, 0))}
+                    {formatINR(billing.reduce((acc, b) => acc + (b.transactionType === "Return" ? -1 : 1) * paidAmount(b), 0))}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums text-rose-700 font-black">
                     {formatINR(billing.reduce((acc, b) =>
                       acc + (b.transactionType === "Return" ? 0 : b.items.reduce((a, x) => a + x.total, 0) -
-                        (b.cash + b.online + (b.discount ?? 0))), 0
+                        (paidAmount(b) + (b.discount ?? 0))), 0
                     )
                     )}
                   </TableCell>

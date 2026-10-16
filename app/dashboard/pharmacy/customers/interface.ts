@@ -27,7 +27,6 @@ export interface Item {
     duration: string;
     quantity: number;
     availableQuantity: number;
-    isPacked: boolean
 }
 
 export interface Name {

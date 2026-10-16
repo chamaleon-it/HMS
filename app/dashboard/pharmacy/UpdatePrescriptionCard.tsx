@@ -48,12 +48,10 @@ const hasAllergyConflict = (generic?: string, allergies?: string) => {
 export default function UpdatePrescriptionCard({
   data,
   setData,
-  onTogglePacked,
   allergies
 }: {
   data: OrderType;
   setData: React.Dispatch<React.SetStateAction<OrderType>>;
-  onTogglePacked: (item: any) => void;
   allergies?: string
 }) {
   const updateField = (
@@ -127,7 +125,7 @@ export default function UpdatePrescriptionCard({
   };
 
   const subTotal = data.items.reduce((a, b) => a + (b.quantity || 0) * orderLineUnitPrice(b), 0);
-  const isCompleted = data.status === "Completed";
+  const isReadOnly = data.status !== "Pending";
 
   useEffect(() => {
     if (data.items.length > 0) {
@@ -158,7 +156,6 @@ export default function UpdatePrescriptionCard({
               <th className="w-[8%] p-2 text-right">Qty</th>
               <th className="w-[8%] p-2 text-right">MRP</th>
               <th className="w-[8%] p-2 text-right">Amount</th>
-              <th className="w-[6%] p-2 text-center">Packed</th>
               <th className="w-[6%] p-2 text-right">Actions</th>
             </tr>
           </thead>
@@ -201,7 +198,7 @@ export default function UpdatePrescriptionCard({
                   </div>
                 </td>
                 <td className="p-4 align-middle">
-                  {isCompleted ? (
+                  {isReadOnly ? (
                     <div className="text-xs text-slate-600 font-medium">
                       {m.batchNumber || "—"}
                     </div>
@@ -245,17 +242,9 @@ export default function UpdatePrescriptionCard({
                 <td className="p-4 align-middle text-right text-sm font-semibold text-slate-800 whitespace-nowrap">
                   {formatINR((m.quantity || 0) * orderLineUnitPrice(m))}
                 </td>
-                <td className="p-4 align-middle text-center">
-                  <input
-                    type="checkbox"
-                    className="h-5 w-5 accent-emerald-600 cursor-pointer"
-                    checked={m.isPacked}
-                    onChange={() => onTogglePacked(m)}
-                  />
-                </td>
                 <td className="p-4 align-middle text-right">
                   <Button
-                    disabled={isCompleted}
+                    disabled={isReadOnly}
                     size="icon"
                     variant="ghost"
                     className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
@@ -271,7 +260,7 @@ export default function UpdatePrescriptionCard({
         </table>
       </div>
       <div className="p-4 border-t bg-slate-50 flex flex-col gap-3 rounded-b-lg">
-        {!isCompleted && <UpdateMedicine addMedicineRow={addMedicineRow} />}
+        {!isReadOnly && <UpdateMedicine addMedicineRow={addMedicineRow} />}
 
         <div className="flex flex-col gap-2 mt-2 w-full max-w-xs ml-auto border-t pt-2">
           <div className="flex justify-between text-sm text-slate-600">
@@ -281,7 +270,7 @@ export default function UpdatePrescriptionCard({
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Discount %</span>
             <input
-              disabled={isCompleted}
+              disabled={isReadOnly}
               type="number"
               min="0"
               className="w-24 text-right bg-white border border-slate-200 rounded px-2 py-1 text-sm outline-none focus:border-emerald-500"
@@ -301,7 +290,7 @@ export default function UpdatePrescriptionCard({
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Discount ₹</span>
             <input
-              disabled={isCompleted}
+              disabled={isReadOnly}
               type="number"
               min="0"
               value={data.discount ? parseFloat(data.discount.toFixed(2)) : ""}
@@ -349,7 +338,7 @@ const QuantityInput = ({
     <>
       <div className="flex justify-end">
         <input
-          disabled={status === "Completed"}
+          disabled={status !== "Pending"}
           placeholder="0"
           type="number"
           min="0"

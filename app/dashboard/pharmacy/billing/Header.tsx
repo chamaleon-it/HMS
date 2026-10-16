@@ -12,7 +12,7 @@ interface PropsType {
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   billing: {
-    doctor: string;
+    doctor: string | { _id: string; name: string };
     transactionType: "Return" | "Sale"
     mrn: string;
     _id: string;
@@ -38,7 +38,8 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const doctors = useMemo(() => {
-    const list = [...new Set(billing.map(b => b.doctor))].filter(Boolean);
+    const list = [...new Set(billing.map(b => typeof b.doctor === 'string' ? b.doctor : b.doctor?.name))]
+      .filter((name): name is string => Boolean(name));
     return list.sort();
   }, [billing]);
 

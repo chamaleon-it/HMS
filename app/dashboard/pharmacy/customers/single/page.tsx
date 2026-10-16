@@ -709,6 +709,7 @@ const Customer: React.FC = () => {
                                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                                 <AlertDialogAction
                                                                     className="bg-slate-900 text-white hover:bg-slate-800"
+                                                                    disabled={repeatLoading}
                                                                     onClick={async () => {
                                                                         try {
                                                                             setRepeatLoading(true)

@@ -10,6 +10,7 @@ import useSWR from "swr";
 import { BillingFormSkeleton, TableSkeleton } from "../components/PharmacySkeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Filters from "./Filter";
+import BillingSummaryCards, { BillingSummary } from "./BillingSummaryCards";
 import { endOfDay, startOfDay, subDays } from "date-fns";
 
 export interface FilterType {
@@ -88,6 +89,9 @@ export default function BillingPage() {
       createdAt: Date;
       cash: number;
       online: number;
+      card?: number;
+      insurance?: number;
+      refund?: number;
       discount: number;
       items: {
         name: string;
@@ -100,14 +104,27 @@ export default function BillingPage() {
         mrn: string;
       };
       transactionType: "Return" | "Sale"
-      doctor: string
+      doctor: string | { _id: string; name: string }
     }[];
   }>(`/billing?${params.toString()}`);
+
+  const summaryParams = new URLSearchParams(params);
+  filter.doctor.forEach((doctor) => summaryParams.append("doctor", doctor));
+  const {
+    data: summaryData,
+    mutate: summaryMutate,
+    isLoading: isLoadingSummary,
+    error: summaryError,
+  } = useSWR<{ data: BillingSummary }>(`/billing/summary?${summaryParams.toString()}`);
+  const refreshBilling = () => {
+    void billingMutate();
+    void summaryMutate();
+  };
 
   const allBilling = billingData?.data ?? [];
   const billing = useMemo(() => {
     if (filter.doctor.length === 0) return allBilling;
-    return allBilling.filter(b => filter.doctor.includes(b.doctor));
+    return allBilling.filter(b => filter.doctor.includes(typeof b.doctor === "string" ? b.doctor : b.doctor?.name ?? ""));
   }, [allBilling, filter.doctor]);
 
   const total = billingData?.total ?? 0;
@@ -152,6 +169,11 @@ export default function BillingPage() {
               value={tab}
             >
               <TabsContent value="all">
+                <BillingSummaryCards
+                  summary={summaryData?.data}
+                  loading={isLoadingSummary}
+                  error={summaryError}
+                />
                 <Filters filter={filter} setFilter={setFilter} />
                 {isLoadingBilling ? (
                   <TableSkeleton rows={10} columns={6} />
@@ -162,7 +184,7 @@ export default function BillingPage() {
                     filter={filter}
                     setFilter={setFilter}
                     total={total}
-                    billingMutate={billingMutate}
+                    billingMutate={refreshBilling}
                   />
 
 
@@ -172,7 +194,7 @@ export default function BillingPage() {
                 {isLoadingProfile ? (
                   <BillingFormSkeleton />
                 ) : (
-                  <CreateBill billingMutate={billingMutate} pharmacyBilling={pharmacyBilling} />
+                  <CreateBill billingMutate={refreshBilling} pharmacyBilling={pharmacyBilling} />
                 )}
               </TabsContent>
             </Tabs>

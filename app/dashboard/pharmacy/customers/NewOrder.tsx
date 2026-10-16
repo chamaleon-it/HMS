@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import {
   Dialog,
   DialogClose,
@@ -24,6 +25,9 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [openCreate, setOpenCreate] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const submitInFlight = useRef(false);
+  const requestId = useRef(uuidv4());
 
   const [payload, setPayload] = useState<DataType>({
     patient: "",
@@ -78,14 +82,21 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
           return;
         }
       }
-      await toast.promise(api.post("/pharmacy/orders", payload), {
+      if (submitInFlight.current) return;
+      submitInFlight.current = true;
+      setSubmitting(true);
+      await toast.promise(api.post("/pharmacy/orders", { ...payload, clientRequestId: requestId.current }), {
         loading: "Order is creating...",
         success: ({ data }) => data.message,
-        error: ({ response }) => response.data.message,
+        error: (error: any) => error?.response?.data?.message || "Could not place the order",
       });
       setOpen(false);
+      requestId.current = uuidv4();
     } catch (error) {
       console.log(error);
+    } finally {
+      submitInFlight.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -168,8 +179,9 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
             <Button
               className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md"
               onClick={createOrder}
+              disabled={submitting}
             >
-              Place Order
+              {submitting ? "Placing..." : "Place Order"}
             </Button>
           </DialogFooter>
         </DialogContent>

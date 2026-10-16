@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PrescriptionCard from "./PrescriptionCard";
 import { DataType } from "./interface";
 import PatientSelection from "./PatientSelection";
@@ -15,6 +15,8 @@ import { useRouter } from "next/navigation";
 import { Draft, useDrafts } from "./DraftContext";
 
 export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
+  const [submitting, setSubmitting] = useState(false);
+  const submitInFlight = useRef(false);
   const { user } = useAuth();
   const router = useRouter();
   const { updateDraft, removeDraft } = useDrafts();
@@ -64,11 +66,14 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
       const { allergies: _allergies, ...orderWithoutAllergies } = payload as DataType & {
         allergies?: string;
       };
-      const payloadToSubmit = { ...orderWithoutAllergies, items: validItems };
+      if (submitInFlight.current) return;
+      submitInFlight.current = true;
+      setSubmitting(true);
+      const payloadToSubmit = { ...orderWithoutAllergies, items: validItems, clientRequestId: draft.clientRequestId };
       const { data } = await toast.promise(api.post("/pharmacy/orders", payloadToSubmit), {
         loading: "Order is creating...",
         success: ({ data }) => data.message,
-        error: ({ response }) => response.data.message,
+        error: (error: any) => error?.response?.data?.message || "Could not place the order",
       });
 
       removeDraft(draft.id);
@@ -82,6 +87,9 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
 
     } catch (error) {
       // Handle error
+    } finally {
+      submitInFlight.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -169,8 +177,9 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
           <Button
             className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md"
             onClick={createOrder}
+            disabled={submitting}
           >
-            Place Order
+            {submitting ? "Placing..." : "Place Order"}
           </Button>
         </div>
       </div>

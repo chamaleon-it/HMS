@@ -28,9 +28,7 @@ import useSWR from "swr";
 
 export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { item: ItemType, editItem: () => void, mutate: () => void, onClose: () => void }) {
   const { user } = useAuth();
-  // Align with Admin-only item stock edits: Pharmacy may edit rates/expiry but not batch qty.
-  // const canEditBatchStock =
-  //   user?.role === "Admin" || user?.role === "Super Admin";
+  const canEditBatchStock = user?.role === "Admin" || user?.role === "Super Admin";
 
   const [item, setItem] = useState<ItemType>(initialItem);
 
@@ -91,10 +89,11 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
         stripCount: editForm.stripCount,
         gst: editForm.gst,
       };
-      // if (canEditBatchStock) {
-      payload.quantity = editForm.quantity;
-      payload.startingQuantity = editForm.startingQuantity;
-      // }
+      if (canEditBatchStock) {
+        payload.expectedQuantity = Number(editingBatch.quantity) || 0;
+        payload.quantity = editForm.quantity;
+        payload.startingQuantity = editForm.startingQuantity;
+      }
       const res = await api.put(
         `/pharmacy/items/${item._id}/batches/${encodeURIComponent(editingBatch.batchNumber)}`,
         payload,
@@ -923,7 +922,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                   setEditForm((f) => ({
                     ...f,
                     stripCount: Number(e.target.value) || 0,
-                    quantity: Number(f.packing) * Number(e.target.value),
+                    ...(canEditBatchStock ? { quantity: Number(f.packing) * Number(e.target.value) } : {}),
                   }))
                 }
               />
@@ -933,7 +932,7 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
               <Input
                 type="number"
                 value={editForm.quantity || ""}
-                // disabled={!canEditBatchStock}
+                disabled={!canEditBatchStock}
                 onChange={(e) =>
                   setEditForm((f) => ({
                     ...f,
@@ -941,18 +940,18 @@ export function ViewItem({ item: initialItem, editItem, mutate, onClose }: { ite
                   }))
                 }
               />
-              {/* {!canEditBatchStock && (
+              {!canEditBatchStock && (
                 <p className="text-[10px] text-amber-700 mt-1">
                   Stock quantity is Admin-only. Use Purchase Entry to add stock.
                 </p>
-              )} */}
+              )}
             </div>
             <div>
               <label className="text-xs text-slate-500">Starting qty</label>
               <Input
                 type="number"
                 value={editForm.startingQuantity || ""}
-                // disabled={!canEditBatchStock}
+                disabled={!canEditBatchStock}
                 onChange={(e) =>
                   setEditForm((f) => ({
                     ...f,

@@ -69,7 +69,6 @@ export interface Item {
   food: string;
   duration: string;
   quantity: number;
-  isPacked: boolean;
   unitPrice?: number;
 }
 

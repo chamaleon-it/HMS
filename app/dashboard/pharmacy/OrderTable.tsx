@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { OrderType } from "./interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -107,6 +107,27 @@ export default function OrderTable({
   }>(null);
   const [printOrder, setPrintOrder] = useState<OrderType | null>(null);
   const [printingOrderId, setPrintingOrderId] = useState<string | null>(null);
+  const [completingOrderId, setCompletingOrderId] = useState<string | null>(null);
+  const completingOrders = useRef(new Set<string>());
+
+  const completeOrder = async (id: string) => {
+    if (completingOrders.current.has(id)) return;
+    completingOrders.current.add(id);
+    setCompletingOrderId(id);
+    try {
+      await toast.promise(api.patch(`/pharmacy/orders/complete/${id}`), {
+        loading: "Completing...",
+        success: ({ data }) => data.message,
+        error: (error) => error.response?.data?.message || "Failed to complete order",
+      });
+      OrderMutate();
+    } catch {
+      // toast.promise already shows the API error.
+    } finally {
+      completingOrders.current.delete(id);
+      setCompletingOrderId(null);
+    }
+  };
 
   const handlePrint = (order: OrderType) => {
     setPrintOrder(order);
@@ -223,7 +244,6 @@ export default function OrderTable({
             duration: string;
             food: string;
             frequency: string;
-            isPacked: string;
             quantity: number;
             batchSellingPrice?: number | null;
             batchNumber?: string | null;
@@ -488,25 +508,15 @@ export default function OrderTable({
                     </TooltipContent>
                   </Tooltip>
 
-                  {r?.status !== "Completed" && (
+                  {r?.status === "Pending" && (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
                           size="icon"
                           variant="ghost"
                           className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                          onClick={async () => {
-                            await toast.promise(api.patch(`/pharmacy/orders/complete/${r._id}`), {
-                              loading: "Completing...",
-                              success: (data) => {
-                                OrderMutate();
-                                return data.data.message;
-                              },
-                              error: ({ response: { data } }) => {
-                                return data.message;
-                              }
-                            })
-                          }}
+                          disabled={completingOrderId === r._id}
+                          onClick={() => completeOrder(r._id)}
                         >
                           <CheckCircle className="h-4 w-4" />
                         </Button>
