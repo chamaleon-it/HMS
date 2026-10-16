@@ -248,6 +248,8 @@ export default function ViewBill({ id }: { id: string }) {
                     }}
                     invoiceDetails={{
                         prefix: "MINV",
+                        invoiceNo: printBill.mrn,
+                        invoiceDate: printBill.createdAt,
                         roundOffAmount: 0,
                         subtotal: printBill.items.reduce(
                             (a: any, b: any) => a + b.unitPrice * b.quantity,

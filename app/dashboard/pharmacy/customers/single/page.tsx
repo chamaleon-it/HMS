@@ -213,6 +213,8 @@ const Customer: React.FC = () => {
                 invoiceDetails: {
                     totalGst,
                     prefix,
+                    invoiceNo: bill.mrn,
+                    invoiceDate: bill.createdAt,
                     roundOffAmount: 0,
                     subtotal,
                     grandTotal,

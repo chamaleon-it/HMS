@@ -99,6 +99,8 @@ export default function OrderTable({
     };
     invoiceDetails?: {
       prefix: string;
+      invoiceNo?: string;
+      invoiceDate?: string | Date;
       roundOffAmount?: number;
       subtotal: number;
       totalGst: number;
@@ -150,6 +152,7 @@ export default function OrderTable({
           data: {
             _id: string;
             mrn: string;
+            createdAt?: string;
             cash: number;
             online: number;
             discount: number;
@@ -212,6 +215,8 @@ export default function OrderTable({
             invoiceDetails: {
               totalGst: 0,
               prefix,
+              invoiceNo: bill.mrn,
+              invoiceDate: bill.createdAt,
               roundOffAmount: 0,
               subtotal,
               grandTotal: Math.max(0, subtotal - discount),

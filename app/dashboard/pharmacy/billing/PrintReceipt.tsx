@@ -37,6 +37,8 @@ interface PrintReceiptProps {
     } | null;
     invoiceDetails?: {
         prefix: string;
+        invoiceNo?: string;
+        invoiceDate?: string | Date;
         roundOffAmount?: number;
         subtotal: number;
         totalGst: number;
@@ -93,7 +95,10 @@ export default function PrintReceipt({
 
     if (!patient || !payload || !invoiceDetails) return null;
 
-    const invoiceNo = `${invoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;
+    const invoiceNo =
+        invoiceDetails.invoiceNo ||
+        `${invoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;
+    const invoiceDate = invoiceDetails.invoiceDate || new Date();
 
     // Display-only Dr. prefix (matches prescription print; skip Self/-/empty and avoid double prefix)
     const rawDoctor = payload.doctor?.trim();
@@ -137,7 +142,7 @@ export default function PrintReceipt({
                         </div>
                         <div className="text-[12px] text-gray-500 font-medium space-y-0.5 mt-2 italic">
                             <p>Invoice No: <span className="font-bold text-black">{invoiceNo}</span></p>
-                            <p>Date : <span className="font-bold text-black">{fDateandTime(new Date())}</span></p>
+                            <p>Date : <span className="font-bold text-black">{fDateandTime(invoiceDate)}</span></p>
                         </div>
                     </div>
                 </div>
@@ -309,7 +314,7 @@ export default function PrintReceipt({
                         </div>
                         <div className="text-[12px] text-gray-500 font-medium space-y-0.5 mt-2 italic">
                             <p>Ref No: <span className="font-bold text-black">{invoiceNo}</span></p>
-                            <p>Date : <span className="font-bold text-black">{fDateandTime(new Date())}</span></p>
+                            <p>Date : <span className="font-bold text-black">{fDateandTime(invoiceDate)}</span></p>
                         </div>
                     </div>
                 </div>
