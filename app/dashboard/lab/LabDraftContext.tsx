@@ -82,8 +82,8 @@ export const LabDraftProvider: React.FC<{ children: React.ReactNode; userId: str
       id,
       payload: {
         patient: "",
-        doctor: userId,
-        doctorName: "",
+        doctor: "self",
+        doctorName: "Self",
         technician: "",
         lab: userId,
         test: [],

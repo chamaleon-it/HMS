@@ -33,10 +33,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
     const patient = report.patient;
     const doctor = report.doctor;
-    const referringDoctor = doctor?.name || report.doctorName;
+    const referringDoctor = doctor?.name || report.doctorName?.trim();
     const referringDoctorLabel = referringDoctor && referringDoctor.toLowerCase() !== "self"
         ? (referringDoctor.toLowerCase().startsWith("dr.") ? referringDoctor : `Dr. ${referringDoctor}`)
-        : "Self";
+        : report.lab?.name || "Self";
 
     const content = (
         <div className="print-prescription hidden print:block bg-white text-black font-sans leading-tight overflow-visible">
