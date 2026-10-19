@@ -61,9 +61,34 @@ const paidAmount = (bill: PropsType["billing"][number]) =>
   (bill.cash || 0) + (bill.online || 0) + (bill.card || 0) +
   (bill.insurance || 0) - (bill.refund || 0);
 
+const billTotal = (bill: PropsType["billing"][number]) =>
+  bill.items.reduce((sum, item) => sum + item.total, 0);
+
+const billDue = (bill: PropsType["billing"][number]) =>
+  bill.transactionType === "Return"
+    ? 0
+    : Math.max(0, Math.round((billTotal(bill) - (bill.discount || 0) - paidAmount(bill)) * 100) / 100);
+
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
   const [isPaymentOpen, setIsPaymentOpen] = React.useState(false);
   const [printBill, setPrintBill] = React.useState<PropsType["billing"][number] | null>(null);
+  const [payingBillId, setPayingBillId] = React.useState<string | null>(null);
+
+  const handleMarkAsPaid = async (billId: string) => {
+    if (payingBillId) return;
+    setPayingBillId(billId);
+    try {
+      await api.patch(`/billing/mark_as_paid/${billId}`);
+      toast.success("Marked as paid");
+      billingMutate();
+    } catch (error: any) {
+      const message = error?.response?.data?.message;
+      toast.error(`Failed to mark as paid: ${Array.isArray(message) ? message.join(", ") : message || error?.message || "Unknown error"}`);
+      billingMutate();
+    } finally {
+      setPayingBillId(null);
+    }
+  };
 
   const handlePrint = (bill: PropsType["billing"][number]) => {
     setPrintBill(bill);
@@ -72,7 +97,6 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
     }, 100);
   };
 
-  console.log(billing)
   return (
     <>
       <div className="flex flex-col gap-6 print:hidden mt-3">
@@ -159,22 +183,15 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       {formatINR(paidAmount(b))}
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-rose-600 font-medium">
-                      {formatINR(
-                        b.items.reduce((a, b) => a + b.total, 0) -
-                        (paidAmount(b) + (b.discount ?? 0))
-                      )}
+                      {formatINR(billDue(b))}
                     </TableCell>
                     <TableCell className="py-3 text-center">
                       <StatusPill
                         s={(() => {
-                          const total = b.items.reduce(
-                            (sum, i) => sum + i.total,
-                            0
-                          );
-                          const paid = paidAmount(b) + (b.discount ?? 0);
-                          return b.transactionType === "Return" ? "Return" : total <= paid
+                          const paid = paidAmount(b);
+                          return b.transactionType === "Return" ? "Return" : billDue(b) === 0
                             ? "Paid"
-                            : paid === 0
+                            : paid <= 0
                               ? "Unpaid"
                               : "Partial";
                         })()}
@@ -199,26 +216,15 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                           <Printer className="h-3.5 w-3.5" /> Print
                         </Button>
 
-                        {b.items.reduce(
-                          (sum, i) => sum + i.total,
-                          0
-                        ) > paidAmount(b) + (b.discount ?? 0) ? (
+                        {billDue(b) > 0 ? (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                                onClick={async () => {
-                                  const due = b.items.reduce((a, b) => a + b.total, 0) -
-                                    (paidAmount(b) + (b.discount ?? 0))
-                                  await toast.promise(api.patch(`/billing/mark_as_paid/${b._id}`, { amount: due }), {
-                                    loading: "Marking as paid",
-                                    success: "Marked as paid",
-                                    error: "Failed to mark as paid"
-                                  })
-                                  billingMutate()
-                                }}
+                                disabled={payingBillId !== null}
+                                onClick={() => handleMarkAsPaid(b._id)}
                               >
                                 <CheckCircle className="h-4 w-4" />
                               </Button>
@@ -252,11 +258,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     {formatINR(billing.reduce((acc, b) => acc + (b.transactionType === "Return" ? -1 : 1) * paidAmount(b), 0))}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums text-rose-700 font-black">
-                    {formatINR(billing.reduce((acc, b) =>
-                      acc + (b.transactionType === "Return" ? 0 : b.items.reduce((a, x) => a + x.total, 0) -
-                        (paidAmount(b) + (b.discount ?? 0))), 0
-                    )
-                    )}
+                    {formatINR(billing.reduce((acc, b) => acc + billDue(b), 0))}
                   </TableCell>
                   <TableCell colSpan={2} />
                 </TableRow>

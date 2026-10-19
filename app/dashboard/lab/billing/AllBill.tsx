@@ -38,6 +38,10 @@ interface PropsType {
     createdAt: Date;
     cash: number;
     online: number;
+    card?: number;
+    insurance?: number;
+    refund?: number;
+    transactionType?: "Sale" | "Return";
     discount: number;
     items: {
       total: number;
@@ -49,6 +53,16 @@ interface PropsType {
   }[];
   billingMutate: () => void;
 }
+
+const paidAmount = (bill: PropsType["billing"][number]) =>
+  (bill.cash || 0) + (bill.online || 0) + (bill.card || 0) +
+  (bill.insurance || 0) - (bill.refund || 0);
+
+const dueAmount = (bill: PropsType["billing"][number]) =>
+  bill.transactionType === "Return"
+    ? 0
+    : Math.max(0, Math.round((bill.items.reduce((sum, item) => sum + item.total, 0) -
+      (bill.discount || 0) - paidAmount(bill)) * 100) / 100);
 
 export default function AllBill({ billing, filter, setFilter, billingMutate }: PropsType) {
   const [paymentModelOpen, setPaymentModelOpen] = React.useState(false);
@@ -63,13 +77,15 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
     }, 100);
   };
 
-  const handleMarkAsPaid = async (billId: string, dueAmount: number) => {
+  const handleMarkAsPaid = async (billId: string) => {
     try {
-      await api.patch(`/billing/mark_as_paid/${billId}`, { amount: dueAmount });
+      await api.patch(`/billing/mark_as_paid/${billId}`);
       toast.success("Payment marked as paid successfully.");
       billingMutate();
     } catch (error: any) {
-      toast.error(`Failed to mark as paid: ${error.response?.data?.message || error.message}`);
+      const message = error?.response?.data?.message;
+      toast.error(`Failed to mark as paid: ${Array.isArray(message) ? message.join(", ") : message || error?.message || "Unknown error"}`);
+      billingMutate();
     }
   };
 
@@ -177,14 +193,10 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                     {formatINR(b.discount || 0)}
                   </TableCell>
                   <TableCell className="py-3 text-right tabular-nums text-emerald-600 font-medium">
-                    {formatINR(b.cash + b.online)}
+                    {formatINR(paidAmount(b))}
                   </TableCell>
                   <TableCell className="py-3 text-right tabular-nums text-rose-600 font-medium">
-                    {formatINR(
-                      b.items.reduce((a, b) => a + b.total, 0) -
-                      (b.discount || 0) -
-                      (b.cash + b.online)
-                    )}
+                    {formatINR(dueAmount(b))}
                   </TableCell>
                   <TableCell className="py-3 text-center">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${(b as any).status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'} border`}>
@@ -194,15 +206,10 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                   <TableCell className="py-3 text-center">
                     <StatusPill
                       s={(() => {
-                        const subtotal = b.items.reduce(
-                          (sum, i) => sum + i.total,
-                          0
-                        );
-                        const total = subtotal - (b.discount || 0);
-                        const paid = b.cash + b.online;
-                        return total <= paid
+                        const paid = paidAmount(b);
+                        return dueAmount(b) === 0
                           ? "Paid"
-                          : paid === 0
+                          : paid <= 0
                             ? "Unpaid"
                             : "Partial";
                       })()}
@@ -211,20 +218,15 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                   <TableCell className="py-3 pr-4">
                     <div className="flex justify-end items-center gap-1">
                       {(() => {
-                        const subtotal = b.items.reduce((sum, i) => sum + i.total, 0);
-                        const total = subtotal - (b.discount || 0);
-                        const paid = b.cash + b.online;
-                        const due = total - paid;
-
                         return (
                           <>
-                            {due > 0 && (
+                            {dueAmount(b) > 0 && (
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    onClick={() => handleMarkAsPaid(b._id, due)}
+                                    onClick={() => handleMarkAsPaid(b._id)}
                                     className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                                   >
                                     <CheckCircle2 className="h-4 w-4" />
