@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Bell, Plus, Menu, CloudUpload, Link2, CheckCircle2, RefreshCw } from "lucide-react";
 import DoctorProfile from "./Profile";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
@@ -17,6 +17,27 @@ import api from "@/lib/axios";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { endOfDay, startOfDay } from "date-fns";
+
+const NAV_COUNT_SWR_OPTIONS = {
+  refreshInterval: 30_000,
+  revalidateOnFocus: true,
+};
+
+function PendingCount({ url }: { url: string }) {
+  const { data } = useSWR<{ total?: number }>(url, NAV_COUNT_SWR_OPTIONS);
+  const count = data?.total ?? 0;
+
+  if (count <= 0) return null;
+
+  return (
+    <span className="relative grid h-5 w-5 shrink-0 animate-pulse place-items-center rounded-full bg-(--color-synapse-light) text-white shadow-sm ring-1 ring-white/70">
+      <span className="absolute inset-0 grid place-items-center text-[11px] font-bold tabular-nums leading-none">
+        {count}
+      </span>
+    </span>
+  );
+}
 
 export default function Header() {
   const [openCreate, setOpenCreate] = useState(false);
@@ -28,6 +49,15 @@ export default function Header() {
 
   const { user } = useAuth();
   const pathname = usePathname();
+  const isPharmacyUser = user?.role === "Pharmacy" || user?.role === "Pharmacy Wholesaler";
+  const todayKey = new Date().toDateString();
+  const todayRange = useMemo(() => {
+    const today = new Date();
+    return new URLSearchParams({
+      startDate: startOfDay(today).toISOString(),
+      endDate: endOfDay(today).toISOString(),
+    }).toString();
+  }, [todayKey]);
   const { data: tallyStatus, mutate: refreshTallyStatus } = useSWR<{
     data: { connected?: boolean; host?: string; port?: number };
   }>(user?.role === "Accountant" || user?.role === "Admin" ? "/tally/status" : null, {
@@ -224,6 +254,12 @@ export default function Header() {
                     )}
                     <span className="relative z-10 flex items-center gap-2">
                       {item.label}
+                      {isPharmacyUser && item.key === "dashboard" && (
+                        <PendingCount url={`/pharmacy/orders?q=Pending&page=1&limit=1&${todayRange}`} />
+                      )}
+                      {isPharmacyUser && item.key === "treatments" && (
+                        <PendingCount url={`/treatment?status=Pending&page=1&limit=1&${todayRange}`} />
+                      )}
                     </span>
                   </Link>
                 );

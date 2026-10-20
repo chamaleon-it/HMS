@@ -110,11 +110,15 @@ export default function RefundTherapyModal({
         total: it.total,
       }));
 
-      const docVal = typeof bill.doctor === "object" ? (bill.doctor as any)?._id || (bill.doctor as any)?.name : bill.doctor;
+      const rawDoctorId = typeof bill.doctor === "object" ? bill.doctor?._id : bill.doctor;
+      const doctorId =
+        typeof rawDoctorId === "string" && /^[0-9a-fA-F]{24}$/.test(rawDoctorId)
+          ? rawDoctorId
+          : undefined;
 
       const payload = {
         patient: bill.patient._id || bill.patient.mrn,
-        doctor: docVal || "Self",
+        ...(doctorId ? { doctor: doctorId } : {}),
         items: refundItems,
         cash: refundMethod === "Cash" ? refundTotal : 0,
         card: refundMethod === "Card" ? refundTotal : 0,

@@ -35,12 +35,13 @@ const PharmacistSelection: React.FC<Props> = ({ setValue, pharmacistName, hideLa
         (p) => !p.status || p.status.toLowerCase() === "active"
     )
 
+    const inChargeName = pharmacists.find((p) => p.inCharge)?.name
+
     useEffect(() => {
-        const inCharge = pharmacists.find((p) => p.inCharge)
-        if (inCharge) {
-            setValue(inCharge.name)
+        if (inChargeName && !pharmacistName) {
+            setValue(inChargeName)
         }
-    }, [pharmacists])
+    }, [inChargeName, pharmacistName, setValue])
 
 
     return (

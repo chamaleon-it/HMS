@@ -35,7 +35,7 @@ interface StatisticsProps {
             mrn: string;
         };
         doctor: string;
-        transactionType?: "Return" | "Sale";
+        transactionType?: "Return" | "Refund" | "Sale";
     }[]
 }
 
@@ -61,8 +61,9 @@ export default function Statistics({ billing }: StatisticsProps) {
             if (pharmacyPageBillKind(bill) === "hidden") return;
             visibleBills += 1;
 
-            const isReturn = bill.transactionType === "Return";
-            const multiplier = isReturn ? -1 : 1;
+            const isRefund = bill.transactionType === "Return" || bill.transactionType === "Refund";
+            const multiplier = isRefund ? -1 : 1;
+            const refundKind = isRefund ? pharmacyPageBillKind(bill) : null;
 
             cashTotal += (bill.cash || 0) * multiplier;
             cardTotal += (bill.card || 0) * multiplier;
@@ -82,10 +83,10 @@ export default function Statistics({ billing }: StatisticsProps) {
                     name.includes("doctor") ||
                     name.includes("token");
 
-                if (isProcedureOrTherapyLine(bill, item)) {
+                if (isProcedureOrTherapyLine(bill, item) || (isRefund && refundKind === "procedure")) {
                     procItemsSum += itemTotal;
                     billTotal += itemTotal;
-                } else if (!receptionLine) {
+                } else if ((isRefund && refundKind === "pharmacy") || !receptionLine) {
                     pharm += itemTotal;
                     billTotal += itemTotal;
                 }

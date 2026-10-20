@@ -272,6 +272,12 @@ function hasNamedProduct(bill: { items?: { name?: unknown }[] } | null | undefin
  */
 export function pharmacyPageBillKind(bill: any | null | undefined): PharmacyPageBillKind {
   if (!bill) return "hidden";
+  if (bill.transactionType === "Refund" || bill.transactionType === "Return") {
+    const note = String(bill.note || "").toLowerCase();
+    return note.includes("therapy package refund") || note.includes("procedure package refund")
+      ? "procedure"
+      : "pharmacy";
+  }
   if (pharmacyServiceKind(bill)) return "procedure";
   if ((bill.items || []).some((item: { name?: unknown }) => isStockedMedicine(item))) {
     return "pharmacy";
@@ -316,8 +322,9 @@ export function pharmacyBillingTypeQueryParam(
   billType: string | null | undefined,
 ): string | null {
   const filter = billType || "all";
-  if (filter === "all") return "counter";
-  if (filter === "pharmacy") return "pharmacy";
+  // Keep these filters local so API text heuristics do not hide stocked items
+  // or refund/return bills before the page classifies them.
+  if (filter === "all" || filter === "pharmacy") return null;
   if (filter === "procedure") return "treatment";
   return filter;
 }
@@ -327,12 +334,17 @@ export function pharmacyBillingBadge(bill: any): { label: string; className: str
   if (service === "therapy" || service === "procedure") {
     return getBillTypeBadgeProps(service);
   }
-  if (pharmacyPageBillKind(bill) === "pharmacy") {
+  const kind = pharmacyPageBillKind(bill);
+  if (kind === "pharmacy") {
     return {
       label: "Pharmacy",
       className:
         "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800",
     };
+  }
+  if (kind === "procedure") {
+    const type = getBillType(bill);
+    return getBillTypeBadgeProps(type === "therapy" ? "therapy" : "procedure");
   }
   return getBillTypeBadgeProps("other");
 }

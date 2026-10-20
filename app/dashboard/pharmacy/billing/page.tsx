@@ -129,7 +129,7 @@ export default function BillingPage() {
         name: string;
         mrn: string;
       };
-      transactionType: "Return" | "Sale"
+      transactionType: "Return" | "Refund" | "Sale"
       doctor: string;
       therapistName?: string;
     }[];
