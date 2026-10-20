@@ -1,40 +1,25 @@
 export type BillTypeCategory = "all" | "therapy" | "procedure" | "reception" | "other";
 
 export function getBillType(b: {
+  billingCategory?: string;
+  therapistName?: string;
+  salesMRN?: string;
   note?: string;
   items?: { name: string }[];
   transactionType?: string;
 }): "therapy" | "procedure" | "reception" | "other" {
   if (!b) return "reception";
 
+  if (b.billingCategory === "Procedure" || String(b.therapistName || "").trim()) {
+    return "procedure";
+  }
+  if (b.billingCategory === "Reception") return "reception";
+  if (b.billingCategory === "Pharmacy" || b.billingCategory === "Other") return "other";
+
   const noteStr = String(b.note || "").toLowerCase();
   const itemNames = (b.items || []).map((i) => String(i.name || "").toLowerCase());
 
-  // 1. Therapy Bills (prescribed therapies, acupuncture, panchakarma, etc.)
-  const isTherapy =
-    noteStr.includes("therapy") ||
-    itemNames.some(
-      (name) =>
-        name.includes("therapy") ||
-        name.includes("acupuncture") ||
-        name.includes("panchakarma") ||
-        name.includes("cupping") ||
-        name.includes("moxibustion") ||
-        name.includes("varmam") ||
-        name.includes("physio") ||
-        name.includes("kizhi") ||
-        name.includes("massage") ||
-        name.includes("treatment")
-    );
-
-  if (isTherapy) return "therapy";
-
-  // 2. Procedure Bills (prescribed procedures, sub-procedures)
-  const isProcedure =
-    noteStr.includes("procedure") ||
-    itemNames.some((name) => name.includes("procedure"));
-
-  if (isProcedure) return "procedure";
+  if (THERAPY_SESSION_NOTE.test(String(b.note || "")) || PROCEDURE_SESSION_NOTE.test(String(b.note || ""))) return "procedure";
 
   // 3. Reception Bills (consultation fees, registration fees, refunds, NCF bills, etc.)
   const isReception =
@@ -172,10 +157,14 @@ export function isRealProcedureLine(item: { name?: unknown; batchNumber?: unknow
  * service wins: therapy first, then procedure.
  */
 export function pharmacyServiceKind(bill: {
+  billingCategory?: string;
+  therapistName?: string;
   note?: string;
   items?: { name?: unknown; batchNumber?: unknown; expiryDate?: unknown; generic?: unknown }[];
 } | null | undefined): "therapy" | "procedure" | null {
   if (!bill) return null;
+  if (bill.billingCategory === "Procedure" || String(bill.therapistName || "").trim()) return "procedure";
+  if (bill.billingCategory) return null;
   const items = Array.isArray(bill.items) ? bill.items : [];
   const session = sessionServiceKind(bill.note);
   const therapyLine = items.some((item) => isRealTherapyLine(item));
@@ -206,10 +195,13 @@ export function itemDisplayName(item: { name?: unknown } | null | undefined): st
  * treatment, or procedure is not a service.
  */
 export function isProcedureOrTherapyLine(
-  bill: { note?: string; items?: { name?: unknown }[] } | null | undefined,
+  bill: { billingCategory?: string; therapistName?: string; note?: string; items?: { name?: unknown }[] } | null | undefined,
   item: { name?: unknown; batchNumber?: unknown; expiryDate?: unknown; generic?: unknown } | null | undefined,
 ): boolean {
-  if (!item || isStockedMedicine(item)) return false;
+  if (!item) return false;
+  if (bill?.billingCategory === "Procedure" || String(bill?.therapistName || "").trim()) return true;
+  if (bill?.billingCategory) return false;
+  if (isStockedMedicine(item)) return false;
   if (!pharmacyServiceKind(bill)) return false;
   if (isRealTherapyLine(item) || isRealProcedureLine(item)) return true;
   if (!sessionServiceKind(bill?.note)) return false;
@@ -272,16 +264,12 @@ function hasNamedProduct(bill: { items?: { name?: unknown }[] } | null | undefin
  */
 export function pharmacyPageBillKind(bill: any | null | undefined): PharmacyPageBillKind {
   if (!bill) return "hidden";
-  if (bill.transactionType === "Refund" || bill.transactionType === "Return") {
-    const note = String(bill.note || "").toLowerCase();
-    return note.includes("therapy package refund") || note.includes("procedure package refund")
-      ? "procedure"
-      : "pharmacy";
-  }
+  if (bill.billingCategory === "Procedure" || String(bill.therapistName || "").trim()) return "procedure";
+  if (bill.billingCategory === "Pharmacy") return "pharmacy";
+  if (bill.billingCategory === "Reception" || bill.billingCategory === "Other") return "hidden";
   if (pharmacyServiceKind(bill)) return "procedure";
-  if ((bill.items || []).some((item: { name?: unknown }) => isStockedMedicine(item))) {
-    return "pharmacy";
-  }
+  if (bill.transactionType === "Refund" || bill.transactionType === "Return") return "pharmacy";
+  if ((bill.items || []).some((item: { name?: unknown }) => isStockedMedicine(item))) return "pharmacy";
   if (isReceptionFeeBill(bill)) return "hidden";
   const type = getBillType(bill);
   if (type === "reception" && !hasMedicineItems(bill.items) && !hasNamedProduct(bill)) {
@@ -332,7 +320,7 @@ export function pharmacyBillingTypeQueryParam(
 export function pharmacyBillingBadge(bill: any): { label: string; className: string } {
   const service = pharmacyServiceKind(bill);
   if (service === "therapy" || service === "procedure") {
-    return getBillTypeBadgeProps(service);
+    return getBillTypeBadgeProps("procedure");
   }
   const kind = pharmacyPageBillKind(bill);
   if (kind === "pharmacy") {
@@ -343,8 +331,7 @@ export function pharmacyBillingBadge(bill: any): { label: string; className: str
     };
   }
   if (kind === "procedure") {
-    const type = getBillType(bill);
-    return getBillTypeBadgeProps(type === "therapy" ? "therapy" : "procedure");
+    return getBillTypeBadgeProps("procedure");
   }
   return getBillTypeBadgeProps("other");
 }

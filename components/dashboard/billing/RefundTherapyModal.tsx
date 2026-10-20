@@ -124,6 +124,8 @@ export default function RefundTherapyModal({
         card: refundMethod === "Card" ? refundTotal : 0,
         upi: refundMethod === "UPI" ? refundTotal : 0,
         transactionType: "Refund",
+        salesMRN: bill.mrn,
+        billingCategory: "Procedure",
         note: `${packageLabel} Package Refund for Invoice ${bill.mrn}${refundReason ? `: ${refundReason}` : ""}`,
       };
 

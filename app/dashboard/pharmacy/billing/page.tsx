@@ -132,6 +132,8 @@ export default function BillingPage() {
       transactionType: "Return" | "Refund" | "Sale"
       doctor: string;
       therapistName?: string;
+      billingCategory?: "Pharmacy" | "Procedure" | "Reception" | "Other";
+      salesMRN?: string;
     }[];
   }>(`/billing?${params.toString()}`);
 
