@@ -202,7 +202,7 @@ export default function AdminDashboardHome() {
                   </div>
                 ) : (
                   recentActivity.map((bill: any) => {
-                    const totalAmt = (bill.cash || 0) + (bill.online || 0) + (bill.insurance || 0);
+                    const totalAmt = (bill.cash || 0) + (bill.online || 0) + (bill.card || 0) - (bill.refund || 0);
                     const isLab = bill.user?.role === "Lab";
                     return (
                       <div

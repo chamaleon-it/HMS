@@ -93,11 +93,9 @@ export default function PrintReceipt({
         };
     };
 
-    if (!patient || !payload || !invoiceDetails) return null;
+    if (!patient || !payload || !invoiceDetails?.invoiceNo) return null;
 
-    const invoiceNo =
-        invoiceDetails.invoiceNo ||
-        `${invoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;
+    const invoiceNo = invoiceDetails.invoiceNo;
     const invoiceDate = invoiceDetails.invoiceDate || new Date();
 
     // Display-only Dr. prefix (matches prescription print; skip Self/-/empty and avoid double prefix)

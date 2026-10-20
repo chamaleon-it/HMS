@@ -36,6 +36,7 @@ interface PnlResponse {
   revenue: {
     cash: number;
     online: number;
+    card: number;
     discount: number;
     pharmacy: number;
     lab: number;
@@ -192,6 +193,7 @@ export default function AdminPnlPage() {
                 <TableBody className="text-[15px]">
                   <Row label="Cash collected" value={pnl?.revenue.cash} />
                   <Row label="Online collected" value={pnl?.revenue.online} />
+                  <Row label="Card collected" value={pnl?.revenue.card} />
                   <Row
                     label="Pharmacy / counter billing"
                     value={pnl?.revenue.pharmacy}

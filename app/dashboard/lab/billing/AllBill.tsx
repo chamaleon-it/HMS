@@ -39,7 +39,6 @@ interface PropsType {
     cash: number;
     online: number;
     card?: number;
-    insurance?: number;
     refund?: number;
     transactionType?: "Sale" | "Return";
     discount: number;
@@ -55,8 +54,8 @@ interface PropsType {
 }
 
 const paidAmount = (bill: PropsType["billing"][number]) =>
-  (bill.cash || 0) + (bill.online || 0) + (bill.card || 0) +
-  (bill.insurance || 0) - (bill.refund || 0);
+  (bill.cash || 0) + (bill.online || 0) + (bill.card || 0) -
+  (bill.refund || 0);
 
 const dueAmount = (bill: PropsType["billing"][number]) =>
   bill.transactionType === "Return"

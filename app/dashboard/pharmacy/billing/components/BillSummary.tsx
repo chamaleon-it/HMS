@@ -17,6 +17,8 @@ interface BillSummaryProps {
     generateBill: () => void;
     onPrint: () => void;
     downloadPdf: () => void;
+    canPrint: boolean;
+    saving: boolean;
     PrimaryButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>>;
 }
 
@@ -32,6 +34,8 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
     generateBill,
     onPrint,
     downloadPdf,
+    canPrint,
+    saving,
     PrimaryButton,
 }) => {
     const handleAction = (action: () => void) => {
@@ -70,7 +74,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                     <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 -mr-12 -mt-12 rounded-full rotate-45 group-hover:scale-110 transition-transform duration-700" />
                     <div className="flex justify-between items-center text-white mb-1">
                         <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Net Payable</span>
-                        <span className="text-3xl font-black tracking-tight">₹{Math.ceil(finalTotal).toLocaleString('en-IN')}</span>
+                        <span className="text-3xl font-black tracking-tight">{formatINR(finalTotal)}</span>
                     </div>
                 </div>
 
@@ -90,6 +94,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                 <PrimaryButton
                     className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50"
                     onClick={() => handleAction(saveBill)}
+                    disabled={saving}
                 >
                     <div className="flex items-center justify-center gap-2">
                         <FilePlus2 className="h-5 w-5" />
@@ -99,6 +104,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                 <PrimaryButton
                     className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50"
                     onClick={() => handleAction(generateBill)}
+                    disabled={saving}
                 >
                     <div className="flex items-center justify-center gap-2">
                         <Printer className="h-5 w-5" />
@@ -108,6 +114,8 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                 <button
                     className="rounded-xl border-2 border-slate-100 bg-white px-3 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:border-slate-200 transition-all"
                     onClick={() => handleAction(onPrint)}
+                    disabled={!canPrint}
+                    title={!canPrint ? "Save the invoice before printing" : undefined}
                 >
                     <div className="flex items-center justify-center gap-2">
                         <Printer className="h-4 w-4" />
@@ -117,6 +125,8 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                 <button
                     className="rounded-xl border-2 border-slate-100 bg-white px-3 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:border-slate-200 transition-all"
                     onClick={() => handleAction(downloadPdf)}
+                    disabled={!canPrint}
+                    title={!canPrint ? "Save the invoice before downloading" : undefined}
                 >
                     <div className="flex items-center justify-center gap-2">
                         <Download className="h-4 w-4" />

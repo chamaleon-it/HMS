@@ -11,7 +11,6 @@ interface StatisticsProps {
     totalRevenue?: number;
     totalCash?: number;
     totalOnline?: number;
-    totalInsurance?: number;
     totalDoctors?: number;
     totalPharmacists?: number;
     totalTechnicians?: number;

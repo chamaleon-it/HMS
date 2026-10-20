@@ -90,7 +90,6 @@ export default function BillingPage() {
       cash: number;
       online: number;
       card?: number;
-      insurance?: number;
       refund?: number;
       discount: number;
       items: {

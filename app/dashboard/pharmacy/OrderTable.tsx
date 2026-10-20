@@ -140,9 +140,13 @@ export default function OrderTable({
   };
 
   const handlePrintBill = async (order: OrderType) => {
+    if (!order.billNo || order.billNo === "-") {
+      toast.error("Generate and save an invoice before printing it.");
+      return;
+    }
     setPrintingOrderId(order._id);
     try {
-      // Prefer the saved bill (has frozen line prices). Fall back to order snapshot.
+      // Print only the saved invoice with its backend-issued number and frozen prices.
       if (order.billNo && order.billNo !== "-") {
         const billParams = new URLSearchParams();
         billParams.set("q", order.billNo);
@@ -176,9 +180,7 @@ export default function OrderTable({
           }[];
         }>(`/billing?${billParams}`);
 
-        const bill =
-          billRes.data?.find((b) => b.mrn === order.billNo) ??
-          billRes.data?.[0];
+        const bill = billRes.data?.find((b) => b.mrn === order.billNo);
 
         if (bill) {
           const items = (bill.items || []).map((e) => ({
@@ -230,117 +232,7 @@ export default function OrderTable({
         }
       }
 
-      const params = new URLSearchParams();
-      params.set("q", order.mrn);
-      const { data } = await api.get<{
-        data: {
-          assignedTo: string;
-          createdAt: Date;
-          discount: number;
-          doctor: {
-            name: string;
-            phoneNumber: string;
-            specialization: string;
-            _id: string;
-          } | null;
-          doctorName?: string;
-          items: {
-            dosage: string;
-            duration: string;
-            food: string;
-            frequency: string;
-            quantity: number;
-            batchSellingPrice?: number | null;
-            batchNumber?: string | null;
-            batchExpiryDate?: string | Date | null;
-            name: {
-              name: string;
-              unitPrice?: number;
-              _id: string;
-              generic?: string;
-              genericName?: string;
-              manufacturer?: string;
-              hsnCode?: string;
-              batchNumber?: string;
-              expiryDate?: string | Date;
-            };
-            expiryDate?: string | Date;
-          }[];
-          mrn: string;
-          patient: {
-            name: string;
-            mrn?: string;
-            phoneNumber?: string;
-            gender?: string;
-            dateOfBirth?: string | Date;
-            address?: string;
-            _id: string;
-          };
-          priority: string;
-          status: string;
-          updatedAt: string;
-          _id: string;
-        };
-        message: string;
-      }>(`/pharmacy/orders/single?${params}`);
-
-      const orderData = data.data;
-      if (!orderData?.patient?._id) {
-        throw new Error("Order patient missing");
-      }
-
-      const items = (orderData.items || []).map((e) => {
-        // Item master no longer stores unitPrice — use line snapshot / enriched batch price
-        const unitPrice =
-          e.batchSellingPrice ?? e.name?.unitPrice ?? 0;
-        const quantity = e.quantity || 0;
-        const basePrice = unitPrice * quantity;
-        return {
-          gst: 0,
-          name: e.name?.name || "Item",
-          generic: e.name?.genericName || e.name?.generic,
-          manufacturer: e.name?.manufacturer,
-          batchNumber: e.batchNumber || e.name?.batchNumber,
-          expiryDate: e.batchExpiryDate || e.expiryDate || e.name?.expiryDate,
-          quantity,
-          unitPrice,
-          total: basePrice,
-        };
-      });
-
-      const subtotal = items.reduce(
-        (a, b) => a + b.unitPrice * b.quantity,
-        0
-      );
-      const discount = orderData.discount || 0;
-      const grandTotal = Math.max(0, subtotal - discount);
-      const doctorName =
-        orderData.doctor?.name || orderData.doctorName || order.doctorName || "";
-
-      setPrintBill({
-        patient: orderData.patient,
-        payload: {
-          items,
-          cash: 0,
-          discount,
-          online: 0,
-          patient: orderData.patient._id,
-          department: orderData.doctor?.specialization || "Pharmacy",
-          doctor: doctorName === "Self" ? "" : doctorName,
-          note: "",
-        },
-        invoiceDetails: {
-          totalGst: 0,
-          prefix,
-          roundOffAmount: 0,
-          subtotal,
-          grandTotal,
-        },
-      });
-      setTimeout(() => {
-        window.print();
-        setPrintBill(null);
-      }, 800);
+      throw new Error("Saved invoice was not found for this order.");
     } catch (error) {
       console.error(error);
       toast.error("Failed to fetch bill details");

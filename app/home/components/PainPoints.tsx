@@ -6,7 +6,7 @@ const PainPoints = () => {
         {
             icon: TrendingDown,
             title: "Revenue Leakage",
-            description: "Unbilled services, missed pharmacy charges, and rejected insurance claims cost hospitals 15-20% of their potential revenue annually.",
+            description: "Unbilled services and missed pharmacy charges can reduce a hospital's revenue.",
             color: "text-red-500"
         },
         {

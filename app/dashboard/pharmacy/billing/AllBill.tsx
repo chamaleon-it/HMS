@@ -36,7 +36,6 @@ interface PropsType {
     cash: number;
     online: number;
     card?: number;
-    insurance?: number;
     refund?: number;
     discount: number;
     items: {
@@ -58,8 +57,8 @@ import PrintReceipt from "./PrintReceipt";
 import { PaginationBar } from "../components/PaginationBar";
 
 const paidAmount = (bill: PropsType["billing"][number]) =>
-  (bill.cash || 0) + (bill.online || 0) + (bill.card || 0) +
-  (bill.insurance || 0) - (bill.refund || 0);
+  (bill.cash || 0) + (bill.online || 0) + (bill.card || 0) -
+  (bill.refund || 0);
 
 const billTotal = (bill: PropsType["billing"][number]) =>
   bill.items.reduce((sum, item) => sum + item.total, 0);

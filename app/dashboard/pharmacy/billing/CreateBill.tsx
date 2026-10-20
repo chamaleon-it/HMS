@@ -69,6 +69,12 @@ export default function CreateBill({
   }>(defaultPayload);
 
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [orderPatient, setOrderPatient] = useState<{ _id: string, mrn: string, name: string } | undefined>(undefined)
+  const [savedReceipt, setSavedReceipt] = useState<{ bill: any; patient: any } | null>(null);
+  const [printPending, setPrintPending] = useState(false);
+  const submittingRef = useRef(false);
+  const invoiceRequestId = useRef<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [doctorId, setDoctorId] = useState<string | null>(null);
   const [reconsult, setReconsult] = useState<{
     eligible: boolean;
@@ -221,7 +227,24 @@ export default function CreateBill({
     [updateItem]
   );
 
+  const {
+    subtotal,
+    totalGst,
+    roundOffAmount,
+    finalTotal,
+    totalPaid,
+    dueAmount
+  } = useBillCalculations({
+    items: payload.items,
+    discount: payload.discount,
+    payments: {
+      cash: payload.cash,
+      online: payload.online,
+    }
+  });
+
   const generateBill = useCallback(async () => {
+    if (submittingRef.current || savedReceipt) return;
     if (!payload.patient) {
       toast.error("Please select patient.");
       return;
@@ -230,21 +253,32 @@ export default function CreateBill({
       toast.error("Please add atleast one item.");
       return;
     }
+    if (totalPaid > finalTotal + 0.001) {
+      toast.error("Payment cannot exceed the bill total.");
+      return;
+    }
+    submittingRef.current = true;
+    setIsSubmitting(true);
     try {
-      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
+      invoiceRequestId.current ??= window.crypto.randomUUID();
+      const response = await toast.promise(api.post("/billing", { ...payload, clientRequestId: invoiceRequestId.current, doctor: payload.doctor || "Self" }), {
         loading: "We are generating this bill.",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
-      onClick();
-      setPayload(defaultPayload);
+      setSavedReceipt({ bill: response.data.data, patient: selectedPatient || orderPatient });
+      setPrintPending(true);
       billingMutate();
     } catch (error) {
-      // Handle error
+      // The toast displays the server error.
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
     }
-  }, [payload, billingMutate, defaultPayload]);
+  }, [payload, billingMutate, savedReceipt, selectedPatient, orderPatient, totalPaid, finalTotal]);
 
   const saveBill = useCallback(async () => {
+    if (submittingRef.current || savedReceipt) return;
     if (!payload.patient) {
       toast.error("Please select patient.");
       return;
@@ -253,27 +287,37 @@ export default function CreateBill({
       toast.error("Please add atleast one item.");
       return;
     }
+    if (totalPaid > finalTotal + 0.001) {
+      toast.error("Payment cannot exceed the bill total.");
+      return;
+    }
+    submittingRef.current = true;
+    setIsSubmitting(true);
     try {
-      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
+      invoiceRequestId.current ??= window.crypto.randomUUID();
+      const response = await toast.promise(api.post("/billing", { ...payload, clientRequestId: invoiceRequestId.current, doctor: payload.doctor || "Self" }), {
         loading: "Saving bill...",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
       billingMutate();
       if (pharmacyBilling.autoPrintAfterSave) {
-        // usePrint's afterprint handler navigates back to the pharmacy queue.
-        onClick();
+        setSavedReceipt({ bill: response.data.data, patient: selectedPatient || orderPatient });
+        setPrintPending(true);
       } else {
         setPayload(defaultPayload);
         router.push("/dashboard/pharmacy");
       }
     } catch (error) {
-      // Handle error
+      // The toast displays the server error.
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
     }
-  }, [payload, billingMutate, defaultPayload, router, pharmacyBilling.autoPrintAfterSave]);
+  }, [payload, billingMutate, defaultPayload, router, pharmacyBilling.autoPrintAfterSave,
+    savedReceipt, selectedPatient, orderPatient, totalPaid, finalTotal]);
 
 
-  const [orderPatient, setOrderPatient] = useState<{ _id: string, mrn: string, name: string } | undefined>(undefined)
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -370,21 +414,16 @@ export default function CreateBill({
     onAfterPrint: () => router.push("/dashboard/pharmacy")
   })
 
-  const {
-    subtotal,
-    totalGst,
-    roundOffAmount,
-    finalTotal,
-    totalPaid,
-    dueAmount
-  } = useBillCalculations({
-    items: payload.items,
-    discount: payload.discount,
-    payments: {
-      cash: payload.cash,
-      online: payload.online,
-    }
-  });
+  useEffect(() => {
+    if (!printPending || !savedReceipt) return;
+    const timer = window.setTimeout(() => {
+      window.print();
+      setPrintPending(false);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [printPending, savedReceipt]);
+
+
 
   return (
     <div className="space-y-4">
@@ -438,6 +477,8 @@ export default function CreateBill({
               generateBill={generateBill}
               onPrint={onClick}
               downloadPdf={downloadPdf}
+              canPrint={Boolean(savedReceipt)}
+              saving={isSubmitting}
               PrimaryButton={PrimaryButton}
             />
           </div>
@@ -445,18 +486,23 @@ export default function CreateBill({
       </div>
 
       {/* Printable Receipt Component — Rx page only when dual-copy setting is on */}
-      <PrintReceipt
-        payload={payload}
-        patient={selectedPatient}
+      {savedReceipt && <PrintReceipt
+        payload={{
+          ...savedReceipt.bill,
+          patient: savedReceipt.patient?.name || "",
+        }}
+        patient={savedReceipt.patient}
         withPrescription={!!pharmacyBilling.printDualCopies}
         invoiceDetails={{
           prefix: pharmacyBilling.prefix,
+          invoiceNo: savedReceipt.bill.mrn,
+          invoiceDate: savedReceipt.bill.createdAt,
           roundOffAmount: 0,
-          subtotal: subtotal,
-          totalGst: totalGst,
-          grandTotal: finalTotal
+          subtotal: savedReceipt.bill.items.reduce((sum: number, item: any) => sum + item.quantity * item.unitPrice, 0),
+          totalGst: 0,
+          grandTotal: savedReceipt.bill.items.reduce((sum: number, item: any) => sum + item.total, 0) - (savedReceipt.bill.discount || 0)
         }}
-      />
+      />}
     </div >
   );
 }

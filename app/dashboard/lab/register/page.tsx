@@ -135,16 +135,16 @@ export default function LabRegisterPage() {
   const activeBill = billing.find((bill) => bill._id === paymentBillId);
   const billSubtotal = activeBill?.items?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
   const recordedPaid = (activeBill?.cash || 0) + (activeBill?.online || 0) + (activeBill?.card || 0);
-  const recordedNetPaid = recordedPaid + (activeBill?.refund || 0);
+  const recordedNetPaid = recordedPaid - (activeBill?.refund || 0);
   const enteredPaid = (Number(payment.cash) || 0) + (Number(payment.online) || 0) + (Number(payment.card) || 0);
   const enteredRefund = Number(payment.refund) || 0;
-  const enteredNetPaid = enteredPaid + enteredRefund;
+  const enteredNetPaid = enteredPaid - enteredRefund;
   const enteredDiscount = Number(payment.discount) || 0;
   const dueBeforeEdit = Math.max(0, billSubtotal - (activeBill?.discount || 0) - recordedNetPaid);
   const remainingDue = Math.max(0, billSubtotal - enteredDiscount - enteredNetPaid);
 
   const fillPaymentMethod = (field: "cash" | "online" | "card") => {
-    const totalToPay = Math.max(0, billSubtotal - enteredDiscount - enteredRefund);
+    const totalToPay = Math.max(0, billSubtotal - enteredDiscount + enteredRefund);
     setPayment({
       cash: field === "cash" ? String(totalToPay) : "0",
       online: field === "online" ? String(totalToPay) : "0",

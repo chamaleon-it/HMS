@@ -47,10 +47,6 @@ export const registerPatientSchema = z.object({
 
   allergies: z.string().max(500).optional(),
 
-  insurance: z.string().max(100).optional(),
-
-  insuranceValidity: z.string().max(40).optional(),
-
   uhid: z.string().max(500).optional(),
 
   emergencyContactNumber: z

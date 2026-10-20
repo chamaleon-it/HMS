@@ -49,6 +49,8 @@ function InvoiceViewContent() {
       }[];
       cash: number;
       online: number;
+      card?: number;
+      refund?: number;
       discount: number;
       mrn: string;
       createdAt: Date;
@@ -112,7 +114,9 @@ function InvoiceViewContent() {
                     );
                     const paid =
                       (billing?.cash ?? 0) +
-                      (billing?.online ?? 0);
+                      (billing?.online ?? 0) +
+                      (billing?.card ?? 0) -
+                      (billing?.refund ?? 0);
                     return Math.max(0, totalItems - paid - (billing?.discount ?? 0));
                   })()
                 )}
@@ -129,7 +133,9 @@ function InvoiceViewContent() {
                   const total = subtotal - (billing?.discount ?? 0);
                   const paid =
                     (billing?.cash ?? 0) +
-                    (billing?.online ?? 0);
+                    (billing?.online ?? 0) +
+                    (billing?.card ?? 0) -
+                    (billing?.refund ?? 0);
 
                   if (total <= paid) return "Paid";
                   if (paid === 0) return "Unpaid";
