@@ -16,7 +16,7 @@ interface PropsType {
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   billing: {
     doctor: string;
-    transactionType: "Return" | "Sale"
+    transactionType: "Return" | "Refund" | "Sale"
     roundOff: boolean;
     mrn: string;
     _id: string;
