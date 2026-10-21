@@ -224,7 +224,12 @@ export default function LabRegisterPage() {
             {isLoading ? (
               <TableSkeleton rows={10} columns={14} />
             ) : (
-              <Table className="min-w-[1850px] text-sm" containerClassName="max-h-[calc(100vh-300px)] overflow-auto scrollbar-thin scrollbar-thumb-slate-200">
+              <Table className="min-w-[1500px] table-fixed text-sm" containerClassName="max-h-[calc(100vh-300px)] overflow-auto scrollbar-thin scrollbar-thumb-slate-200">
+                <colgroup>
+                  {[3, 6, 11, 9, 7, 10, 7, 6, 5, 6, 12, 6, 8, 4].map((width, index) => (
+                    <col key={index} style={{ width: `${width}%` }} />
+                  ))}
+                </colgroup>
                 <TableHeader className="bg-slate-700 sticky top-0 z-20 shadow-sm">
                   <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
                     <TableHead className="py-3 text-left pl-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Sl No</TableHead>
@@ -286,7 +291,7 @@ export default function LabRegisterPage() {
                         </TableCell>
                         <TableCell className="py-3 text-slate-600 whitespace-nowrap">{fDateandTime(b.createdAt)}</TableCell>
                         <TableCell className="py-3">
-                          <div className="font-medium truncate text-slate-900">{b.patient?.name || "Unknown"}</div>
+                          <div className="truncate font-medium text-slate-900" title={b.patient?.name || undefined}>{b.patient?.name || "Unknown"}</div>
                           <div className="text-[11px] text-slate-500">
                             {b.patient?.mrn || "N/A"}
                           </div>
@@ -314,7 +319,7 @@ export default function LabRegisterPage() {
                         <TableCell className="py-3 text-right pr-4 tabular-nums text-slate-700">
                           {formatINR(b.expense || 0)}
                         </TableCell>
-                        <TableCell className="max-w-[220px] py-3 text-slate-600">
+                        <TableCell className="py-3 text-slate-600">
                           <span className="block truncate" title={b.remarks || undefined}>{b.remarks || "—"}</span>
                         </TableCell>
                         <TableCell className="py-3 text-right pr-4 tabular-nums font-semibold text-rose-600">
