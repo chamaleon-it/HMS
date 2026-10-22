@@ -61,7 +61,9 @@ interface PropsType {
   }[];
 }
 import PrintReceipt from "../../../pharmacy/billing/PrintReceipt";
-import { accountantPaymentStatus, billTherapistName } from "../accountantBilling";
+import { accountantBillKind, accountantPaymentStatus, billTherapistName } from "../accountantBilling";
+import { getBillTypeBadgeProps } from "@/lib/billTypeUtils";
+import { cn } from "@/lib/utils";
 import { PaginationBar } from "../../../pharmacy/components/PaginationBar";
 
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
@@ -131,7 +133,16 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                         : (filter.page - 1) * filter.limit + idx + 1}
                     </TableCell>
                     <TableCell className="py-3">
-                      <div className="font-medium text-slate-900">{b.mrn}</div>
+                      <div className="font-medium text-slate-900 flex items-center gap-1.5 flex-wrap">
+                        <span>{b.mrn}</span>
+                        {(() => {
+                          const kind = accountantBillKind(b);
+                          const badge = kind === "pharmacy"
+                            ? { label: "Pharmacy", className: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800" }
+                            : getBillTypeBadgeProps(kind);
+                          return <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border", badge.className)}>{badge.label}</span>;
+                        })()}
+                      </div>
                     </TableCell>
                     <TableCell className="py-3 text-slate-600 whitespace-nowrap">{fDateandTime(b.createdAt)}</TableCell>
                     <TableCell className="py-3">

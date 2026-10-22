@@ -4,13 +4,14 @@ import {
   isProcedureOrTherapyLine,
   isReceptionFeeBill,
   itemDisplayName,
-} from "@/lib/billTypeUtils";
-import { getDecimal } from "@/lib/fNumber";
+} from "../../../../lib/billTypeUtils.ts";
+import { getDecimal } from "../../../../lib/fNumber.ts";
 
 export type AccountantBillKind = "pharmacy" | "procedure" | "reception" | "other";
 export type AccountantPaymentStatus = "Paid" | "Partial" | "Unpaid" | "Refund" | "Return";
 
 type BillLike = {
+  billingCategory?: string;
   note?: string;
   items?: { name?: string; total?: number }[];
   transactionType?: string;
@@ -27,8 +28,17 @@ type BillLike = {
 /** Procedure is therapy plus procedure. Pharmacy is a medicine sale. Reception is the front desk. */
 export function accountantBillKind(bill: any | null | undefined): AccountantBillKind {
   if (!bill) return "other";
+  if (bill.billingCategory === "Procedure" || String(bill.therapistName || "").trim()) return "procedure";
+  if (bill.billingCategory === "Pharmacy") return "pharmacy";
+  if (bill.billingCategory === "Reception") return "reception";
+  if (bill.billingCategory === "Other") return "other";
   const type = getBillType(bill);
   if (type === "therapy" || type === "procedure") return "procedure";
+
+  const role = String(bill.user?.role || bill.creator?.role || "").toLowerCase();
+  if (role.includes("pharmacy")) return "pharmacy";
+  if (role.includes("reception")) return "reception";
+  if (bill.transactionType === "Refund" || bill.transactionType === "Return") return "pharmacy";
 
   const reception = isReceptionFeeBill(bill);
   const medicine = hasMedicineItems(bill.items);
@@ -36,8 +46,6 @@ export function accountantBillKind(bill: any | null | undefined): AccountantBill
   if (reception || type === "reception") return "reception";
   if (medicine) return "pharmacy";
 
-  const role = String(bill.user?.role || bill.creator?.role || "").toLowerCase();
-  if (role.includes("pharmacy")) return "pharmacy";
   return "other";
 }
 
@@ -96,10 +104,11 @@ export type AccountantFeeBucket = "consulting" | "procedure" | "reception" | "ph
 
 /** One line belongs to one fee card. Procedure wins, then consulting, then other reception fees. */
 export function accountantLineBucket(
-  bill: { note?: string; items?: { name?: unknown }[] } | null | undefined,
+  bill: { billingCategory?: string; note?: string; items?: { name?: unknown }[] } | null | undefined,
   item: { name?: unknown } | null | undefined,
 ): AccountantFeeBucket {
   if (isProcedureOrTherapyLine(bill, item)) return "procedure";
+  if (bill?.billingCategory === "Pharmacy") return "pharmacy";
   const name = itemDisplayName(item).toLowerCase();
   if (name.includes("consultation") || name.includes("consulting")) return "consulting";
   if (
