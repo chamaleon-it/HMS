@@ -66,7 +66,10 @@ const billTotal = (bill: PropsType["billing"][number]) =>
 const billDue = (bill: PropsType["billing"][number]) =>
   bill.transactionType === "Return"
     ? 0
-    : Math.max(0, Math.round((billTotal(bill) - (bill.discount || 0) - paidAmount(bill)) * 100) / 100);
+    : Math.max(
+        0,
+        Number((billTotal(bill) - (bill.discount || 0) - paidAmount(bill)).toFixed(2)),
+      );
 
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
   const [isPaymentOpen, setIsPaymentOpen] = React.useState(false);

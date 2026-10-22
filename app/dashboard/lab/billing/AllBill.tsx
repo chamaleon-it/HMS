@@ -60,8 +60,16 @@ const paidAmount = (bill: PropsType["billing"][number]) =>
 const dueAmount = (bill: PropsType["billing"][number]) =>
   bill.transactionType === "Return"
     ? 0
-    : Math.max(0, Math.round((bill.items.reduce((sum, item) => sum + item.total, 0) -
-      (bill.discount || 0) - paidAmount(bill)) * 100) / 100);
+    : Math.max(
+        0,
+        Number(
+          (
+            bill.items.reduce((sum, item) => sum + item.total, 0) -
+            (bill.discount || 0) -
+            paidAmount(bill)
+          ).toFixed(2),
+        ),
+      );
 
 export default function AllBill({ billing, filter, setFilter, billingMutate }: PropsType) {
   const [paymentModelOpen, setPaymentModelOpen] = React.useState(false);
