@@ -20,6 +20,8 @@ interface BillHeaderProps {
     setSelectedPatient: (p: any) => void;
     openCreate: boolean;
     setOpenCreate: (open: boolean) => void;
+    readOnlyPatient?: boolean;
+    invoiceDate?: string;
 }
 
 export const BillHeader: React.FC<BillHeaderProps> = ({
@@ -31,6 +33,8 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
     setSelectedPatient,
     openCreate,
     setOpenCreate,
+    readOnlyPatient = false,
+    invoiceDate,
 }) => {
     return (
         <div className="mb-2 relative z-10">
@@ -39,23 +43,29 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                     <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">Patient</label>
                     <div className="flex items-center gap-2">
                         <div className="flex-1">
-                            <PatientSelection
-                                orderPatient={selectedPatient || orderPatient}
-                                onSelectPatient={(p) => setSelectedPatient(p)}
-                                value={payload.patient}
-                                setValue={(value) =>
-                                    setPayload((prev: any) => ({ ...prev, patient: value }))
-                                }
-                            />
+                            {readOnlyPatient ? (
+                                <div className="h-8 flex items-center rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm font-medium text-slate-700">
+                                    {selectedPatient?.name || orderPatient?.name || "Patient"}
+                                </div>
+                            ) : (
+                                <PatientSelection
+                                    orderPatient={selectedPatient || orderPatient}
+                                    onSelectPatient={(p) => setSelectedPatient(p)}
+                                    value={payload.patient}
+                                    setValue={(value) =>
+                                        setPayload((prev: any) => ({ ...prev, patient: value }))
+                                    }
+                                />
+                            )}
                         </div>
-                        <button
+                        {!readOnlyPatient && <button
                             className="h-8 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium hover:bg-slate-50 hover:text-indigo-600 transition-colors shrink-0"
                             onClick={() => setOpenCreate(true)}
                             title="New Patient"
                         >
                             <UserPlus className="h-4 w-4 md:mr-2 inline" />
                             <span className="hidden md:inline">New</span>
-                        </button>
+                        </button>}
                     </div>
                 </div>
 
@@ -63,7 +73,7 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                     <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">Invoice Date</label>
                     <div className="h-8 flex items-center px-3 rounded-lg border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-700">
                         <CalendarDays className="h-4 w-4 mr-2 text-slate-400" />
-                        {fDate(new Date())}
+                        {fDate(invoiceDate ? new Date(invoiceDate) : new Date())}
                     </div>
                 </div>
 

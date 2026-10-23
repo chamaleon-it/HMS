@@ -27,6 +27,11 @@ export interface FilterType {
 
 export default function BillingPage() {
   const [tab, setTab] = useState<"all" | "new">("all");
+  const [editingBillId, setEditingBillId] = useState<string | null>(null);
+  const changeTab = (nextTab: "all" | "new") => {
+    setEditingBillId(null);
+    setTab(nextTab);
+  };
   const [filter, setFilter] = useState<FilterType>({
     q: null,
     status: "",
@@ -103,6 +108,8 @@ export default function BillingPage() {
         mrn: string;
       };
       transactionType: "Return" | "Sale"
+      reportId?: string;
+      status?: "Draft" | "Completed";
       doctor: string | { _id: string; name: string }
     }[];
   }>(`/billing?${params.toString()}`);
@@ -159,12 +166,12 @@ export default function BillingPage() {
           className="min-h-[calc(100vh-67px)] w-full p-5 text-slate-900 dark:text-slate-100"
         >
           <div className="flex flex-col gap-5">
-            <Header tab={tab} setTab={setTab} filter={filter} setFilter={setFilter} billing={allBilling} />
+            <Header tab={tab} setTab={changeTab} editing={!!editingBillId} filter={filter} setFilter={setFilter} billing={allBilling} />
 
             <Tabs
               defaultValue="all"
               className="flex-1 overflow-hidden"
-              onValueChange={(e) => setTab(e as "all" | "new")}
+              onValueChange={(e) => changeTab(e as "all" | "new")}
               value={tab}
             >
               <TabsContent value="all">
@@ -184,6 +191,10 @@ export default function BillingPage() {
                     setFilter={setFilter}
                     total={total}
                     billingMutate={refreshBilling}
+                    onEdit={(id) => {
+                      setEditingBillId(id);
+                      setTab("new");
+                    }}
                   />
 
 
@@ -193,7 +204,13 @@ export default function BillingPage() {
                 {isLoadingProfile ? (
                   <BillingFormSkeleton />
                 ) : (
-                  <CreateBill billingMutate={refreshBilling} pharmacyBilling={pharmacyBilling} />
+                  <CreateBill
+                    key={editingBillId ?? "new"}
+                    billingMutate={refreshBilling}
+                    pharmacyBilling={pharmacyBilling}
+                    editingBillId={editingBillId}
+                    onEditSaved={() => changeTab("all")}
+                  />
                 )}
               </TabsContent>
             </Tabs>

@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 interface PropsType {
   tab: "all" | "new";
   setTab: (v: "all" | "new") => void;
+  editing?: boolean;
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   billing: {
@@ -33,7 +34,7 @@ interface PropsType {
   }[];
 }
 
-export default function Header({ tab, setTab, filter, setFilter, billing }: PropsType) {
+export default function Header({ tab, setTab, editing = false, filter, setFilter, billing }: PropsType) {
   const [isDoctorOpen, setIsDoctorOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -149,7 +150,7 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
       <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 print:hidden w-fit">
         {[
           { key: "all", label: "All Bills", icon: ReceiptIndianRupee },
-          { key: "new", label: "Create Bill", icon: PlusCircle },
+          { key: "new", label: editing ? "Edit Bill" : "Create Bill", icon: PlusCircle },
         ].map(({ key, label, icon: Icon }) => {
           const active = tab === key;
           return (

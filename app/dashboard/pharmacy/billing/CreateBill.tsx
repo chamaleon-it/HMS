@@ -24,9 +24,13 @@ const theme = {
 
 export default function CreateBill({
   billingMutate,
-  pharmacyBilling
+  pharmacyBilling,
+  editingBillId,
+  onEditSaved,
 }: {
   billingMutate: () => void;
+  editingBillId?: string | null;
+  onEditSaved?: () => void;
   pharmacyBilling: {
     autoPrintAfterSave: boolean;
     printDualCopies?: boolean;
@@ -57,8 +61,12 @@ export default function CreateBill({
       name: string;
       quantity: number;
       unitPrice: number;
+      discount?: number;
       gst?: number;
       total: number;
+      itemId?: string;
+      batchId?: string | null;
+      batchNumber?: string | null;
     }[];
     cash: number;
     online: number;
@@ -74,7 +82,11 @@ export default function CreateBill({
   const submittingRef = useRef(false);
   const invoiceRequestId = useRef<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderLoadState, setOrderLoadState] = useState<"idle" | "loading" | "loaded" | "error">("idle");
+  const [orderLoadState, setOrderLoadState] = useState<"idle" | "loading" | "loaded" | "error">(editingBillId ? "loading" : "idle");
+  const [editUpdatedAt, setEditUpdatedAt] = useState<string | null>(null);
+  const [editMrn, setEditMrn] = useState("");
+  const [editDate, setEditDate] = useState<string | null>(null);
+  const [linkedOrder, setLinkedOrder] = useState(false);
 
 
 
@@ -106,6 +118,7 @@ export default function CreateBill({
             name: nameToAdd,
             quantity: 1,
             unitPrice: priceToAdd,
+            discount: 0,
             total: calcTotal(priceToAdd, 1),
           },
         ],
@@ -145,12 +158,14 @@ export default function CreateBill({
             "unitPrice" in patch ? patch.unitPrice ?? 0 : it.unitPrice ?? 0;
           const quantity =
             "quantity" in patch ? patch.quantity ?? 0 : it.quantity ?? 0;
-          const total = calcTotal(unitPrice, quantity);
+          const discount = "discount" in patch ? patch.discount ?? 0 : it.discount ?? 0;
+          const total = calcTotal(unitPrice, quantity, discount);
           return {
             ...it,
             ...patch,
             unitPrice,
             quantity,
+            discount,
             total,
           };
         });
@@ -207,6 +222,23 @@ export default function CreateBill({
     submittingRef.current = true;
     setIsSubmitting(true);
     try {
+      if (editingBillId) {
+        if (!editUpdatedAt) throw new Error("Bill version is missing. Reload and try again.");
+        await toast.promise(api.patch(`/billing/pharmacy/${editingBillId}`, {
+          items: payload.items,
+          discount: payload.discount,
+          doctor: payload.doctor || "Self",
+          note: payload.note || "",
+          expectedUpdatedAt: editUpdatedAt,
+        }), {
+          loading: "Saving changes...",
+          success: "Bill updated successfully.",
+          error: (error: any) => error?.response?.data?.message || error?.message || "Could not update bill.",
+        });
+        billingMutate();
+        onEditSaved?.();
+        return;
+      }
       invoiceRequestId.current ??= window.crypto.randomUUID();
       const response = await toast.promise(api.post("/billing", { ...payload, clientRequestId: invoiceRequestId.current, doctor: payload.doctor || "Self" }), {
         loading: "Saving bill...",
@@ -228,11 +260,46 @@ export default function CreateBill({
       setIsSubmitting(false);
     }
   }, [payload, billingMutate, defaultPayload, router, pharmacyBilling.autoPrintAfterSave,
-    savedReceipt, selectedPatient, orderPatient, totalPaid, finalTotal, orderLoadState]);
+    savedReceipt, selectedPatient, orderPatient, totalPaid, finalTotal, orderLoadState,
+    editingBillId, editUpdatedAt, onEditSaved]);
+
+  useEffect(() => {
+    if (!editingBillId) return;
+    let cancelled = false;
+    api.get<{ data: { bill: any; linkedOrder: boolean } }>(`/billing/pharmacy/${editingBillId}`)
+      .then(({ data }) => {
+        if (cancelled) return;
+        const { bill, linkedOrder: isLinked } = data.data;
+        setPayload({
+          patient: bill.patient._id,
+          doctor: typeof bill.doctor === "string" ? bill.doctor : bill.doctor?.name || "Self",
+          department: "",
+          items: bill.items,
+          cash: bill.cash || 0,
+          online: bill.online || 0,
+          discount: bill.discount || 0,
+          note: bill.note || "",
+        });
+        setSelectedPatient(bill.patient);
+        setOrderPatient(bill.patient);
+        setLinkedOrder(isLinked);
+        setEditUpdatedAt(bill.updatedAt);
+        setEditMrn(bill.mrn);
+        setEditDate(bill.createdAt);
+        setOrderLoadState("loaded");
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setOrderLoadState("error");
+        toast.error(error?.response?.data?.message || "Could not load the bill for editing.");
+      });
+    return () => { cancelled = true; };
+  }, [editingBillId]);
 
 
 
   useEffect(() => {
+    if (editingBillId) return;
     const urlParams = new URLSearchParams(window.location.search);
     const orderMrn = urlParams.get("mrn");
 
@@ -329,7 +396,7 @@ export default function CreateBill({
         toast.error("Could not load the order. Please reload before creating its bill.");
       });
     return () => { cancelled = true; };
-  }, []);
+  }, [editingBillId]);
 
 
 
@@ -359,6 +426,12 @@ export default function CreateBill({
 
   return (
     <div className="space-y-4">
+      {editingBillId && (
+        <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-900">
+          Editing invoice {editMrn}
+          {linkedOrder && <span className="ml-2 font-normal">Medicine lines are managed by the linked order.</span>}
+        </div>
+      )}
       <BillHeader
         theme={theme}
         payload={payload}
@@ -368,6 +441,8 @@ export default function CreateBill({
         setSelectedPatient={setSelectedPatient}
         openCreate={openCreate}
         setOpenCreate={setOpenCreate}
+        readOnlyPatient={!!editingBillId}
+        invoiceDate={editDate || undefined}
       />
 
 
@@ -384,6 +459,7 @@ export default function CreateBill({
             setItem={setItem}
             itemRef={itemRef}
             PrimaryButton={PrimaryButton}
+            lockedInventory={!!editingBillId && linkedOrder}
           />
 
           <PaymentSection payload={payload} setPayload={setPayload} />
@@ -404,6 +480,7 @@ export default function CreateBill({
               saveBill={saveBill}
               saving={isSubmitting}
               PrimaryButton={PrimaryButton}
+              editing={!!editingBillId}
             />
           </div>
         </div>
@@ -443,6 +520,7 @@ const PrimaryButton: React.FC<
 const calcTotal = (
   unitPrice: number = 0,
   quantity: number = 0,
+  discount: number = 0,
 ) => {
-  return Math.round(unitPrice * quantity * 100) / 100;
+  return Math.round((unitPrice * quantity - discount) * 100) / 100;
 };

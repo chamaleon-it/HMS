@@ -1,4 +1,4 @@
-import { Eye, Printer, Search, CheckCircle } from "lucide-react";
+import { Eye, Printer, Search, CheckCircle, Pencil } from "lucide-react";
 import React from "react";
 import Link from "next/link";
 import Filters from "./Filter";
@@ -24,12 +24,15 @@ interface BillRow {
 
 interface PropsType {
   billingMutate: () => void;
+  onEdit: (id: string) => void;
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   total: number;
   billing: {
     doctor: string | { _id: string; name: string };
     transactionType: "Return" | "Sale"
+    reportId?: string;
+    status?: "Draft" | "Completed";
     mrn: string;
     _id: string;
     createdAt: Date;
@@ -71,7 +74,7 @@ const billDue = (bill: PropsType["billing"][number]) =>
         Number((billTotal(bill) - (bill.discount || 0) - paidAmount(bill)).toFixed(2)),
       );
 
-export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
+export default function AllBill({ billing, filter, setFilter, total, billingMutate, onEdit }: PropsType) {
   const [isPaymentOpen, setIsPaymentOpen] = React.useState(false);
   const [printBill, setPrintBill] = React.useState<PropsType["billing"][number] | null>(null);
   const [payingBillId, setPayingBillId] = React.useState<string | null>(null);
@@ -213,6 +216,23 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                             <p>View Bill</p>
                           </TooltipContent>
                         </Tooltip>
+
+                        {b.transactionType === "Sale" && !b.reportId && b.status !== "Completed" && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                onClick={() => onEdit(b._id)}
+                                aria-label={`Edit invoice ${b.mrn}`}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Edit Bill</p></TooltipContent>
+                          </Tooltip>
+                        )}
 
                         <Button variant="outline" size="sm" onClick={() => handlePrint(b)} className="h-8 text-xs gap-1.5 text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-800">
                           <Printer className="h-3.5 w-3.5" /> Print

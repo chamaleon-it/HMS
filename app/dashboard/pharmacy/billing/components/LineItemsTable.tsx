@@ -19,6 +19,7 @@ interface LineItemsTableProps {
     setItem: (item: string | null) => void;
     itemRef: React.RefObject<HTMLInputElement | null>;
     PrimaryButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>>;
+    lockedInventory?: boolean;
 }
 
 export const LineItemsTable: React.FC<LineItemsTableProps> = ({
@@ -31,6 +32,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
     setItem,
     itemRef,
     PrimaryButton,
+    lockedInventory = false,
 }) => {
     const [favorites, setFavorites] = useState<{ name: string; unitPrice: number; gst: number }[]>([]);
     const [isCustomItemModalOpen, setIsCustomItemModalOpen] = useState(false);
@@ -259,6 +261,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                         <tbody>
                             <AnimatePresence initial={false}>
                                 {payload.items.map((it: any, index: number) => {
+                                    const medicineLocked = lockedInventory && !!it.itemId;
                                     return (
                                         <React.Fragment key={it.name}>
                                             <motion.tr
@@ -292,6 +295,8 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         onChange={(e) =>
                                                             updateQty(it.name, Number(e.target.value))
                                                         }
+                                                        disabled={medicineLocked}
+                                                        title={medicineLocked ? "Edit this medicine on the linked order" : undefined}
                                                         className="h-11 w-full rounded-lg border border-slate-200 bg-indigo-50/30 px-3 text-sm font-bold text-indigo-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all text-center"
                                                     />
                                                 </td>
@@ -306,6 +311,8 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         onChange={(e) =>
                                                             updatePrice(it.name, Number(e.target.value))
                                                         }
+                                                        disabled={medicineLocked}
+                                                        title={medicineLocked ? "Edit this medicine on the linked order" : undefined}
                                                         className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all text-right"
                                                     />
                                                 </td>
@@ -317,6 +324,8 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
 
                                                         <button
                                                             onClick={() => removeItem(it.name)}
+                                                            disabled={medicineLocked}
+                                                            title={medicineLocked ? "Edit this medicine on the linked order" : "Remove item"}
                                                             className="rounded-lg p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
                                                         >
                                                             <Trash2 className="h-4 w-4" />

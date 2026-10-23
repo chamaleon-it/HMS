@@ -13,6 +13,7 @@ interface BillSummaryProps {
     payload: any;
     saveBill: () => void;
     saving: boolean;
+    editing?: boolean;
     PrimaryButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>>;
 }
 
@@ -24,6 +25,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
     payload,
     saveBill,
     saving,
+    editing = false,
     PrimaryButton,
 }) => {
     const handleAction = (action: () => void) => {
@@ -76,7 +78,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                 >
                     <div className="flex items-center justify-center gap-2">
                         <FilePlus2 className="h-5 w-5" />
-                        Generate & Save Invoice
+                        {editing ? "Save Changes" : "Generate & Save Invoice"}
                     </div>
                 </PrimaryButton>
             </div>
