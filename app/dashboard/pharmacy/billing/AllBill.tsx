@@ -301,16 +301,8 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             mrn: printBill.patient.mrn,
           }}
           invoiceDetails={{
-            prefix: "MINV",
             invoiceNo: printBill.mrn,
             invoiceDate: printBill.createdAt,
-            roundOffAmount: 0,
-            subtotal: printBill.items.reduce(
-              (a, b) => a + b.unitPrice * b.quantity,
-              0
-            ),
-            totalGst: 0,
-            grandTotal: printBill.items.reduce((a, b) => a + b.total, 0),
           }}
         />
       )}

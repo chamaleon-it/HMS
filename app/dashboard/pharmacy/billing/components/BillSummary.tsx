@@ -1,5 +1,5 @@
 import React from "react";
-import { Wallet2, FilePlus2, Printer, Download } from "lucide-react";
+import { Wallet2, FilePlus2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatINR } from "@/lib/fNumber";
 import toast from "react-hot-toast";
@@ -10,14 +10,8 @@ interface BillSummaryProps {
     totalGst?: number;
     roundOffAmount?: number;
     finalTotal: number;
-    totalPaid: number;
-    dueAmount: number;
     payload: any;
     saveBill: () => void;
-    generateBill: () => void;
-    onPrint: () => void;
-    downloadPdf: () => void;
-    canPrint: boolean;
     saving: boolean;
     PrimaryButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>>;
 }
@@ -27,14 +21,8 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
     totalGst,
     roundOffAmount,
     finalTotal,
-    totalPaid,
-    dueAmount,
     payload,
     saveBill,
-    generateBill,
-    onPrint,
-    downloadPdf,
-    canPrint,
     saving,
     PrimaryButton,
 }) => {
@@ -78,21 +66,11 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                     </div>
                 </div>
 
-                <div className="bg-slate-50 p-4 rounded-xl space-y-2 border border-slate-100">
-                    <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase tracking-wider">
-                        <span>Paid</span>
-                        <span className="font-semibold tabular-nums text-slate-700 text-base">₹{totalPaid.toLocaleString('en-IN')}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-rose-500 text-xs font-bold uppercase tracking-wider">
-                        <span>Balance Due</span>
-                        <span className="font-bold tabular-nums text-rose-600 text-base">₹{dueAmount.toLocaleString('en-IN')}</span>
-                    </div>
-                </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="mt-4">
                 <PrimaryButton
-                    className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50"
+                    className="w-full h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50"
                     onClick={() => handleAction(saveBill)}
                     disabled={saving}
                 >
@@ -101,38 +79,6 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                         Generate & Save Invoice
                     </div>
                 </PrimaryButton>
-                <PrimaryButton
-                    className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50"
-                    onClick={() => handleAction(generateBill)}
-                    disabled={saving}
-                >
-                    <div className="flex items-center justify-center gap-2">
-                        <Printer className="h-5 w-5" />
-                        Generate & Print Invoice
-                    </div>
-                </PrimaryButton>
-                <button
-                    className="rounded-xl border-2 border-slate-100 bg-white px-3 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:border-slate-200 transition-all"
-                    onClick={() => handleAction(onPrint)}
-                    disabled={!canPrint}
-                    title={!canPrint ? "Save the invoice before printing" : undefined}
-                >
-                    <div className="flex items-center justify-center gap-2">
-                        <Printer className="h-4 w-4" />
-                        Print
-                    </div>
-                </button>
-                <button
-                    className="rounded-xl border-2 border-slate-100 bg-white px-3 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50 hover:border-slate-200 transition-all"
-                    onClick={() => handleAction(downloadPdf)}
-                    disabled={!canPrint}
-                    title={!canPrint ? "Save the invoice before downloading" : undefined}
-                >
-                    <div className="flex items-center justify-center gap-2">
-                        <Download className="h-4 w-4" />
-                        PDF
-                    </div>
-                </button>
             </div>
 
 

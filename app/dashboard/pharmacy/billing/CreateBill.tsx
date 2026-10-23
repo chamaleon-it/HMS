@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 
-import usePrint from "./usePrint";
 import PrintReceipt from "./PrintReceipt";
 import { useBillCalculations } from "./hooks/useBillCalculations";
 
@@ -75,58 +74,7 @@ export default function CreateBill({
   const submittingRef = useRef(false);
   const invoiceRequestId = useRef<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [doctorId, setDoctorId] = useState<string | null>(null);
-  const [reconsult, setReconsult] = useState<{
-    eligible: boolean;
-    freeDays: number;
-    daysSinceLastConsult: number | null;
-  } | null>(null);
-
-  useEffect(() => {
-    if (!payload.patient) {
-      setReconsult(null);
-      return;
-    }
-
-    let cancelled = false;
-    const query = `patientId=${payload.patient}${doctorId ? `&doctorId=${doctorId}` : ""}`;
-
-    api
-      .get<{
-        data: {
-          eligible: boolean;
-          freeDays: number;
-          daysSinceLastConsult: number | null;
-        };
-      }>(`/billing/reconsult_eligibility?${query}`)
-      .then(({ data }) => {
-        if (!cancelled) setReconsult(data.data);
-      })
-      .catch(() => {
-        if (!cancelled) setReconsult(null);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [payload.patient, doctorId]);
-
-  // A patient returning inside the free window should not be charged again for
-  // the consultation line, whichever consultation fee tier was picked.
-  useEffect(() => {
-    if (!reconsult?.eligible) return;
-
-    setPayload((prev) => {
-      let changed = false;
-      const items = prev.items.map((it) => {
-        if (!it.name.toLowerCase().includes("consultation")) return it;
-        if (it.unitPrice === 0 && it.total === 0) return it;
-        changed = true;
-        return { ...it, unitPrice: 0, total: 0 };
-      });
-      return changed ? { ...prev, items } : prev;
-    });
-  }, [reconsult, payload.items]);
+  const [orderLoadState, setOrderLoadState] = useState<"idle" | "loading" | "loaded" | "error">("idle");
 
 
 
@@ -232,8 +180,7 @@ export default function CreateBill({
     totalGst,
     roundOffAmount,
     finalTotal,
-    totalPaid,
-    dueAmount
+    totalPaid
   } = useBillCalculations({
     items: payload.items,
     discount: payload.discount,
@@ -243,42 +190,8 @@ export default function CreateBill({
     }
   });
 
-  const generateBill = useCallback(async () => {
-    if (submittingRef.current || savedReceipt) return;
-    if (!payload.patient) {
-      toast.error("Please select patient.");
-      return;
-    }
-    if (payload.items.length === 0) {
-      toast.error("Please add atleast one item.");
-      return;
-    }
-    if (totalPaid > finalTotal + 0.001) {
-      toast.error("Payment cannot exceed the bill total.");
-      return;
-    }
-    submittingRef.current = true;
-    setIsSubmitting(true);
-    try {
-      invoiceRequestId.current ??= window.crypto.randomUUID();
-      const response = await toast.promise(api.post("/billing", { ...payload, clientRequestId: invoiceRequestId.current, doctor: payload.doctor || "Self" }), {
-        loading: "We are generating this bill.",
-        success: ({ data }) => data.message,
-        error: ({ response }) => response.data.message,
-      });
-      setSavedReceipt({ bill: response.data.data, patient: selectedPatient || orderPatient });
-      setPrintPending(true);
-      billingMutate();
-    } catch (error) {
-      // The toast displays the server error.
-    } finally {
-      submittingRef.current = false;
-      setIsSubmitting(false);
-    }
-  }, [payload, billingMutate, savedReceipt, selectedPatient, orderPatient, totalPaid, finalTotal]);
-
   const saveBill = useCallback(async () => {
-    if (submittingRef.current || savedReceipt) return;
+    if (submittingRef.current || savedReceipt || orderLoadState === "loading" || orderLoadState === "error") return;
     if (!payload.patient) {
       toast.error("Please select patient.");
       return;
@@ -315,7 +228,7 @@ export default function CreateBill({
       setIsSubmitting(false);
     }
   }, [payload, billingMutate, defaultPayload, router, pharmacyBilling.autoPrintAfterSave,
-    savedReceipt, selectedPatient, orderPatient, totalPaid, finalTotal]);
+    savedReceipt, selectedPatient, orderPatient, totalPaid, finalTotal, orderLoadState]);
 
 
 
@@ -325,6 +238,8 @@ export default function CreateBill({
 
 
     if (!orderMrn) return;
+    let cancelled = false;
+    setOrderLoadState("loading");
 
     setPayload((prev) => ({
       ...prev,
@@ -342,6 +257,7 @@ export default function CreateBill({
         }
       }>(`/pharmacy/orders/single?q=${orderMrn}`)
       .then(({ data }) => {
+        if (cancelled) return;
         const order = data.data as any;
 
         const itemsFromApi: {
@@ -405,14 +321,23 @@ export default function CreateBill({
         }));
         setOrderPatient(order.patient)
         setSelectedPatient(order.patient)
+        setOrderLoadState("loaded");
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setOrderLoadState("error");
+        toast.error("Could not load the order. Please reload before creating its bill.");
       });
+    return () => { cancelled = true; };
   }, []);
 
 
 
-  const { onClick, downloadPdf } = usePrint({
-    onAfterPrint: () => router.push("/dashboard/pharmacy")
-  })
+  useEffect(() => {
+    const handleAfterPrint = () => router.push("/dashboard/pharmacy");
+    window.addEventListener("afterprint", handleAfterPrint);
+    return () => window.removeEventListener("afterprint", handleAfterPrint);
+  }, [router]);
 
   useEffect(() => {
     if (!printPending || !savedReceipt) return;
@@ -423,6 +348,13 @@ export default function CreateBill({
     return () => window.clearTimeout(timer);
   }, [printPending, savedReceipt]);
 
+  if (orderLoadState === "loading") {
+    return <div className="p-6 text-sm text-slate-600">Loading order items before billing…</div>;
+  }
+
+  if (orderLoadState === "error") {
+    return <div className="p-6 text-sm text-red-700">The order could not be loaded. Reload this page before creating its bill.</div>;
+  }
 
 
   return (
@@ -436,7 +368,6 @@ export default function CreateBill({
         setSelectedPatient={setSelectedPatient}
         openCreate={openCreate}
         setOpenCreate={setOpenCreate}
-        setDoctorId={setDoctorId}
       />
 
 
@@ -453,7 +384,6 @@ export default function CreateBill({
             setItem={setItem}
             itemRef={itemRef}
             PrimaryButton={PrimaryButton}
-            reconsult={reconsult}
           />
 
           <PaymentSection payload={payload} setPayload={setPayload} />
@@ -470,14 +400,8 @@ export default function CreateBill({
               totalGst={totalGst}
               roundOffAmount={roundOffAmount}
               finalTotal={finalTotal}
-              totalPaid={totalPaid}
-              dueAmount={dueAmount}
               payload={payload}
               saveBill={saveBill}
-              generateBill={generateBill}
-              onPrint={onClick}
-              downloadPdf={downloadPdf}
-              canPrint={Boolean(savedReceipt)}
               saving={isSubmitting}
               PrimaryButton={PrimaryButton}
             />
@@ -494,13 +418,8 @@ export default function CreateBill({
         patient={savedReceipt.patient}
         withPrescription={!!pharmacyBilling.printDualCopies}
         invoiceDetails={{
-          prefix: pharmacyBilling.prefix,
           invoiceNo: savedReceipt.bill.mrn,
           invoiceDate: savedReceipt.bill.createdAt,
-          roundOffAmount: 0,
-          subtotal: savedReceipt.bill.items.reduce((sum: number, item: any) => sum + item.quantity * item.unitPrice, 0),
-          totalGst: 0,
-          grandTotal: savedReceipt.bill.items.reduce((sum: number, item: any) => sum + item.total, 0) - (savedReceipt.bill.discount || 0)
         }}
       />}
     </div >

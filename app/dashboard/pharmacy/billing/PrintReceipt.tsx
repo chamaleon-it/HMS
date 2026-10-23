@@ -36,13 +36,8 @@ interface PrintReceiptProps {
         address?: string;
     } | null;
     invoiceDetails?: {
-        prefix: string;
         invoiceNo?: string;
         invoiceDate?: string | Date;
-        roundOffAmount?: number;
-        subtotal: number;
-        totalGst: number;
-        grandTotal: number;
     };
     /** Appends a prescription page so receipt and prescription print together. */
     withPrescription?: boolean;
@@ -97,6 +92,10 @@ export default function PrintReceipt({
 
     const invoiceNo = invoiceDetails.invoiceNo;
     const invoiceDate = invoiceDetails.invoiceDate || new Date();
+    const grossAmount = payload.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+    const lineAmount = payload.items.reduce((sum, item) => sum + item.total, 0);
+    const discountAmount = Math.round((grossAmount - lineAmount + (payload.discount || 0)) * 100) / 100;
+    const netPayable = Math.max(0, Math.round((lineAmount - (payload.discount || 0)) * 100) / 100);
 
     // Display-only Dr. prefix (matches prescription print; skip Self/-/empty and avoid double prefix)
     const rawDoctor = payload.doctor?.trim();
@@ -249,13 +248,13 @@ export default function PrintReceipt({
                             <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
                                 <span className="font-semibold text-gray-700">Gross Amount</span>
                                 <span className="font-bold">:</span>
-                                <span className="font-bold text-right">{formatINR(invoiceDetails.subtotal)}</span>
+                                <span className="font-bold text-right">{formatINR(grossAmount)}</span>
                             </div>
-                            {payload.discount > 0 && (
+                            {discountAmount > 0 && (
                                 <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
                                     <span className="font-semibold text-gray-700">Discount</span>
                                     <span className="font-bold">:</span>
-                                    <span className="font-bold text-right">-{formatINR(payload.discount)}</span>
+                                    <span className="font-bold text-right">-{formatINR(discountAmount)}</span>
                                 </div>
                             )}
                         </div>
@@ -268,7 +267,7 @@ export default function PrintReceipt({
                             <div className="grid grid-cols-[115px_10px_1fr] items-center w-full">
                                 <span className="font-extrabold text-black text-[13px] uppercase">NET PAYABLE</span>
                                 <span className="font-black text-black text-[14px]">:</span>
-                                <span className="font-black text-black text-[14px] text-right">{formatINR(invoiceDetails.grandTotal)}</span>
+                                <span className="font-black text-black text-[14px] text-right">{formatINR(netPayable)}</span>
                             </div>
                         </div>
                     </div>

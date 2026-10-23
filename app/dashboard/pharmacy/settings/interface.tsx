@@ -17,7 +17,6 @@ export interface ProfileType {
       autoGenerateBill: boolean;
       autoGeneratePrescription?: boolean;
       printDualCopies?: boolean;
-      freeReconsultDays?: number;
     };
     inventory?: {
       lowStockThreshold: number;

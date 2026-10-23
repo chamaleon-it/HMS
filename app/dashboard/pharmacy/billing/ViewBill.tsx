@@ -247,16 +247,8 @@ export default function ViewBill({ id }: { id: string }) {
                         mrn: printBill.patient.mrn,
                     }}
                     invoiceDetails={{
-                        prefix: "MINV",
                         invoiceNo: printBill.mrn,
                         invoiceDate: printBill.createdAt,
-                        roundOffAmount: 0,
-                        subtotal: printBill.items.reduce(
-                            (a: any, b: any) => a + b.unitPrice * b.quantity,
-                            0
-                        ),
-                        totalGst: 0,
-                        grandTotal: printBill.items.reduce((a: any, b: any) => a + b.total, 0),
                     }}
                 />
             )}

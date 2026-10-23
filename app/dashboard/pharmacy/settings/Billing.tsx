@@ -28,7 +28,6 @@ export default function Billing({
     autoGenerateBill: false,
     autoGeneratePrescription: false,
     printDualCopies: true,
-    freeReconsultDays: 7,
   });
 
   useEffect(() => {
@@ -41,7 +40,6 @@ export default function Billing({
       autoGeneratePrescription:
         profile?.pharmacy?.billing?.autoGeneratePrescription ?? false,
       printDualCopies: profile?.pharmacy?.billing?.printDualCopies ?? true,
-      freeReconsultDays: profile?.pharmacy?.billing?.freeReconsultDays ?? 7,
     }));
   }, [profile]);
 
@@ -101,28 +99,6 @@ export default function Billing({
               </p>
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-xs font-medium text-slate-700">
-                Free re-consultation window (days)
-              </Label>
-              <Input
-                type="number"
-                min={0}
-                className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-sky-500/70"
-                placeholder="Eg: 7"
-                value={payload.freeReconsultDays}
-                onChange={(e) =>
-                  setPayload((prev) => ({
-                    ...prev,
-                    freeReconsultDays: Number(e.target.value),
-                  }))
-                }
-              />
-              <p className="text-xs text-slate-500">
-                A revisit within this many days of the last consultation is
-                billed at zero consultation fee.
-              </p>
-            </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">

@@ -20,7 +20,6 @@ interface BillHeaderProps {
     setSelectedPatient: (p: any) => void;
     openCreate: boolean;
     setOpenCreate: (open: boolean) => void;
-    setDoctorId?: (id: string | null) => void;
 }
 
 export const BillHeader: React.FC<BillHeaderProps> = ({
@@ -32,7 +31,6 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
     setSelectedPatient,
     openCreate,
     setOpenCreate,
-    setDoctorId,
 }) => {
     return (
         <div className="mb-2 relative z-10">
@@ -73,8 +71,7 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                     <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">Doctor Name</label>
                     <DoctorSelection
                         value={payload.doctor}
-                        onSelect={(name, id) => {
-                            setDoctorId?.(id ?? null);
+                        onSelect={(name) => {
                             setPayload((prev: any) => ({
                                 ...prev,
                                 doctor: name,

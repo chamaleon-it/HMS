@@ -6,7 +6,6 @@ export interface PrintBranding {
   services: string[];
   printDualCopies: boolean;
   autoPrintAfterSave: boolean;
-  freeReconsultDays: number;
 }
 
 interface BrandingSection {
@@ -18,7 +17,6 @@ interface BrandingSection {
   billing?: {
     printDualCopies?: boolean;
     autoPrintAfterSave?: boolean;
-    freeReconsultDays?: number;
   };
 }
 
@@ -47,6 +45,5 @@ export default function usePrintBranding(
     services: general?.services ?? [],
     printDualCopies: billing?.printDualCopies ?? false,
     autoPrintAfterSave: billing?.autoPrintAfterSave ?? false,
-    freeReconsultDays: billing?.freeReconsultDays ?? 7,
   };
 }
