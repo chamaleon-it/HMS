@@ -38,6 +38,7 @@ interface StatisticsProps {
         };
         doctor: string;
         transactionType?: "Return" | "Sale" | "Refund";
+        billingCategory?: "Pharmacy" | "Procedure" | "Reception" | "Other";
     }[]
 }
 

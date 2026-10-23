@@ -102,12 +102,21 @@ export function matchesAccountantTherapist(
 
 export type AccountantFeeBucket = "consulting" | "procedure" | "reception" | "pharmacy";
 
-/** One line belongs to one fee card. Procedure wins, then consulting, then other reception fees. */
+/** Keep every line of a reception bill in Reception Fees, including consultation charges. */
 export function accountantLineBucket(
-  bill: { billingCategory?: string; note?: string; items?: { name?: unknown }[] } | null | undefined,
+  bill: {
+    billingCategory?: string;
+    note?: string;
+    items?: { name?: unknown }[];
+    transactionType?: string;
+    therapistName?: string;
+    user?: { role?: string };
+    creator?: { role?: string };
+  } | null | undefined,
   item: { name?: unknown } | null | undefined,
 ): AccountantFeeBucket {
   if (isProcedureOrTherapyLine(bill, item)) return "procedure";
+  if (accountantBillKind(bill) === "reception") return "reception";
   if (bill?.billingCategory === "Pharmacy") return "pharmacy";
   const name = itemDisplayName(item).toLowerCase();
   if (name.includes("consultation") || name.includes("consulting")) return "consulting";

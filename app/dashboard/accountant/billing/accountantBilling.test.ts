@@ -29,4 +29,24 @@ test("procedure and reception refunds keep their source category", () => {
   assert.equal(accountantBillKind({ billingCategory: "Procedure", transactionType: "Refund", items: [item] }), "procedure");
   assert.equal(accountantLineBucket({ billingCategory: "Procedure" }, item), "procedure");
   assert.equal(accountantBillKind({ billingCategory: "Reception", transactionType: "Refund", items: [item] }), "reception");
+  assert.equal(accountantLineBucket({ billingCategory: "Reception" }, item), "reception");
+});
+
+test("all lines on a reception bill count as reception fees", () => {
+  const bill = {
+    billingCategory: "Reception",
+    items: [
+      { name: "Consultation Fee", total: 200 },
+      { name: "Registration Fee", total: 50 },
+      { name: "Miscellaneous charge", total: 25 },
+    ],
+  };
+
+  assert.equal(accountantBillKind(bill), "reception");
+  assert.deepEqual(bill.items.map((item) => accountantLineBucket(bill, item)), [
+    "reception",
+    "reception",
+    "reception",
+  ]);
+  assert.equal(accountantLineBucket({ creator: { role: "Receptionist" }, items: bill.items }, bill.items[0]), "reception");
 });

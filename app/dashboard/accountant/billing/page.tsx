@@ -125,6 +125,7 @@ export default function AdminBillingPage() {
         mrn: string;
       };
       transactionType: "Return" | "Sale" | "Refund";
+      billingCategory?: "Pharmacy" | "Procedure" | "Reception" | "Other";
       doctor: string | any;
       therapistName?: string;
       note?: string;
