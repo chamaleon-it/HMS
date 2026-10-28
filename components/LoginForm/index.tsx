@@ -2,7 +2,7 @@ import { useAuth } from "@/auth/context/auth-context";
 import api, { tokenStore } from "@/lib/axios";
 import { loginSchema } from "@/schemas/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Lock, Mail, Shield } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -45,65 +45,80 @@ export default function LoginForm({
 
 
   return (
-    <form className="mt-5 space-y-4" onSubmit={login}>
+    <form className="mt-6 space-y-5" onSubmit={login}>
       <div>
-        <label className="block text-slate-700 text-sm mb-1" htmlFor="email">
+        <label className="mb-2 block text-sm font-medium text-white/90" htmlFor="email">
           Email
         </label>
         <div
-          className={`flex items-center rounded-lg bg-white border ${errors.email ? "border-red-400" : "border-slate-300"
-            } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
+          className={`flex h-14 items-center overflow-hidden rounded-xl border bg-white/10 shadow-inner backdrop-blur-sm transition focus-within:border-[var(--brand)] focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] ${errors.email ? "border-red-300" : "border-white/25 hover:border-white/45"
+            }`}
         >
-          <Mail className="ml-3 mr-2 h-4.5 w-4.5 text-slate-400" />
+          <span className="flex h-full w-12 shrink-0 items-center justify-center border-r border-white/15 bg-white/10">
+            <Mail aria-hidden="true" className="h-[18px] w-[18px] text-white/70" />
+          </span>
           <input
             id="email"
             {...register("email")}
             type="email"
             autoComplete="email"
-            className="flex-1 bg-transparent text-slate-900 placeholder-slate-400 px-3.5 py-2.5 outline-none"
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? "login-email-error" : undefined}
+            className="login-glass-input h-full min-w-0 flex-1 bg-transparent px-4 text-[15px] text-white outline-none placeholder:text-white/55"
             placeholder="you@company.com"
           />
         </div>
         {errors.email && (
-          <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
+          <p id="login-email-error" className="mt-1.5 text-xs text-red-300">{errors.email.message}</p>
         )}
       </div>
 
       <div>
-        <label className="block text-slate-700 text-sm mb-1" htmlFor="password">
+        <label className="mb-2 block text-sm font-medium text-white/90" htmlFor="password">
           Password
         </label>
         <div
-          className={`flex items-center rounded-lg bg-white border ${errors.password ? "border-red-400" : "border-slate-300"
-            } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
+          className={`flex h-14 items-center overflow-hidden rounded-xl border bg-white/10 shadow-inner backdrop-blur-sm transition focus-within:border-[var(--brand)] focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] ${errors.password ? "border-red-300" : "border-white/25 hover:border-white/45"
+            }`}
         >
-          <Lock className="ml-3 mr-2 h-4.5 w-4.5 text-slate-400" />
+          <span className="flex h-full w-12 shrink-0 items-center justify-center border-r border-white/15 bg-white/10">
+            <Lock aria-hidden="true" className="h-[18px] w-[18px] text-white/70" />
+          </span>
           <input
             id="password"
             {...register("password")}
             type={showPwd ? "text" : "password"}
             autoComplete="current-password"
-            className="flex-1 bg-transparent text-slate-900 placeholder-slate-400 px-3.5 py-2.5 outline-none"
+            aria-invalid={!!errors.password}
+            aria-describedby={errors.password ? "login-password-error" : undefined}
+            className="login-glass-input h-full min-w-0 flex-1 bg-transparent px-4 text-[15px] text-white outline-none placeholder:text-white/55"
             placeholder="••••••••"
           />
           <button
             type="button"
             onClick={() => setShowPwd(!showPwd)}
-            className="px-3 py-2 text-sm text-slate-600 hover:text-slate-900"
+            aria-pressed={showPwd}
+            aria-label={showPwd ? "Hide password" : "Show password"}
+            title={showPwd ? "Hide password" : "Show password"}
+            className="flex h-full w-12 shrink-0 items-center justify-center border-l border-white/15 bg-white/10 text-white/85 transition hover:bg-white/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)]"
           >
-            {showPwd ? "Hide" : "Show"}
+            {showPwd ? (
+              <EyeOff aria-hidden="true" className="h-5 w-5" />
+            ) : (
+              <Eye aria-hidden="true" className="h-5 w-5" />
+            )}
           </button>
         </div>
         {errors.password && (
-          <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>
+          <p id="login-password-error" className="mt-1.5 text-xs text-red-300">{errors.password.message}</p>
         )}
       </div>
 
-      <div className="flex items-center justify-between text-sm">
-        <label className="flex items-center gap-2 text-slate-700">
+      <div className="flex items-center justify-between gap-3 text-sm">
+        <label className="flex cursor-pointer items-center gap-2.5 text-white/85">
           <input
             type="checkbox"
-            className="size-4 rounded border-slate-300 text-[var(--brand)] focus:ring-[color:var(--brand-soft)]"
+            className="size-4 rounded border-slate-300 text-[var(--brand)] accent-[var(--brand)] focus:ring-[color:var(--brand-soft)]"
           />
           Remember me
         </label>
@@ -119,7 +134,7 @@ export default function LoginForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="group w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-white font-medium transition active:scale-[.99] focus:outline-none focus:ring-4 focus:ring-[color:var(--brand-soft)] shadow-[0_6px_20px_-6px_rgba(201,149,106,0.6)] hover:shadow-[0_12px_30px_-10px_rgba(201,149,106,0.75)]"
+        className="group inline-flex h-14 w-full items-center justify-center gap-2 rounded-xl px-4 font-semibold text-white shadow-[0_10px_24px_-12px_rgba(46,27,19,0.8)] transition hover:brightness-105 focus:outline-none focus:ring-4 focus:ring-[color:var(--brand-soft)] active:scale-[.99] disabled:cursor-wait disabled:opacity-75"
         style={{
           background: "linear-gradient(90deg, var(--brand), var(--accent-end))",
         }}

@@ -2,6 +2,23 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+.login-glass-input:-webkit-autofill,
+.login-glass-input:-webkit-autofill:hover,
+.login-glass-input:-webkit-autofill:focus,
+.login-glass-input:-webkit-autofill:active {
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.95) !important;
+  caret-color: #fff;
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.1) inset !important;
+  box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.1) inset !important;
+  transition: background-color 99999s ease-in-out 0s;
+}
+
+.login-glass-input:autofill {
+  color: rgba(255, 255, 255, 0.95);
+  caret-color: #fff;
+  box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.1) inset !important;
+}
+
 
 .font-roboto {
   font-family: 'Roboto', sans-serif;

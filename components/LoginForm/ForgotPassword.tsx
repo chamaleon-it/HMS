@@ -40,16 +40,16 @@ export default function ForgotPassword({
 
   return (
     <>
-      <h2 className="text-xl md:text-2xl font-semibold text-slate-900">
+      <h2 className="text-xl font-semibold text-white md:text-2xl">
         Reset your password
       </h2>
-      <p className="mt-1 text-slate-500 text-sm">
+      <p className="mt-1 text-sm text-white/70">
         Enter your account email &mdash; we&apos;ll send a secure reset link.
       </p>
 
       <form className="mt-5 space-y-4" onSubmit={forgotPassword}>
         <div>
-          <label className="block text-slate-700 text-sm mb-1" htmlFor="email">
+          <label className="mb-2 block text-sm font-medium text-white/90" htmlFor="email">
             Email
           </label>
           <div
@@ -67,7 +67,7 @@ export default function ForgotPassword({
             />
           </div>
           {errors.email && (
-            <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
+            <p className="mt-1 text-xs text-red-300">{errors.email.message}</p>
           )}
         </div>
 
@@ -75,11 +75,11 @@ export default function ForgotPassword({
           <button
             type="button"
             onClick={() => setView("login")}
-            className="text-slate-600 hover:text-slate-900"
+            className="text-white/80 hover:text-white"
           >
             &larr; Back to login
           </button>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-white/60">
             Need help? Contact support
           </div>
         </div>
@@ -109,7 +109,7 @@ export default function ForgotPassword({
           </svg>
         </button>
 
-        <p className="text-[10px] text-slate-400 text-center">
+        <p className="text-center text-[10px] text-white/60">
           For your safety we never send passwords &mdash; only a time-bound
           reset link.
         </p>

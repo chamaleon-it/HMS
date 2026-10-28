@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Preloader } from "@/components/Preloader";
+import { CalendarDays, Sparkles, Stethoscope } from "lucide-react";
 
 
 
@@ -51,35 +52,30 @@ export default function LoginPage() {
         animate={ready ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 0.6 }}
       >
-        {/* Brand palette + India tricolour + animations */}
+        {/* Brand palette and entrance animations */}
         <style>{`
         :root{ --brand:var(--color-cosmo-copper); --brand-dark:var(--color-cosmo-brown); --brand-soft:var(--color-cosmo-copper); --accent-start:var(--color-cosmo-copper); --accent-end:var(--color-cosmo-brown); --saffron:#FF8F1F; --india-white:#ffffff; --india-green:#138808; }
-        @keyframes ribbonPan { 0%{ background-position:0% 50%; } 100%{ background-position:200% 50%; } }
         @keyframes fadeUp { 0%{ opacity:0; transform:translateY(12px);} 100%{ opacity:1; transform:translateY(0);} }
-        @keyframes floatSoft { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-4px);} }
-        .animate-ribbon { background-size:200% 100%; animation:ribbonPan 12s linear infinite; }
         .animate-fade-up { animation: fadeUp .5s ease-out both; }
-        .animate-fade-up-delay-1 { animation: fadeUp .6s ease-out .05s both; }
         .animate-fade-up-delay-2 { animation: fadeUp .7s ease-out .1s both; }
-        .animate-float { animation: floatSoft 5s ease-in-out infinite; }
       `}</style>
 
         <div
-          className="relative  h-screen w-full flex justify-center items-center"
+          className="relative flex min-h-screen w-full items-center justify-center overflow-hidden"
           style={{ backgroundColor: "var(--color-cosmo-dark)" }}
         >
           {/* Logo */}
-          <div className="absolute top-6 left-6 md:top-8 md:left-10 z-20 animate-fade-up flex items-center gap-4 px-5 py-3 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl">
+          <div className="absolute top-6 left-6 md:top-8 md:left-10 z-20 animate-fade-up flex items-center gap-4 rounded-2xl border border-white/20 bg-[#160a05]/75 px-5 py-3 shadow-xl backdrop-blur-xl">
             <img 
               src="/logo.png" 
               alt="Cosmo Home Icon" 
               className="h-10 md:h-12 w-auto object-contain drop-shadow-sm" 
             />
             <div className="flex flex-col justify-center">
-              <span className="text-[#a6906c] font-fraunces text-xl md:text-[26px] font-medium tracking-wide leading-none drop-shadow-sm">
+              <span className="font-fraunces text-xl font-semibold leading-none tracking-wide text-white drop-shadow-sm md:text-[26px]">
                 COSMO HOME
               </span>
-              <span className="text-[#a6906c] text-[10px] md:text-[11px] font-medium tracking-[0.15em] mt-1 opacity-95 drop-shadow-sm">
+              <span className="mt-1 text-[10px] font-semibold tracking-[0.15em] text-[#e6b589] drop-shadow-sm md:text-[11px]">
                 AESTHETIC MEDICINE
               </span>
             </div>
@@ -96,45 +92,34 @@ export default function LoginPage() {
             }}
           />
 
-          <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-16 items-stretch w-11/12 lg:w-3/4 mx-auto h-screen py-12 lg:py-20">
-            <div className="hidden lg:flex flex-col justify-end h-full pb-12">
-              <div className="animate-fade-up-delay-2 max-w-md p-6 rounded-3xl bg-black/20 backdrop-blur-sm border border-white/10 shadow-xl">
-                <p className="text-lg xl:text-xl text-white font-medium leading-snug italic drop-shadow-sm">
-                  "I want every patient to leave feeling more like themselves — not different. More radiant. More free."
-                </p>
-                <div className="mt-4 flex flex-col gap-1.5 drop-shadow-sm">
-                  <span className="text-xl">🧡</span>
-                  <span className="text-base text-white font-semibold tracking-wide">— Dr. Ruxana</span>
-                  <img src="/login/sign.webp" alt="Dr. Ruxana Signature" className="h-12 w-auto object-contain object-left mt-1 opacity-90" />
-                </div>
+          <div className="absolute bottom-20 left-6 z-10 hidden w-full max-w-[26rem] md:left-10 lg:block">
+            <div className="relative overflow-hidden rounded-3xl border border-white/20 bg-[#160a05]/55 p-6 shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-fade-up-delay-2">
+              <div className="absolute bottom-6 left-0 top-6 w-1 rounded-r-full bg-[#e6b589]" />
+              <div className="mb-3 flex items-center gap-3">
+                <span aria-hidden="true" className="font-serif text-4xl leading-none text-[#e6b589]">“</span>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#e6b589]">Our approach to care</span>
+              </div>
+              <blockquote className="text-base font-medium italic leading-relaxed text-white/95 xl:text-lg">
+                I want every patient to leave feeling more like themselves — not different. More radiant. More free.
+              </blockquote>
+              <div className="mt-5 flex items-center justify-between gap-4 border-t border-white/15 pt-4">
+                <cite className="not-italic text-sm font-semibold tracking-wide text-white">Dr. Ruxana</cite>
+                <img src="/login/sign.webp" alt="Dr. Ruxana’s signature" className="h-10 w-auto object-contain object-right opacity-95" />
               </div>
             </div>
+          </div>
 
+          <div className="relative mx-auto grid min-h-screen w-11/12 grid-cols-1 items-stretch gap-10 py-28 sm:w-10/12 lg:w-11/12 lg:gap-12 lg:py-16 xl:w-3/4 xl:gap-16 xl:py-20">
             <section className="w-full max-w-lg ml-auto self-center flex flex-col gap-10">
-              <div className="rounded-2xl border border-slate-200 bg-white/95 backdrop-blur-[2px] shadow-[0_12px_36px_-12px_rgba(2,6,23,0.25)] p-6 md:p-8 relative overflow-hidden animate-fade-up-delay-2">
-
-                <div
-                  className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full opacity-20"
-                  style={{
-                    background:
-                      "radial-gradient(50% 50% at 50% 50%, rgba(37,99,235,.18) 0%, transparent 70%)",
-                  }}
-                />
-
-                <div
-                  className="absolute -top-px left-6 right-6 h-[3px] rounded-full animate-ribbon"
-                  style={{
-                    background:
-                      "linear-gradient(90deg, var(--brand), var(--accent-end), var(--brand))",
-                  }}
-                />
+              <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-black/20 p-6 text-white shadow-[0_24px_70px_-24px_rgba(10,5,3,0.6)] backdrop-blur-sm sm:p-8 animate-fade-up-delay-2">
+                <div className="absolute inset-x-6 top-0 h-[3px] rounded-full bg-gradient-to-r from-[var(--brand)] via-[#ead0b8] to-[var(--brand)]" />
 
                 {view === "login" && (
                   <>
-                    <h2 className="text-2xl xl:text-3xl font-semibold text-slate-900">
+                    <h2 className="text-2xl font-semibold text-white xl:text-3xl">
                       Sign in
                     </h2>
-                    <p className="mt-1 text-slate-500 text-sm">
+                    <p className="mt-1 text-sm text-white/70">
                       Use your email and password
                     </p>
 
@@ -146,7 +131,7 @@ export default function LoginPage() {
 
                 {view === "sent" && (
                   <div className="text-center py-10 animate-fade-up">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-(--brand-soft) text-(--brand)">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white/15 text-white">
                       <svg
                         className="h-7 w-7"
                         viewBox="0 0 24 24"
@@ -157,20 +142,20 @@ export default function LoginPage() {
                         <path d="M20 6 9 17l-5-5" />
                       </svg>
                     </div>
-                    <h2 className="text-xl md:text-2xl font-semibold text-slate-900">
+                    <h2 className="text-xl font-semibold text-white md:text-2xl">
                       Check your email
                     </h2>
-                    <p className="mt-2 text-slate-600 max-w-sm mx-auto">
+                    <p className="mx-auto mt-2 max-w-sm text-white/75">
                       We emailed a secure reset link. It expires in 15 minutes. If
                       it doesn&apos;t arrive, check spam or{" "}
-                      <button className="underline text-(--brand) hover:text-(--brand-dark)">
+                      <button className="text-[#e6b589] underline hover:text-white">
                         resend
                       </button>
                       .
                     </p>
                     <button
                       onClick={() => setView("login")}
-                      className="mt-6 inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50"
+                      className="mt-6 inline-flex items-center gap-2 rounded-lg border border-white/30 px-4 py-2 text-white/90 transition hover:bg-white/10"
                     >
                       Back to login
                     </button>
@@ -178,24 +163,30 @@ export default function LoginPage() {
                 )}
               </div>
 
-              {/* Stats Row with Separator */}
-              <div className="flex flex-col gap-6 animate-fade-up-delay-2 w-full">
-                <div className="w-full h-px bg-white/20" />
-                <div className="flex items-center justify-between px-2">
-                <div className="flex flex-col gap-1">
-                  <span className="text-3xl md:text-4xl font-fraunces text-[var(--brand)] drop-shadow-sm">20+</span>
-                  <span className="text-[10px] md:text-xs tracking-widest text-white/95 uppercase font-medium">Years of Care</span>
+              {/* Clinic highlights */}
+              <div className="grid w-full grid-cols-3 gap-2.5 animate-fade-up-delay-2 sm:gap-3">
+                <div className="flex min-w-0 flex-col gap-2 rounded-xl border border-white/15 bg-black/15 p-3 backdrop-blur-sm sm:rounded-2xl sm:p-4">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#c9956a]/20 text-[#e6b589]">
+                    <CalendarDays aria-hidden="true" className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="whitespace-nowrap font-fraunces text-xl text-[#e6b589] sm:text-2xl md:text-3xl">20+</span>
+                  <span className="text-[8px] font-medium uppercase leading-snug tracking-wider text-white/80 sm:text-[10px] md:text-xs">Years of care</span>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-3xl md:text-4xl font-fraunces text-[var(--brand)] drop-shadow-sm">3,800+</span>
-                  <span className="text-[10px] md:text-xs tracking-widest text-white/95 uppercase font-medium">Transformations</span>
+                <div className="flex min-w-0 flex-col gap-2 rounded-xl border border-white/15 bg-black/15 p-3 backdrop-blur-sm sm:rounded-2xl sm:p-4">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#c9956a]/20 text-[#e6b589]">
+                    <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="whitespace-nowrap font-fraunces text-xl text-[#e6b589] sm:text-2xl md:text-3xl">3,800+</span>
+                  <span className="text-[8px] font-medium uppercase leading-snug tracking-wider text-white/80 sm:text-[10px] md:text-xs">Transformations</span>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-3xl md:text-4xl font-fraunces text-[var(--brand)] drop-shadow-sm">5 Doctors</span>
-                  <span className="text-[10px] md:text-xs tracking-widest text-white/95 uppercase font-medium">On your side</span>
+                <div className="flex min-w-0 flex-col gap-2 rounded-xl border border-white/15 bg-black/15 p-3 backdrop-blur-sm sm:rounded-2xl sm:p-4">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#c9956a]/20 text-[#e6b589]">
+                    <Stethoscope aria-hidden="true" className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="whitespace-nowrap font-fraunces text-lg text-[#e6b589] sm:text-xl md:text-2xl">5 Doctors</span>
+                  <span className="text-[8px] font-medium uppercase leading-snug tracking-wider text-white/80 sm:text-[10px] md:text-xs">On your side</span>
                 </div>
               </div>
-            </div>
 
             </section>
           </div>
