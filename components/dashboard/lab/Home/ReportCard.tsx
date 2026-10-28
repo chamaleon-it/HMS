@@ -44,8 +44,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             </svg>
             <style dangerouslySetInnerHTML={{
                 __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel+Decorative:wght@400;700;900&family=Italianno&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         @media print {
           @page {
             margin: 0;
@@ -58,10 +57,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Inter', sans-serif;
           }
           * {
-              font-family: 'Roboto', sans-serif !important;
+              font-family: 'Inter', sans-serif !important;
           }
           .print-prescription { 
             visibility: visible !important;
@@ -432,19 +431,23 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                             <div className="flex-1 flex flex-col z-10 relative">
                                 {/* Header Section */}
                                 <div className="pt-6 pb-3 px-10 relative z-10 bg-white">
-                                    <div className="flex justify-between items-start relative z-10">
-                                        <div className="flex gap-4 items-center">
+                                    <div className="grid grid-cols-[100px_minmax(0,1fr)_190px] gap-3 items-center relative z-10">
+                                        <div className="flex items-center justify-center">
                                             <div className="w-[100px] h-[100px] rounded-full flex items-center justify-center bg-white shrink-0 overflow-hidden">
                                                 <img src={configuration().logo} alt="Logo" className="w-full h-full object-cover mix-blend-multiply p-1" />
                                             </div>
-                                            <div className="flex flex-col gap-0.5 ml-0">
-                                                <h1 className="text-[20px] text-black uppercase leading-none tracking-widest font-fraunces font-semibold" style={{ fontFamily: "'Cinzel Decorative', serif" }}>{configuration().hospitalName}</h1>
-                                                <p className="text-[15px] text-slate-800 mt-1">{configuration().hospitalAddress}</p>
+                                        </div>
+                                        <div className="min-w-0 flex flex-col justify-center gap-1">
+                                            <h1 className="whitespace-nowrap text-[18px] text-black uppercase leading-tight tracking-[0.06em] font-semibold">{configuration().hospitalName}</h1>
+                                            <p className="text-[15px] leading-snug text-slate-800">{configuration().hospitalAddress}</p>
+                                            <div className="text-[12px] leading-tight text-slate-800">
+                                                <p>Ph: {configuration().hospitalPhone}</p>
+                                                <p>Email: {configuration().hospitalEmail}</p>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col items-end mt-2">
-                                            <div className="bg-[var(--color-cosmo-dark)] text-white px-4 py-1.5 text-center">
-                                                <h2 className="text-[14px] font-normal uppercase tracking-wide">LABORATORY TEST REPORT</h2>
+                                        <div className="flex items-center justify-center">
+                                            <div className="flex min-h-[48px] w-full items-center justify-center bg-[var(--color-cosmo-dark)] px-3 py-1 text-center text-white">
+                                                <h2 className="text-[14px] font-medium uppercase leading-snug tracking-wide">LABORATORY REPORT</h2>
                                             </div>
 
                                         </div>
