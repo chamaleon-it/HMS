@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useRef } from "react";
+import { Dispatch, SetStateAction } from "react";
 import VitalsCard from "./VitalsCard";
 import { ToggleChip } from "./ToggleChip";
 import {
@@ -8,8 +8,8 @@ import {
   Megaphone,
   Stethoscope,
 } from "lucide-react";
-import { AppointmentType, DataType } from "./interface";
-import { fAge, fDateandTime , fAgeString} from "@/lib/fDateAndTime";
+import { AppointmentType } from "./interface";
+import { fAgeString } from "@/lib/fDateAndTime";
 import { ActionButton } from "@/components/doctor/dashboard/home/PatientCard";
 import toast from "react-hot-toast";
 import useGetLabReport from "./useGetLabReport";
@@ -20,18 +20,13 @@ export default function Header({
   activeTab,
   setActiveTab,
   appointment,
-  data: payload,
-  setData
 }: {
   activeTab: "consultation" | "history" | "report";
   setActiveTab: Dispatch<SetStateAction<"consultation" | "history" | "report">>;
   appointment: AppointmentType;
-  data: DataType;
-  setData: Dispatch<SetStateAction<DataType>>
 }) {
   const { data } = useGetLabReport({ patientId: appointment.patient._id });
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
   return (
     <div className="space-y-4 mb-6">
       <DoctorHeader
@@ -68,62 +63,6 @@ export default function Header({
       <div className="flex flex-wrap items-center justify-between gap-4 py-2 border-y border-slate-100">
         <VitalsCard />
         <div className="flex items-center gap-3">
-          <Button
-            variant={"outline"}
-            size={"sm"}
-            onClick={() => {
-              const data = {
-                consultationNotes: payload.consultationNotes,
-                examinationNote: payload.examinationNote,
-                medicines: payload.medicines,
-                test: payload.test,
-              };
-              const json = JSON.stringify(data, null, 2); // pretty print
-              const blob = new Blob([json], { type: "application/json" });
-
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = "consultation-" + fDateandTime(new Date()) + ".json"; // file name
-              a.click();
-
-              URL.revokeObjectURL(url);
-            }}
-          >
-            Export
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            Import
-          </Button>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="application/json"
-            hidden
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-
-              const reader = new FileReader();
-
-              reader.onload = (event) => {
-                try {
-                  const json = JSON.parse(event.target?.result as string);
-                  setData(json); // 👈 update your state
-                } catch (err) {
-                  alert("Invalid JSON file");
-                }
-              };
-
-              reader.readAsText(file);
-            }}
-          />
-
           <div className="inline-flex rounded-2xl bg-slate-100 p-1 shadow-inner">
             <ToggleChip
               active={activeTab === "consultation"}

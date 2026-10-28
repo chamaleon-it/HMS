@@ -50,11 +50,9 @@ export default function Statistics() {
       completed: number;
       consulted: number;
       notShow: number;
-      observation: number;
       today: number;
       upcoming: number;
       test: number;
-      admit: number;
     };
   }>("/appointments/statistics");
 
@@ -62,7 +60,6 @@ export default function Statistics() {
     completed: 0,
     consulted: 0,
     notShow: 0,
-    observation: 0,
     today: 0,
     upcoming: 0,
   };
@@ -100,7 +97,7 @@ export default function Statistics() {
     },
     {
       label: "Pending",
-      value: appointmentStatistics.observation + appointmentStatistics.upcoming,
+      value: appointmentStatistics.upcoming,
       icon: <ListChecks />,
       color: "from-[var(--color-cosmo-copper)]/10 to-[var(--color-cosmo-brown)]/5",
       iconBg: "bg-[#FDF6ED] text-[var(--color-cosmo-copper)]",

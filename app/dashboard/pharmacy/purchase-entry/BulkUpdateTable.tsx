@@ -13,7 +13,6 @@ import {
 import {
     Save,
     Trash2,
-    Check,
 } from "lucide-react";
 import React, { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
@@ -49,8 +48,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     const [newItems, setNewItems] = useState<NewItem[]>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [selectedSupplierId, setSelectedSupplierId] = useState<string>(defaultSupplierId || "");
-    const [gstType, setGstType] = useState<"inclusive" | "exclusive">("inclusive");
-    const [enableTCS, setEnableTCS] = useState(false);
     const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
     const focusNextElement = (currentElement: HTMLElement) => {
@@ -105,7 +102,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     const [billDetails, setBillDetails] = useState({
         invoiceNumber: "",
         invoiceDate: "",
-        transportCharges: "0",
         paidAmount: "0",
         description: ""
     });
@@ -201,8 +197,8 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             acc.schema_amt += sam;
             acc.total += (taxable + sgst + cgst);
             return acc;
-        }, { gross: 0, discount: 0, sgst: 0, cgst: 0, schema_amt: 0, total: Number(billDetails.transportCharges) || 0 });
-    }, [newItems, billDetails.transportCharges]);
+        }, { gross: 0, discount: 0, sgst: 0, cgst: 0, schema_amt: 0, total: 0 });
+    }, [newItems]);
 
     const handleSaveChanges = async () => {
         if (!selectedSupplierId) {
@@ -262,7 +258,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 supplier: selectedSupplierId,
                 invoiceNumber: billDetails.invoiceNumber,
                 invoiceDate: billDetails.invoiceDate,
-                transportCharge: Number(billDetails.transportCharges) || 0,
                 paidAmount: Number(billDetails.paidAmount) || 0,
                 description: billDetails.description,
                 items: validItems.map(item => ({
@@ -295,7 +290,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             setBillDetails({
                 invoiceNumber: "",
                 invoiceDate: "",
-                transportCharges: "0",
                 paidAmount: "0",
                 description: ""
             });
@@ -313,8 +307,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             const draft = {
                 newItems,
                 selectedSupplierId,
-                gstType,
-                enableTCS,
                 billDetails
             };
             localStorage.setItem("purchase_entry_draft", JSON.stringify(draft));
@@ -350,7 +342,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             setBillDetails({
                 invoiceNumber: "",
                 invoiceDate: "",
-                transportCharges: "0",
                 paidAmount: "0",
                 description: ""
             });
@@ -375,14 +366,13 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 if (parsed.selectedSupplierId) {
                     setSelectedSupplierId(parsed.selectedSupplierId);
                 }
-                if (parsed.gstType) {
-                    setGstType(parsed.gstType);
-                }
-                if (parsed.enableTCS !== undefined) {
-                    setEnableTCS(parsed.enableTCS);
-                }
                 if (parsed.billDetails) {
-                    setBillDetails(parsed.billDetails);
+                    setBillDetails({
+                        invoiceNumber: parsed.billDetails.invoiceNumber || "",
+                        invoiceDate: parsed.billDetails.invoiceDate || "",
+                        paidAmount: parsed.billDetails.paidAmount || "0",
+                        description: parsed.billDetails.description || ""
+                    });
                 }
             } else {
                 initializeEmptyRow();
@@ -425,15 +415,13 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             const draft = {
                 newItems,
                 selectedSupplierId,
-                gstType,
-                enableTCS,
                 billDetails
             };
             localStorage.setItem("purchase_entry_draft", JSON.stringify(draft));
         } catch (e) {
             console.error("Failed to save purchase entry draft", e);
         }
-    }, [isDraftLoaded, newItems, selectedSupplierId, gstType, enableTCS, billDetails]);
+    }, [isDraftLoaded, newItems, selectedSupplierId, billDetails]);
 
     const { data: suppliersData } = useSWR<{ message: string; data: { _id: string; name: string }[] }>("/suppliers/get_id_and_name");
     const suppliers = suppliersData?.data || [];
@@ -480,67 +468,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-[11px]  text-slate-400 uppercase tracking-widest font-semibold">Transport Charges</label>
-                        <div className="relative ">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm  ">₹</span>
-                            <Input
-                                type="number"
-                                placeholder="0.00"
-                                className="h-11 bg-slate-50/50 border-slate-200 rounded-lg pl-7 focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all  text-slate-700 "
-                                value={Number(billDetails.transportCharges) || ""}
-                                onChange={(e) => handleBillDetailChange("transportCharges", e.target.value)}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-10 pt-7 ">
-                        <div className="flex items-center gap-10 ">
-                            <div className="flex items-center gap-6 ">
-                                <label className="flex items-center gap-2 cursor-pointer group ">
-                                    <div className="relative flex items-center justify-center ">
-                                        <input
-                                            type="radio"
-                                            name="gstType"
-                                            checked={gstType === "inclusive"}
-                                            onChange={() => setGstType("inclusive")}
-                                            className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
-                                        />
-                                        <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-[var(--color-cosmo-copper)] peer-checked:border-[6px] transition-all "></div>
-                                    </div>
-                                    <span className="text-sm  text-slate-500 group-hover:text-slate-900 transition-colors font-semibold">GST Inclusive</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer group ">
-                                    <div className="relative flex items-center justify-center ">
-                                        <input
-                                            type="radio"
-                                            name="gstType"
-                                            checked={gstType === "exclusive"}
-                                            onChange={() => setGstType("exclusive")}
-                                            className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
-                                        />
-                                        <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-[var(--color-cosmo-copper)] peer-checked:border-[6px] transition-all "></div>
-                                    </div>
-                                    <span className="text-sm  text-slate-500 group-hover:text-slate-900 transition-colors font-semibold">GST Exclusive</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <label className="flex items-center gap-3 cursor-pointer group bg-slate-50/50 px-4 py-2 rounded-full">
-                            <div className="relative flex items-center justify-center ">
-                                <input
-                                    type="checkbox"
-                                    checked={enableTCS}
-                                    onChange={(e) => setEnableTCS(e.target.checked)}
-                                    className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
-                                />
-                                <div className="w-5 h-5 rounded border-2 border-slate-200 peer-checked:bg-[var(--color-cosmo-copper)] peer-checked:border-[var(--color-cosmo-copper)] transition-all flex items-center justify-center ">
-                                    <Check className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity " />
-                                </div>
-                            </div>
-                            <span className="text-xs  text-slate-500 uppercase tracking-wider transition-colors font-semibold">Enable TCS</span>
-                        </label>
-                    </div>
                 </div>
             </motion.div>
 
@@ -566,10 +493,8 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-[85px]">MRP</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 tracking-wider">EXPIRY</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-[85px]">Rate</TableHead>
-                                {gstType === "inclusive" && <>
-                                    <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">SGST(%)</TableHead>
-                                    <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">CGST(%)</TableHead>
-                                </>}
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">SGST(%)</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">CGST(%)</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">DIS(%)</TableHead>
                                 {/* <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">DIS AMT</TableHead> */}
                                 <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">SCHEMA (FREE)</TableHead>
@@ -668,7 +593,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "purchasePrice")}
                                             />
                                         </TableCell>
-                                        {gstType === "inclusive" && <>
                                             <TableCell className="p-2">
                                                 <Select
                                                     value={String(item.sgst_p)}
@@ -723,7 +647,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                     </SelectContent>
                                                 </Select>
                                             </TableCell>
-                                        </>}
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
@@ -813,7 +736,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className={`grid grid-cols-2 ${gstType === "exclusive" ? "md:grid-cols-4" : "md:grid-cols-6"} gap-6`}
+                className="grid grid-cols-2 md:grid-cols-6 gap-6"
             >
                 {[
                     { label: "GROSS AMOUNT", value: totals.gross, color: "text-slate-600" },
@@ -821,7 +744,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     { label: "SGST PAYABLE", value: totals.sgst, color: "text-slate-600" },
                     { label: "CGST PAYABLE", value: totals.cgst, color: "text-slate-600" },
                     { label: "SCHEMA TOTAL", value: totals.schema_amt, color: "text-[var(--color-cosmo-copper)]" },
-                ].filter((stat) => gstType === "exclusive" ? stat.label !== "SGST PAYABLE" && stat.label !== "CGST PAYABLE" : true).map((stat, i) => (
+                ].map((stat, i) => (
                     <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-[var(--color-cosmo-copper)]/30 transition-all">
                         <div className="absolute top-0 right-0 w-16 h-16 bg-slate-50 -mr-8 -mt-8 rounded-full group-hover:bg-[var(--color-cosmo-copper)]/10 transition-colors" />
                         <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest relative">{stat.label}</span>
@@ -877,7 +800,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <SummaryRow label="Taxable Amount" value={taxableAmt} isBold />
                                         <SummaryRow label="Tax Amount" value={taxAmt} />
                                         {/* <SummaryRow label="Bill Disc." value={0} isNegative /> */}
-                                        {/* <SummaryRow label="TDS / TCS Amount" value={0} /> */}
                                         {/* <SummaryRow label="Write Off" value={0} /> */}
                                         <div className="h-px bg-slate-100/60 my-2" />
                                         {/* <SummaryRow label="CreditNote Amt." value={0} isNegative /> */}

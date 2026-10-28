@@ -4,13 +4,10 @@ import {
   CalendarDays,
   ChevronDown,
   CreditCard,
-  Download,
   FilePlus2,
   FileText,
   IndianRupee,
   Plus,
-  Printer,
-  Share2,
   Trash2,
   User2,
   UserPlus,
@@ -63,10 +60,6 @@ export default function CreateBill({
     cash: number;
     online: number;
     insurance: number;
-    payer?: string;
-    policyNo?: string;
-    tpa?: string;
-    preAuthNo?: string;
     note?: string;
   }>(defaultPayload);
 
@@ -617,71 +610,6 @@ export default function CreateBill({
                 </div>
               ))}
 
-              <div className="col-span-12 h-px bg-slate-200" />
-              <div className="col-span-12 md:col-span-3">
-                <label className="mb-1 block text-xs text-slate-500">
-                  Payer / Insurer
-                </label>
-                <input
-                  value={payload.payer}
-                  onChange={(e) =>
-                    setPayload((prev) => ({ ...prev, payer: e.target.value }))
-                  }
-                  placeholder="e.g., Star Health"
-                  className={
-                    "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                  }
-                />
-              </div>
-              <div className="col-span-12 md:col-span-3">
-                <label className="mb-1 block text-xs text-slate-500">
-                  Policy No.
-                </label>
-                <input
-                  value={payload.policyNo}
-                  onChange={(e) =>
-                    setPayload((prev) => ({
-                      ...prev,
-                      policyNo: e.target.value,
-                    }))
-                  }
-                  placeholder="Policy #"
-                  className={
-                    "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                  }
-                />
-              </div>
-              <div className="col-span-12 md:col-span-3">
-                <label className="mb-1 block text-xs text-slate-500">TPA</label>
-                <input
-                  value={payload.tpa}
-                  onChange={(e) =>
-                    setPayload((prev) => ({ ...prev, tpa: e.target.value }))
-                  }
-                  placeholder="TPA name"
-                  className={
-                    "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                  }
-                />
-              </div>
-              <div className="col-span-12 md:col-span-3">
-                <label className="mb-1 block text-xs text-slate-500">
-                  Pre-Auth No.
-                </label>
-                <input
-                  value={payload.preAuthNo}
-                  onChange={(e) =>
-                    setPayload((prev) => ({
-                      ...prev,
-                      preAuthNo: e.target.value,
-                    }))
-                  }
-                  placeholder="Pre-auth"
-                  className={
-                    "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                  }
-                />
-              </div>
             </div>
           </div>
 
@@ -778,26 +706,14 @@ export default function CreateBill({
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-3 gap-2">
+            <div className="mt-3">
               <PrimaryButton
-                className="col-span-full cursor-pointer"
+                className="w-full cursor-pointer"
                 onClick={generateBill}
               >
                 <FilePlus2 className="mr-2 inline h-4 w-4" />
                 Generate
               </PrimaryButton>
-              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
-                <Share2 className="mr-2 inline h-4 w-4" />
-                Share Link
-              </button>
-              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
-                <Printer className="mr-2 inline h-4 w-4" />
-                Print
-              </button>
-              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
-                <Download className="mr-2 inline h-4 w-4" />
-                PDF
-              </button>
             </div>
 
 

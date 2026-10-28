@@ -29,12 +29,6 @@ export interface ProfileType {
       roundOff: boolean;
       autoPrintAfterSave: boolean;
     };
-    notifications?: {
-      whatsapp: boolean;
-      sms: boolean;
-      inApp: boolean;
-      note: string;
-    };
     reportLayout?: "Classic" | "Modern";
     panelPerPage?: boolean;
   };

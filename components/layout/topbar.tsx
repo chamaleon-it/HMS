@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Bell, Plus, Menu } from "lucide-react";
+import { Plus, Menu } from "lucide-react";
 import DoctorProfile from "./Profile";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
 import { useAuth } from "@/auth/context/auth-context";
-import SearchBar from "./SearchBar";
 import useSWR from "swr";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -31,7 +30,6 @@ export default function Header() {
       { key: "dashboard", label: "Dashboard", link: "/dashboard/doctor/" },
       { key: "appointments", label: "Appointments", link: "/dashboard/doctor/appointments/" },
       { key: "patients", label: "Patients", link: "/dashboard/doctor/patients/" },
-      { key: "lab-results", label: "Investigations", link: "/dashboard/doctor/lab-report/" },
       { key: "billing", label: "Billing", link: "/dashboard/doctor/billing/" },
     ]) ||
     (user?.role === "Pharmacy" && [
@@ -42,21 +40,14 @@ export default function Header() {
       { key: "suppliers", label: "Suppliers", link: "/dashboard/pharmacy/suppliers/" },
       { key: "customers", label: "Customers", link: "/dashboard/pharmacy/customers/" },
       { key: "return", label: "Return", link: "/dashboard/pharmacy/return/" },
-      // { key: "purchase", label: "Purchase", link: "/dashboard/pharmacy/purchase/" },
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy/billing/" },
-    ]) ||
-    (user?.role === "Pharmacy Wholesaler" && [
-      { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy-wholesaler" },
-      { key: "billing", label: "Billing", link: "/dashboard/pharmacy-wholesaler/billing/" },
     ]) ||
     (user?.role === "Lab" && [
       // { key: "appointments", label: "Appointments", link: "/dashboard/lab/appointments/" },
       { key: "dashboard", label: "Dashboard", link: "/dashboard/lab/" },
-      { key: "tests", label: "Test", childrens: [{ key: "lab", label: "Lab", link: "/dashboard/lab/test/lab/" }, { key: "imaging", label: "Imaging", link: "/dashboard/lab/test/imaging/" }] },
       { key: "inventory", label: "Catalogue", link: "/dashboard/lab/inventory/" },
       { key: "patients", label: "Customers", link: "/dashboard/lab/patients/" },
       { key: "billing", label: "Billing", link: "/dashboard/lab/billing/" },
-      { key: "payments", label: "Payments", link: "/dashboard/lab/payments/" },
       { key: "register", label: "Lab Register", link: "/dashboard/lab/register/" },
     ]) || [];
 
@@ -93,50 +84,14 @@ export default function Header() {
           <nav className="hidden lg:flex flex-1 items-center px-6">
             <div className="relative inline-flex items-center text-[13px] bg-white border border-gray-200 rounded-full p-1 shadow-sm">
               {items.map(item => {
-                const isActive = item.childrens
-                  ? item.childrens.some(child => pathname.startsWith(child.link))
-                  : item.key === "dashboard"
-                    ? pathname === item.link || pathname === item.link?.slice(0, -1)
-                    : pathname.startsWith(item.link || "xxx");
+                const isActive = item.key === "dashboard"
+                  ? pathname === item.link || pathname === item.link.slice(0, -1)
+                  : pathname.startsWith(item.link);
 
-                return item.childrens ? (
-                  <div key={item.key} className="relative group cursor-pointer shrink-0">
-                    <span
-                      className={
-                        "relative flex items-center rounded-full px-4 py-1.5 transition cursor-pointer font-medium " +
-                        (isActive ? "text-white" : "text-slate-600 hover:bg-slate-50")
-                      }
-                    >
-                      {isActive && (
-                        <motion.span
-                          layoutId="topbar-active-indicator"
-                          className="absolute inset-0 rounded-full bg-[var(--color-cosmo-copper)]"
-                          transition={{ type: "spring", stiffness: 500, damping: 40 }}
-                        />
-                      )}
-                      <span className="relative z-10 flex items-center gap-2">
-                        {item.label}
-                      </span>
-                    </span>
-                    <div className="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
-                      <div className="flex flex-col bg-white border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] rounded-xl w-36 py-2 overflow-hidden">
-                        {item.childrens.map(child => (
-                          <Link
-                            key={child.key}
-                            href={child.link}
-                            className={`px-4 py-2 transition-colors ${pathname.startsWith(child.link) ? "text-[var(--color-cosmo-copper)] font-bold bg-[var(--color-cosmo-copper)]/10/50" : "text-slate-600 hover:bg-slate-50 hover:text-[var(--color-cosmo-copper)]"
-                              }`}
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
+                return (
                   <Link
                     key={item.key}
-                    href={item.link || "#"}
+                    href={item.link}
                     className={
                       "relative flex items-center rounded-full px-4 py-1.5 transition cursor-pointer font-medium shrink-0 " +
                       (isActive ? "text-white" : "text-slate-600 hover:bg-slate-50")
@@ -157,9 +112,6 @@ export default function Header() {
               })}
             </div>
           </nav>
-
-          {/* Search */}
-          <SearchBar />
 
           {/* Actions */}
           <div
@@ -198,14 +150,6 @@ export default function Header() {
                 <Plus className="h-4 w-4" /> New Patient
               </button>
             )}
-            {/* <button
-              className="relative rounded-xl border border-slate-200 bg-white/90 p-2 shadow-sm transition hover:bg-slate-50 cursor-pointer"
-              aria-label="Notifications"
-            >
-              <Bell className="h-5 w-5 text-slate-600" />
-              <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-rose-500" />
-            </button> */}
-
             <DoctorProfile />
           </div>
         </div>

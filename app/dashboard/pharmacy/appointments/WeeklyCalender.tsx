@@ -35,10 +35,7 @@ const getStatusStyles = (status: ApiStatus) => {
   switch (status) {
     case "Upcoming": return "bg-blue-200 text-blue-800";
     case "Consulted": return "bg-green-100 text-green-800";
-    case "Completed": return "bg-gray-200 text-gray-800";
-    case "Observation": return "bg-[#FDF6ED] text-[var(--color-cosmo-copper)]";
     case "Not show": return "bg-yellow-100 text-yellow-800";
-    case "Admit": return "bg-red-300 text-red-800";
     case "Test": return "bg-pink-100 text-pink-800";
     default: return "bg-white border-zinc-200 text-zinc-900";
   }
@@ -47,11 +44,8 @@ const getStatusStyles = (status: ApiStatus) => {
 const getStatusDot = (status: ApiStatus) => {
   switch (status) {
     case "Upcoming": return "bg-[var(--color-cosmo-copper)]";
-    case "Consulted":
-    case "Completed": return "bg-[var(--color-cosmo-dark)]";
-    case "Observation": return "bg-sky-500";
+    case "Consulted": return "bg-[var(--color-cosmo-dark)]";
     case "Not show": return "bg-amber-500";
-    case "Admit":
     case "Test": return "bg-rose-500";
     default: return "bg-zinc-400";
   }
@@ -105,10 +99,7 @@ const getRoundForTime = (
 type ApiStatus =
   | "Upcoming"
   | "Consulted"
-  | "Observation"
   | "Not show"
-  | "Completed"
-  | "Admit"
   | "Test";
 
 type ApiType = keyof typeof colorMap | "New" | "Follow up"; // Merging types
@@ -290,9 +281,8 @@ export default function WeeklyCalender({
         <div className="hidden lg:flex items-center gap-4 text-[10px] text-gray-500 font-bold uppercase tracking-wider">
           <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[var(--color-cosmo-copper)]"></div> Upcoming</div>
           <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[var(--color-cosmo-dark)]"></div> Consulted</div>
-          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-sky-500"></div> Observation</div>
           <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div> Not show</div>
-          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div> Admit/Test</div>
+          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div> Test</div>
           <div className="flex items-center gap-1.5 h-4 px-2 rounded-full bg-red-50 text-[9px] text-red-600 border border-red-100 uppercase">Live</div>
         </div>
       </div>

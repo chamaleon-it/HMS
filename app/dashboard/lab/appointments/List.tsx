@@ -197,10 +197,7 @@ const Chip: React.FC<{ label: string }> = ({ label }) => {
   const styles: Record<string, string> = {
     Upcoming: "bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30",
     Consulted: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    Completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
     "Not show": "bg-amber-50 text-amber-700 border-amber-200",
-    Observation: "bg-sky-50 text-sky-700 border-sky-200",
-    Admit: "bg-rose-50 text-rose-700 border-rose-200",
     Test: "bg-rose-50 text-rose-700 border-rose-200",
   };
 

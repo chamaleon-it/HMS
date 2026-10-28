@@ -29,10 +29,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 const APPOINTMENT_STATUSES = [
   { label: "Upcoming", value: "Upcoming", color: "bg-blue-200 text-blue-800", key: "U" },
   { label: "Consulted", value: "Consulted", color: "bg-green-100 text-green-800", key: "C" },
-  { label: "Observation", value: "Observation", color: "bg-[#FDF6ED] text-[var(--color-cosmo-copper)]", key: "O" },
   { label: "Not show", value: "Not show", color: "bg-yellow-100 text-yellow-800", key: "N" },
-  { label: "Completed", value: "Completed", color: "bg-gray-200 text-gray-800", key: "P" },
-  { label: "Admit", value: "Admit", color: "bg-red-300 text-red-800", key: "A" },
   { label: "Test", value: "Test", color: "bg-pink-100 text-pink-800", key: "T" },
 ];
 
@@ -128,9 +125,7 @@ function AppointmentSidePanel({ appointment, onClose, onEdit, onUpdateStatus }: 
         const statusMap: Record<string, string> = {
           "u": "Upcoming",
           "c": "Consulted",
-          "o": "Observation",
-          "n": "No show",
-          "a": "Admit",
+          "n": "Not show",
           "t": "Test",
         };
         if (statusMap[e.key.toLowerCase()]) {
@@ -402,7 +397,7 @@ function AppointmentPageContent() {
       globalMutate((key) => typeof key === 'string' && key.startsWith('/appointments/calender/weekly'));
 
       // Auto-prompt follow-up
-      if (newStatus === "Consulted" || newStatus === "Completed") {
+      if (newStatus === "Consulted") {
         const currentApt = selectedAppointment || {}; /* selectedAppointment might be null if not using panel? but here we use panel */
         // Only prompt if we have patient info
         if (currentApt.patient) {
@@ -417,7 +412,7 @@ function AppointmentPageContent() {
                   </div>
                   <div className="ml-3 flex-1">
                     <p className="text-sm font-medium text-gray-900">
-                      Appointment Completed
+                      Consultation completed
                     </p>
                     <p className="mt-1 text-xs text-gray-500">
                       Would you like to schedule a follow-up for {currentApt.patient?.name}?

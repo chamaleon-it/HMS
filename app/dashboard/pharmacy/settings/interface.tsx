@@ -21,11 +21,5 @@ export interface ProfileType {
       expiryAlert: number;
       allowNegativeStock: boolean;
     };
-    notifications?: {
-      whatsapp: boolean;
-      sms: boolean;
-      inApp: boolean;
-      note: string;
-    };
   };
 }

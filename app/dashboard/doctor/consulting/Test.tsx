@@ -5,73 +5,12 @@ import { DataType } from "./interface";
 import OrderLab from "./OrderLab";
 import { Image as ImageIcon, Star, TestTubeDiagonal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import useSWR from "swr";
-import { combineDateAndSlot } from "@/lib/fDateAndTime";
-import { Calendar } from "@/components/ui/calendar";
-import configuration from "@/config/configuration";
 import { cn } from "@/lib/utils";
 import SelectedTests from "./SelectedTests";
 import useGetPanels from "@/data/useGetPanels";
 import useGetTest, { TestItemType } from "@/data/useGetTest";
 
 type TabKey = "All" | "Lab" | "Imaging";
-
-type PriorityId = "High" | "Normal" | "Stat";
-
-type Priority = { id: PriorityId; label: string };
-
-const SLOTS: string[] = [
-  "09:00 AM",
-  "09:30 AM",
-  "10:00 AM",
-  "10:30 AM",
-  "11:00 AM",
-  "11:30 AM",
-  "12:00 PM",
-  "12:30 PM",
-  "01:00 PM",
-  "01:30 PM",
-  "02:00 PM",
-  "02:30 PM",
-  "03:00 PM",
-  "03:30 PM",
-  "04:00 PM",
-  "04:30 PM",
-  "05:00 PM",
-];
-
-const PRIORITIES: Priority[] = [
-  { id: "High", label: "High" },
-  { id: "Normal", label: "Normal" },
-];
-
-type Mode = "inhouse" | "external";
-
-type ModeToggleProps = {
-  mode: Mode;
-  onChange: (mode: Mode) => void;
-};
-
-const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onChange }) => (
-  <div className="inline-flex rounded-full border border-zinc-200 bg-white p-1 shadow-sm">
-    {(["inhouse", "external"] as const).map((m) => (
-      <button
-        key={m}
-        onClick={() => onChange(m)}
-        className={[
-          "px-4 py-1.5 rounded-full text-sm font-medium transition",
-          mode === m
-            ? m === "inhouse"
-              ? "bg-[var(--color-cosmo-dark)] text-white shadow"
-              : "bg-amber-500 text-white shadow"
-            : "text-zinc-600 hover:bg-zinc-50",
-        ].join(" ")}
-      >
-        {m === "inhouse" ? "In‑House" : "External"}
-      </button>
-    ))}
-  </div>
-);
 
 type TestItemProps = {
   test: TestItemType;
@@ -247,35 +186,27 @@ export default function Test({
   const [query, setQuery] = useState<string>("");
   const [tab, setTab] = useState<TabKey>("All");
   const [selectedTests, setSelectedTests] = useState<TestItemType[]>([]);
-  const [date, setDate] = useState<Date>(new Date());
-  const [labId, setLabId] = useState<string>("");
-  const [slot, setSlot] = useState<string>("");
-  const [priority, setPriority] = useState<PriorityId>("Normal");
   const isSelected = (t: TestItemType) =>
     selectedTests.some((x) => x._id === t._id);
   const toggleTest = (t: TestItemType) =>
     setSelectedTests((prev) =>
       isSelected(t) ? prev.filter((x) => x._id !== t._id) : [...prev, t]
     );
-  const [mode, setMode] = useState<Mode>("inhouse");
   const [selectedPanel, setSelectedPanel] = useState<string[]>([]);
 
-  const canBook =
-    selectedTests.length > 0 && (mode === "inhouse" || Boolean(date && labId));
+  const canBook = selectedTests.length > 0;
   const [booked, setBooked] = useState(false);
   useEffect(() => {
     setBooked(false);
-  }, [selectedTests, date, labId, priority, slot]);
+  }, [selectedTests]);
 
   const bookTest = () => {
     if (booked) return;
 
-    const datetime = combineDateAndSlot(date, slot);
     const newTest = {
       name: selectedTests.map((e) => e._id),
-      date: mode === "inhouse" ? new Date() : datetime,
-      lab: labId,
-      priority,
+      date: new Date(),
+      priority: "Normal",
       panels: selectedPanel,
     };
     setData((prev) => ({ ...prev, test: [...prev.test, newTest] }));
@@ -285,16 +216,6 @@ export default function Test({
   };
 
   const [show, setShow] = useState(false);
-
-  const { data: LabData } = useSWR<{
-    message: string;
-    data: {
-      _id: string;
-      name: string;
-    }[];
-  }>("/users/lab");
-
-  const Labs = LabData?.data ?? [];
 
   const [favourite, setFavourite] = useState<TestItemType[]>([]);
   const [favouritePanels, setFavouritePanels] = useState<string[]>([]);
@@ -345,11 +266,6 @@ export default function Test({
                 Select tests to book
               </p>
             </div>
-            {show && (
-              <div className="ml-4">
-                <ModeToggle mode={mode} onChange={setMode} />
-              </div>
-            )}
           </div>
 
           {!show && (
@@ -524,112 +440,6 @@ export default function Test({
             </section>
 
             <section className="lg:col-span-7 flex flex-col gap-6 h-full">
-              {mode === "external" && (
-                <div className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-sm">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="h-8 w-8 rounded-full bg-amber-50 text-amber-600 grid place-items-center">
-                      <svg
-                        viewBox="0 0 24 24"
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <h3 className="font-semibold text-zinc-900">
-                      Booking Details
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
-                        Date
-                      </label>
-                      <Calendar
-                        required
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        className="rounded-xl border shadow-sm w-full max-w-[450px]"
-                      />
-                    </div>
-
-                    <div className="space-y-6">
-                      <div>
-                        <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
-                          Lab Center
-                        </label>
-                        <div className="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
-                          {Labs.map((l) => (
-                            <button
-                              key={l._id}
-                              onClick={() => setLabId(l._id)}
-                              className={cn(
-                                "text-left rounded-lg border px-3 py-2.5 text-sm transition-all",
-                                labId === l._id
-                                  ? "border-amber-500 bg-amber-50 text-amber-900 shadow-sm ring-1 ring-amber-500/20"
-                                  : "border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"
-                              )}
-                            >
-                              {l.name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
-                          Time Slot
-                        </label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {SLOTS.map((s) => (
-                            <button
-                              key={s}
-                              onClick={() => setSlot(s)}
-                              className={cn(
-                                "rounded-md border px-2 py-1.5 text-xs font-medium transition-all",
-                                slot === s
-                                  ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
-                                  : "border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"
-                              )}
-                            >
-                              {s}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
-                          Priority
-                        </label>
-                        <div className="flex gap-2">
-                          {PRIORITIES.map((p) => (
-                            <button
-                              key={p.id}
-                              onClick={() => setPriority(p.id)}
-                              className={cn(
-                                "rounded-full border px-4 py-1.5 text-xs font-medium transition-all",
-                                priority === p.id
-                                  ? p.id === "High"
-                                    ? "border-amber-500 bg-amber-50 text-amber-700 shadow-sm"
-                                    : "border-zinc-900 bg-zinc-900 text-white shadow-sm"
-                                  : "border-zinc-200 text-zinc-600 hover:border-zinc-300 hover:bg-zinc-50"
-                              )}
-                            >
-                              {p.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm flex flex-col h-full overflow-hidden">
                 <div className="p-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
                   <div className="flex items-center gap-2">
@@ -751,8 +561,6 @@ export default function Test({
         <OrderLab
           booked={data.test}
           setData={setData}
-          Labs={Labs}
-          panels={selectedPanel}
         />
       )}
     </>

@@ -58,10 +58,8 @@ export function CreateAppointmentForm({
     status:
     | "Upcoming"
     | "Consulted"
-    | "Observation"
     | "Completed"
     | "Not show"
-    | "Admit"
     | "Test";
     isPaid: boolean;
     createdAt: Date;

@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import {
   AlertTriangle,
-  Bed,
   CalendarDays,
   Clock,
   FlaskConical,
@@ -37,14 +36,6 @@ const STAT_CONFIG = {
     iconBg: "bg-emerald-100",
     border: "hover:border-emerald-200",
   },
-  observation: {
-    label: "Observation",
-    icon: Clock,
-    color: "from-amber-500/10 to-amber-500/5",
-    iconColor: "text-amber-600",
-    iconBg: "bg-amber-100",
-    border: "hover:border-amber-200",
-  },
   test: {
     label: "Send to test",
     icon: FlaskConical,
@@ -52,14 +43,6 @@ const STAT_CONFIG = {
     iconColor: "text-[var(--color-cosmo-copper)]",
     iconBg: "bg-[#FDF6ED]",
     border: "hover:border-[var(--color-cosmo-copper)]/30",
-  },
-  admit: {
-    label: "Admit",
-    icon: Bed,
-    color: "from-cyan-500/10 to-cyan-500/5",
-    iconColor: "text-cyan-600",
-    iconBg: "bg-cyan-100",
-    border: "hover:border-cyan-200",
   },
   notShow: {
     label: "No Show",
@@ -78,10 +61,8 @@ export default function Statistics() {
       today: number;
       upcoming: number;
       consulted: number;
-      observation: number;
       completed: number;
       test: number;
-      admit: number;
       notShow: number;
     };
   }>("/appointments/statistics");
@@ -92,14 +73,12 @@ export default function Statistics() {
     { key: "today", value: stats?.today },
     { key: "upcoming", value: stats?.upcoming },
     { key: "consulted", value: stats?.consulted },
-    { key: "observation", value: stats?.observation },
     { key: "test", value: stats?.test },
-    { key: "admit", value: stats?.admit },
     { key: "notShow", value: stats?.notShow },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 my-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 my-6">
       {statItems.map((item, idx) => {
         const config = STAT_CONFIG[item.key as keyof typeof STAT_CONFIG];
         return (

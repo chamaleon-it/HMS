@@ -31,10 +31,7 @@ const colorMap = {
 const statusColorMap = {
   Upcoming: "bg-[var(--color-cosmo-copper)]",
   Consulted: "bg-[var(--color-cosmo-dark)]",
-  Completed: "bg-[var(--color-cosmo-dark)]",
-  Observation: "bg-sky-500",
   "Not show": "bg-amber-500",
-  Admit: "bg-rose-500",
   Test: "bg-rose-500",
 } as const;
 
@@ -79,10 +76,10 @@ export default function MonthlyCalender({
           <h3 className="font-semibold">Monthly Bookings</h3>
         </div>
         <div className="hidden md:flex items-center gap-4 text-xs text-gray-600">
-          {Object.entries(statusColorMap).filter(([k]) => k !== "Completed" && k !== "Test").map(([key, color]) => (
+          {Object.entries(statusColorMap).map(([key, color]) => (
             <div key={key} className="flex items-center gap-1">
               <span className={`w-2.5 h-2.5 rounded-full ${color}`}></span>
-              <span>{key === "Admit" ? "Admit/Test" : key}</span>
+              <span>{key}</span>
             </div>
           ))}
         </div>

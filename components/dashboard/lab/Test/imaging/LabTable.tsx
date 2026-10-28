@@ -3,7 +3,6 @@ import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
 import React from 'react'
 import ResultUpdate from './ResultUpdate';
 import { Checkbox } from '@/components/ui/checkbox';
-import { cn } from '@/lib/utils';
 
 
 interface PropsTypes {
@@ -104,12 +103,6 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                 <tbody>
                     {REPORT
                         .sort((a, b) => {
-                            const isAUrgent = a.priority === "Urgent";
-                            const isBUrgent = b.priority === "Urgent";
-
-                            if (isAUrgent && !isBUrgent) return -1;
-                            if (!isAUrgent && isBUrgent) return 1;
-
                             const dateA = new Date(a.createdAt).getTime();
                             const dateB = new Date(b.createdAt).getTime();
                             return dateB - dateA; // newest first
@@ -118,12 +111,10 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                             return r.test.some((e) => e.name?.type === "Imaging") && (
                                 <tr
                                     key={r._id}
-                                    className={cn(`group border-b border-gray-100 transition-colors duration-200 last:border-0 ${r.priority === "Urgent"
-                                        ? "bg-amber-100 hover:bg-amber-200/60"
-                                        : idx % 2 === 0
-                                            ? "bg-white hover:bg-white/60"
-                                            : "bg-slate-100 hover:bg-slate-100/60"
-                                        }`)}
+                                    className={`group border-b border-gray-100 transition-colors duration-200 last:border-0 ${idx % 2 === 0
+                                        ? "bg-white hover:bg-white/60"
+                                        : "bg-slate-100 hover:bg-slate-100/60"
+                                        }`}
                                 >
                                     <td className="px-3 py-2">
                                         <Checkbox />

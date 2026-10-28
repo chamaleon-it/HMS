@@ -3,11 +3,9 @@
 import React, { JSX, useMemo } from "react";
 import {
   CheckCircle,
-  Eye,
   Clock,
   AlertTriangle,
   FlaskConical,
-  Bed,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import useSWR from "swr";
@@ -16,9 +14,9 @@ export default function ScheduleTabsPreview({
   currenctStatus,
   setCurrenctStatus,
 }: {
-  currenctStatus: "Upcoming" | "Consulted" | "Observation" | "Not show";
+  currenctStatus: "Upcoming" | "Consulted" | "Test" | "Not show";
   setCurrenctStatus: React.Dispatch<
-    React.SetStateAction<"Upcoming" | "Consulted" | "Observation" | "Not show">
+    React.SetStateAction<"Upcoming" | "Consulted" | "Test" | "Not show">
   >;
 }): JSX.Element {
   const { data: appointmentStatisticsData } = useSWR<{
@@ -27,11 +25,9 @@ export default function ScheduleTabsPreview({
       completed: number;
       consulted: number;
       notShow: number;
-      observation: number;
       today: number;
       upcoming: number;
       test: number;
-      admit: number;
     };
   }>("/appointments/statistics");
 
@@ -39,11 +35,9 @@ export default function ScheduleTabsPreview({
     completed: 0,
     consulted: 0,
     notShow: 0,
-    observation: 0,
     today: 0,
     upcoming: 0,
     test: 0,
-    admit: 0,
   };
 
   
@@ -57,8 +51,6 @@ export default function ScheduleTabsPreview({
         icon: FlaskConical,
       },
       { key: "Consulted", label: "Consulted", icon: CheckCircle },
-      { key: "Observation", label: "Observation", icon: Eye },
-      { key: "Admit", label: "Admit", icon: Bed },
       { key: "Not show", label: "Not show", icon: AlertTriangle },
     ],
     [appointmentStatistics.test]
@@ -73,7 +65,7 @@ export default function ScheduleTabsPreview({
             key={key}
             onClick={() =>
               setCurrenctStatus(
-                key as "Upcoming" | "Consulted" | "Observation" | "Not show"
+                key as "Upcoming" | "Consulted" | "Test" | "Not show"
               )
             }
             className={

@@ -313,8 +313,6 @@ const Chip: React.FC<{
   | "amber"
   | "Upcoming"
   | "Test"
-  | "Observation"
-  | "Admit"
   | "Consulted"
   | "Not show"
   | "Active"
@@ -327,8 +325,6 @@ const Chip: React.FC<{
     Inactive: "bg-rose-50 text-rose-700 ring-rose-200",
     Upcoming: "bg-slate-100 text-slate-700 ring-slate-700",
     Test: "bg-sky-100  text-sky-700 ring-sky-700",
-    Observation: "bg-amber-100  text-amber-700 ring-amber-700",
-    Admit: "bg-rose-100  text-rose-700 ring-rose-700",
     Consulted: "bg-emerald-100  text-emerald-700 ring-emerald-700",
     "Not show": "bg-red-100 text-red-700 ring-red-700",
     LowStock: "bg-orange-100 text-orange-800 ring-orange-200", // Darker text on lighter bg

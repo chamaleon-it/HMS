@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import PatientSelection from "./PatientSelection";
 import { useAuth } from "@/auth/context/auth-context";
-import { Zap, Calendar as CalendarIcon, AlertTriangle, Trash } from "lucide-react";
+import { Zap, Calendar as CalendarIcon, Trash } from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import {
@@ -228,20 +228,6 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
           technicianName={payload.technician}
         />
 
-        <div className="flex items-end gap-2 ">
-          <Button
-            type="button"
-            variant={payload.priority === "Urgent" ? "default" : "outline"}
-            className={payload.priority === "Urgent" ? "bg-amber-500 hover:bg-amber-600 text-white" : "border-amber-200 text-amber-600 hover:bg-amber-50"}
-            onClick={(e) => {
-              e.preventDefault();
-              setPayload((prev: any) => ({ ...prev, priority: prev.priority === "Urgent" ? "Normal" : "Urgent" }));
-            }}
-          >
-            <AlertTriangle className="w-4 h-4 mr-2" />
-            Urgent
-          </Button>
-        </div>
       </div>
 
       <div className="flex gap-2 justify-between w-full">

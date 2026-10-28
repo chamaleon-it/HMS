@@ -8,23 +8,14 @@ import useGetTest from "@/data/useGetTest";
 export default function OrderLab({
   booked,
   setData,
-  Labs,
-  panels
 }: {
   booked: {
     name: string[];
     date: Date;
-    lab: string;
     priority: string;
     panels: string[];
   }[];
   setData: (value: React.SetStateAction<DataType>) => void;
-  Labs: {
-    _id: string;
-    name: string;
-  }[]
-  panels: string[]
-
 }) {
 
   const { tests } = useGetTest();
@@ -34,11 +25,10 @@ export default function OrderLab({
       {/* Dynamic rows */}
       <div className="flex flex-col gap-3">
         <div className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wide text-black mt-2 font-medium">
-          <div className="col-span-3">Tests</div>
-          <div className="col-span-2">Lab</div>
+          <div className="col-span-4">Tests</div>
           <div className="col-span-2">Date</div>
           <div className="col-span-2">Time</div>
-          <div className="col-span-1">Priority</div>
+          <div className="col-span-2">Priority</div>
           <div className="col-span-2 text-right">Actions</div>
         </div>
 
@@ -47,7 +37,7 @@ export default function OrderLab({
             className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2"
             key={idx}
           >
-            <div className="col-span-3">
+            <div className="col-span-4">
               {
                 e.panels?.map((p, idx) => (
                   <p key={idx}>{p}</p>
@@ -60,10 +50,9 @@ export default function OrderLab({
                 ))
               }
             </div>
-            <div className="col-span-2">{Labs.find(l => l._id == e.lab)?.name ?? "Inhouse"}</div>
             <div className="col-span-2">{fDate(e.date)}</div>
             <div className="col-span-2">{fTime(e.date)}</div>
-            <div className="col-span-1">{e.priority}</div>
+            <div className="col-span-2">{e.priority}</div>
             <div className="col-span-2 text-right flex justify-end gap-2">
 
 

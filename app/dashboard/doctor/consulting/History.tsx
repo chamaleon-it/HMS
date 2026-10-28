@@ -188,7 +188,6 @@ export interface Test {
     name: string
   }[];
   date: Date;
-  lab: string;
   slot: string;
   priority: string;
   _id: string;

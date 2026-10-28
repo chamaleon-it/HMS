@@ -56,11 +56,9 @@ export interface DataType {
     quantity: number;
   }[];
   advice: null | string;
-  followUp: null | Date;
   test: {
     name: string[];
     date: Date;
-    lab: string;
     priority: string;
     panels: string[];
   }[];

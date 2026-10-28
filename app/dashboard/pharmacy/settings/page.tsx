@@ -1,12 +1,11 @@
 "use client";
 import React, { useState } from "react";
 
-import { Shield, User, Receipt, Boxes, Bell, ReceiptIndianRupee } from "lucide-react";
+import { Shield, User, Receipt, Boxes, ReceiptIndianRupee } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
 import General from "./General";
 import Billing from "./Billing";
 import Inventory from "./Inventory";
-import Notifications from "./Notifications";
 import Security from "./Security";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +42,6 @@ const PharmacySettingsPage: React.FC = () => {
             { key: "billing", label: "Billing", icon: ReceiptIndianRupee },
             { key: "inventory", label: "Inventory", icon: Boxes },
             { key: "pharmacist", label: "Pharmacist", icon: User },
-            { key: "notifications", label: "Notifications", icon: Bell },
             { key: "security", label: "Security", icon: Shield },
           ].map(({ key, label, icon: Icon }) => {
             const active = activeSection === key;
@@ -93,9 +91,6 @@ const PharmacySettingsPage: React.FC = () => {
             )}
             {activeSection === "inventory" && (
               <Inventory profileMutate={profileMutate} profile={profile} />
-            )}
-            {activeSection === "notifications" && (
-              <Notifications profileMutate={profileMutate} profile={profile} />
             )}
             {activeSection === "security" && <Security />}
           </>

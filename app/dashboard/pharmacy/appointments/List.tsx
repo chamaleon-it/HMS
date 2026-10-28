@@ -273,9 +273,6 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover
           <DropdownMenuItem onClick={onPlaceOrder}>Place Order</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Upcoming")}>Mark Upcoming</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Consulted")}>Mark Consulted</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Observation")}>Mark Observation</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Completed")}>Mark Completed</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Admit")}>Mark Admit</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Test")}>Mark Test</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Not show")} className="text-red-600 focus:text-red-700 focus:bg-red-50">Mark Not Show</DropdownMenuItem>
@@ -301,10 +298,7 @@ const Chip: React.FC<{ label: string }> = ({ label }) => {
   const styles: Record<string, string> = {
     Upcoming: "bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30",
     Consulted: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    Completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
     "Not show": "bg-amber-50 text-amber-700 border-amber-200",
-    Observation: "bg-sky-50 text-sky-700 border-sky-200",
-    Admit: "bg-rose-50 text-rose-700 border-rose-200",
     Test: "bg-rose-50 text-rose-700 border-rose-200",
   };
 

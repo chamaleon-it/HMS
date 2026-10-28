@@ -4,7 +4,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import useSWR from "swr";
 import LabTable from "./LabTable";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
-import { FlaskConical, Beaker, CheckCircle2, AlertCircle, Search, RefreshCcw, Clock, TestTube2, AlertTriangle } from "lucide-react";
+import { FlaskConical, Beaker, CheckCircle2, AlertCircle, Search, RefreshCcw, Clock, TestTube2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -48,7 +48,7 @@ const StatCard: React.FC<{
 
 export default function Lab() {
   const [status, setStatus] = useState<
-    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft"
+    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Deleted" | "Draft"
   >("Upcoming");
 
   const [activeDate, setActiveDate] = useState<string>("Today");
@@ -91,15 +91,14 @@ export default function Lab() {
     data: any[];
   }>(`/lab/report?${queryParams.toString()}`);
 
-  const { data: statsResponse, mutate: statsMutate } = useSWR<{ message: string, data: { total: number, upcoming: number, sampleCollected: number, waitingForResult: number, completed: number, flagged: number } }>("/lab/report/statistics")
+  const { data: statsResponse, mutate: statsMutate } = useSWR<{ message: string, data: { total: number, upcoming: number, sampleCollected: number, waitingForResult: number, completed: number } }>("/lab/report/statistics")
 
   const statsData = statsResponse?.data ?? {
     total: 0,
     upcoming: 0,
     sampleCollected: 0,
     waitingForResult: 0,
-    completed: 0,
-    flagged: 0
+    completed: 0
   };
 
   const REPORT = data?.data ?? [];
@@ -112,7 +111,7 @@ export default function Lab() {
       />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           delay={0.1}
           icon={<FlaskConical className="h-6 w-6" />}
@@ -148,15 +147,6 @@ export default function Lab() {
           colorClass="from-emerald-500/10 to-emerald-500/5"
           iconBgClass="bg-emerald-100 text-emerald-600"
           borderClass="hover:border-emerald-200"
-        />
-        <StatCard
-          delay={0.5}
-          icon={<AlertTriangle className="h-6 w-6" />}
-          label="Flagged"
-          value={statsData.flagged}
-          colorClass="from-rose-500/10 to-rose-500/5"
-          iconBgClass="bg-rose-100 text-rose-600"
-          borderClass="hover:border-rose-200"
         />
       </div>
 

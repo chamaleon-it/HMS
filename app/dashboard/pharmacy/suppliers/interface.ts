@@ -59,7 +59,6 @@ export interface SupplierOrder {
     paidAmount: number;
     discount: number;
     gst: number;
-    transportCharge: number;
     description?: string;
     items: SupplierOrderItem[];
     status?: string; // For compatibility if needed

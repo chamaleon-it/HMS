@@ -2,7 +2,6 @@
 import { useAuth } from "@/auth/context/auth-context";
 import {
   LayoutDashboard,
-  FlaskConical,
   Settings,
   LogOut,
   CalendarClock,
@@ -17,7 +16,6 @@ import {
   Truck,
   ReceiptText,
   FileBarChart,
-  Banknote,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -31,10 +29,8 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
   const { data: appointmentStatisticsData } = useSWR<{
     message: string;
     data: {
-      completed: number;
       consulted: number;
       notShow: number;
-      observation: number;
       today: number;
       upcoming: number;
     };
@@ -43,10 +39,8 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
   });
 
   const appointmentStatistics = appointmentStatisticsData?.data ?? {
-    completed: 0,
     consulted: 0,
     notShow: 0,
-    observation: 0,
     today: 0,
     upcoming: 0,
   };
@@ -84,12 +78,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         label: "Patients",
         icon: Users2,
         link: "/dashboard/doctor/patients/",
-      },
-      {
-        key: "lab-results",
-        label: "Investigations",
-        icon: FlaskConical,
-        link: "/dashboard/doctor/lab-report/",
       },
       {
         key: "billing",
@@ -145,31 +133,11 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         icon: Undo2,
         link: "/dashboard/pharmacy/return/",
       },
-      // {
-      //   key: "purchase",
-      //   label: "Purchase",
-      //   icon: ShoppingCart,
-      //   link: "/dashboard/pharmacy/purchase/",
-      // },
       {
         key: "billing",
         label: "Billing",
         icon: CreditCard,
         link: "/dashboard/pharmacy/billing/",
-      },
-    ]) ||
-    (user?.role === "Pharmacy Wholesaler" && [
-      {
-        key: "dashboard",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        link: "/dashboard/pharmacy-wholesaler",
-      },
-      {
-        key: "billing",
-        label: "Billing",
-        icon: CreditCard,
-        link: "/dashboard/pharmacy-wholesaler/billing/",
       },
     ]) ||
     (user?.role === "Lab" && [
@@ -185,23 +153,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         label: "Dashboard",
         icon: LayoutDashboard,
         link: "/dashboard/lab/",
-      },
-      {
-        key: "tests",
-        label: "Test",
-        icon: FlaskConical,
-        childrens: [
-          {
-            key: "lab",
-            label: "Lab",
-            link: "/dashboard/lab/test/lab/",
-          },
-          {
-            key: "imaging",
-            label: "Imaging",
-            link: "/dashboard/lab/test/imaging/",
-          }
-        ]
       },
       {
         key: "inventory",
@@ -220,12 +171,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         label: "Billing",
         icon: CreditCard,
         link: "/dashboard/lab/billing/",
-      },
-      {
-        key: "payments",
-        label: "Payments",
-        icon: Banknote,
-        link: "/dashboard/lab/payments/",
       },
     ]) ||
     [];
@@ -326,7 +271,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
 
 const settingsLinks: Record<string, string> = {
   Pharmacy: "/dashboard/pharmacy/settings/",
-  "Pharmacy Wholesaler": "/dashboard/pharmacy-wholesaler/settings/",
   Doctor: "/dashboard/doctor/settings/",
   Lab: "/dashboard/lab/settings/",
   Admin: "/dashboard/admin/settings/",

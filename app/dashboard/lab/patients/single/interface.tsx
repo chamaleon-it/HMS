@@ -20,7 +20,6 @@ export interface Datum {
   extraTime: number;
   status: string;
   isDeleted: boolean;
-  isFlagged: boolean;
   createdAt: Date;
   updatedAt: Date;
   mrn: number;

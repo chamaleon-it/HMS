@@ -14,7 +14,6 @@ import {
     Calendar as CalendarIcon,
     Trash,
     Zap,
-    AlertTriangle,
     User,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -70,7 +69,7 @@ export default function BookNowModal({
         test: { name: string }[];
         panels: string[];
         date: Date | undefined;
-        priority: "Normal" | "Urgent";
+        priority: "Normal";
         sampleType: string;
         status: string;
         technician: string;
@@ -292,18 +291,6 @@ export default function BookNowModal({
                     </div>
 
                     <div className="flex gap-2 items-center">
-                        <Button
-                            type="button"
-                            variant={payload.priority === "Urgent" ? "default" : "outline"}
-                            className={payload.priority === "Urgent" ? "bg-amber-500 hover:bg-amber-600 text-white shadow-xs" : "border-amber-200 text-amber-600 hover:bg-amber-50"}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                setPayload(prev => ({ ...prev, priority: prev.priority === "Urgent" ? "Normal" : "Urgent" }));
-                            }}
-                        >
-                            <AlertTriangle className="w-4 h-4 mr-2" />
-                            Urgent
-                        </Button>
                         {bookingType === "Schedule" && (
                             <DateTimePicker
                                 date={payload.date}

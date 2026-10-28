@@ -11,7 +11,7 @@ export interface LabDraft {
     panels: string[];
     groups: string[];
     date: Date | undefined;
-    priority: "Normal" | "Urgent";
+    priority: "Normal";
     sampleType: string;
     status: string;
     technician: string;
@@ -53,6 +53,7 @@ export const LabDraftProvider: React.FC<{ children: React.ReactNode; userId: str
           ...d,
           payload: {
             ...d.payload,
+            priority: "Normal",
             date: d.payload.date ? new Date(d.payload.date) : undefined
           }
         }));

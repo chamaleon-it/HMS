@@ -1,12 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import {
-  CheckCircle2,
-  Eye,
-  FileText,
-  FlaskConical,
-  Hospital,
-} from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import React, { useState } from "react";
 import { DataType } from "./interface";
 import toast from "react-hot-toast";
@@ -17,7 +11,7 @@ export default function ActionButton({ data,testIsOK }: { data: DataType ,testIs
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const router = useRouter();
 
-  const consulting = async (status: string) => {
+  const consulting = async () => {
 
     if(!testIsOK){
       toast.error("Please confirm the test before proceeding.")
@@ -32,7 +26,7 @@ export default function ActionButton({ data,testIsOK }: { data: DataType ,testIs
 
       await toast.promise(
         api.patch(`/appointments/update_status/${data.appointment}`, {
-          status: status,
+          status: "Consulted",
         }),
         {
           loading: "Please wait we are updating status",
@@ -60,45 +54,11 @@ export default function ActionButton({ data,testIsOK }: { data: DataType ,testIs
   };
 
   return (
-    <div className="flex justify-between gap-2 mt-6">
-      <Button type="button" variant="outline">
-        <FileText className="w-4 h-4 mr-1" /> Print
-      </Button>
-      <motion.div whileTap={{ scale: 0.98 }} className="flex flex-wrap gap-3">
-        {/* Test Button */}
+    <div className="flex justify-end mt-6">
+      <motion.div whileTap={{ scale: 0.98 }}>
         <Button
           type="button"
-          onClick={() => consulting("Test")}
-          className="flex items-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-semibold shadow-sm cursor-pointer"
-        >
-          <FlaskConical className="w-4 h-4" />
-          Send for Test
-        </Button>
-
-        {/* Observation Button */}
-        <Button
-          type="button"
-          onClick={() => consulting("Observation")}
-          className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold shadow-sm cursor-pointer"
-        >
-          <Eye className="w-4 h-4" />
-          Observation
-        </Button>
-
-        {/* Admit Button */}
-        <Button
-          type="button"
-          onClick={() => consulting("Admit")}
-          className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-sm cursor-pointer"
-        >
-          <Hospital className="w-4 h-4" />
-          Admit
-        </Button>
-
-        {/* Complete Consultation */}
-        <Button
-          type="button"
-          onClick={() => consulting("Consulted")}
+          onClick={consulting}
           className="flex items-center gap-2 bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white font-semibold shadow-sm cursor-pointer"
         >
           <CheckCircle2 className="w-4 h-4" />

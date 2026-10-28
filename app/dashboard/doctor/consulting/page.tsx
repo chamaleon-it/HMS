@@ -6,7 +6,6 @@ import AppShell from "@/components/layout/app-shell";
 import ConsultationAndExaminationNotes from "./ConsultationAndExaminationNotes";
 import { redirect, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import FollowUpTime from "./FollowUpTime";
 import History from "./History";
 import AllergyAlert from "./AllergyAlert";
 // import { ConfettiBurst } from "./ConfettiBurst";
@@ -64,7 +63,6 @@ function ConsultingMenuContent() {
       }
     ],
     advice: null,
-    followUp: null,
     test: [],
   });
 
@@ -105,8 +103,6 @@ function ConsultingMenuContent() {
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             appointment={appointment}
-            data={data}
-            setData={setData}
           />
           {appointment.patient.allergies && (
             <AllergyAlert allergies={appointment.patient.allergies} />
@@ -130,11 +126,6 @@ function ConsultingMenuContent() {
                 <Test data={data} setData={setData} setTestIsOK={setTestIsOK} />
 
                 <Advice data={data} setData={setData} />
-                <FollowUpTime
-                  setData={setData}
-                  doctor={appointment.doctor}
-                  patient={appointment.patient._id}
-                />
                 <ActionButton data={data} testIsOK={testIsOK} />
               </Card>
             </div>

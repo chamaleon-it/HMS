@@ -69,10 +69,6 @@ export default function CreateBill({
     online: number;
     insurance: number;
     discount: number;
-    payer?: string;
-    policyNo?: string;
-    tpa?: string;
-    preAuthNo?: string;
     note?: string;
     rxId?: string;
   }>(defaultPayload);

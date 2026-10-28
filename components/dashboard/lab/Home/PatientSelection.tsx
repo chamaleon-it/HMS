@@ -101,11 +101,12 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
     return u.pathname + u.search;
   }, [debounced]);
 
-  const { data, isLoading } = useSWR<{ data: Patient[] }>(
+  const { data, error, isLoading } = useSWR<{ data: Patient[] }>(
     // Only hit API when user typed enough or when they focus & have something
     debounced.length >= MIN_QUERY_LEN ? listUrl : null
   );
-  const patients = data?.data ?? [];
+  const searching = input.trim() !== debounced || isLoading;
+  const patients = searching || error ? [] : data?.data ?? [];
 
   const handleSelect = useCallback(
     (p: Patient) => {
@@ -217,8 +218,10 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
           <div className="px-2 pt-2 text-sm text-zinc-500">
             {debounced.length < MIN_QUERY_LEN ? (
               <span>Type at least {MIN_QUERY_LEN} characters to search…</span>
-            ) : isLoading ? (
+            ) : searching ? (
               <span>Loading…</span>
+            ) : error ? (
+              <span>Unable to search patients. Please try again.</span>
             ) : patients.length === 0 ? (
               <div>
                 <div className="p-3 text-gray-500 text-sm border-b">
