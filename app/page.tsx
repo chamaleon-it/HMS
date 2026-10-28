@@ -92,7 +92,7 @@ export default function LoginPage() {
             }}
           />
 
-          <div className="absolute bottom-20 left-6 z-10 hidden w-full max-w-[26rem] md:left-10 lg:block">
+          <div className="absolute bottom-20 right-6 z-10 hidden w-full max-w-[21rem] md:right-10 xl:block 2xl:max-w-[26rem]">
             <div className="relative overflow-hidden rounded-3xl border border-white/20 bg-[#160a05]/55 p-6 shadow-[0_20px_60px_-24px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-fade-up-delay-2">
               <div className="absolute bottom-6 left-0 top-6 w-1 rounded-r-full bg-[#e6b589]" />
               <div className="mb-3 flex items-center gap-3">
@@ -110,7 +110,7 @@ export default function LoginPage() {
           </div>
 
           <div className="relative mx-auto grid min-h-screen w-11/12 grid-cols-1 items-stretch gap-10 py-28 sm:w-10/12 lg:w-11/12 lg:gap-12 lg:py-16 xl:w-3/4 xl:gap-16 xl:py-20">
-            <section className="w-full max-w-lg ml-auto self-center flex flex-col gap-10">
+            <section className="mx-auto flex w-full max-w-lg flex-col gap-10 self-center">
               <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-black/20 p-6 text-white shadow-[0_24px_70px_-24px_rgba(10,5,3,0.6)] backdrop-blur-sm sm:p-8 animate-fade-up-delay-2">
                 <div className="absolute inset-x-6 top-0 h-[3px] rounded-full bg-gradient-to-r from-[var(--brand)] via-[#ead0b8] to-[var(--brand)]" />
 
