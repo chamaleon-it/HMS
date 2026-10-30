@@ -307,7 +307,7 @@ export default function UpdatePrescriptionCard({
 
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Amount Due</span>
-            <span className="text-red-600">{formatINR((subTotal - (data.discount || 0)) - (data.paidAmount ?? 0))}</span>
+            <span className="text-red-600">{formatINR(data.paymentStatus === "Paid" ? 0 : Math.max(0, (subTotal - (data.discount || 0)) - (data.paidAmount ?? 0)))}</span>
           </div>
 
           <div className="flex justify-between text-md font-semibold text-slate-800 border-t pt-2">

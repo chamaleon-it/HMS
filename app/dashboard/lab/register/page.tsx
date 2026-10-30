@@ -147,11 +147,11 @@ export default function LabRegisterPage() {
   const enteredRefund = Number(payment.refund) || 0;
   const enteredNetPaid = enteredPaid - enteredRefund;
   const enteredDiscount = Number(payment.discount) || 0;
-  const dueBeforeEdit = Math.max(0, billSubtotal - (activeBill?.discount || 0) - recordedNetPaid);
-  const remainingDue = Math.max(0, billSubtotal - enteredDiscount - enteredNetPaid);
+  const dueBeforeEdit = Math.max(0, billSubtotal - (activeBill?.discount || 0) - recordedPaid);
+  const remainingDue = Math.max(0, billSubtotal - enteredDiscount - enteredPaid);
 
   const fillPaymentMethod = (field: "cash" | "online" | "card") => {
-    const totalToPay = Math.max(0, billSubtotal - enteredDiscount + enteredRefund);
+    const totalToPay = Math.max(0, billSubtotal - enteredDiscount);
     setPayment({
       cash: field === "cash" ? String(totalToPay) : "0",
       online: field === "online" ? String(totalToPay) : "0",
@@ -236,7 +236,7 @@ export default function LabRegisterPage() {
                     <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Invoice</TableHead>
                     <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Date</TableHead>
                     <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Patient</TableHead>
-                    <TableHead className="py-3 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Paid Amount</TableHead>
+                    <TableHead className="py-3 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Net Collected</TableHead>
                     <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Payment</TableHead>
                     <TableHead className="py-3 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Total Bill</TableHead>
                     <TableHead className="py-3 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Discount</TableHead>
@@ -272,8 +272,8 @@ export default function LabRegisterPage() {
                         const cardAmount = b.card ?? 0;
                         const paidTotal = (b.cash || 0) + (b.online || 0) + cardAmount;
                         const netPaid = paidTotal - (b.refund || 0);
-                        const due = Math.max(0, billTotal - (b.discount || 0) - netPaid);
-                        const paymentStatus = due === 0 ? "Paid" : netPaid <= 0 ? "Unpaid" : "Partially Paid";
+                        const due = Math.max(0, billTotal - (b.discount || 0) - paidTotal);
+                        const paymentStatus = due === 0 ? "Paid" : paidTotal <= 0 ? "Unpaid" : "Partially Paid";
                         return (
                       <TableRow
                         className={idx % 2 === 0
@@ -385,7 +385,7 @@ export default function LabRegisterPage() {
                         {formatINR(billing.reduce((sum, bill) => {
                           const total = bill.items?.reduce((itemsSum, item) => itemsSum + (item.total || 0), 0) || 0;
                           const paid = (bill.cash || 0) + (bill.online || 0) + (bill.card || 0);
-                          return sum + Math.max(0, total - (bill.discount || 0) - paid + (bill.refund || 0));
+                          return sum + Math.max(0, total - (bill.discount || 0) - paid);
                         }, 0))}
                       </TableCell>
                       <TableCell />
@@ -429,7 +429,7 @@ export default function LabRegisterPage() {
                 </div>
                 <div className="mt-5 grid grid-cols-3 divide-x rounded-2xl border border-slate-200 bg-white py-3 text-center shadow-sm">
                   <div><p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Total Bill</p><p className="mt-1 font-bold text-slate-900">{formatINR(billSubtotal)}</p></div>
-                  <div><p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-600">Recorded So Far</p><p className="mt-1 font-bold text-emerald-700">{formatINR(recordedNetPaid)}</p></div>
+                  <div><p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-600">Net Collected</p><p className="mt-1 font-bold text-emerald-700">{formatINR(recordedNetPaid)}</p></div>
                   <div><p className="text-[10px] font-semibold uppercase tracking-wide text-rose-500">Due Amount</p><p className="mt-1 font-bold text-rose-600">{formatINR(dueBeforeEdit)}</p></div>
                 </div>
               </div>
@@ -478,7 +478,7 @@ export default function LabRegisterPage() {
                 </label>
                 <p className="mt-2 text-[10px] leading-4 text-slate-500">Enter the amounts collected and any refund given. These values replace what is recorded on the bill.</p>
                 <div className="mt-4 space-y-1 rounded-2xl border border-slate-100 bg-white px-3 py-3 text-xs text-slate-600">
-                  <div className="flex justify-between"><span>Total Paid (Cash + UPI + Card − Refund)</span><span className="font-semibold text-emerald-700">{formatINR(enteredNetPaid)}</span></div>
+                  <div className="flex justify-between"><span>Net Collected (Cash + UPI + Card − Refund)</span><span className="font-semibold text-emerald-700">{formatINR(enteredNetPaid)}</span></div>
                   <div className="flex justify-between"><span>Change from recorded</span><span className={`font-semibold ${enteredNetPaid >= recordedNetPaid ? "text-emerald-700" : "text-rose-600"}`}>{enteredNetPaid >= recordedNetPaid ? "+" : "−"}{formatINR(Math.abs(enteredNetPaid - recordedNetPaid))}</span></div>
                   <div className="flex justify-between border-t border-slate-100 pt-1 font-bold text-slate-800"><span>Remaining Due</span><span className="text-emerald-700">{formatINR(remainingDue)}{remainingDue === 0 ? " (Fully Settled ✓)" : ""}</span></div>
                 </div>

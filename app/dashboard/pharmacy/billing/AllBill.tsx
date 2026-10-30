@@ -71,7 +71,7 @@ const billDue = (bill: PropsType["billing"][number]) =>
     ? 0
     : Math.max(
         0,
-        Number((billTotal(bill) - (bill.discount || 0) - paidAmount(bill)).toFixed(2)),
+        Number((billTotal(bill) - (bill.discount || 0) - (bill.cash || 0) - (bill.online || 0) - (bill.card || 0)).toFixed(2)),
       );
 
 export default function AllBill({ billing, filter, setFilter, total, billingMutate, onEdit }: PropsType) {
@@ -119,7 +119,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Items</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Total</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Discount</TableHead>
-                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Paid</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Net Collected</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Due</TableHead>
                 <TableHead className="py-2.5 text-center text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Status</TableHead>
                 <TableHead className="py-2.5 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Action</TableHead>
@@ -193,7 +193,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     <TableCell className="py-3 text-center">
                       <StatusPill
                         s={(() => {
-                          const paid = paidAmount(b);
+                          const paid = (b.cash || 0) + (b.online || 0) + (b.card || 0);
                           return b.transactionType === "Return" ? "Return" : billDue(b) === 0
                             ? "Paid"
                             : paid <= 0

@@ -66,7 +66,7 @@ const dueAmount = (bill: PropsType["billing"][number]) =>
           (
             bill.items.reduce((sum, item) => sum + item.total, 0) -
             (bill.discount || 0) -
-            paidAmount(bill)
+            (bill.cash || 0) + (bill.online || 0) + (bill.card || 0)
           ).toFixed(2),
         ),
       );
@@ -126,7 +126,7 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                 Discount
               </TableHead>
               <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">
-                Paid
+                Net Collected
               </TableHead>
               <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">
                 Due
@@ -213,7 +213,7 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                   <TableCell className="py-3 text-center">
                     <StatusPill
                       s={(() => {
-                        const paid = paidAmount(b);
+                        const paid = (b.cash || 0) + (b.online || 0) + (b.card || 0);
                         return dueAmount(b) === 0
                           ? "Paid"
                           : paid <= 0
