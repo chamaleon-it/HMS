@@ -32,7 +32,10 @@ export const registerPatientSchema = z.object({
   }),
 
   dateOfBirth: z.string().optional().or(z.literal("")),
-  age: z.union([z.string(), z.number()]).optional(),
+  age: z.union([z.string(), z.number()]).refine(
+    (value) => String(value).trim() !== "" && Number.isInteger(Number(value)) && Number(value) >= 0,
+    "Age (Years) is required and must be a non-negative whole number"
+  ),
 
   month: z.union([z.string(), z.number()]).optional(),
 

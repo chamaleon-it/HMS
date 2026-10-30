@@ -30,6 +30,17 @@ import { useAuth } from "@/auth/context/auth-context";
 import Address from "./Address";
 import { RegisterPatientSchema } from "@/schemas/registerPatientSchema";
 
+function ageYearsFromDob(dob?: string | Date | null) {
+  if (!dob) return "";
+  const date = new Date(dob);
+  if (Number.isNaN(date.getTime())) return "";
+  const today = new Date();
+  const years = today.getFullYear() - date.getFullYear() -
+    (today.getMonth() < date.getMonth() ||
+      (today.getMonth() === date.getMonth() && today.getDate() < date.getDate()) ? 1 : 0);
+  return String(Math.max(0, years));
+}
+
 export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string) => void, patient?: any, mutate?: () => void }) {
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -51,7 +62,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
       doctor: patient?.doctor || user?._id,
       gender: patient?.gender,
       dateOfBirth: patient?.dateOfBirth || "",
-      age: patient?.age || "",
+      age: patient?.age != null && String(patient.age).trim() !== "" ? String(patient.age) : ageYearsFromDob(patient?.dateOfBirth),
       month: patient?.month || "",
       address: patient?.address || "",
       allergies: patient?.allergies || "",
@@ -106,7 +117,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         doctor: patient?.doctor || user?._id,
         gender: patient?.gender,
         dateOfBirth: patient?.dateOfBirth || "",
-        age: patient?.age || "",
+        age: patient?.age != null && String(patient.age).trim() !== "" ? String(patient.age) : ageYearsFromDob(patient?.dateOfBirth),
         month: patient?.month || "",
         address: patient?.address || "",
         allergies: patient?.allergies || "",
@@ -269,7 +280,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                         months += 12;
                       }
 
-                      setValue("age", years.toString());
+                      setValue("age", years.toString(), { shouldValidate: true });
                       setValue("month", months.toString());
                       setDobSetFromAge(false);
                     } else {
@@ -291,7 +302,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           <div className="">
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label>Age (Years)</Label>
+                <Label>Age (Years) *</Label>
                 <Input
                   {...register("age")}
                   ref={mergeRefs(refs.age, register("age").ref)}
@@ -301,9 +312,9 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                   onChange={(e) => {
                     const ageValue = e.target.value;
                     const monthValue = values.month || "0";
-                    setValue("age", ageValue);
+                    setValue("age", ageValue, { shouldValidate: true });
 
-                    if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
+                    if (ageValue !== "" && Number.isInteger(Number(ageValue)) && Number(ageValue) >= 0) {
                       const today = new Date();
                       const estimatedDob = new Date(
                         today.getFullYear() - Number(ageValue || 0),
@@ -329,10 +340,10 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                   onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
                   onChange={(e) => {
                     const monthValue = e.target.value;
-                    const ageValue = values.age || "0";
+                    const ageValue = values.age ?? "";
                     setValue("month", monthValue);
 
-                    if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
+                    if (String(ageValue).trim() !== "" && Number.isInteger(Number(ageValue)) && Number(ageValue) >= 0) {
                       const today = new Date();
                       const estimatedDob = new Date(
                         today.getFullYear() - Number(ageValue || 0),

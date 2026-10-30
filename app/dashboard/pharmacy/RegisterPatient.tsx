@@ -44,9 +44,10 @@ function ageFromDob(dob?: string | Date | null) {
 }
 
 function dobFromAge(ageValue: string | number | undefined, monthValue: string | number | undefined) {
+  if (String(ageValue ?? "").trim() === "") return "";
   const years = Number(ageValue || 0);
   const months = Number(monthValue || 0);
-  if (!(years > 0 || months > 0)) return "";
+  if (!Number.isInteger(years) || years < 0 || !Number.isFinite(months)) return "";
   const today = new Date();
   const estimatedDob = new Date(
     today.getFullYear() - years,
@@ -291,7 +292,7 @@ export function RegisterPatient({
           <div className="grid gap-2 sm:col-span-1">
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label>Age (Years)</Label>
+                <Label>Age (Years) *</Label>
                 <Input
                   {...register("age")}
                   ref={mergeRefs(refs.age, register("age").ref)}
@@ -301,7 +302,7 @@ export function RegisterPatient({
                   onChange={(e) => {
                     const ageValue = e.target.value;
                     const monthValue = values.month || "0";
-                    setValue("age", ageValue);
+                    setValue("age", ageValue, { shouldValidate: true });
                     setValue("dateOfBirth", dobFromAge(ageValue, monthValue));
                   }}
                 />
@@ -315,7 +316,7 @@ export function RegisterPatient({
                   placeholder="0"
                   onChange={(e) => {
                     const monthValue = e.target.value;
-                    const ageValue = values.age || "0";
+                    const ageValue = values.age ?? "";
                     setValue("month", monthValue);
                     setValue("dateOfBirth", dobFromAge(ageValue, monthValue));
                   }}
