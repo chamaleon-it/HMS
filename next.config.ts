@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 
-// Desktop packaging still needs a static export (`npm run pack`).
-// Cloudways Node runs `npm run build` and `next start`, which cannot serve `output: "export"`.
-const isStaticExport = process.env.NEXT_OUTPUT === "export";
+
 
 // `yarn build` sets this. Cloudways killed `next build` with exit 137 (SIGKILL)
 // while the TypeScript worker started on top of the compiler. Check types with
@@ -10,7 +8,6 @@ const isStaticExport = process.env.NEXT_OUTPUT === "export";
 const lowMemoryBuild = process.env.SKIP_TYPECHECK === "1";
 
 const nextConfig: NextConfig = {
-  ...(isStaticExport ? { output: "export" as const } : {}),
   ...(lowMemoryBuild
     ? {
         typescript: { ignoreBuildErrors: true },
