@@ -10,7 +10,8 @@
   "main": "main.js",
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build",
+    "build": "SKIP_TYPECHECK=1 next build",
+    "typecheck": "tsc --noEmit",
     "start": "next start -H 0.0.0.0 -p ${PORT:-3000}",
     "pack": "NEXT_OUTPUT=export next build && electron-builder",
     "lint": "next lint",
