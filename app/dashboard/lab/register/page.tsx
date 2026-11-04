@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import AppShell from "@/components/layout/app-shell";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
 import useSWR from "swr";
-import { formatINR, getDecimal } from "@/lib/fNumber";
+import { formatINR } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import DateFilter from "../../pharmacy/DateFilter";
 import { TableSkeleton } from "../../pharmacy/components/PharmacySkeleton";
@@ -18,10 +18,11 @@ import {
   TableRow,
   TableFooter,
 } from "@/components/ui/table";
-import { Search, RefreshCcw } from "lucide-react";
+import { CheckCircle2, Search, RefreshCcw } from "lucide-react";
 import { PaginationBar } from "../../pharmacy/components/PaginationBar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import PayBillDialog, { billDue, type RegisterBill } from "./PayBillDialog";
 
 export interface FilterType {
   q: null | string;
@@ -33,6 +34,7 @@ export interface FilterType {
 }
 
 export default function LabRegisterPage() {
+  const [selectedBill, setSelectedBill] = useState<RegisterBill | null>(null);
   const [filter, setFilter] = useState<FilterType>({
     q: null,
     qEnd: null,
@@ -72,7 +74,7 @@ export default function LabRegisterPage() {
   params.set("page", String(filter.page));
   params.set("limit", String(filter.limit));
 
-  const { data: billingData, isLoading } = useSWR<{
+  const { data: billingData, isLoading, mutate: billingMutate } = useSWR<{
     message: string;
     total: number;
     data: {
@@ -173,7 +175,7 @@ export default function LabRegisterPage() {
 
           <div className="bg-white/90 border rounded-2xl shadow-md shadow-slate-200 overflow-hidden">
             {isLoading ? (
-              <TableSkeleton rows={10} columns={6} />
+              <TableSkeleton rows={10} columns={8} />
             ) : (
               <Table className="min-w-[1000px] text-sm" containerClassName="max-h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
                 <TableHeader className="bg-slate-700 sticky top-0 z-20 shadow-sm">
@@ -183,13 +185,15 @@ export default function LabRegisterPage() {
                     <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Date</TableHead>
                     <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Patient</TableHead>
                     <TableHead className="py-3 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Paid Amount</TableHead>
+                    <TableHead className="py-3 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Discount</TableHead>
                     <TableHead className="py-3 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Total Bill</TableHead>
+                    <TableHead className="py-3 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {billing.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="py-20 text-center">
+                      <TableCell colSpan={8} className="py-20 text-center">
                         <div className="flex flex-col items-center gap-2">
                           <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center dark:bg-slate-800">
                             <Search className="h-6 w-6 text-slate-300" />
@@ -229,8 +233,27 @@ export default function LabRegisterPage() {
                         <TableCell className="py-3 text-right tabular-nums text-emerald-600 font-medium">
                           {formatINR((b.cash || 0) + (b.online || 0) + (b.insurance || 0))}
                         </TableCell>
+                        <TableCell className="py-3 text-right tabular-nums font-medium text-slate-700">
+                          {formatINR(b.discount || 0)}
+                        </TableCell>
                         <TableCell className="py-3 text-right pr-4 tabular-nums font-medium text-slate-900">
                           {formatINR(b.items?.reduce((a, b) => a + (b.total || 0), 0) || 0)}
+                        </TableCell>
+                        <TableCell className="py-3 pr-4 text-right">
+                          {b.transactionType === "Sale" && (billDue(b) > 0 ? (
+                            <Button
+                              size="sm"
+                              onClick={() => setSelectedBill(b)}
+                              className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700"
+                              aria-label={`Mark invoice ${b.mrn} as paid`}
+                            >
+                              <CheckCircle2 className="h-4 w-4" /> Paid
+                            </Button>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-700">
+                              <CheckCircle2 className="h-4 w-4" /> Paid
+                            </span>
+                          ))}
                         </TableCell>
                       </TableRow>
                     ))
@@ -245,9 +268,13 @@ export default function LabRegisterPage() {
                       <TableCell className="py-4 text-right tabular-nums text-emerald-700 font-black">
                         {formatINR(billing.reduce((acc, b) => b.transactionType === "Return" ? acc - (b.cash || 0) : acc + (b.insurance || 0) + (b.cash || 0) + (b.online || 0), 0))}
                       </TableCell>
+                      <TableCell className="py-4 text-right tabular-nums text-slate-800 font-black">
+                        {formatINR(billing.reduce((acc, b) => acc + (b.transactionType === "Return" ? -(b.discount || 0) : (b.discount || 0)), 0))}
+                      </TableCell>
                       <TableCell className="py-4 text-right pr-4 tabular-nums text-slate-900 font-black">
                         {formatINR(billing.reduce((acc, b) => acc + (b.transactionType === "Return" ? 0 : b.items?.reduce((a, x) => a + (x.total || 0), 0) || 0), 0) - billing.reduce((acc, b) => acc + (b.transactionType === "Sale" ? 0 : b.items?.reduce((a, x) => a + (x.total || 0), 0) || 0), 0))}
                       </TableCell>
+                      <TableCell />
                     </TableRow>
                   </TableFooter>
                 )}
@@ -267,6 +294,14 @@ export default function LabRegisterPage() {
           )}
         </div>
       </div>
+      {selectedBill && (
+        <PayBillDialog
+          key={selectedBill._id}
+          bill={selectedBill}
+          onClose={() => setSelectedBill(null)}
+          onPaid={() => billingMutate()}
+        />
+      )}
     </AppShell>
   );
 }

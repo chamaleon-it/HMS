@@ -40,25 +40,22 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
     const billDate = bill?.createdAt ? new Date(bill.createdAt) : new Date();
 
     // Calculate items
-    let items: { name: string; total: number; gst?: number }[] = [];
+    let items: { name: string; total: number }[] = [];
     let subtotal = 0;
-    let totalGst = 0;
     let grandTotal = 0;
 
     if (bill) {
         items = bill.items.map((it: any) => ({
             name: it.name,
-            total: it.total,
-            gst: it.gst
+            total: it.total
         }));
-        subtotal = bill.items.reduce((sum: number, item: any) => sum + (item.quantity * item.unitPrice - item.discount), 0);
-        totalGst = bill.items.reduce((sum: number, item: any) => sum + ((item.quantity * item.unitPrice - item.discount) * item.gst) / 100, 0);
-        grandTotal = Math.max(0, bill.items.reduce((sum: number, item: any) => sum + item.total, 0) - (bill.discount || 0));
+        subtotal = items.reduce((sum, item) => sum + item.total, 0);
+        grandTotal = Math.max(0, subtotal - (bill.discount || 0));
     } else {
         // Group tests by panels if they belong to a panel
         const selectedPanels = panels?.filter(p => report.panels?.includes(p.name)) || [];
         selectedPanels.forEach(p => {
-            items.push({ name: p.name, total: p.price || 0, gst: 0 });
+            items.push({ name: p.name, total: p.price || 0 });
         });
 
         const panelTests = selectedPanels.flatMap((e: any) => e.tests || []).map((e: any) => e._id);
@@ -66,12 +63,11 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
         // Standalone tests
         report.test?.filter((t: any) => !panelTests.includes(t.name?._id)).forEach((t: any) => {
             const testDetails = tests.find((test) => test._id === t.name?._id);
-            items.push({ name: t.name?.name || "Test", total: testDetails?.price || 0, gst: 0 });
+            items.push({ name: t.name?.name || "Test", total: testDetails?.price || 0 });
         });
 
         subtotal = items.reduce((a, b) => a + b.total, 0);
-        totalGst = 0;
-        grandTotal = subtotal + totalGst;
+        grandTotal = subtotal;
     }
 
     const totalRowsNeeded = 21;
@@ -193,8 +189,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                         <thead className="bg-[#d9d9d9] border-b border-[#c5c9cf] text-[11px] font-semibold text-black">
                             <tr>
                                 <th style={{ width: "10%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">SL</th>
-                                <th style={{ width: "60%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Test</th>
-                                <th style={{ width: "10%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">GST %</th>
+                                <th style={{ width: "70%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Test</th>
                                 <th style={{ width: "20%" }} className="px-3 py-2 text-right">Amount</th>
                             </tr>
                         </thead>
@@ -206,7 +201,6 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                                         <td className="px-3 py-0.5 border-r border-[#c5c9cf] leading-snug">
                                             <p className="font-bold text-black text-[12px]">{item.name}</p>
                                         </td>
-                                        <td className="px-2 py-0.5 text-center text-black text-[12px] font-medium border-r border-[#c5c9cf]">{item.gst ?? 0}%</td>
                                         <td className="px-3 py-0.5 text-right font-bold text-black text-[12px]">{formatINR(item.total)}</td>
                                     </tr>
                                 );
@@ -215,7 +209,6 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                                 <tr key={`empty-${idx}`} className="h-[38px] bg-transparent select-none">
                                     <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                     <td className="border-r border-[#c5c9cf] px-3 py-0.5">&nbsp;</td>
-                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                     <td className="px-3 py-0.5">&nbsp;</td>
                                 </tr>
                             ))}
@@ -244,17 +237,12 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
 
                     {/* Right: Consolidated Billing Summary Box */}
                     <div className="w-[36%] border border-[#9ca3af] rounded-br-2xl rounded-bl-2xl overflow-hidden bg-white flex flex-col justify-between">
-                        {/* Top: Gross Amount & GST */}
+                        {/* Top: Gross Amount and Discount */}
                         <div className="px-4 py-1.5 flex flex-col justify-center text-[12px] bg-white gap-0.5 flex-1">
                             <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
                                 <span className="font-semibold text-gray-700">Gross Amount</span>
                                 <span className="font-bold">:</span>
                                 <span className="font-bold text-right">{formatINR(subtotal)}</span>
-                            </div>
-                            <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
-                                <span className="font-semibold text-gray-700">CGST/SGST Total</span>
-                                <span className="font-bold">:</span>
-                                <span className="font-bold text-right">{formatINR(totalGst)}</span>
                             </div>
                             {Boolean(bill?.discount) && (
                                 <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
