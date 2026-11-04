@@ -13,10 +13,12 @@ import DateTimePicker from "./DateTimePicker";
 import PatientSelection from "./PatientSelection";
 import Select from "./AppointmentSelect";
 import BlankPrescription from "./BlankPrescription";
+import PatientRegistrationBillPrint from "@/app/dashboard/reception/PatientRegistrationBillPrint";
 import AppointmentPaymentFields from "./AppointmentPaymentFields";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { positiveMoney } from "@/lib/pharmacyReceiptLine";
+import { registrationConsultationFee } from "@/lib/registrationBillValidity";
 import {
   AppointmentPayment,
   EMPTY_APPOINTMENT_PAYMENT,
@@ -87,6 +89,9 @@ export function CreateAppointmentForm({
       name: string;
       email: string;
       consultationFee?: number;
+      qualification?: string;
+      specialization?: string;
+      department?: string;
     }[];
     message: string;
   }>("/users/doctors", {
@@ -219,6 +224,24 @@ export function CreateAppointmentForm({
   const autoGeneratePrescription = profile?.data?.pharmacy?.billing?.autoGeneratePrescription || false;
 
   const [printData, setPrintData] = React.useState<any>(null);
+  const [registrationBillData, setRegistrationBillData] = React.useState<any>(null);
+
+  const printAfterRender = (onFinished: () => void) => {
+    setTimeout(() => {
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        window.removeEventListener("afterprint", finish);
+        onFinished();
+      };
+      window.addEventListener("afterprint", finish);
+      const startedAt = Date.now();
+      window.print();
+      // Some print implementations block until the dialog closes without firing afterprint.
+      if (Date.now() - startedAt > 250) finish();
+    }, 500);
+  };
 
 
   const createAppointment = handleSubmit(async (data) => {
@@ -259,41 +282,39 @@ export function CreateAppointmentForm({
         error: ({ response }) => response.data.message,
       });
 
-      if (autoGeneratePrescription) {
+      let printPayload = res.data?.data;
+      const createdId = printPayload?._id;
+      if (createdId) {
         try {
-          const createdId = res.data?.data?._id;
-          if (createdId) {
-            const { data: fullAppt } = await api.get(`/appointments/single/${createdId}`);
-            let printPayload = fullAppt.data;
-            if (typeof printPayload.doctor === 'string') {
-              const selectedDoctor = doctorsData?.data?.find((d) => d._id === printPayload.doctor);
-              if (selectedDoctor) {
-                printPayload = { ...printPayload, doctor: selectedDoctor };
-              }
-            }
-            setPrintData(printPayload);
-            await refreshCalendars();
-            if (mutate) mutate();
-            reset({
-              doctor: doctorsData?.data[0]?._id,
-              method: "In clinic",
-              type: "New",
-              isPaid: "false",
-            });
-            setPayment(EMPTY_APPOINTMENT_PAYMENT);
-
-            setTimeout(() => {
-              window.print();
-              setPrintData(null);
-              onClose();
-            }, 500);
-            return;
-          }
+          const { data: fullAppt } = await api.get(`/appointments/single/${createdId}`);
+          printPayload = fullAppt.data;
         } catch (err) {
-          console.error("Failed to prepare prescription print", err);
-          // Fallback simple close if print prep fails
+          console.error("Failed to load full appointment for printing", err);
         }
       }
+
+      const patient = typeof printPayload?.patient === "object" && printPayload.patient?.name
+        ? printPayload.patient
+        : selected;
+      const doctorId = typeof printPayload?.doctor === "object"
+        ? printPayload.doctor?._id
+        : printPayload?.doctor || data.doctor;
+      const doctor = typeof printPayload?.doctor === "object" && printPayload.doctor?.name
+        ? printPayload.doctor
+        : doctorsData?.data?.find((d) => d._id === doctorId);
+
+      setRegistrationBillData({
+        patient,
+        doctor,
+        date: printPayload?.date || data.date,
+        token: printPayload?.token,
+        tokenNumber: printPayload?.tokenNumber,
+        fee: registrationConsultationFee({
+          hasConsultationFee: printPayload?.hasConsultationFee,
+          consultationFee: doctor?.consultationFee ?? chargePreview?.data?.consultationFee,
+        }),
+        consultationValidUntil: printPayload?.consultationValidUntil,
+      });
 
       reset({
         doctor: doctorsData?.data[0]?._id,
@@ -302,12 +323,22 @@ export function CreateAppointmentForm({
         isPaid: "false",
       });
       setPayment(EMPTY_APPOINTMENT_PAYMENT);
-      onClose();
-      if (mutate) {
-        mutate();
-      }
+      mutate?.();
+      void refreshCalendars().catch((err) => console.error("Failed to refresh appointments", err));
 
-      await refreshCalendars();
+      printAfterRender(() => {
+        setRegistrationBillData(null);
+
+        if (autoGeneratePrescription) {
+          setPrintData({ ...printPayload, patient, doctor });
+          printAfterRender(() => {
+            setPrintData(null);
+            onClose();
+          });
+        } else {
+          onClose();
+        }
+      });
     } catch (error) {
 
     }
@@ -524,6 +555,7 @@ export function CreateAppointmentForm({
           </Button>
         </div>
         {printData && <BlankPrescription data={printData} />}
+        {registrationBillData && <PatientRegistrationBillPrint data={registrationBillData} />}
       </form>
 
       <Dialog open={openCreate} onOpenChange={setOpenCreate}>

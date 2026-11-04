@@ -1,13 +1,16 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { format } from "date-fns";
 import useSWR from "swr";
-import { Banknote, CreditCard, IndianRupee, Smartphone } from "lucide-react";
+import { Banknote, CalendarDays, CreditCard, IndianRupee, Smartphone } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { formatINR } from "@/lib/fNumber";
 import { fDate } from "@/lib/fDateAndTime";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
     Dialog,
     DialogContent,
@@ -61,6 +64,8 @@ export function RecordPaymentModal({
     const [cash, setCash] = useState("");
     const [card, setCard] = useState("");
     const [upi, setUpi] = useState("");
+    const [paymentDate, setPaymentDate] = useState<Date>(() => new Date());
+    const [datePickerOpen, setDatePickerOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [serverError, setServerError] = useState("");
 
@@ -76,6 +81,8 @@ export function RecordPaymentModal({
         setCash("");
         setCard("");
         setUpi("");
+        setPaymentDate(new Date());
+        setDatePickerOpen(false);
         setServerError("");
         setSubmitting(false);
     }, [open, supplier?._id]);
@@ -119,6 +126,7 @@ export function RecordPaymentModal({
                 cash: cashAmount,
                 card: cardAmount,
                 upi: upiAmount,
+                date: format(paymentDate, "yyyy-MM-dd"),
             });
             toast.success("Payment recorded");
             onRecorded();
@@ -185,6 +193,37 @@ export function RecordPaymentModal({
                     <div className="flex items-center justify-between rounded-xl bg-rose-50 px-3 py-2.5 text-sm" data-testid="total-due">
                         <span className="font-medium text-rose-800">Total Due amount</span>
                         <span className="font-bold text-rose-900">{formatINR(totalDue)}</span>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label htmlFor="supplier-payment-date" className="text-sm font-medium text-slate-700">Payment date</label>
+                        <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    type="button"
+                                    id="supplier-payment-date"
+                                    variant="outline"
+                                    className="w-full justify-start gap-2 text-left font-normal"
+                                    data-testid="payment-date"
+                                >
+                                    <CalendarDays className="h-4 w-4 text-slate-500" />
+                                    {fDate(paymentDate)}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent align="start" className="w-auto p-0">
+                                <Calendar
+                                    mode="single"
+                                    selected={paymentDate}
+                                    onSelect={(date) => {
+                                        if (date) {
+                                            setPaymentDate(date);
+                                            setDatePickerOpen(false);
+                                        }
+                                    }}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
                     </div>
 
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

@@ -461,6 +461,9 @@ export default function AccountsPage() {
                   <TableHead className="font-semibold text-slate-700">
                     Created At
                   </TableHead>
+                  <TableHead className="font-semibold text-slate-700 text-center">
+                    Tally Sync
+                  </TableHead>
                   <TableHead className="font-semibold text-slate-700 text-right">
                     Actions
                   </TableHead>
@@ -471,14 +474,14 @@ export default function AccountsPage() {
                 {isLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i} className="animate-pulse">
-                      <TableCell colSpan={9} className="py-4">
+                      <TableCell colSpan={12} className="py-4">
                         <div className="h-4 bg-slate-100 rounded-md w-full" />
                       </TableCell>
                     </TableRow>
                   ))
                 ) : transactions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="h-64 text-center">
+                    <TableCell colSpan={12} className="h-64 text-center">
                       <div className="flex flex-col items-center justify-center">
                         <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
                           <Receipt className="w-6 h-6" />
@@ -573,6 +576,14 @@ export default function AccountsPage() {
                         </TableCell>
                         <TableCell className="text-xs text-slate-400">
                           {formattedCreatedAt}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-semibold ${txn.tallySynced
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            : "border-slate-200 bg-slate-50 text-slate-600"
+                            }`}>
+                            {txn.tallySynced ? "Yes" : "No"}
+                          </span>
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">

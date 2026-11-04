@@ -11,7 +11,7 @@ import { TallyDialog } from "@/components/shared/tally/TallyDialog";
 import useAppointmentList from "@/hooks/useAppointmentList";
 import { useAuth } from "@/auth/context/auth-context";
 import SearchBar from "./SearchBar";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import Link from "next/link";
@@ -40,6 +40,7 @@ function PendingCount({ url }: { url: string }) {
 }
 
 export default function Header() {
+  const { mutate: globalMutate } = useSWRConfig();
   const [openCreate, setOpenCreate] = useState(false);
   const [openPatient, setOpenPatient] = useState(false);
   const [openSync, setOpenSync] = useState(false);
@@ -85,6 +86,11 @@ export default function Header() {
     } finally {
       setSyncingTally(false);
       void refreshTallyStatus();
+      void globalMutate(
+        (key) => typeof key === "string" && (key.startsWith("/accounts?") || key.startsWith("/admin/billing?")),
+        undefined,
+        { revalidate: true },
+      );
     }
   };
 

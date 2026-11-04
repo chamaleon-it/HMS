@@ -82,6 +82,7 @@ export interface AccountTransaction {
   createdAt: string;
   updatedAt: string;
   isDeleted?: boolean;
+  tallySynced?: boolean;
 }
 
 export interface AccountTransactionSummary {

@@ -40,6 +40,7 @@ interface PropsType {
     card: number;
     upi: number;
     discount: number;
+    tallySynced?: boolean;
     items: {
       name: string;
       total: number;
@@ -99,13 +100,14 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Paid</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Due</TableHead>
                 <TableHead className="py-2.5 text-center text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Status</TableHead>
+                <TableHead className="py-2.5 text-center text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Tally Sync</TableHead>
                 <TableHead className="py-2.5 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {billing.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={13} className="py-20 text-center">
+                  <TableCell colSpan={15} className="py-20 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center dark:bg-slate-800">
                         <Search className="h-6 w-6 text-slate-300" />
@@ -196,6 +198,16 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     <TableCell className="py-3 text-center">
                       <StatusPill s={accountantPaymentStatus(b)} />
                     </TableCell>
+                    <TableCell className="py-3 text-center">
+                      <span className={cn(
+                        "inline-flex rounded-full border px-2 py-0.5 text-xs font-semibold",
+                        b.tallySynced
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "border-slate-200 bg-slate-50 text-slate-600",
+                      )}>
+                        {b.tallySynced ? "Yes" : "No"}
+                      </span>
+                    </TableCell>
                     <TableCell className="py-3 pr-4">
                       <div className="flex justify-end items-center gap-1">
                         <Tooltip>
@@ -246,7 +258,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     )
                     )}
                   </TableCell>
-                  <TableCell colSpan={2} />
+                  <TableCell colSpan={3} />
                 </TableRow>
               </TableFooter>
             )}

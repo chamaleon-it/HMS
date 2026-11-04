@@ -113,6 +113,7 @@ export default function AdminBillingPage() {
       card: number;
       upi: number;
       discount: number;
+      tallySynced?: boolean;
       items: {
         name: string;
         total: number;

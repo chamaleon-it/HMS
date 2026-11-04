@@ -27,6 +27,7 @@ type PaymentAllocation = {
 type SupplierPaymentRecord = {
     _id: string;
     date: string | Date;
+    createdAt?: string | Date;
     cash: number;
     card: number;
     upi: number;
@@ -100,8 +101,12 @@ export function PaymentHistoryModal({
                                 className="rounded-xl border border-slate-200 bg-white px-3 py-3"
                             >
                                 <div className="mb-2 text-sm font-semibold text-slate-900">
-                                    {fDate(payment.date)}
-                                    {fTime(payment.date) ? `, ${fTime(payment.date)}` : ""}
+                                    Payment date: {fDate(payment.date)}
+                                    {payment.createdAt && (
+                                        <span className="ml-2 font-normal text-slate-500">
+                                            Recorded {fDate(payment.createdAt)}, {fTime(payment.createdAt)}
+                                        </span>
+                                    )}
                                 </div>
                                 <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm sm:grid-cols-4">
                                     <Amount label="Cash" value={payment.cash} />
