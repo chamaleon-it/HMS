@@ -79,22 +79,18 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
 
                 {/* BODY */}
                 <div className="p-5 flex-1 flex flex-col gap-4 text-[12px]">
-                    {/* PATIENT STRIP - Single Row */}
-                    <div className="border border-slate-500 rounded-lg px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50/50">
-                        <div className="flex-1 min-w-0">
+                    {/* PATIENT AND DOCTOR INFORMATION */}
+                    <div className="border border-slate-500 rounded-lg bg-slate-50/50 text-[12px]">
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-start gap-x-4 px-4 py-2">
                             <Info label="Patient" value={patient?.name || "—"} />
-                        </div>
-                        <div className="shrink-0">
                             <Info label="Age/G" value={`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "—"}/${patient?.gender?.[0] || "—"}`} />
-                        </div>
-                        <div className="shrink-0">
                             <Info label="PID" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
                         </div>
-                        <div className="shrink-0">
+                        <div className="grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)] items-start gap-x-4 border-t border-slate-300 px-4 py-2">
                             <Info label="Doctor" value={doctor?.name ? `${doctor.name.toUpperCase().startsWith("DR.") ? doctor.name : `DR. ${doctor.name}`} (${doctor?.qualification && doctor.qualification.trim() ? doctor.qualification.trim() : "-"})` : "-"} />
-                        </div>
-                        <div className="shrink-0">
-                            <Info label="Dept" value={doctor?.specialization || "GENERAL MEDICINE"} />
+                            <div className="flex min-w-0 justify-end text-right">
+                                <Info label="Dept" value={doctor?.specialization || "GENERAL MEDICINE"} />
+                            </div>
                         </div>
                     </div>
 
@@ -158,9 +154,9 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
 
 function Info({ label, value }: { label: string; value: string }) {
     return (
-        <div className="flex gap-1.5 min-h-5 items-center">
-            <span className="text-black font-medium uppercase text-[9px] mt-0.5">{label}:</span>
-            <span className="font-bold text-black leading-tight uppercase truncate">{value}</span>
+        <div className="flex min-w-0 gap-1.5 min-h-5 items-start">
+            <span className="shrink-0 text-black font-medium uppercase text-[9px] mt-0.5">{label}:</span>
+            <span className="min-w-0 break-words font-bold text-black leading-tight uppercase">{value}</span>
         </div>
     );
 }
