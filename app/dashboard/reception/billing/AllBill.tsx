@@ -3,6 +3,7 @@ import React from "react";
 import Link from "next/link";
 import Filters from "./Filter";
 import { formatINR, getDecimal } from "@/lib/fNumber";
+import { isNegativeBill, receptionBillingTotals } from "@/lib/receptionBillingTotals";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { FilterType } from "./page";
 import { Button } from "@/components/ui/button";
@@ -290,24 +291,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
               )}
             </TableBody>
             {billing.length > 0 && (() => {
-              const isNegativeBill = (b: any) =>
-                b.transactionType === "Return" ||
-                b.transactionType === "Refund" ||
-                b.items?.some((i: any) => i.name?.toLowerCase().includes("refund"));
-
-              const totalCash = billing.reduce(
-                (acc, b) => isNegativeBill(b) ? acc - (b.cash ?? 0) : acc + (b.cash ?? 0),
-                0
-              );
-              const totalUpi = billing.reduce(
-                (acc, b) => isNegativeBill(b) ? acc - (b.upi ?? 0) : acc + (b.upi ?? 0),
-                0
-              );
-              const totalCard = billing.reduce(
-                (acc, b) => isNegativeBill(b) ? acc - (b.card ?? 0) : acc + (b.card ?? 0),
-                0
-              );
-              const totalDiscount = billing.reduce((acc, b) => acc + (b.discount ?? 0), 0);
+              const { totalCash, totalUpi, totalCard, totalDiscount } = receptionBillingTotals(billing);
               const totalPaid = totalCash + totalUpi + totalCard;
 
               return (

@@ -3,16 +3,17 @@ import { formatINR, getDecimal } from "@/lib/fNumber";
 import {
     Receipt,
     UserRound,
-    Pill,
-    Syringe,
     Wallet,
     AlertCircle,
-    Stethoscope
+    Smartphone,
+    CreditCard,
+    BadgePercent
 } from "lucide-react";
-import useSWR from "swr";
+import { receptionBillingTotals } from "@/lib/receptionBillingTotals";
 
 interface StatisticsProps {
     billing: {
+        transactionType?: "Return" | "Sale" | "Refund";
         roundOff: boolean;
         _id: string;
         mrn: string;
@@ -76,6 +77,11 @@ export default function Statistics({ billing }: StatisticsProps) {
         };
     }, [billing]);
 
+    const { totalCash, totalUpi, totalCard, totalDiscount } = useMemo(
+        () => receptionBillingTotals(billing),
+        [billing]
+    );
+
     const stats = useMemo(() => [
         {
             label: "Total Bills",
@@ -108,6 +114,46 @@ export default function Statistics({ billing }: StatisticsProps) {
             headingColor: "text-(--color-synapse-light)"
         },
         {
+            label: "Cash",
+            value: formatINR(totalCash),
+            icon: Wallet,
+            bg: "bg-emerald-50/50",
+            border: "border-emerald-100",
+            iconColor: "text-emerald-600/70",
+            textColor: "text-emerald-800/70",
+            headingColor: "text-emerald-900"
+        },
+        {
+            label: "UPI",
+            value: formatINR(totalUpi),
+            icon: Smartphone,
+            bg: "bg-violet-50/50",
+            border: "border-violet-100",
+            iconColor: "text-violet-600/70",
+            textColor: "text-violet-800/70",
+            headingColor: "text-violet-900"
+        },
+        {
+            label: "Card",
+            value: formatINR(totalCard),
+            icon: CreditCard,
+            bg: "bg-teal-50/50",
+            border: "border-teal-100",
+            iconColor: "text-teal-600/70",
+            textColor: "text-teal-800/70",
+            headingColor: "text-teal-900"
+        },
+        {
+            label: "Discount",
+            value: formatINR(totalDiscount),
+            icon: BadgePercent,
+            bg: "bg-amber-50/50",
+            border: "border-amber-100",
+            iconColor: "text-amber-600/70",
+            textColor: "text-amber-800/70",
+            headingColor: "text-amber-900"
+        },
+        {
             label: "Due Amount",
             value: formatINR(dueAmount),
             icon: AlertCircle,
@@ -117,12 +163,12 @@ export default function Statistics({ billing }: StatisticsProps) {
             textColor: "text-rose-800/70",
             headingColor: "text-rose-900"
         }
-    ], [totalBills, totalConsultation, consultingFee, dueAmount]);
+    ], [totalBills, totalConsultation, consultingFee, totalCash, totalUpi, totalCard, totalDiscount, dueAmount]);
 
 
     return (
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pb-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 2xl:grid-cols-8 gap-3 pb-3">
 
             {stats.map((stat, index) => (
                 <div
