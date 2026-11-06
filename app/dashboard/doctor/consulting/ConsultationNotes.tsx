@@ -1,5 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useEffect, useRef, useState } from "react";
+import { useAuth } from "@/auth/context/auth-context";
+import api from "@/lib/axios";
+import useSWR from "swr";
+import toast from "react-hot-toast";
 
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { DataType } from "./interface";
@@ -36,13 +40,42 @@ interface Props {
   consulting: Consultations[];
 }
 
-const STORAGE_KEY = "consultation_values";
+type ConsultationValues = {
+  presentHistory: string[];
+  pastHistory: string[];
+  diagnosis: string[];
+};
+type FieldName = keyof ConsultationValues;
+const DEFAULT_VALUES: ConsultationValues = {
+  presentHistory: PRESENT_HISTORY,
+  pastHistory: PAST_HISTORY,
+  diagnosis: DIAGNOSIS,
+};
 
-export default function ConsultationNotes({
-  data,
-  setData,
-  consulting,
-}: Props) {
+async function fetchValues(): Promise<ConsultationValues> {
+  const { data } = await api.get<{ data: string | null }>("/users/consultation_values");
+  if (data.data == null) return DEFAULT_VALUES;
+  const values = JSON.parse(data.data);
+  if (!values || !Object.keys(DEFAULT_VALUES).every((field) =>
+    Array.isArray(values[field]) && values[field].every((item: unknown) => typeof item === "string")
+  )) throw new Error("Invalid consultation options");
+  return values;
+}
+
+export default function ConsultationNotes(props: Props) {
+  const { user } = useAuth();
+  useEffect(() => {
+    try {
+      localStorage.removeItem("consultation_values");
+    } catch {
+      // Browser storage may be disabled; consultation options use the database.
+    }
+  }, []);
+  if (!user) return null;
+  return <DoctorConsultationNotes key={user._id} {...props} doctorId={user._id} />;
+}
+
+function DoctorConsultationNotes({ data, setData, consulting, doctorId }: Props & { doctorId: string }) {
   const [presentHistory, setPresentHistory] = useState<string[]>([]);
   const [pastHistory, setPastHistory] = useState<string[]>([]);
   const [diagnosis, setDiagnosis] = useState<string[]>([]);
@@ -66,23 +99,45 @@ export default function ConsultationNotes({
     });
   }, [consulting, setData]);
 
-  const [values, setValues] = useState<{
-    presentHistory: string[];
-    pastHistory: string[];
-    diagnosis: string[];
-  }>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
-    return {
-      presentHistory: PRESENT_HISTORY,
-      pastHistory: PAST_HISTORY,
-      diagnosis: DIAGNOSIS,
-    };
-  });
+  const { data: savedValues, error, isLoading, mutate } = useSWR(
+    ["/users/consultation_values", doctorId],
+    fetchValues,
+    { revalidateOnFocus: true }
+  );
+  const values = savedValues ?? DEFAULT_VALUES;
+  const saving = useRef(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
-  }, [values]);
+  async function changeOption(field: FieldName, item: string, remove = false) {
+    if (!savedValues || error || saving.current) return false;
+    const next = {
+      ...values,
+      [field]: remove
+        ? values[field].filter((entry) => entry !== item)
+        : Array.from(new Set([...values[field], item])),
+    };
+    saving.current = true;
+    setIsSaving(true);
+    try {
+      await api.post("/users/consultation_values", { value: JSON.stringify(next) });
+      await mutate(next, { revalidate: false });
+      return true;
+    } catch {
+      toast.error("Could not save consultation options. Please try again.");
+      return false;
+    } finally {
+      saving.current = false;
+      setIsSaving(false);
+    }
+  }
+
+  async function addOption(field: FieldName) {
+    const item = value.trim();
+    if (item && await changeOption(field, item)) {
+      setValue("");
+      setAddValues(null);
+    }
+  }
 
   const [editable, setEditable] = useState<
     "diagnosis" | "pastHistory" | "presentHistory" | null
@@ -100,14 +155,21 @@ export default function ConsultationNotes({
         <CardTitle>Consultation Notes</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-wrap gap-2 mb-4">
+        {isLoading && <p role="status" className="mb-3 text-sm text-slate-500">Loading consultation options...</p>}
+        {isSaving && <p role="status" className="mb-3 text-sm text-slate-500">Saving consultation options...</p>}
+        {error && (
+          <p role="alert" className="mb-3 text-sm text-red-600">
+            Could not load consultation options. <button type="button" className="underline" onClick={() => void mutate()}>Retry</button>
+          </p>
+        )}
+        <fieldset disabled={isLoading || !!error || isSaving} className="flex flex-wrap gap-2 mb-4">
           {values.presentHistory.map((c) => (
             <OptionButton
               key={c}
               value={c}
               selectedValues={presentHistory}
               setSelectedValues={setPresentHistory}
-              setValues={setValues}
+              onRemove={(item) => changeOption("presentHistory", item, true)}
               setData={setData}
               fieldName="presentHistory"
               editable={editable}
@@ -134,14 +196,7 @@ export default function ConsultationNotes({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
-                    if (value.trim()) {
-                      setValues((prev) => ({
-                        ...prev,
-                        presentHistory: [...prev.presentHistory, value.trim()],
-                      }));
-                      setValue("");
-                      setAddValues(null);
-                    }
+                    void addOption("presentHistory");
                   } else if (e.key === "Escape") {
                     setAddValues(null);
                     setValue("");
@@ -151,14 +206,7 @@ export default function ConsultationNotes({
               <button
                 type="button"
                 onClick={() => {
-                  if (value.trim()) {
-                    setValues((prev) => ({
-                      ...prev,
-                      presentHistory: [...prev.presentHistory, value.trim()],
-                    }));
-                    setValue("");
-                    setAddValues(null);
-                  }
+                  void addOption("presentHistory");
                 }}
                 disabled={!value.trim()}
                 className="inline-flex items-center h-8 rounded-xl bg-(--color-synapse-light) px-3 text-xs font-semibold text-white shadow-xs hover:opacity-90 disabled:opacity-40 transition-colors cursor-pointer"
@@ -195,7 +243,7 @@ export default function ConsultationNotes({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </div>
+        </fieldset>
         <div className="grid grid-cols-1 gap-4">
           <LabeledTextarea
             label="Present History"
@@ -212,14 +260,14 @@ export default function ConsultationNotes({
             minRows={6}
           />
           <div className="flex gap-5 items-center">
-            <div className="flex flex-wrap gap-2 items-center">
+            <fieldset disabled={isLoading || !!error || isSaving} className="flex flex-wrap gap-2 items-center">
               {values.pastHistory.map((c) => (
                 <OptionButton
                   key={c}
                   value={c}
                   selectedValues={pastHistory}
                   setSelectedValues={setPastHistory}
-                  setValues={setValues}
+                  onRemove={(item) => changeOption("pastHistory", item, true)}
                   setData={setData}
                   fieldName="pastHistory"
                   editable={editable}
@@ -246,14 +294,7 @@ export default function ConsultationNotes({
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
-                        if (value.trim()) {
-                          setValues((prev) => ({
-                            ...prev,
-                            pastHistory: [...prev.pastHistory, value.trim()],
-                          }));
-                          setValue("");
-                          setAddValues(null);
-                        }
+                        void addOption("pastHistory");
                       } else if (e.key === "Escape") {
                         setAddValues(null);
                         setValue("");
@@ -263,14 +304,7 @@ export default function ConsultationNotes({
                   <button
                     type="button"
                     onClick={() => {
-                      if (value.trim()) {
-                        setValues((prev) => ({
-                          ...prev,
-                          pastHistory: [...prev.pastHistory, value.trim()],
-                        }));
-                        setValue("");
-                        setAddValues(null);
-                      }
+                      void addOption("pastHistory");
                     }}
                     disabled={!value.trim()}
                     className="inline-flex items-center h-8 rounded-xl bg-(--color-synapse-light) px-3 text-xs font-semibold text-white shadow-xs hover:opacity-90 disabled:opacity-40 transition-colors cursor-pointer"
@@ -307,7 +341,7 @@ export default function ConsultationNotes({
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-            </div>
+            </fieldset>
             {consulting[0]?.createdAt && (
               <p className="text-xs text-gray-600 shrink-0">
                 Last Updated : {fDateandTime(consulting[0].createdAt)}
@@ -330,14 +364,14 @@ export default function ConsultationNotes({
             minRows={6}
           />
 
-          <div className="flex flex-wrap gap-2 items-center">
+          <fieldset disabled={isLoading || !!error || isSaving} className="flex flex-wrap gap-2 items-center">
             {values.diagnosis.map((c) => (
               <OptionButton
                 key={c}
                 value={c}
                 selectedValues={diagnosis}
                 setSelectedValues={setDiagnosis}
-                setValues={setValues}
+                onRemove={(item) => changeOption("diagnosis", item, true)}
                 setData={setData}
                 fieldName="diagnosis"
                 editable={editable}
@@ -364,14 +398,7 @@ export default function ConsultationNotes({
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
-                      if (value.trim()) {
-                        setValues((prev) => ({
-                          ...prev,
-                          diagnosis: [...prev.diagnosis, value.trim()],
-                        }));
-                        setValue("");
-                        setAddValues(null);
-                      }
+                      void addOption("diagnosis");
                     } else if (e.key === "Escape") {
                       setAddValues(null);
                       setValue("");
@@ -381,14 +408,7 @@ export default function ConsultationNotes({
                 <button
                   type="button"
                   onClick={() => {
-                    if (value.trim()) {
-                      setValues((prev) => ({
-                        ...prev,
-                        diagnosis: [...prev.diagnosis, value.trim()],
-                      }));
-                      setValue("");
-                      setAddValues(null);
-                    }
+                    void addOption("diagnosis");
                   }}
                   disabled={!value.trim()}
                   className="inline-flex items-center h-8 rounded-xl bg-(--color-synapse-light) px-3 text-xs font-semibold text-white shadow-xs hover:opacity-90 disabled:opacity-40 transition-colors cursor-pointer"
@@ -425,7 +445,7 @@ export default function ConsultationNotes({
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </div>
+          </fieldset>
           <LabeledTextarea
             label="Diagnosis"
             value={data.consultationNotes.diagnosis || ""}

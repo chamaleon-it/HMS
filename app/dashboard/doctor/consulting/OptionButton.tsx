@@ -13,13 +13,7 @@ interface OptionButtonProps {
   setSelectedValues: React.Dispatch<React.SetStateAction<string[]>>;
   setData: React.Dispatch<React.SetStateAction<DataType>>;
   fieldName: "diagnosis" | "pastHistory" | "presentHistory";
-  setValues: React.Dispatch<
-    React.SetStateAction<{
-      presentHistory: string[];
-      pastHistory: string[];
-      diagnosis: string[];
-    }>
-  >;
+  onRemove: (value: string) => Promise<boolean>;
   editable: "diagnosis" | "pastHistory" | "presentHistory" | null;
 }
 
@@ -29,7 +23,7 @@ const OptionButton: React.FC<OptionButtonProps> = ({
   setSelectedValues,
   setData,
   fieldName,
-  setValues,
+  onRemove,
   editable,
 }) => {
   const isSelected = selectedValues.includes(value);
@@ -54,11 +48,8 @@ const OptionButton: React.FC<OptionButtonProps> = ({
     });
   };
 
-  const remove = () => {
-    setValues((prev) => ({
-      ...prev,
-      [fieldName]: prev[fieldName].filter((e) => e !== value),
-    }));
+  const remove = async () => {
+    if (!await onRemove(value)) return;
 
     setSelectedValues((prev) => prev.filter((item) => item !== value));
     setData((prevData: DataType) => ({
