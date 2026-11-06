@@ -186,7 +186,7 @@ export default function PrintTreatmentTimeline({ timelineData }: Props) {
 
           {/* Timeline Title Banner */}
           <div className="relative z-10 flex justify-between items-center border-b-2 border-synapse-light pb-1.5">
-            <div className="space-y-0.5">
+            <div className="min-w-0 flex-1 space-y-0.5">
               <h2 className="text-sm font-black text-synapse-light tracking-wider uppercase">
                 {sheetTitle}
               </h2>
@@ -200,8 +200,11 @@ export default function PrintTreatmentTimeline({ timelineData }: Props) {
                   Procedure : {procedureLine}
                 </p>
               ) : null}
+              <p className="whitespace-pre-wrap break-words text-[10.5px] text-slate-700 font-semibold">
+                Note : {rootTreatment.notes?.trim() || "—"}
+              </p>
             </div>
-            <div className="text-right space-y-0.5">
+            <div className="shrink-0 text-right space-y-0.5">
               <div className="inline-flex items-center gap-1.5 bg-synapse-light text-white px-3 py-0.5 rounded-full font-bold text-[10px] tracking-wider uppercase">
                 <span>Treatment ID:</span>
                 <span>{rootTreatment?.mrn || "—"}</span>
