@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { splitInvoiceGst } from "./invoiceAuditTax.ts";
+import { splitInvoiceGst, sumInvoiceAuditTax } from "./invoiceAuditTax.ts";
 
 test("sgst and cgst are 2.5 percent of the invoice total and gst equals their sum", () => {
   const row = splitInvoiceGst(1620);
@@ -30,4 +30,15 @@ test("column sums are the sums of the per-row tax amounts", () => {
   assert.equal(sum("gst"), sum("sgst") + sum("cgst"));
   assert.equal(splitInvoiceGst(0).gst, 0);
   assert.equal(splitInvoiceGst(Number.NaN).gst, 0);
+});
+
+test("summary tax cards sum 2.5 percent and 5 percent of each invoice total", () => {
+  const totals = [1620, 140, 354.76];
+  const sum = sumInvoiceAuditTax(totals);
+
+  assert.equal(sum.sgst, 40.5 + 3.5 + (354.76 * 2.5) / 100);
+  assert.equal(sum.cgst, sum.sgst);
+  assert.equal(sum.gst, 81 + 7 + (354.76 * 5) / 100);
+  assert.deepEqual(sumInvoiceAuditTax([]), { sgst: 0, cgst: 0, gst: 0 });
+  assert.deepEqual(sumInvoiceAuditTax([Number.NaN]), { sgst: 0, cgst: 0, gst: 0 });
 });
