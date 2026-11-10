@@ -254,6 +254,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
         paymentMethod: filter.method === "all" || !filter.method ? "ALL" : filter.method,
         statusFilter: filter.status === "all" || !filter.status ? "ALL" : filter.status,
         searchQuery: filter.q,
+        showGstColumns: true,
       });
 
       toast.success("Hospital billing PDF report downloaded successfully!");
