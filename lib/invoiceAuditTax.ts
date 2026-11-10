@@ -11,3 +11,17 @@ export function splitInvoiceGst(total: number): InvoiceAuditTax {
   const cgst = (amount * 2.5) / 100;
   return { sgst, cgst, gst: sgst + cgst };
 }
+
+/** Summary cards: sum each invoice's own tax. GST is 5% of each total. */
+export function sumInvoiceAuditTax(totals: number[]): InvoiceAuditTax {
+  let sgst = 0;
+  let cgst = 0;
+  let gst = 0;
+  for (const total of totals) {
+    const amount = Number.isFinite(total) ? total : 0;
+    sgst += (amount * 2.5) / 100;
+    cgst += (amount * 2.5) / 100;
+    gst += (amount * 5) / 100;
+  }
+  return { sgst, cgst, gst };
+}

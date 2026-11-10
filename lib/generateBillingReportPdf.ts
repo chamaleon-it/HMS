@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import { formatINR, getDecimal } from "@/lib/fNumber";
 import configuration from "@/config/configuration";
 import { fDateandTime } from "@/lib/fDateAndTime";
-import { splitInvoiceGst } from "@/lib/invoiceAuditTax";
+import { splitInvoiceGst, sumInvoiceAuditTax } from "@/lib/invoiceAuditTax";
 
 export interface BillingReportPdfItem {
   _id: string;
@@ -298,6 +298,7 @@ export const generateBillingReportPdf = async (data: BillingReportPdfData) => {
   let partialBillsCount = 0;
   let unpaidBillsCount = 0;
   let refundBillsCount = 0;
+  const invoiceTotals: number[] = [];
 
   data.bills.forEach((b) => {
     const itemsTotal = b.items?.reduce((sum, i) => sum + (i.total || 0), 0) || 0;
@@ -311,6 +312,7 @@ export const generateBillingReportPdf = async (data: BillingReportPdfData) => {
     const d = Math.max(0, netBill - (p + disc));
 
     totalGross += netBill;
+    if (data.showGstColumns) invoiceTotals.push(netBill);
     totalDiscounts += disc;
     totalPaid += p;
     totalCash += c;
@@ -343,6 +345,7 @@ export const generateBillingReportPdf = async (data: BillingReportPdfData) => {
   const cashShare = totalPaid > 0 ? Math.round((totalCash / totalPaid) * 100) : 0;
   const cardShare = totalPaid > 0 ? Math.round((totalCard / totalPaid) * 100) : 0;
   const upiShare = totalPaid > 0 ? Math.round((totalUpi / totalPaid) * 100) : 0;
+  const taxTotals = sumInvoiceAuditTax(invoiceTotals);
 
   // --- FINANCIAL SUMMARY CARDS ---
   doc.setFont("helvetica", "bold");
@@ -351,6 +354,12 @@ export const generateBillingReportPdf = async (data: BillingReportPdfData) => {
   doc.text("BILLING & FINANCIAL SUMMARY", margin, currentY);
   currentY += 4;
 
+  const discountsGiven = {
+    label: "Discounts Given",
+    value: formatPdfCurrency(totalDiscounts),
+    sub: "Special concessions applied",
+    color: COLOR_AMBER,
+  };
   const cards = [
     {
       label: "Total Billed",
@@ -382,30 +391,49 @@ export const generateBillingReportPdf = async (data: BillingReportPdfData) => {
       sub: `${upiCount} txns (${upiShare}% share)`,
       color: [139, 92, 246], // Purple
     },
-    {
-      label: "Card Settlement",
-      value: formatPdfCurrency(totalCard),
-      sub: `${cardCount} txns (${cardShare}% share)`,
-      color: [2, 132, 199], // Sky Blue
-    },
-    {
-      label: "Discounts Given",
-      value: formatPdfCurrency(totalDiscounts),
-      sub: "Special concessions applied",
-      color: COLOR_AMBER,
-    },
-    {
-      label: "Avg Invoice Value",
-      value: formatPdfCurrency(avgBill),
-      sub: "Average revenue per invoice",
-      color: [13, 148, 136], // Teal
-    },
-    {
-      label: "Refunds / Returns",
-      value: `${refundBillsCount}`,
-      sub: refundBillsCount > 0 ? "Adjusted transactions" : "No refund entries",
-      color: refundBillsCount > 0 ? COLOR_ROSE : COLOR_MUTED,
-    },
+    ...(data.showGstColumns
+      ? [
+          discountsGiven,
+          {
+            label: "Total SGST",
+            value: formatPdfCurrency(taxTotals.sgst),
+            sub: "2.5% of each invoice total",
+            color: COLOR_PRIMARY,
+          },
+          {
+            label: "Total CGST",
+            value: formatPdfCurrency(taxTotals.cgst),
+            sub: "2.5% of each invoice total",
+            color: COLOR_PRIMARY,
+          },
+          {
+            label: "Total GST",
+            value: formatPdfCurrency(taxTotals.gst),
+            sub: "5% of each invoice total",
+            color: COLOR_PRIMARY,
+          },
+        ]
+      : [
+          {
+            label: "Card Settlement",
+            value: formatPdfCurrency(totalCard),
+            sub: `${cardCount} txns (${cardShare}% share)`,
+            color: [2, 132, 199], // Sky Blue
+          },
+          discountsGiven,
+          {
+            label: "Avg Invoice Value",
+            value: formatPdfCurrency(avgBill),
+            sub: "Average revenue per invoice",
+            color: [13, 148, 136], // Teal
+          },
+          {
+            label: "Refunds / Returns",
+            value: `${refundBillsCount}`,
+            sub: refundBillsCount > 0 ? "Adjusted transactions" : "No refund entries",
+            color: refundBillsCount > 0 ? COLOR_ROSE : COLOR_MUTED,
+          },
+        ]),
   ];
 
   const cardW = (contentWidth - 6) / 3; // ~58.6mm
