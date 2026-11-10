@@ -6,6 +6,7 @@ import {
   itemDisplayName,
 } from "../../../../lib/billTypeUtils.ts";
 import { getDecimal } from "../../../../lib/fNumber.ts";
+import { sumInvoiceAuditTax } from "../../../../lib/invoiceAuditTax.ts";
 
 export type AccountantBillKind = "pharmacy" | "procedure" | "reception" | "other";
 export type AccountantPaymentStatus = "Paid" | "Partial" | "Unpaid" | "Refund" | "Return";
@@ -133,4 +134,57 @@ export function accountantLineBucket(
     return "reception";
   }
   return "pharmacy";
+}
+
+type SummaryBill = {
+  items?: { total?: number }[];
+  roundOff?: boolean;
+  cash?: number;
+  card?: number;
+  upi?: number;
+  discount?: number;
+};
+
+/** Invoice Total, matching the billing PDF: item totals minus round-off, never below zero. */
+export function accountantInvoiceTotal(bill: SummaryBill | null | undefined): number {
+  const itemsTotal = (bill?.items || []).reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+  const roundOffVal = bill?.roundOff ? getDecimal(itemsTotal) : 0;
+  return Math.max(0, itemsTotal - roundOffVal);
+}
+
+/** On-screen summary cards. Tax is summed from the same invoice totals as Total Billed. */
+export function accountantSummaryCards(bills: SummaryBill[] | null | undefined) {
+  let totalBilled = 0;
+  let totalCollected = 0;
+  let totalOutstanding = 0;
+  let cash = 0;
+  let upi = 0;
+  let discount = 0;
+  const invoiceTotals: number[] = [];
+
+  for (const bill of bills || []) {
+    const total = accountantInvoiceTotal(bill);
+    const paid = (bill.cash || 0) + (bill.card || 0) + (bill.upi || 0);
+    const disc = bill.discount || 0;
+    invoiceTotals.push(total);
+    totalBilled += total;
+    totalCollected += paid;
+    totalOutstanding += Math.max(0, total - (paid + disc));
+    cash += bill.cash || 0;
+    upi += bill.upi || 0;
+    discount += disc;
+  }
+
+  const tax = sumInvoiceAuditTax(invoiceTotals);
+  return {
+    totalBilled,
+    totalCollected,
+    totalOutstanding,
+    cash,
+    upi,
+    discount,
+    sgst: tax.sgst,
+    cgst: tax.cgst,
+    gst: tax.gst,
+  };
 }

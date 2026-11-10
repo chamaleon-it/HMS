@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   accountantBillKind,
+  accountantInvoiceTotal,
   accountantLineBucket,
+  accountantSummaryCards,
   matchesAccountantStatus,
   matchesAccountantType,
 } from "./accountantBilling.ts";
@@ -49,4 +51,24 @@ test("all lines on a reception bill count as reception fees", () => {
     "reception",
   ]);
   assert.equal(accountantLineBucket({ creator: { role: "Receptionist" }, items: bill.items }, bill.items[0]), "reception");
+});
+
+test("summary cards use each invoice total for billed amount and tax", () => {
+  const cards = accountantSummaryCards([
+    { items: [{ total: 1620 }], cash: 1620 },
+    { items: [{ total: 354.76 }], cash: 354, discount: 0.76 },
+    { items: [{ total: 100.4 }], roundOff: true, cash: 50, upi: 20 },
+  ]);
+
+  assert.equal(accountantInvoiceTotal({ items: [{ total: 100.4 }], roundOff: true }), 100);
+  assert.equal(cards.totalBilled, 1620 + 354.76 + 100);
+  assert.equal(cards.totalCollected, 1620 + 354 + 70);
+  assert.equal(cards.cash, 1620 + 354 + 50);
+  assert.equal(cards.upi, 20);
+  assert.equal(cards.discount, 0.76);
+  assert.equal(cards.totalOutstanding, 100 - 70);
+  assert.equal(cards.sgst, (1620 * 2.5) / 100 + (354.76 * 2.5) / 100 + (100 * 2.5) / 100);
+  assert.equal(cards.cgst, cards.sgst);
+  assert.equal(cards.gst, (1620 * 5) / 100 + (354.76 * 5) / 100 + (100 * 5) / 100);
+  assert.equal(accountantSummaryCards([]).gst, 0);
 });
