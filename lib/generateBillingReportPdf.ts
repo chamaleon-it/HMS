@@ -2,6 +2,7 @@ import jsPDF from "jspdf";
 import { formatINR, getDecimal } from "@/lib/fNumber";
 import configuration from "@/config/configuration";
 import { fDateandTime } from "@/lib/fDateAndTime";
+import { splitInvoiceGst } from "@/lib/invoiceAuditTax";
 
 export interface BillingReportPdfItem {
   _id: string;
@@ -38,11 +39,64 @@ export interface BillingReportPdfData {
   statusFilter?: string;
   searchQuery?: string | null;
   billType?: string;
+  /** Accountant invoice audit only. Inserts SGST, CGST, and GST before Total. */
+  showGstColumns?: boolean;
 }
 
 const formatPdfCurrency = (val: number) => {
   const formatted = formatINR(val);
   return formatted.replace(/₹/g, "Rs. ");
+};
+
+type AuditAlign = "left" | "right" | "center";
+
+interface AuditColumn {
+  header: string;
+  width: number;
+  align: AuditAlign;
+}
+
+// Accountant audit table. Widths sum to the 182mm content width.
+// The body is 6.2pt so patient and doctor names still fit beside the tax columns.
+// # 6, Date 10, Invoice 14, Patient 28, Doctor 22,
+// SGST 12, CGST 12, GST 14, Total 15, Disc 11, Paid 14, Due 14, Status 10.
+const GST_HEADER_FONT = 6.8;
+const GST_BODY_FONT = 6.2;
+const GST_AUDIT_COLUMNS: AuditColumn[] = [
+  { header: "#", width: 6, align: "left" },
+  { header: "Date", width: 10, align: "left" },
+  { header: "Invoice No", width: 14, align: "left" },
+  { header: "Patient & MRN", width: 28, align: "left" },
+  { header: "Doctor", width: 22, align: "left" },
+  { header: "SGST", width: 12, align: "right" },
+  { header: "CGST", width: 12, align: "right" },
+  { header: "GST", width: 14, align: "right" },
+  { header: "Total", width: 15, align: "right" },
+  { header: "Disc", width: 11, align: "right" },
+  { header: "Paid", width: 14, align: "right" },
+  { header: "Due", width: 14, align: "right" },
+  { header: "Status", width: 10, align: "center" },
+];
+
+const MONEY_RIGHT_INSET = 0.8;
+
+const auditAnchor = (x: number, width: number, align: AuditAlign) => {
+  if (align === "right") return { x: x + width - MONEY_RIGHT_INSET, align: "right" as const };
+  if (align === "center") return { x: x + width / 2, align: "center" as const };
+  return { x: x + 1, align: "left" as const };
+};
+
+const fitPdfText = (doc: jsPDF, text: string, maxWidth: number) => {
+  const value = text || "";
+  if (maxWidth <= 0) return "";
+  if (doc.getTextWidth(value) <= maxWidth) return value;
+  const ellipsis = "..";
+  if (doc.getTextWidth(ellipsis) > maxWidth) return "";
+  let end = value.length;
+  while (end > 0 && doc.getTextWidth(value.slice(0, end) + ellipsis) > maxWidth) {
+    end -= 1;
+  }
+  return value.slice(0, end) + ellipsis;
 };
 
 const loadLogoBase64 = (
@@ -400,10 +454,109 @@ export const generateBillingReportPdf = async (data: BillingReportPdfData) => {
   doc.text("DETAILED INVOICE AUDIT LOG", margin, currentY);
   currentY += 5;
 
+  const drawGstTableHeader = (y: number) => {
+    doc.setFillColor(COLOR_SYNAPSE_LIGHT[0], COLOR_SYNAPSE_LIGHT[1], COLOR_SYNAPSE_LIGHT[2]);
+    doc.rect(margin, y, contentWidth, 7, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(GST_HEADER_FONT);
+    doc.setTextColor(255, 255, 255);
+
+    let x = margin;
+    for (const column of GST_AUDIT_COLUMNS) {
+      const anchor = auditAnchor(x, column.width, column.align);
+      doc.text(column.header, anchor.x, y + 4.8, { align: anchor.align });
+      x += column.width;
+    }
+  };
+
+  const drawGstAuditRow = (b: BillingReportPdfItem, index: number, y: number) => {
+    const itemsTotal = b.items?.reduce((sum, i) => sum + (i.total || 0), 0) || 0;
+    const roundOffVal = b.roundOff ? getDecimal(itemsTotal) : 0;
+    const netBill = Math.max(0, itemsTotal - roundOffVal);
+    const discVal = b.discount || 0;
+    const paidVal = (b.cash || 0) + (b.card || 0) + (b.upi || 0);
+    const dueVal = Math.max(0, netBill - (paidVal + discVal));
+    const tax = splitInvoiceGst(netBill);
+
+    const isRefund =
+      b.transactionType === "Refund" ||
+      b.transactionType === "Return" ||
+      b.items?.some((i) => i.name?.toLowerCase().includes("refund"));
+
+    let statusStr = "Unpaid";
+    let statusColor = COLOR_ROSE;
+    if (isRefund) {
+      statusStr = b.transactionType === "Return" ? "Return" : "Refund";
+      statusColor = COLOR_ROSE;
+    } else if (paidVal + discVal >= netBill && netBill > 0) {
+      statusStr = "Paid";
+      statusColor = COLOR_EMERALD;
+    } else if (paidVal > 0) {
+      statusStr = "Partial";
+      statusColor = COLOR_AMBER;
+    }
+
+    const dateVal = b.createdAt
+      ? new Date(b.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })
+      : "-";
+    const invNo = b.mrn || "-";
+    const patName = b.patient?.name || "Walk-in";
+    const patMrn = b.patient?.mrn ? ` (${b.patient.mrn})` : "";
+    const doctorName = typeof b.doctor === "object" ? b.doctor?.name : (b.doctor || "Self");
+
+    const discColor = discVal > 0 ? COLOR_AMBER : COLOR_MUTED;
+    const dueColor = dueVal > 0 ? COLOR_ROSE : COLOR_MUTED;
+
+    const cells: { text: string; bold: boolean; color: number[]; fit: boolean; money: boolean }[] = [
+      { text: `${index + 1}`, bold: false, color: COLOR_TEXT, fit: false, money: false },
+      { text: dateVal, bold: false, color: COLOR_TEXT, fit: false, money: false },
+      { text: invNo, bold: true, color: COLOR_TEXT, fit: true, money: false },
+      { text: patName + patMrn, bold: false, color: COLOR_TEXT, fit: true, money: false },
+      { text: doctorName || "-", bold: false, color: COLOR_TEXT, fit: true, money: false },
+      { text: formatPdfCurrency(tax.sgst), bold: true, color: COLOR_TEXT, fit: false, money: true },
+      { text: formatPdfCurrency(tax.cgst), bold: true, color: COLOR_TEXT, fit: false, money: true },
+      { text: formatPdfCurrency(tax.gst), bold: true, color: COLOR_TEXT, fit: false, money: true },
+      { text: formatPdfCurrency(netBill), bold: true, color: COLOR_TEXT, fit: false, money: true },
+      { text: discVal > 0 ? formatPdfCurrency(discVal) : "0", bold: false, color: discColor, fit: false, money: true },
+      { text: formatPdfCurrency(paidVal), bold: true, color: COLOR_EMERALD, fit: false, money: true },
+      { text: formatPdfCurrency(dueVal), bold: true, color: dueColor, fit: false, money: true },
+      { text: statusStr, bold: true, color: statusColor, fit: false, money: false },
+    ];
+
+    let x = margin;
+    cells.forEach((cell, cellIndex) => {
+      const column = GST_AUDIT_COLUMNS[cellIndex];
+      const anchor = auditAnchor(x, column.width, column.align);
+      doc.setFont("helvetica", cell.bold ? "bold" : "normal");
+      doc.setFontSize(GST_BODY_FONT);
+      doc.setTextColor(cell.color[0], cell.color[1], cell.color[2]);
+
+      let text = cell.text;
+      if (cell.fit) {
+        text = fitPdfText(doc, text, column.width - 1.6);
+      } else if (cell.money && column.align === "right") {
+        const maxWidth = column.width - MONEY_RIGHT_INSET - 0.3;
+        const textWidth = doc.getTextWidth(text);
+        if (textWidth > maxWidth && textWidth > 0) {
+          doc.setFontSize((GST_BODY_FONT * maxWidth) / textWidth);
+        }
+      }
+
+      doc.text(text, anchor.x, y + 4.5, { align: anchor.align });
+      x += column.width;
+    });
+  };
+
   // Column widths:
   // Sl: 7, Date: 17, Inv: 20, Patient: 34, Doctor: 22, Total: 18, Disc: 13, Paid: 18, Due: 16, Status: 17
   // Total: 182mm
   const drawTableHeader = (y: number) => {
+    if (data.showGstColumns) {
+      drawGstTableHeader(y);
+      return;
+    }
+
     doc.setFillColor(COLOR_SYNAPSE_LIGHT[0], COLOR_SYNAPSE_LIGHT[1], COLOR_SYNAPSE_LIGHT[2]);
     doc.rect(margin, y, contentWidth, 7, "F");
 
@@ -468,6 +621,12 @@ export const generateBillingReportPdf = async (data: BillingReportPdfData) => {
       // Row separator
       doc.setDrawColor(241, 245, 249);
       doc.line(margin, currentY + 7, margin + contentWidth, currentY + 7);
+
+      if (data.showGstColumns) {
+        drawGstAuditRow(b, index, currentY);
+        currentY += 7;
+        return;
+      }
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(6.8);
