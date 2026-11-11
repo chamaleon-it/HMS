@@ -10,9 +10,10 @@
   "main": "main.js",
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build",
-    "start": "next start",
-    "pack": "next build && electron-builder",
+    "build": "SKIP_TYPECHECK=1 next build",
+    "typecheck": "tsc --noEmit",
+    "start": "next start -H 0.0.0.0 -p ${PORT:-3000}",
+    "pack": "NEXT_OUTPUT=export next build && electron-builder",
     "lint": "next lint",
     "test": "node --experimental-strip-types --test hooks/doctorScheduleCachePolicy.test.ts lib/consultationCharge.test.ts lib/billDoctor.test.ts lib/appendConsultationNote.test.ts lib/billTypeUtils.test.ts lib/receptionBillingTotals.test.ts lib/invoiceAuditTax.test.ts",
     "electron:dev": "concurrently \"next dev\" \"wait-on tcp:3000 && electron .\"",
