@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import { formatINR, getDecimal } from "@/lib/fNumber";
 import configuration from "@/config/configuration";
 import { fDateandTime } from "@/lib/fDateAndTime";
-import { splitInvoiceGst, sumInvoiceAuditTax } from "@/lib/invoiceAuditTax";
+import { invoiceAuditRowTax, sumInvoiceAuditTax, type InvoiceAuditTax } from "@/lib/invoiceAuditTax";
 
 export interface BillingReportPdfItem {
   _id: string;
@@ -14,6 +14,10 @@ export interface BillingReportPdfItem {
   discount?: number;
   roundOff?: boolean;
   note?: string;
+  billingCategory?: string;
+  therapistName?: string;
+  user?: { role?: string };
+  creator?: { role?: string };
   transactionType?: "Sale" | "Return" | "Refund" | string;
   items?: {
     name?: string;
@@ -298,7 +302,7 @@ export const generateBillingReportPdf = async (data: BillingReportPdfData) => {
   let partialBillsCount = 0;
   let unpaidBillsCount = 0;
   let refundBillsCount = 0;
-  const invoiceTotals: number[] = [];
+  const rowTaxes: InvoiceAuditTax[] = [];
 
   data.bills.forEach((b) => {
     const itemsTotal = b.items?.reduce((sum, i) => sum + (i.total || 0), 0) || 0;
@@ -312,7 +316,7 @@ export const generateBillingReportPdf = async (data: BillingReportPdfData) => {
     const d = Math.max(0, netBill - (p + disc));
 
     totalGross += netBill;
-    if (data.showGstColumns) invoiceTotals.push(netBill);
+    if (data.showGstColumns) rowTaxes.push(invoiceAuditRowTax(netBill, b));
     totalDiscounts += disc;
     totalPaid += p;
     totalCash += c;
@@ -345,7 +349,7 @@ export const generateBillingReportPdf = async (data: BillingReportPdfData) => {
   const cashShare = totalPaid > 0 ? Math.round((totalCash / totalPaid) * 100) : 0;
   const cardShare = totalPaid > 0 ? Math.round((totalCard / totalPaid) * 100) : 0;
   const upiShare = totalPaid > 0 ? Math.round((totalUpi / totalPaid) * 100) : 0;
-  const taxTotals = sumInvoiceAuditTax(invoiceTotals);
+  const taxTotals = sumInvoiceAuditTax(rowTaxes);
 
   // --- FINANCIAL SUMMARY CARDS ---
   doc.setFont("helvetica", "bold");
@@ -397,19 +401,19 @@ export const generateBillingReportPdf = async (data: BillingReportPdfData) => {
           {
             label: "Total SGST",
             value: formatPdfCurrency(taxTotals.sgst),
-            sub: "2.5% of each invoice total",
+            sub: "2.5% of pharmacy invoices",
             color: COLOR_PRIMARY,
           },
           {
             label: "Total CGST",
             value: formatPdfCurrency(taxTotals.cgst),
-            sub: "2.5% of each invoice total",
+            sub: "2.5% of pharmacy invoices",
             color: COLOR_PRIMARY,
           },
           {
             label: "Total GST",
             value: formatPdfCurrency(taxTotals.gst),
-            sub: "5% of each invoice total",
+            sub: "5% of pharmacy invoices",
             color: COLOR_PRIMARY,
           },
         ]
@@ -505,7 +509,7 @@ export const generateBillingReportPdf = async (data: BillingReportPdfData) => {
     const discVal = b.discount || 0;
     const paidVal = (b.cash || 0) + (b.card || 0) + (b.upi || 0);
     const dueVal = Math.max(0, netBill - (paidVal + discVal));
-    const tax = splitInvoiceGst(netBill);
+    const tax = invoiceAuditRowTax(netBill, b);
 
     const isRefund =
       b.transactionType === "Refund" ||
